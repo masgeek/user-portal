@@ -23,10 +23,10 @@
 define( 'DB_NAME', 'akilimo_portal' );
 
 /** Database username */
-define( 'DB_USER', 'akilimo' );
+define( 'DB_USER', 'fuelrod' );
 
 /** Database password */
-define( 'DB_PASSWORD', 'andalite6' );
+define( 'DB_PASSWORD', 'fuelrod' );
 
 /** Database hostname */
 define( 'DB_HOST', '127.0.0.1' );

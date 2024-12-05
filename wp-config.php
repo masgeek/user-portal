@@ -1,4 +1,15 @@
 <?php
+require_once('vendor/autoload.php');
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+#$dotenv = Dotenv::createImmutable(__DIR__ . '/../agwise_config/.env');
+
+$dotenv->load();
+
+$dotenv->required(['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASSWORD']);
+
+$dotenv->ifPresent('DEBUG')->isBoolean();
+
 /**
  * The base configuration for WordPress
  *
@@ -17,29 +28,28 @@
  *
  * @package WordPress
  */
-
 // ** Database settings - You can get this info from your web host ** //
 /** The name of the database for WordPress */
-define( 'DB_NAME', 'akilimo_portal' );
+define('DB_NAME', $_ENV['DB_NAME']);
 
 /** Database username */
-define( 'DB_USER', 'fuelrod' );
+define('DB_USER', $_ENV['DB_USER']);
 
 /** Database password */
-define( 'DB_PASSWORD', 'fuelrod' );
+define('DB_PASSWORD', $_ENV['DB_PASSWORD']);
 
 /** Database hostname */
-define( 'DB_HOST', '127.0.0.1' );
+define('DB_HOST', $_ENV['DB_HOST']);
 
 /** Database charset to use in creating database tables. */
 define( 'DB_CHARSET', 'utf8mb4' );
-
 /** The database collate type. Don't change this if in doubt. */
 define( 'DB_COLLATE', '' );
 
+define('WP_CACHE', true); // WP-Optimize Cache
+
 /** force direct method instead of FTP **/
 define('FS_METHOD','direct');
-
 /**#@+
  * Authentication unique keys and salts.
  *
@@ -51,25 +61,22 @@ define('FS_METHOD','direct');
  *
  * @since 2.6.0
  */
-define( 'AUTH_KEY',         'k$%jc^F]bqm(CD~v(Q%xODn#>28_viDhQ]uX1 KmzOl}Q<ML(PUGx:fws*Uugg>K' );
-define( 'SECURE_AUTH_KEY',  'hj&R9k&$DDyqnr6(HY%`mw(# q}HB{wu2>98Z:!R:3or&;v.f{M1vwb%T5=$H.52' );
-define( 'LOGGED_IN_KEY',    'm4rUSJ2-]MQ!o%hfd vt .L<SR|PRiIc?R_AH7c14Ij<r6DZeg4V6nM7&z&$xeCk' );
-define( 'NONCE_KEY',        ']kaLU.aiCsF![.}xqR-F+-O&l]K6qF.D8)agS(mI_E/x`tagH72B9L):h+UN+2 X' );
-define( 'AUTH_SALT',        'qp+CL~&U/14fRe7ShATl*)9J]I!<ilj)ZyDh1m]oz,V7cAZN,`I*Z[4fQZyoK?#g' );
-define( 'SECURE_AUTH_SALT', '}Be:(6 }&)NjMz~6iouCt>)2LnJ/RTtRy`gaBiZoP2QrDh_T[{]?UCA^;=7IX8qM' );
-define( 'LOGGED_IN_SALT',   '0:>d<Q0/2Hn$*xP0e[Koo4!/NDo0Jmlnlo9 >J*m#qeI?dOJL,o-vSlCw0?wH9@f' );
-define( 'NONCE_SALT',       'oqk_XE92`QwC$ujP0]bd>9Di#g3.Oo8t!J>TmJX<X$vJm@P zSX{+J HXxr1/l |' );
-
+define( 'AUTH_KEY',         'gi+jD_ZqJKmHcHK.z@wrS9a9bB5Ye9H_Vy)N9/jlaPUe4Lw<uQ  -)E!Ehr,gI`{' );
+define( 'SECURE_AUTH_KEY',  'sonep+W0|*|jzQ?/kVka_I-Ks~5N:w4:SqD@~~@6=`a|4#^|oX}^&a3CW=t*4iX9' );
+define( 'LOGGED_IN_KEY',    '4b5)* }hr*s3Jh&U#/zo6uVn!7Vh]qYD}EUaupd`AGFf*rpF6CGT(r/ffC(>,uK:' );
+define( 'NONCE_KEY',        '4wQG)Pol*E/BTIeX=^*u=Wv7I{(4vze6f0l)c,o|`!{*vm(X?Z,H#P}4s.sd*C({' );
+define( 'AUTH_SALT',        '@1-r{B88r*`iLX};e)G(YQm!ta=Xe;D8w?SzU=V?-5]4oq>&k9+{p)g<CAS9i=F0' );
+define( 'SECURE_AUTH_SALT', 'sHuo5=y6Ec:Z7]3tRS(V{#U7#8!VdN@V- 2[Nuj1ypwW.f(Rn3[op|acycq#)qi^' );
+define( 'LOGGED_IN_SALT',   '2Zd>uYCG0|-$_a?].Fi}~3J*g%*j=R`,I]D8jHvgM`]quXng*9lVlz` S~f?%>nd' );
+define( 'NONCE_SALT',       'jP2@fnv4TX8IPNf9QMx@ICPa,L%r9J;fu5{zF=DGZfT.=a|Z)/;g5E}WeL%bFVWj' );
 /**#@-*/
-
 /**
  * WordPress database table prefix.
  *
  * You can have multiple installations in one database if you give each
  * a unique prefix. Only numbers, letters, and underscores please!
  */
-$table_prefix = 'up_';
-
+$table_prefix = 'wp_';
 /**
  * For developers: WordPress debugging mode.
  *
@@ -82,18 +89,22 @@ $table_prefix = 'up_';
  *
  * @link https://wordpress.org/support/article/debugging-in-wordpress/
  */
-define( 'WP_DEBUG', false );
-
+define('WP_DEBUG', $_ENV['DEBUG']);
+define('WP_DEBUG_LOG', $_ENV['DEBUG']);
+define('WP_DEBUG_DISPLAY', $_ENV['DEBUG']);
 /* Add any custom values between this line and the "stop editing" line. */
+define('FS_METHOD', 'direct');
+define('FS_CHMOD_DIR', 0755);
+define('FS_CHMOD_FILE', 0644);
 
-
-
+//define( 'WP_DEBUG_LOG', true );
+#define( 'WP_DEBUG_DISPLAY', true);
+//@ini_set( 'display_errors', 0 );
+/* Add any custom values between this line and the "stop editing" line. */
 /* That's all, stop editing! Happy publishing. */
-
 /** Absolute path to the WordPress directory. */
 if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', __DIR__ . '/' );
 }
-
 /** Sets up WordPress vars and included files. */
 require_once ABSPATH . 'wp-settings.php';

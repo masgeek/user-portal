@@ -1,0 +1,16 @@
+{
+    "name": "iita-akilimo/akilimo-site",
+    "description": "AKILIMO website project",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Munywele",
+            "email": "barsamms@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "vlucas/phpdotenv": "^5.6"
+    }
+}

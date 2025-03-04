@@ -2,19 +2,13 @@
     var __webpack_exports__ = {};
     if (wp.customize) {
         wp.customize.bind("ready", (function() {
-            jQuery("#kenta_install_companion .button").click((function(ev) {
-                ev.preventDefault();
-                var $btn = jQuery(this);
-                $btn.attr("disabled", "disabled");
-                $btn.html('<span class="loader"></span><span>Processing</span>');
-                jQuery.ajax({
-                    url: $btn.attr("href"),
-                    complete: function complete() {
-                        window.location.reload();
-                    }
-                });
+            wp.customize.previewer.bind("kenta-theme-changed", (function(theme) {
+                jQuery(document.documentElement).attr("data-kenta-theme", theme);
+                jQuery(document.documentElement).attr("data-lotta-theme", theme);
             }));
-            jQuery("#kenta_update_dynamic_css_cache .button").click((function(ev) {
+            jQuery(document.documentElement).attr("data-kenta-theme", window.KentaCustomizer.theme);
+            jQuery(document.documentElement).attr("data-lotta-theme", window.KentaCustomizer.theme);
+            jQuery(window.KentaCustomizer.call_to_actions.join(",")).click((function(ev) {
                 ev.preventDefault();
                 var $btn = jQuery(this);
                 $btn.attr("disabled", "disabled");

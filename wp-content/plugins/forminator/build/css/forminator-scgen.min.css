@@ -3595,7 +3595,7 @@
 }
 
 .sui-forminator-scgen .sui-wrap .sui-box .sui-box-status {
-  padding: 15px 20px 20px;
+  padding: 0 20px 20px;
 }
 
 .sui-forminator-scgen .sui-wrap .sui-box .sui-box-status .sui-status {
@@ -3652,6 +3652,7 @@
 
 @media (max-width: 782px) {
   .sui-forminator-scgen .sui-wrap .sui-box .sui-box-status .sui-status+.sui-actions {
+    display: inline-block;
     margin-top: 15px;
   }
 }
@@ -3665,6 +3666,14 @@
 @media (min-width: 783px) {
   .sui-forminator-scgen .sui-wrap .sui-box .sui-box-status .sui-status {
     flex: 1;
+  }
+}
+
+@media (max-width: 782px) {
+  .sui-forminator-scgen .sui-wrap .sui-box .sui-box-status .sui-status {
+    display: inline-flex;
+    margin-right: 15px;
+    margin-top: 15px;
   }
 }
 

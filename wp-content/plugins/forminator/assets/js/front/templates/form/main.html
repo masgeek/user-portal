@@ -35,6 +35,8 @@ include('global/input-suffix-colors.html');
 include('global/input-prefix-font.html');
 include('global/input-prefix-colors.html');
 
+include('global/field-image-size.html');
+
 include('global/textarea-font.html');
 include self::get_template( $theme,'textarea-colors.html');
 
@@ -43,6 +45,8 @@ include self::get_template( $theme,'radio-colors.html');
 
 include('global/checkbox-font.html');
 include self::get_template( $theme,'checkbox-colors.html');
+
+include('global/consent-colors.html');
 
 include('global/select2-font.html');
 include self::get_template( $theme,'select2-colors.html');
@@ -87,6 +91,8 @@ include('global/repeater-icon-colors.html');
 include self::get_template( $theme,'repeater-button-colors.html');
 
 include self::get_template( $theme,'card-colors.html');
+
+include('global/rating-colors.html');
 
 if ( forminator_array_value_exists( $properties, 'use-custom-css' ) && forminator_array_value_exists( $properties, 'custom_css' ) ) {
 	echo $properties['custom_css'];

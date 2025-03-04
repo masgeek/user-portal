@@ -27,7 +27,7 @@ jQuery(function($){
     $('.nav-tabs a[href="#' + url.split('#')[1] + '"]').tab('show');
   var get_text=$.trim($(".tab-content "+url+" .manage-top-dash.text").text());
   $(".manage-top-dash.general-tab.new-tab span.text").text(get_text);
-  console.log(get_text);
+  //console.log(get_text);
 } 
  
  if(getCookie("hashcafsub")!='') {

@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Calculator class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -8,32 +14,32 @@ if ( ! defined( 'ABSPATH' ) ) {
  * https://github.com/chriskonnertz/string-calc
  * License (26-dec-2018) : MIT
  *
- * what changes :
+ * What changes :
  * - PHP 5.2 Compat
  * - Reduce/Remove extensibility, since it will managed by ours in the future
  * - Remove unnecessary abstract classes to reduce size
  * - wpcs compat
  * - use WP hook as extensibility alternatives
- ***********/
+ */
 
 
-require_once dirname( __FILE__ ) . '/class-exception.php';
+require_once __DIR__ . '/class-exception.php';
 
 // tokenizer.
-require_once dirname( __FILE__ ) . '/parser/class-token.php';
-require_once dirname( __FILE__ ) . '/parser/class-tokenizer.php';
+require_once __DIR__ . '/parser/class-token.php';
+require_once __DIR__ . '/parser/class-tokenizer.php';
 
 // load symbols.
-require_once dirname( __FILE__ ) . '/symbol/class-loader.php';
+require_once __DIR__ . '/symbol/class-loader.php';
 
 // load nodes.
-require_once dirname( __FILE__ ) . '/parser/node/abstract-class.php';
-require_once dirname( __FILE__ ) . '/parser/node/class-container.php';
-require_once dirname( __FILE__ ) . '/parser/node/class-function.php';
-require_once dirname( __FILE__ ) . '/parser/node/class-symbol.php';
+require_once __DIR__ . '/parser/node/abstract-class.php';
+require_once __DIR__ . '/parser/node/class-container.php';
+require_once __DIR__ . '/parser/node/class-function.php';
+require_once __DIR__ . '/parser/node/class-symbol.php';
 
 // parser.
-require_once dirname( __FILE__ ) . '/parser/class-parser.php';
+require_once __DIR__ . '/parser/class-parser.php';
 
 /**
  * Class Forminator_Calculator
@@ -43,30 +49,45 @@ require_once dirname( __FILE__ ) . '/parser/class-parser.php';
 class Forminator_Calculator {
 
 	/**
+	 * Term
+	 *
 	 * @var string
 	 */
 	protected $term;
 
 	/**
+	 * Tokenizer
+	 *
 	 * @var Forminator_Calculator_Parser_Tokenizer
 	 */
 	protected $tokenizer;
 
 	/**
+	 * Symbol loader
+	 *
 	 * @var Forminator_Calculator_Symbol_Loader
 	 */
 	protected $symbol_loader;
 
 	/**
+	 * Throwable
+	 *
 	 * @var bool
 	 */
 	protected $is_throwable = false;
 
 	/**
+	 * Parser
+	 *
 	 * @var Forminator_Calculator_Parser
 	 */
 	protected $parser;
 
+	/**
+	 * Forminator_Calculator constructor
+	 *
+	 * @param mixed $term Term.
+	 */
 	public function __construct( $term ) {
 		$this->term = $term;
 
@@ -77,7 +98,6 @@ class Forminator_Calculator {
 		$this->setup_parser();
 
 		$this->prepare_term();
-
 	}
 
 	/**
@@ -94,8 +114,8 @@ class Forminator_Calculator {
 		 *
 		 * @since 1.7
 		 *
-		 * @param Forminator_Calculator_Parser_Tokenizer $tokenizer
-		 * @param string                                 $term
+		 * @param Forminator_Calculator_Parser_Tokenizer $tokenizer Tokenizer.
+		 * @param string                                 $term Term.
 		 *
 		 * @return Forminator_Calculator_Parser_Tokenizer
 		 */
@@ -130,6 +150,11 @@ class Forminator_Calculator {
 		$this->parser = $parser;
 	}
 
+	/**
+	 * Prepare term
+	 *
+	 * @return void
+	 */
 	public function prepare_term() {
 		$term = $this->term;
 
@@ -148,8 +173,10 @@ class Forminator_Calculator {
 	}
 
 	/**
+	 * Parse
+	 *
 	 * @return Forminator_Calculator_Parser_Node_Container|boolean
-	 * @throws Forminator_Calculator_Exception
+	 * @throws Forminator_Calculator_Exception When there is an Calculator error.
 	 */
 	public function parse() {
 		try {
@@ -181,8 +208,10 @@ class Forminator_Calculator {
 	}
 
 	/**
+	 * Calculate
+	 *
 	 * @return float|int
-	 * @throws Forminator_Calculator_Exception
+	 * @throws Forminator_Calculator_Exception When there is an Calculator error.
 	 */
 	public function calculate() {
 		$result    = 0;
@@ -212,26 +241,35 @@ class Forminator_Calculator {
 	 * nodes with a symbol of type separator are not
 	 * calculable.)
 	 *
-	 * @param Forminator_Calculator_Parser_Node_Abstract $node
+	 * @param Forminator_Calculator_Parser_Node_Abstract $node Forminator_Calculator_Parser_Node_Abstract.
 	 *
 	 * @return float|int
-	 * @throws Forminator_Calculator_Exception
+	 * @throws Forminator_Calculator_Exception When there is an Calculator error.
 	 */
 	protected function calculate_node( $node ) {
 		if ( $node instanceof Forminator_Calculator_Parser_Node_Symbol ) {
-			/** @var Forminator_Calculator_Parser_Node_Symbol $node */
+			/**
+			 * Forminator_Calculator_Parser_Node_Symbol
+			 *
+			 * @var Forminator_Calculator_Parser_Node_Symbol $node */
 
 			return $this->calculate_symbol_node( $node );
 		} elseif ( $node instanceof Forminator_Calculator_Parser_Node_Function ) {
-			/** @var Forminator_Calculator_Parser_Node_Function $node */
+			/**
+			 * Forminator_Calculator_Parser_Node_Function
+			 *
+			 * @var Forminator_Calculator_Parser_Node_Function $node */
 
 			return $this->calculate_function_node( $node );
 		} elseif ( $node instanceof Forminator_Calculator_Parser_Node_Container ) {
-			/** @var Forminator_Calculator_Parser_Node_Container $node */
+			/**
+			 * Forminator_Calculator_Parser_Node_Container
+			 *
+			 * @var Forminator_Calculator_Parser_Node_Container $node */
 
 			return $this->calculate_container_node( $node );
 		} else {
-			throw new Forminator_Calculator_Exception( 'Error: Cannot calculate node of unknown type "' . get_class( $node ) . '"' );// @codeCoverageIgnore.
+			throw new Forminator_Calculator_Exception( 'Error: Cannot calculate node of unknown type "' . esc_html( get_class( $node ) ) . '"' );// @codeCoverageIgnore.
 		}
 	}
 
@@ -241,10 +279,10 @@ class Forminator_Calculator {
 	 * It can call itself recursively.
 	 * Attention: $node must not be of type FunctionNode!
 	 *
-	 * @param Forminator_Calculator_Parser_Node_Container $container_node
+	 * @param Forminator_Calculator_Parser_Node_Container $container_node Forminator_Calculator_Parser_Node_Container.
 	 *
 	 * @return float|int
-	 * @throws Forminator_Calculator_Exception
+	 * @throws Forminator_Calculator_Exception When there is an Calculator error.
 	 */
 	protected function calculate_container_node( $container_node ) {
 		if ( $container_node instanceof Forminator_Calculator_Parser_Node_Function ) {
@@ -269,7 +307,10 @@ class Forminator_Calculator {
 			$right_operand_index = key( $nodes );
 			$right_number        = is_numeric( $right_operand ) ? $right_operand : $this->calculate_node( $right_operand );
 
-			/** @var Forminator_Calculator_Symbol_Operator_Abstract $symbol */
+			/**
+			 * Forminator_Calculator_Symbol_Operator_Abstract
+			 *
+			 * @var Forminator_Calculator_Symbol_Operator_Abstract $symbol */
 			$symbol = $operator_node->get_symbol();
 
 			if ( $operator_node->is_unary_operator() ) {
@@ -278,8 +319,7 @@ class Forminator_Calculator {
 				// Replace the participating symbols of the operation by the result.
 				unset( $nodes[ $right_operand_index ] );
 				$nodes[ $index ] = $result;
-			} else {
-				if ( isset( $left_operand_index ) && isset( $left_operand ) ) {
+			} elseif ( isset( $left_operand_index ) && isset( $left_operand ) ) {
 					$left_number = is_numeric( $left_operand ) ? $left_operand : $this->calculate_node( $left_operand );
 
 					$result = $symbol->operate( $left_number, $right_number );
@@ -288,7 +328,6 @@ class Forminator_Calculator {
 					unset( $nodes[ $left_operand_index ] );
 					unset( $nodes[ $right_operand_index ] );
 					$nodes[ $index ] = $result;
-				}
 			}
 		}
 
@@ -315,10 +354,9 @@ class Forminator_Calculator {
 	/**
 	 * Returns the numeric value of a function node.
 	 *
-	 * @param Forminator_Calculator_Parser_Node_Function $function_node
+	 * @param Forminator_Calculator_Parser_Node_Function $function_node Forminator_Calculator_Parser_Node_Function.
 	 *
 	 * @return int|float
-	 * @throws Forminator_Calculator_Exception
 	 */
 	protected function calculate_function_node( $function_node ) {
 		$nodes = $function_node->get_child_nodes();
@@ -328,7 +366,10 @@ class Forminator_Calculator {
 
 		foreach ( $nodes as $node ) {
 			if ( $node instanceof Forminator_Calculator_Parser_Node_Symbol ) {
-				/** @var Forminator_Calculator_Parser_Node_Symbol $node */
+				/**
+				 * Forminator_Calculator_Parser_Node_Symbol
+				 *
+				 * @var Forminator_Calculator_Parser_Node_Symbol $node */
 
 				if ( $node->get_symbol() instanceof Forminator_Calculator_Symbol_Separator ) {
 					$container_node       = new Forminator_Calculator_Parser_Node_Container( $argument_child_nodes );
@@ -347,7 +388,10 @@ class Forminator_Calculator {
 			$arguments[]    = $this->calculate_container_node( $container_node );
 		}
 
-		/** @var Forminator_Calculator_Symbol_Function_Abstract $symbol */
+		/**
+		 * Forminator_Calculator_Symbol_Function_Abstract
+		 *
+		 * @var Forminator_Calculator_Symbol_Function_Abstract $symbol */
 		$symbol = $function_node->get_symbol_node()->get_symbol();
 
 		$result = $symbol->execute( $arguments );
@@ -359,10 +403,10 @@ class Forminator_Calculator {
 	 * Returns the numeric value of a symbol node.
 	 * Attention: $node->symbol must not be of type AbstractOperator!
 	 *
-	 * @param Forminator_Calculator_Parser_Node_Symbol $symbol_node
+	 * @param Forminator_Calculator_Parser_Node_Symbol $symbol_node Node symbol.
 	 *
 	 * @return int|float
-	 * @throws Forminator_Calculator_Exception
+	 * @throws Forminator_Calculator_Exception When there is an Calculator error.
 	 */
 	protected function calculate_symbol_node( $symbol_node ) {
 		$symbol = $symbol_node->get_symbol();
@@ -375,11 +419,14 @@ class Forminator_Calculator {
 			// If the number has a longer fractional part, it will be cut.
 			$number = 0 + $number;
 		} elseif ( $symbol instanceof Forminator_Calculator_Symbol_Constant_Abstract ) {
-			/** @var Forminator_Calculator_Symbol_Constant_Abstract $symbol */
+			/**
+			 * Forminator_Calculator_Symbol_Constant_Abstract
+			 *
+			 * @var Forminator_Calculator_Symbol_Constant_Abstract $symbol */
 
 			$number = $symbol->get_value();
 		} else {
-			throw new Forminator_Calculator_Exception( 'Error: Found symbol of unexpected type "' . get_class( $symbol ) . '", expected number or constant' );
+			throw new Forminator_Calculator_Exception( 'Error: Found symbol of unexpected type "' . esc_html( get_class( $symbol ) ) . '", expected number or constant' );
 		}
 
 		return $number;
@@ -391,7 +438,7 @@ class Forminator_Calculator {
 	 * Does not care for child nodes of container nodes.
 	 * Returns a new array with ordered symbol nodes.
 	 *
-	 * @param Forminator_Calculator_Parser_Node_Abstract[] $nodes
+	 * @param Forminator_Calculator_Parser_Node_Abstract[] $nodes Forminator_Calculator_Parser_Node_Abstract.
 	 *
 	 * @return Forminator_Calculator_Parser_Node_Symbol[]
 	 */
@@ -417,15 +464,18 @@ class Forminator_Calculator {
 	 *
 	 * Returning 1 means $nodeTwo before $nodeOne, returning -1 means $nodeOne before $nodeTwo.
 	 *
-	 * @param Forminator_Calculator_Parser_Node_Symbol $node_one
-	 * @param Forminator_Calculator_Parser_Node_Symbol $node_two
+	 * @param Forminator_Calculator_Parser_Node_Symbol $node_one Forminator_Calculator_Parser_Node_Symbol.
+	 * @param Forminator_Calculator_Parser_Node_Symbol $node_two Forminator_Calculator_Parser_Node_Symbol.
 	 *
 	 * @return int
 	 */
 	private function sort_operator_precedence( $node_one, $node_two ) {
 
 		// First-level precedence of node one.
-		/** @var Forminator_Calculator_Symbol_Operator_Abstract $symbol_one */
+		/**
+		 * Forminator_Calculator_Symbol_Operator_Abstract
+		 *
+		 * @var Forminator_Calculator_Symbol_Operator_Abstract $symbol_one */
 		$symbol_one     = $node_one->get_symbol();
 		$precedence_one = 2;
 		if ( $node_one->is_unary_operator() ) {
@@ -433,7 +483,10 @@ class Forminator_Calculator {
 		}
 
 		// First-level precedence of node two.
-		/** @var Forminator_Calculator_Symbol_Operator_Abstract $symbol_two */
+		/**
+		 * Forminator_Calculator_Symbol_Operator_Abstract
+		 *
+		 * @var Forminator_Calculator_Symbol_Operator_Abstract $symbol_two */
 		$symbol_two     = $node_two->get_symbol();
 		$precedence_two = 2;
 		if ( $node_two->is_unary_operator() ) {
@@ -454,11 +507,12 @@ class Forminator_Calculator {
 		}
 
 		return ( $precedence_one < $precedence_two ) ? 1 : - 1;
-
 	}
 
 	/**
-	 * @param $is_throwable
+	 * Set is throwable
+	 *
+	 * @param true $is_throwable Is throwable?.
 	 */
 	public function set_is_throwable( $is_throwable ) {
 		$this->is_throwable = $is_throwable;

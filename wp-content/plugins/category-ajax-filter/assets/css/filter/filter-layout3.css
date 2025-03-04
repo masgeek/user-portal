@@ -12,6 +12,7 @@ ul.caf-filter-container.caf-filter-layout3 {
     float: left;
 	box-shadow: 0px 0px 4px 0px #d9d9d9;
     padding: 20px 10px;
+    box-sizing: border-box;
 }
 .filter-layout3 #manage-ajax-response {
     width: 70%;
@@ -36,6 +37,7 @@ ul.caf-filter-layout3 li {
     text-transform: capitalize;
     display: inline-block;
     width: 100%;
+    box-sizing: border-box;
 }
 .caf-filter-layout3 li:last-child a{border: none;}
 h2.caf-cat-title {

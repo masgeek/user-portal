@@ -50,23 +50,26 @@ if ( ! function_exists( 'kenta_blocks_overlay_attrs' ) ) {
 
 if ( ! function_exists( 'kenta_blocks_overlay_css' ) ) {
 	/**
-	 * @param $attrs
-	 * @param $metadata
+	 * @param $block
 	 *
 	 * @return array|null[]
 	 */
-	function kenta_blocks_overlay_css( $attrs, $metadata ) {
+	function kenta_blocks_overlay_css( $block ) {
+		if ( kb_get_block_attr( $block, 'overlay' ) !== 'yes' ) {
+			return array();
+		}
+
 		return array_merge(
 			array(
-				'z-index'        => kenta_blocks_block_attr( 'overlayZIndex', $attrs, $metadata ),
-				'opacity'        => kenta_blocks_block_attr( 'overlayOpacity', $attrs, $metadata ),
-				'mix-blend-mode' => kenta_blocks_block_attr( 'overlayBlendMode', $attrs, $metadata )
+				'z-index'        => kb_get_block_attr( $block, 'overlayZIndex' ),
+				'opacity'        => kb_get_block_attr( $block, 'overlayOpacity' ),
+				'mix-blend-mode' => kb_get_block_attr( $block, 'overlayBlendMode' )
 			),
 			kenta_blocks_css()->filter(
-				kenta_blocks_block_attr( 'overlayFilter', $attrs, $metadata )
+				kb_get_block_attr( $block, 'overlayFilter' )
 			),
 			kenta_blocks_css()->background(
-				kenta_blocks_block_attr( 'overlayBackground', $attrs, $metadata )
+				kb_get_block_attr( $block, 'overlayBackground' )
 			)
 		);
 	}

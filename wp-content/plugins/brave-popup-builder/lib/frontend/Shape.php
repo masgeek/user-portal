@@ -5,6 +5,13 @@ if ( ! class_exists( 'BravePop_Element_Shape' ) ) {
 
    class BravePop_Element_Shape {
 
+      protected $data;
+      protected $popupID;
+      protected $stepIndex;
+      protected $elementIndex;
+      protected $goalItem;
+      protected $dynamicData;
+
       function __construct($data=null, $popupID=null, $stepIndex=0, $elementIndex=0, $device='desktop', $goalItem=false, $dynamicData=null) {
          $this->data = $data;
          $this->popupID = $popupID;
@@ -41,8 +48,10 @@ if ( ! class_exists( 'BravePop_Element_Shape' ) ) {
          $actionTrack = ($actionType !== 'step' || $actionType !== 'close') && $track && $clickable ? ' onclick="brave_send_ga_event(\''.$eventCategory.'\', \''.$eventAction.'\', \''.$eventLabel.'\');'.$customAnim.'"':'';
          $actionInlineTrack = ($actionType === 'step' || $actionType === 'close') && $track && $clickable ? ' brave_send_ga_event(\''.$eventCategory.'\', \''.$eventAction.'\', \''.$eventLabel.'\');'.$customAnim.'':'';
          $goalAction = $this->goalItem ? 'brave_complete_goal('.$this->popupID.', \'click\');':'';
+         $closeAfterClick = ($actionType === 'dynamic' ||$actionType === 'url' || $actionType === 'call'|| $actionType === 'javascript') && !empty($this->data->action->actionData->closeAfter) ? true : false;
+         $closeAfter = $closeAfterClick ? 'brave_close_popup(\''.$this->popupID.'\', \''.$this->stepIndex.'\'); ':'';
          
-         $actionJS = $actionType === 'javascript' && isset($this->data->action->actionData->javascript) ? 'onclick="'.$this->data->action->actionData->javascript.' '.$actionInlineTrack.' '.$goalAction.''.$customAnim.'"': '';
+         $actionJS = $actionType === 'javascript' && isset($this->data->action->actionData->javascript) ? 'onclick="'.$this->data->action->actionData->javascript.$closeAfter.' '.$actionInlineTrack.' '.$goalAction.''.$customAnim.'"': '';
          $actionURL  = isset($this->data->action->actionData->url) ? $this->data->action->actionData->url : '';
          $actionPhone  = !empty($this->data->action->actionData->phone) ? $this->data->action->actionData->phone : '';
          $actionDownload = !empty($this->data->action->actionData->download) ? 'download': '';
@@ -55,8 +64,8 @@ if ( ! class_exists( 'BravePop_Element_Shape' ) ) {
             if(isset($dynamicURL->link)){   $actionURL  =  $dynamicURL->link;   }
          }
 
-         $actionLink = $clickable && ($actionType === 'url' || $actionType === 'dynamic') && $actionURL ? 'onclick="'.$goalAction.''.$customAnim.'" href="'.$actionURL.'" '.($actionNewWindow ? 'target="_blank"' : '').' '.($relType ? 'rel="'.$relType.'"' : '').'':'';
-         $actionCall = ($actionType === 'call') && $actionPhone ? 'onclick="'.$goalAction.'" href="tel:'.$actionPhone.'"':'';
+         $actionLink = $clickable && ($actionType === 'url' || $actionType === 'dynamic') && $actionURL ? 'onclick="'.$goalAction.''.$customAnim.$closeAfter.'" href="'.$actionURL.'" '.($actionNewWindow ? 'target="_blank"' : '').' '.($relType ? 'rel="'.$relType.'"' : '').'':'';
+         $actionCall = ($actionType === 'call') && $actionPhone ? 'onclick="'.$goalAction.$closeAfter.'" href="tel:'.$actionPhone.'"':'';
          $actionStep = $clickable && $actionType === 'step' && $actionStepNum >=0 ? 'onclick="brave_action_step('.$this->popupID.', '.$this->stepIndex.', '.$actionStepNum.'); '.$actionInlineTrack.' '.$goalAction.' "':'';
          $actionClose = $clickable && $actionType === 'close' ? 'onclick="brave_close_popup(\''.$this->popupID.'\', \''.$this->stepIndex.'\'); '.$actionInlineTrack.' '.$goalAction.'"':'';
          $noActionAnim = $customAnim && $clickable && $actionType === 'none' ? 'onclick="'.$customAnim.'"' :'';

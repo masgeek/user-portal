@@ -26,9 +26,13 @@ class KentaCompanion extends Container {
 		add_filter( 'kenta_admin_page_tabs', [ $this, 'admin_tabs' ] );
 		add_filter( 'kenta_admin_page_customizer_items', [ $this, 'admin_page_customizer_items' ] );
 
+		// customizer settings
+		kcmp_add_action( 'customizer_default_settings_saved', [ $this, 'update_customizer_settings_version' ] );
+		kcmp_add_action( 'should_reload_customizer_settings', [ $this, 'should_customizer_settings_reload' ] );
+
 		// dynamic css
-		add_action( 'kenta_dynamic_css_cached', [ $this, 'update_cached_css_version' ] );
-		add_filter( 'kenta_should_dynamic_css_re_cached', [ $this, 'should_dynamic_css_re_cached' ] );
+		kcmp_add_action( 'dynamic_css_cached', [ $this, 'update_cached_css_version' ] );
+		kcmp_add_filter( 'should_dynamic_css_re_cached', [ $this, 'should_dynamic_css_re_cached' ] );
 
 		// starter sites
 		add_action( 'kcmp/template_imported', [ $this, 'update_imported_template' ], 10, 2 );
@@ -39,7 +43,7 @@ class KentaCompanion extends Container {
 
 		// opt-in notice
 		add_action( 'current_screen', [ $this, 'remove_optin_notice' ] );
-		if ( ! kenta_fs()->is_registered() ) {
+		if ( ! kenta_fs()->is_registered() && current_user_can( 'manage_options' ) ) {
 			kcmp_notices()->add_notice(
 				sprintf(
 					__( 'We made a few tweaks to the Kenta Companion, %s', 'kenta-companion' ),
@@ -125,6 +129,15 @@ class KentaCompanion extends Container {
 			] )
 			->register( 'scroll-reveal', [
 				'class' => \KentaCompanion\Extensions\ScrollReveal::class,
+			] )
+			->register( 'reset', [
+				'class' => \KentaCompanion\Extensions\Reset::class,
+			] )
+			->register( 'custom-fonts', [
+				'class' => \KentaCompanion\Extensions\CustomFonts::class,
+			] )
+			->register( 'particles', [
+				'class' => \KentaCompanion\Extensions\Particles::class,
 			] )
 			->bootstrap();
 	}
@@ -241,7 +254,7 @@ class KentaCompanion extends Container {
 	 * Update cached css version
 	 */
 	public function update_cached_css_version() {
-		update_option( 'kcmp_dynamic_css_cached_version', esc_html( KCMP_VERSION ) );
+		update_option( 'kcmp_dynamic_css_cached_version', esc_html( $this->get_code_verion() ) );
 	}
 
 	/**
@@ -258,10 +271,48 @@ class KentaCompanion extends Container {
 	public function should_dynamic_css_re_cached( $bool ) {
 
 		$cached_version = get_option( 'kcmp_dynamic_css_cached_version', '' );
-		if ( KCMP_VERSION !== $cached_version ) {
+		if ( $this->get_code_verion() !== $cached_version ) {
 			return true;
 		}
 
 		return $bool;
+	}
+
+	/**
+	 *  Update customizer settings css version
+	 *
+	 * @return void
+	 * @since v1.2.2
+	 */
+	public function update_customizer_settings_version() {
+		update_option( 'kcmp_customizer_default_settings_version', esc_html( $this->get_code_verion() ) );
+	}
+
+	/**
+	 * Check if customizer settings should be reloaded
+	 *
+	 * If the companion plugin version changed, bust the cache.
+	 *
+	 * @param $bool
+	 *
+	 * @return true
+	 * @since v1.2.2
+	 */
+	public function should_customizer_settings_reload( $bool ) {
+		$cached_version = get_option( 'kcmp_customizer_default_settings_version', '' );
+		if ( $this->get_code_verion() !== $cached_version ) {
+			return true;
+		}
+
+		return $bool;
+	}
+
+	/**
+	 * Get code version
+	 *
+	 * @return string
+	 */
+	private function get_code_verion() {
+		return kenta_fs()->can_use_premium_code() ? 'premium' : 'free' . '-' . KCMP_VERSION;
 	}
 }

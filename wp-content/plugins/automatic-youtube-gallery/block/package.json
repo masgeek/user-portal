@@ -1,13 +1,21 @@
 {
-  "name": "ayg-block-cgb-guten-block",
-  "version": "2.1.0",
-  "private": true,
-  "scripts": {
-    "start": "cgb-scripts start",
-    "build": "cgb-scripts build",
-    "eject": "cgb-scripts eject"
-  },
-  "dependencies": {
-    "cgb-scripts": "1.20.0"
-  }
+	"name": "automatic-youtube-gallery-block",
+	"version": "2.5.1",
+	"private": true,
+	"scripts": {
+		"build": "wp-scripts build --webpack-copy-php",
+		"format": "wp-scripts format",
+		"lint:css": "wp-scripts lint-style",
+		"lint:js": "wp-scripts lint-js",
+		"packages-update": "wp-scripts packages-update",
+		"plugin-zip": "wp-scripts plugin-zip",
+		"start": "wp-scripts start --webpack-copy-php"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "^30.6.0"
+	},
+	"dependencies": {
+		"@wordpress/icons": "^10.13.0",
+		"classnames": "^2.5.1"
+	}
 }

@@ -5,6 +5,13 @@ if ( ! class_exists( 'BravePop_Element_Text' ) ) {
 
    class BravePop_Element_Text {
 
+      protected $data;
+      protected $popupID;
+      protected $stepIndex;
+      protected $elementIndex;
+      protected $goalItem;
+      protected $dynamicData;
+
       function __construct($data=null, $popupID=null, $stepIndex=0, $elementIndex=0, $device='desktop', $goalItem=false, $dynamicData=null) {
          $this->data = $data;
          $this->popupID = $popupID;
@@ -105,13 +112,17 @@ if ( ! class_exists( 'BravePop_Element_Text' ) ) {
          $relType = isset($this->data->action->actionData->rel_type) ? $this->data->action->actionData->rel_type : $actionNoFollow;
          $actionNewWindow  = isset($this->data->action->actionData->new_window) ? $this->data->action->actionData->new_window : '';
          $actionStepNum  = isset($this->data->action->actionData->step) ? (Int)$this->data->action->actionData->step  - 1 : '';
-         $actionJS = $actionType === 'javascript' && isset($this->data->action->actionData->javascript) ? 'onclick="'.$this->data->action->actionData->javascript.' '.$actionInlineTrack.' '.$goalAction.'"': '';
+         $closeAfterClick = ($actionType === 'dynamic' ||$actionType === 'url' || $actionType === 'call'|| $actionType === 'javascript') && !empty($this->data->action->actionData->closeAfter) ? true : false;
+         $closeAfter = $closeAfterClick ? 'brave_close_popup(\''.$this->popupID.'\', \''.$this->stepIndex.'\'); ':'';
+         
+
+         $actionJS = $actionType === 'javascript' && isset($this->data->action->actionData->javascript) ? 'onclick="'.$this->data->action->actionData->javascript.$closeAfter.' '.$actionInlineTrack.' '.$goalAction.'"': '';
          if(isset($this->data->action->actionData->dynamicURL)){
             $dynamicURL  = bravepopup_dynamicLink_data($this->data->action->actionData, $this->dynamicData, $this->data->id);
             if(isset($dynamicURL->link)){   $actionURL  =  $dynamicURL->link; }
          }
-         $actionLink = $clickable && ($actionType === 'url' || $actionType === 'dynamic') && $actionURL ? 'onclick="'.$goalAction.'" href="'.do_shortcode($actionURL).'" '.($actionNewWindow ? 'target="_blank"' : '').' '.($relType ? 'rel="'.$relType.'"' : '').'':'';
-         $actionCall = ($actionType === 'call') && $actionPhone ? 'onclick="'.$goalAction.'" href="tel:'.$actionPhone.'"':'';
+         $actionLink = $clickable && ($actionType === 'url' || $actionType === 'dynamic') && $actionURL ? 'onclick="'.$goalAction.$closeAfter.'" href="'.do_shortcode($actionURL).'" '.($actionNewWindow ? 'target="_blank"' : '').' '.($relType ? 'rel="'.$relType.'"' : '').'':'';
+         $actionCall = ($actionType === 'call') && $actionPhone ? 'onclick="'.$goalAction.$closeAfter.'" href="tel:'.$actionPhone.'"':'';
          $actionStep = $clickable && $actionType === 'step' && $actionStepNum >=0 ? 'onclick="brave_action_step('.$this->popupID.', '.$this->stepIndex.', '.$actionStepNum.'); '.$actionInlineTrack.' '.$goalAction.'"':'';
          $actionClose = $clickable && $actionType === 'close' ? 'onclick="brave_close_popup(\''.$this->popupID.'\', \''.$this->stepIndex.'\'); '.$actionInlineTrack.' '.$goalAction.'"':'';
          $actionCopy = $clickable && $actionType === 'copy' ? 'onclick="brave_copy_to_clipboard(\''.$this->data->id.'\', \''.__('Copied to Clipboard','bravepop').'\', \''.(!empty($this->data->copyTextPos) ? $this->data->copyTextPos : 'bottom').'\'); '.$actionInlineTrack.' '.$goalAction.'"':'';
@@ -140,6 +151,7 @@ if ( ! class_exists( 'BravePop_Element_Text' ) ) {
             $content = str_replace('href=', 'onclick="brave_complete_goal('.$this->popupID.', \'click\');" href=', $content);
          }
          $content = apply_filters( 'brave_text_element_content', $content, $this->data->id );
+         $content = wp_kses_post($content);
          $content = do_shortcode($content);
          $advClass = !empty($this->data->advanced) ? ' brave_element--text_advanced' : '';
          $customClass = !empty($this->data->classes) ? ' '. str_replace(',',' ',$this->data->classes) : '';

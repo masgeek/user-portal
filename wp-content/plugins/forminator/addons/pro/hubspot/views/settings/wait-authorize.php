@@ -1,10 +1,21 @@
 <?php
+/**
+ * Template for Wait authorize.
+ *
+ * @package Forminator
+ */
+
 // defaults.
 $vars = array(
 	'auth_url' => '',
 	'token'    => '',
 );
-/** @var array $template_vars */
+
+/**
+ * Template variables.
+ *
+ * @var array $template_vars
+ * */
 foreach ( $template_vars as $key => $val ) {
 	$vars[ $key ] = $val;
 } ?>
@@ -13,41 +24,21 @@ foreach ( $template_vars as $key => $val ) {
 
 	<h3 id="forminator-integration-popup__title" class="sui-box-title sui-lg" style="overflow: initial; white-space: normal; text-overflow: initial;">
 		<?php
-			/* translators: ... */
-			echo esc_html( sprintf( __( 'Connect %1$s', 'forminator' ), 'HubSpot' ) );
+		/* translators: 1: Add-on name */
+			printf( esc_html__( 'Connect %1$s', 'forminator' ), 'HubSpot' );
 		?>
 	</h3>
 
 </div>
 
 <?php if ( ! empty( $vars['token'] ) ) : ?>
-
-	<div
-		role="alert"
-		class="sui-notice sui-notice-green sui-active"
-		style="display: block; text-align: left;"
-		aria-live="assertive"
-	>
-
-		<div class="sui-notice-content">
-
-			<div class="sui-notice-message">
-
-				<span class="sui-notice-icon sui-icon-info" aria-hidden="true"></span>
-
-				<p>
-					<?php
-					/* translators: ... */
-					echo esc_html( sprintf( __( 'Your %1$s account is already authorized.', 'forminator' ), 'HubSpot' ) );
-					?>
-				</p>
-
-			</div>
-
-		</div>
-
-	</div>
-
+	<?php
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is already escaped.
+	echo Forminator_Admin::get_green_notice(
+		/* translators: 1: Add-on name */
+		sprintf( esc_html__( 'Your %1$s account is already authorized.', 'forminator' ), 'HubSpot' )
+	);
+	?>
 <?php else : ?>
 
 	<p id="forminator-integration-popup__description" class="sui-description" style="text-align: center;">

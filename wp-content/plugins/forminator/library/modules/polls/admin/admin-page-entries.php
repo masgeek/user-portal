@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Poll_View_Page class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -34,7 +40,7 @@ class Forminator_Poll_View_Page extends Forminator_Admin_View_Page {
 				add_action( 'admin_footer', array( $this, 'chart_style_override' ), 100 );
 			}
 
-			$this->total_fields++;
+			++$this->total_fields;
 			$this->process_request();
 		}
 	}
@@ -128,7 +134,7 @@ class Forminator_Poll_View_Page extends Forminator_Admin_View_Page {
 	 *
 	 * @since 1.0.5
 	 *
-	 * @param $element_id
+	 * @param string $element_id Element Id.
 	 *
 	 * @return mixed
 	 */
@@ -170,7 +176,7 @@ class Forminator_Poll_View_Page extends Forminator_Admin_View_Page {
 					var chartDesign = '<?php echo esc_html( $chart_design ); ?>';
 
 					var chartExtras = [
-						'<?php echo esc_html__( 'vote(s)' ); ?>',
+						'<?php echo esc_html__( 'vote(s)', 'forminator' ); ?>',
 						true, // Always show votes.
 						[
 							'#E5E5E5', // [0] Grid lines color.

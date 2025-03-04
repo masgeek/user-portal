@@ -54,9 +54,6 @@ if ( ! class_exists( __NAMESPACE__ . '\\Email' ) ) {
 			$this->enqueue_assets( $plugin );
 
 			$admin_email = get_site_option( 'admin_email' );
-			$mc_list_id  = $this->get_option( 'mc_list_id' );
-
-			$action = "https://edublogs.us1.list-manage.com/subscribe/post-json?u={$this->mc_user_id}&id={$mc_list_id}&c=?";
 
 			/* translators: %s - plugin name */
 			$title = __( "We're happy that you've chosen to install %s!", 'wdev_frash' );
@@ -83,14 +80,16 @@ if ( ! class_exists( __NAMESPACE__ . '\\Email' ) ) {
 						 * Fires before subscribe form renders.
 						 *
 						 * @since 1.3
+						 * @since 2.0.4 Mailchimp ID deprecated.
 						 *
-						 * @param int $mc_list_id Mailchimp list ID.
+						 * @param int $mc_list_id Mailchimp list ID (deprecated).
 						 */
-						do_action( 'frash_before_subscribe_form_render', $mc_list_id );
+						do_action( 'frash_before_subscribe_form_render', '' );
 						?>
-						<form action="<?php echo esc_attr( $action ); ?>" method="get" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank">
-							<label for="mce-EMAIL" class="hidden"><?php esc_html_e( 'Email', 'wdev_frash' ); ?></label>
-							<input type="email" name="EMAIL" class="email" id="mce-EMAIL" value="<?php echo esc_attr( $admin_email ); ?>" required="required"/>
+						<form action="<?php echo esc_url( $this->api_url( 'mailjet/v1/plugin' ) ); ?>" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank">
+							<label for="wpmudev-email" class="hidden"><?php esc_html_e( 'Email', 'wdev_frash' ); ?></label>
+							<input type="email" name="email" class="email" id="wpmudev-email" value="<?php echo esc_attr( $admin_email ); ?>" required="required"/>
+							<input type="hidden" name="source" id="wpmudev-source" value="<?php echo esc_attr( $plugin ); ?>"/>
 							<button class="frash-notice-act button-primary" data-msg="<?php esc_attr_e( 'Thanks :)', 'wdev_frash' ); ?>" type="submit">
 								<?php echo esc_html( $this->get_option( 'cta_email', __( 'Get Fast!', 'wdev_frash' ) ) ); ?>
 							</button>
@@ -107,10 +106,11 @@ if ( ! class_exists( __NAMESPACE__ . '\\Email' ) ) {
 							 * actual MC subscribe form.
 							 *
 							 * @since 1.3
+							 * @since 2.0.4 Mailchimp ID deprecated.
 							 *
-							 * @param int $mc_list_id Mailchimp list ID.
+							 * @param int $mc_list_id Mailchimp list ID (deprecated).
 							 */
-							do_action( 'frash_subscribe_form_fields', $mc_list_id );
+							do_action( 'frash_subscribe_form_fields', '' );
 							?>
 						</form>
 						<?php
@@ -118,10 +118,11 @@ if ( ! class_exists( __NAMESPACE__ . '\\Email' ) ) {
 						 * Fires after subscribe form is rendered
 						 *
 						 * @since 1.3
+						 * @since 2.0.4 Mailchimp ID deprecated.
 						 *
-						 * @param int $mc_list_id Mailchimp list ID.
+						 * @param int $mc_list_id Mailchimp list ID (deprecated).
 						 */
-						do_action( 'frash_before_subscribe_form_render', $mc_list_id );
+						do_action( 'frash_before_subscribe_form_render', '' );
 						?>
 					</div>
 				</div>
@@ -162,15 +163,17 @@ if ( ! class_exists( __NAMESPACE__ . '\\Email' ) ) {
 		 * @return void
 		 */
 		protected function enqueue_assets( $plugin ) {
+			$handle = 'wpmudev-notices-dashboard';
+
 			wp_enqueue_style(
-				'wpmudev-notices-dashboard',
+				$handle,
 				$this->assets_url( 'css/dashboard-notices.min.css' ),
 				array(),
 				Handler::instance()->version
 			);
 
 			wp_enqueue_script(
-				'wpmudev-notices-dashboard',
+				$handle,
 				$this->assets_url( 'js/dashboard-notices.min.js' ),
 				array(),
 				Handler::instance()->version,
@@ -188,11 +191,8 @@ if ( ! class_exists( __NAMESPACE__ . '\\Email' ) ) {
 		 * @return bool
 		 */
 		public function can_show( $plugin ) {
-			// Mailchimp list id is required.
-			$list_id = $this->get_option( 'mc_list_id', 'ss' );
-
 			// Show only on dashboard.
-			return 'dashboard' === $this->screen_id() && ! empty( $list_id );
+			return 'dashboard' === $this->screen_id();
 		}
 
 		/**
@@ -211,7 +211,6 @@ if ( ! class_exists( __NAMESPACE__ . '\\Email' ) ) {
 					'title'      => __( 'Plugin', 'wdev_frash' ),
 					'wp_slug'    => '',
 					'cta_email'  => __( 'Get Fast!', 'wdev_frash' ),
-					'mc_list_id' => '',
 				)
 			);
 		}

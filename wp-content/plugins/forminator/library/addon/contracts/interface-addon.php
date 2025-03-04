@@ -1,4 +1,9 @@
 <?php
+/**
+ * The Forminator_Addon_Interface class.
+ *
+ * @package Forminator
+ */
 
 /**
  * Interface Forminator_Addon_Interface

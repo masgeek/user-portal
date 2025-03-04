@@ -29,7 +29,6 @@ class Fonts {
 	 * @return mixed|void
 	 */
 	public static function system() {
-
 		$system_fonts = array(
 			'inherit' => array( 'f' => 'Default', 's' => '' ),
 			'sans'    => array(
@@ -43,7 +42,7 @@ class Fonts {
 			),
 		);
 
-		$fonts_json = file_get_contents( KENTA_BLOCKS_PLUGIN_PATH . 'assets/system-fonts.json' );
+		$fonts_json = kb_wp_filesystem()->get_contents( KENTA_BLOCKS_PLUGIN_PATH . 'assets/system-fonts.json' );
 
 		// Change the object to a multidimensional array.
 		$fonts_array = json_decode( $fonts_json, true );
@@ -59,6 +58,67 @@ class Fonts {
 	}
 
 	/**
+	 * Enqueue typography scripts
+	 *
+	 * @param $id
+	 * @param false $version
+	 */
+	public static function enqueue_scripts( $id, $version = false ) {
+		$google_font_url = self::get_webfont_url( $id );
+
+		if ( $google_font_url !== '' ) {
+			wp_enqueue_style( $id, $google_font_url, array(), $version );
+		}
+	}
+
+	/**
+	 * Get web font url
+	 *
+	 * @param $id
+	 *
+	 * @return string
+	 */
+	public static function get_webfont_url( $id ) {
+
+		$queued = apply_filters( $id, self::$queue );
+
+		$font_list = [];
+
+		foreach ( $queued as $typography ) {
+			$font_list = self::addTypography( $font_list, $typography );
+		}
+
+		$web_font_url = self::google_fonts_url( $font_list );
+		if ( $web_font_url !== '' && kenta_blocks_setting()->value( 'kb_local_webfonts' ) === 'yes' ) {
+			$web_font_url = wptt_get_webfont_url( $web_font_url );
+		}
+
+		return $web_font_url;
+	}
+
+	/**
+	 * Add font to fonts stack from typography
+	 *
+	 * @param $fonts
+	 * @param $typography
+	 *
+	 * @return array|mixed
+	 */
+	public static function addTypography( $fonts, $typography ) {
+		$google = Fonts::google();
+
+		$family  = $typography['family'] ?? 'inherit';
+		$variant = $typography['variant'] ?? '400';
+
+		if ( isset( $google[ $family ] ) ) {
+			$variants = $google[ $family ]['v'] ?? [];
+			$variant  = in_array( $variant, $variants ) ? $variant : ( $variants[0] ?? '400' );
+		}
+
+		return self::add( $fonts, $family, $variant );
+	}
+
+	/**
 	 * Return google fonts array
 	 *
 	 * @return array
@@ -66,7 +126,7 @@ class Fonts {
 	public static function google() {
 		$google_fonts = array();
 
-		$fonts_json = file_get_contents( KENTA_BLOCKS_PLUGIN_PATH . 'assets/google-fonts.json' );
+		$fonts_json = kb_wp_filesystem()->get_contents( KENTA_BLOCKS_PLUGIN_PATH . 'assets/google-fonts.json' );
 
 		// Change the object to a multidimensional array.
 		$fonts_array = json_decode( $fonts_json, true );
@@ -86,6 +146,55 @@ class Fonts {
 		}
 
 		return apply_filters( 'kb/google_fonts', $google_fonts );
+	}
+
+	/**
+	 * Add font to stack
+	 *
+	 * @param $fonts
+	 * @param $name
+	 * @param array $variants
+	 *
+	 * @return array|mixed
+	 */
+	public static function add( $fonts, $name, $variants = array() ) {
+
+		if ( 'inherit' == $name ) {
+			return $fonts;
+		}
+
+		if ( ! is_array( $variants ) ) {
+			// For multiple variant selected for fonts.
+			$variants = explode( ',', str_replace( 'italic', 'i', $variants ) );
+		}
+
+		if ( is_array( $variants ) ) {
+			$key = array_search( 'inherit', $variants );
+			if ( false !== $key ) {
+
+				unset( $variants[ $key ] );
+
+				if ( ! in_array( 400, $variants ) ) {
+					$variants[] = 400;
+				}
+			}
+		} elseif ( 'inherit' == $variants ) {
+			$variants = 400;
+		}
+
+		if ( isset( $fonts[ $name ] ) ) {
+			foreach ( (array) $variants as $variant ) {
+				if ( ! in_array( $variant, $fonts[ $name ]['variants'] ) ) {
+					$fonts[ $name ]['variants'][] = $variant;
+				}
+			}
+		} else {
+			$fonts[ $name ] = array(
+				'variants' => (array) $variants,
+			);
+		}
+
+		return $fonts;
 	}
 
 	/**
@@ -171,115 +280,5 @@ class Fonts {
 		}
 
 		return empty( $value ) && null !== $default ? $default : $value;
-	}
-
-	/**
-	 * Add font to fonts stack from typography
-	 *
-	 * @param $fonts
-	 * @param $typography
-	 *
-	 * @return array|mixed
-	 */
-	public static function addTypography( $fonts, $typography ) {
-		$google = Fonts::google();
-
-		$family  = $typography['family'] ?? 'inherit';
-		$variant = $typography['variant'] ?? '400';
-
-		if ( isset( $google[ $family ] ) ) {
-			$variants = $google[ $family ]['v'] ?? [];
-			$variant  = in_array( $variant, $variants ) ? $variant : ( $variants[0] ?? '400' );
-		}
-
-		return self::add( $fonts, $family, $variant );
-	}
-
-	/**
-	 * Add font to stack
-	 *
-	 * @param $fonts
-	 * @param $name
-	 * @param array $variants
-	 *
-	 * @return array|mixed
-	 */
-	public static function add( $fonts, $name, $variants = array() ) {
-
-		if ( 'inherit' == $name ) {
-			return $fonts;
-		}
-
-		if ( ! is_array( $variants ) ) {
-			// For multiple variant selected for fonts.
-			$variants = explode( ',', str_replace( 'italic', 'i', $variants ) );
-		}
-
-		if ( is_array( $variants ) ) {
-			$key = array_search( 'inherit', $variants );
-			if ( false !== $key ) {
-
-				unset( $variants[ $key ] );
-
-				if ( ! in_array( 400, $variants ) ) {
-					$variants[] = 400;
-				}
-			}
-		} elseif ( 'inherit' == $variants ) {
-			$variants = 400;
-		}
-
-		if ( isset( $fonts[ $name ] ) ) {
-			foreach ( (array) $variants as $variant ) {
-				if ( ! in_array( $variant, $fonts[ $name ]['variants'] ) ) {
-					$fonts[ $name ]['variants'][] = $variant;
-				}
-			}
-		} else {
-			$fonts[ $name ] = array(
-				'variants' => (array) $variants,
-			);
-		}
-
-		return $fonts;
-	}
-
-	/**
-	 * Enqueue typography scripts
-	 *
-	 * @param $id
-	 * @param false $version
-	 */
-	public static function enqueue_scripts( $id, $version = false ) {
-		$google_font_url = self::get_webfont_url( $id );
-
-		if ( $google_font_url !== '' ) {
-			wp_enqueue_style( $id, $google_font_url, array(), $version );
-		}
-	}
-
-	/**
-	 * Get web font url
-	 *
-	 * @param $id
-	 *
-	 * @return string
-	 */
-	public static function get_webfont_url( $id ) {
-
-		$queued = apply_filters( $id, self::$queue );
-
-		$font_list = [];
-
-		foreach ( $queued as $typography ) {
-			$font_list = self::addTypography( $font_list, $typography );
-		}
-
-		$web_font_url = self::google_fonts_url( $font_list );
-		if ( $web_font_url !== '' && kenta_blocks_setting()->value( 'kb_local_webfonts' ) === 'yes' ) {
-			$web_font_url = wptt_get_webfont_url( $web_font_url );
-		}
-
-		return $web_font_url;
 	}
 }

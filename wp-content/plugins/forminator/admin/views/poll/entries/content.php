@@ -1,4 +1,10 @@
 <?php
+/**
+ * Template admin/views/poll/entries/content.php
+ *
+ * @package Forminator
+ */
+
 $count = Forminator_Form_Entry_Model::count_entries( $this->form_id );
 
 $poll_question    = Forminator_Poll_Front::get_poll_question( $this->model );
@@ -7,28 +13,12 @@ $poll_description = Forminator_Poll_Front::get_poll_description( $this->model );
 $custom_votes = $this->map_custom_votes();
 ?>
 
-<?php if ( $this->error_message() ) : ?>
-	<div
-		role="alert"
-		class="sui-notice sui-notice-red sui-active"
-		style="display: block; text-align: left;"
-		aria-live="assertive"
-	>
-
-		<div class="sui-notice-content">
-
-			<div class="sui-notice-message">
-
-				<span class="sui-notice-icon sui-icon-info" aria-hidden="true"></span>
-
-				<p><?php echo esc_html( $this->error_message() ); ?></p></span>
-
-			</div>
-
-		</div>
-
-	</div>
-<?php endif; ?>
+<?php
+if ( $this->error_message() ) {
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is already escaped.
+	echo Forminator_Admin::get_red_notice( esc_html( $this->error_message() ) );
+}
+?>
 
 <?php if ( $count > 0 ) : ?>
 
@@ -70,7 +60,7 @@ $custom_votes = $this->map_custom_votes();
 						echo '<div style="margin-top: 10px;">';
 
 					foreach ( $custom_vote as $answer => $vote ) {
-						echo '<span class="sui-tag">' . /* translators: ... */ esc_html( sprintf( _n( '%1$s (%2$s) vote', '%1$s (%2$s) votes', $vote, 'forminator' ), $answer, $vote ) ) . '</span>';
+						echo '<span class="sui-tag">' . /* translators: 1: Number of vote, 2: Answer */ esc_html( sprintf( _n( '%1$s (%2$s) vote', '%1$s (%2$s) votes', $vote, 'forminator' ), $answer, $vote ) ) . '</span>';
 					}
 
 						echo '</div>';

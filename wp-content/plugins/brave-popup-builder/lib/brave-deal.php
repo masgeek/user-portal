@@ -38,7 +38,7 @@ if ( ! class_exists( 'BravePopup_Deal_Notice' ) ) {
          <script>
             function bravePop_hide_deal(action_type){
                var bravepop_review_request = new XMLHttpRequest();
-               bravepop_review_request.open('POST', '<?php echo admin_url( 'admin-ajax.php' ) ?>', true);
+               bravepop_review_request.open('POST', '<?php echo esc_url(admin_url( 'admin-ajax.php' )) ?>', true);
                bravepop_review_request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded' );
                bravepop_review_request.onload = function () {  
                   document.getElementById('bravepop-deal-notice').style.display = 'none';
@@ -46,7 +46,7 @@ if ( ! class_exists( 'BravePopup_Deal_Notice' ) ) {
                bravepop_review_request.onerror = function(error) {  console.log(error);   };
                
                var bravePopuReviewDataArray = [];
-               var bravepop_review_ajaxData = { security: '<?php echo wp_create_nonce( "bravepop-deal" ); ?>', action: 'bravepop_deal_ajax', type: action_type };
+               var bravepop_review_ajaxData = { security: '<?php echo esc_html(wp_create_nonce( "bravepop-deal" )); ?>', action: 'bravepop_deal_ajax', type: action_type };
                Object.keys(bravepop_review_ajaxData).forEach(function(element) {
                   bravePopuReviewDataArray.push(  encodeURIComponent(element) + "=" + encodeURIComponent(bravepop_review_ajaxData[element]) ) 
                });
@@ -67,9 +67,9 @@ if ( ! class_exists( 'BravePopup_Deal_Notice' ) ) {
          
             <div id="bravepop-deal-notice" class="notice notice-success is-dismissible" style="margin-top:30px; font-weight: 600; font-size: 15px;">
                <p style="font-size: 15px;">
-                  <?php echo $icon.' '.esc_html( $messages ); ?> 
-                  <a id="bravepop-view-deal" onclick="bravePop_hide_deal('viewed')" href="https://getbrave.io/brave-popup-builder-pro-upgrade/" target="_blank" class="button button-primary bravepop-review-button" style="margin-left: 20px; background: #5d70e2; border-color: transparent;"><?php echo $rateBtn;?></a>
-                  <a id="bravepop-dismiss-deal" href="#" onclick="bravePop_hide_deal('dismissed')" style="margin-left:10px;color: #5d70e2;"><?php echo $cancelBtn;?></a>
+                  <?php echo esc_html( $icon.' '.$messages ); ?> 
+                  <a id="bravepop-view-deal" onclick="bravePop_hide_deal('viewed')" href="https://getbrave.io/brave-popup-builder-pro-upgrade/" target="_blank" class="button button-primary bravepop-review-button" style="margin-left: 20px; background: #5d70e2; border-color: transparent;"><?php echo esc_html($rateBtn);?></a>
+                  <a id="bravepop-dismiss-deal" href="#" onclick="bravePop_hide_deal('dismissed')" style="margin-left:10px;color: #5d70e2;"><?php echo esc_html($cancelBtn);?></a>
                </p>
 
             </div>

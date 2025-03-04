@@ -1,13 +1,23 @@
 <?php
+/**
+ * Template for setup connect
+ *
+ * @package Forminator
+ */
+
 // Defaults.
 $vars = array(
 	'error_message' => '',
 	'is_connected'  => false,
 );
 
-$activate_description = __( 'Activate Webhook to start using it with your forms, quizzes, and polls.', 'forminator' );
+$activate_description = esc_html__( 'Activate Webhook to start using it with your forms, quizzes, and polls.', 'forminator' );
 
-/** @var array $template_vars */
+/**
+ * Template variables.
+ *
+ * @var array $template_vars
+ * */
 foreach ( $template_vars as $key => $val ) {
 	$vars[ $key ] = $val;
 } ?>
@@ -16,8 +26,8 @@ foreach ( $template_vars as $key => $val ) {
 
 	<h3 id="forminator-integration-popup__title" class="sui-box-title sui-lg" style="overflow: initial; white-space: normal; text-overflow: initial;">
 		<?php
-		/* translators: ... */
-		echo esc_html( sprintf( __( 'Activate %1$s', 'forminator' ), 'Webhook' ) );
+		/* translators: 1: Add-on name */
+		printf( esc_html__( 'Activate %1$s', 'forminator' ), 'Webhook' );
 		?>
 	</h3>
 
@@ -36,49 +46,22 @@ foreach ( $template_vars as $key => $val ) {
 <?php endif; ?>
 
 <?php if ( ! empty( $vars['is_connected'] ) ) : ?>
-	<div
-		role="alert"
-		class="sui-notice sui-notice-green sui-active"
-		style="display: block; text-align: left;"
-		aria-live="assertive"
-	>
-
-		<div class="sui-notice-content">
-
-			<div class="sui-notice-message">
-
-				<span class="sui-notice-icon sui-icon-check-tick" aria-hidden="true"></span>
-
-				<p><?php esc_html_e( 'Webhook is already active.', 'forminator' ); ?></p>
-
-			</div>
-
-		</div>
-
-	</div>
+	<?php
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is already escaped.
+	echo Forminator_Admin::get_green_notice(
+		esc_html__(
+			'Webhook is already active.',
+			'forminator'
+		)
+	);
+	?>
 <?php endif; ?>
 
 <?php if ( ! empty( $vars['error_message'] ) ) : ?>
-	<div
-		role="alert"
-		class="sui-notice sui-notice-red sui-active"
-		style="display: block; text-align: left;"
-		aria-live="assertive"
-	>
-
-		<div class="sui-notice-content">
-
-			<div class="sui-notice-message">
-
-				<span class="sui-notice-icon sui-icon-info" aria-hidden="true"></span>
-
-				<p><?php echo esc_html( $vars['error_message'] ); ?></p>
-
-			</div>
-
-		</div>
-
-	</div>
+	<?php
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is already escaped.
+		echo Forminator_Admin::get_red_notice( esc_html( $vars['error_message'] ) );
+	?>
 <?php endif; ?>
 
 <form>

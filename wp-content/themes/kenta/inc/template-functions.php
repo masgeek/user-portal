@@ -51,7 +51,7 @@ add_filter( 'body_class', 'kenta_body_classes' );
  */
 function kenta_excerpt_length( $length ) {
 
-	if ( is_admin() || ! kenta_app()->has( 'store.excerpt_length' ) ) {
+	if ( is_admin() || ! kenta_app()->has( 'store.excerpt_length' ) || absint( kenta_app()['store.excerpt_length'] ) <= 0 ) {
 		return $length;
 	}
 
@@ -60,13 +60,27 @@ function kenta_excerpt_length( $length ) {
 
 add_filter( 'excerpt_length', 'kenta_excerpt_length' );
 
+if ( ! function_exists( 'kenta_get_the_archive_title' ) ) {
+	/**
+	 * Override blogs page title
+	 */
+	function kenta_get_the_archive_title( $title ) {
+		if ( is_home() ) {
+			return CZ::get( 'kenta_blogs_archive_header_title' );
+		}
+
+		return $title;
+	}
+}
+add_filter( 'get_the_archive_title', 'kenta_get_the_archive_title' );
+
 /**
  * Replaces "[...]" (appended to automatically generated excerpts) with ... and a option from customizer
  *
  * @return string option from customizer prepended with an ellipsis.
  */
 function kenta_excerpt_more( $link ) {
-	if ( is_admin() || ! kenta_app()->has( 'store.excerpt_more_text' ) ) {
+	if ( is_admin() || ! kenta_app()->has( 'store.excerpt_more_text' ) || kenta_app()['store.excerpt_more_text'] === '' ) {
 		return $link;
 	}
 
@@ -144,6 +158,7 @@ function kenta_add_header_open() {
     <header class="<?php Utils::the_clsx( [
 		'kenta-site-header text-accent'    => true,
 		'kenta-transparent-header'         => $transparent,
+		'kenta-header-with-admin-bar'      => is_admin_bar_showing(),
 		'kenta-transparent-header-desktop' => $transparent && ( $device === 'all' || $device === 'desktop' ),
 		'kenta-transparent-header-mobile'  => $transparent && ( $device === 'all' || $device === 'mobile' ),
 	] ); ?>">
@@ -167,20 +182,30 @@ add_action( 'kenta_action_after_header', 'kenta_add_header_close' );
  */
 function kenta_header_render() {
 	if ( kenta_get_current_post_meta( 'disable-site-header' ) !== 'yes' ) {
-		$caching_css = kenta_app()->has( 'store.caching_css' );
 
-		if ( Kenta_Header_Builder::shouldRenderRow( 'modal' ) || $caching_css ) {
+		do_action( 'kenta_before_header_row_render', 'modal' );
+		if ( Kenta_Header_Builder::shouldRenderRow( 'modal' ) ) {
 			Kenta_Header_Builder::render( 'modal' );
 		}
-		if ( Kenta_Header_Builder::shouldRenderRow( 'top_bar' ) || $caching_css ) {
+		do_action( 'kenta_after_header_row_render', 'modal' );
+
+		do_action( 'kenta_before_header_row_render', 'top_bar' );
+		if ( Kenta_Header_Builder::shouldRenderRow( 'top_bar' ) ) {
 			Kenta_Header_Builder::render( 'top_bar' );
 		}
-		if ( Kenta_Header_Builder::shouldRenderRow( 'primary_navbar' ) || $caching_css ) {
+		do_action( 'kenta_after_header_row_render', 'top_bar' );
+
+		do_action( 'kenta_before_header_row_render', 'primary_navbar' );
+		if ( Kenta_Header_Builder::shouldRenderRow( 'primary_navbar' ) ) {
 			Kenta_Header_Builder::render( 'primary_navbar' );
 		}
-		if ( Kenta_Header_Builder::shouldRenderRow( 'bottom_row' ) || $caching_css ) {
+		do_action( 'kenta_after_header_row_render', 'primary_navbar' );
+
+		do_action( 'kenta_before_header_row_render', 'bottom_row' );
+		if ( Kenta_Header_Builder::shouldRenderRow( 'bottom_row' ) ) {
 			Kenta_Header_Builder::render( 'bottom_row' );
 		}
+		do_action( 'kenta_after_header_row_render', 'bottom_row' );
 	}
 }
 
@@ -203,7 +228,7 @@ function kenta_header_row_start( $id ) {
 add_action( 'kenta_start_header_row', 'kenta_header_row_start', 10 );
 
 function kenta_header_row_container_start( $id ) {
-	echo '<div class="container mx-auto text-xs px-gutter flex flex-wrap items-stretch">';
+	echo '<div class="kenta-max-w-wide has-global-padding container mx-auto text-xs flex flex-wrap items-stretch">';
 }
 
 add_action( 'kenta_start_header_row', 'kenta_header_row_container_start', 20 );
@@ -442,7 +467,7 @@ function kenta_add_post_author_bio() {
 	}
 
 	$attrs = [
-		'class' => 'kenta-max-w-content mx-auto prose prose-kenta',
+		'class' => 'kenta-max-w-content has-global-padding mx-auto',
 	];
 
 	if ( is_customize_preview() ) {
@@ -516,7 +541,7 @@ function kenta_add_post_navigation() {
 	}
 
 	$attrs = [
-		'class' => 'kenta-max-w-content mx-auto',
+		'class' => 'kenta-max-w-content has-global-padding mx-auto',
 	];
 
 	if ( is_customize_preview() ) {
@@ -527,9 +552,37 @@ function kenta_add_post_navigation() {
 	echo '<div ' . Utils::render_attribute_string( $attrs ) . '>';
 	echo '<div class="kenta-post-navigation">';
 
+	$fallback_image = CZ::hasImage( 'kenta_post_featured_image_fallback' )
+		? '<img class="wp-post-image" ' . Utils::render_attribute_string( CZ::imgAttrs( 'kenta_post_featured_image_fallback' ) ) . ' />'
+		: '';
+
+	$prev_post = get_previous_post();
+
+	$prev_thumbnail = $fallback_image;
+	$next_thumbnail = $fallback_image;
+
+	if ( has_post_thumbnail( $prev_post ? $prev_post->ID : null ) ) {
+		$prev_thumbnail = get_the_post_thumbnail( $prev_post ? $prev_post->ID : null, 'medium' );
+	}
+
+	$prev_thumbnail = '<div class="prev-post-thumbnail post-thumbnail">' .
+	                  $prev_thumbnail .
+	                  IconsManager::render( CZ::get( 'kenta_post_navigation_prev_icon' ) ) .
+	                  '</div>';
+
+	$next_post = get_next_post();
+	if ( has_post_thumbnail( $next_post ? $next_post->ID : null ) ) {
+		$next_thumbnail = get_the_post_thumbnail( $next_post ? $next_post->ID : null, 'medium' );
+	}
+
+	$next_thumbnail = '<div class="next-post-thumbnail post-thumbnail">' .
+	                  $next_thumbnail .
+	                  IconsManager::render( CZ::get( 'kenta_post_navigation_next_icon' ) ) .
+	                  '</div>';
+
 	the_post_navigation( [
-		'prev_text'          => IconsManager::render( CZ::get( 'kenta_post_navigation_prev_icon' ) ) . '<div class="item-wrap px-gutter"><span class="item-label">' . esc_html__( 'Previous Post', 'kenta' ) . '</span><span class="item-title">%title</span></div>',
-		'next_text'          => IconsManager::render( CZ::get( 'kenta_post_navigation_next_icon' ) ) . '<div class="item-wrap px-gutter"><span class="item-label">' . esc_html__( 'Next Post', 'kenta' ) . '</span><span class="item-title">%title</span></div>',
+		'prev_text'          => $prev_thumbnail . '<div class="item-wrap pl-gutter lg:pr-2"><span class="item-label">' . esc_html__( 'Previous Post', 'kenta' ) . '</span><span class="item-title">%title</span></div>',
+		'next_text'          => $next_thumbnail . '<div class="item-wrap pr-gutter lg:pl-2"><span class="item-label">' . esc_html__( 'Next Post', 'kenta' ) . '</span><span class="item-title">%title</span></div>',
 		'screen_reader_text' => '<span class="nav-subtitle screen-reader-text">' . esc_html__( 'Page', 'kenta' ) . '</span>',
 	] );
 
@@ -605,3 +658,39 @@ if ( ! function_exists( 'kenta_render_breadcrumbs' ) ) {
 	}
 }
 add_action( 'kenta_render_breadcrumbs', 'kenta_render_breadcrumbs' );
+
+if ( ! function_exists( 'kenta_custom_theme_layout' ) ) {
+	/**
+	 * Modify the theme's JSON data by updating the theme's layout
+	 * based on the Customizer value
+	 *
+	 * @param object $theme_json The original theme JSON data.
+	 *
+	 * @return object The modified theme JSON data.
+	 *
+	 * @since 2.0.0
+	 */
+	function kenta_custom_theme_layout( $theme_json ) {
+		// Site wide size
+		$wide_size    = '1140px';
+		$option_type  = kenta_current_option_type();
+		$content_size = CZ::get( 'kenta_' . $option_type . '_container_max_width' );
+		if ( ! $content_size // without custom width
+		     || Utils::str_ends_with( $content_size, 'ch' ) ) { // drop support for 'ch' unit
+			$content_size = '720px';
+		}
+
+		$new_data = array(
+			'version'  => 2,
+			'settings' => array(
+				'layout' => array(
+					'contentSize' => $content_size,
+					'wideSize'    => $wide_size,
+				),
+			)
+		);
+
+		return $theme_json->update_with( $new_data );
+	}
+}
+add_filter( 'wp_theme_json_data_theme', 'kenta_custom_theme_layout' );

@@ -1,4 +1,11 @@
 <?php
+/**
+ * The Forminator_Stripe class.
+ * It uses Stripe Card Element to process payment.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -11,55 +18,75 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Forminator_Stripe extends Forminator_Field {
 
 	/**
+	 * Name
+	 *
 	 * @var string
 	 */
 	public $name = '';
 
 	/**
+	 * Slug
+	 *
 	 * @var string
 	 */
 	public $slug = 'stripe';
 
 	/**
+	 * Type
+	 *
 	 * @var string
 	 */
 	public $type = 'stripe';
 
 	/**
+	 * Position
+	 *
 	 * @var int
 	 */
 	public $position = 23;
 
 	/**
+	 * Options
+	 *
 	 * @var array
 	 */
 	public $options = array();
 
-	/**
-	 * @var string
-	 */
-	public $category = 'standard';
-
 
 	/**
+	 * Icon
+	 *
 	 * @var string
 	 */
 	public $icon = 'sui-icon forminator-icon-stripe';
 
 	/**
+	 * Is connected
+	 *
 	 * @var bool
 	 */
 	public $is_connected = false;
 
 	/**
+	 * Mode
+	 *
 	 * @var string
 	 */
 	public $mode = 'test';
 
 	/**
+	 * Payment plan
+	 *
 	 * @var array
 	 */
 	public $payment_plan = array();
+
+	/**
+	 * Payment plan hash
+	 *
+	 * @var string
+	 */
+	public string $payment_plan_hash = '';
 
 	/**
 	 * Forminator_Stripe constructor.
@@ -67,7 +94,7 @@ class Forminator_Stripe extends Forminator_Field {
 	public function __construct() {
 		parent::__construct();
 
-		$this->name = __( 'Stripe', 'forminator' );
+		$this->name = esc_html__( 'Stripe', 'forminator' );
 
 		try {
 			$stripe = new Forminator_Gateway_Stripe();
@@ -77,7 +104,6 @@ class Forminator_Stripe extends Forminator_Field {
 		} catch ( Forminator_Gateway_Exception $e ) {
 			$this->is_connected = false;
 		}
-
 	}
 
 	/**
@@ -96,7 +122,7 @@ class Forminator_Stripe extends Forminator_Field {
 		}
 
 		return array(
-			'field_label'              => __( 'Credit / Debit Card', 'forminator' ),
+			'field_label'              => esc_html__( 'Credit / Debit Card', 'forminator' ),
 			'mode'                     => 'test',
 			'currency'                 => $default_currency,
 			'amount_type'              => 'fixed',
@@ -120,7 +146,7 @@ class Forminator_Stripe extends Forminator_Field {
 			'quantity_type'            => 'fixed',
 			'payments'                 => array(
 				array(
-					'plan_name'                => __( 'Plan 1', 'forminator' ),
+					'plan_name'                => esc_html__( 'Plan 1', 'forminator' ),
 					'payment_method'           => 'single',
 					'amount_type'              => 'fixed',
 					'amount'                   => '',
@@ -136,7 +162,7 @@ class Forminator_Stripe extends Forminator_Field {
 	/**
 	 * Field front-end markup
 	 *
-	 * @param $field
+	 * @param array                  $field Field.
 	 * @param Forminator_Render_Form $views_obj Forminator_Render_Form object.
 	 *
 	 * @return mixed
@@ -145,15 +171,20 @@ class Forminator_Stripe extends Forminator_Field {
 		$settings            = $views_obj->model->settings;
 		$this->field         = $field;
 		$this->form_settings = $settings;
+		$is_ocs              = 'stripe-ocs' === $field['type'];
+
+		// Don't render stripe field if there is stripe-ocs field in the form.
+		if ( ! $is_ocs && $views_obj->has_field_type( 'stripe-ocs' ) ) {
+			return '';
+		}
 
 		$id               = self::get_property( 'element_id', $field );
-		$description      = esc_html( self::get_property( 'description', $field, '' ) );
+		$description      = self::get_property( 'description', $field, '' );
 		$label            = esc_html( self::get_property( 'field_label', $field, '' ) );
 		$element_name     = $id;
 		$field_id         = $id . '-field';
 		$mode             = self::get_property( 'mode', $field, 'test' );
 		$currency         = self::get_property( 'currency', $field, $this->get_default_currency() );
-		$amount_type      = self::get_property( 'amount_type', $field, 'fixed' );
 		$amount           = self::get_property( 'amount', $field, 1 );
 		$amount_variable  = self::get_property( 'variable', $field, '' );
 		$card_icon        = self::get_property( 'card_icon', $field, true );
@@ -176,47 +207,72 @@ class Forminator_Stripe extends Forminator_Field {
 		$desc             = self::get_property( 'product_description', $field, '' );
 		$company          = self::get_property( 'company_name', $field, '' );
 		$uniqid           = Forminator_CForm_Front::$uid;
+		$id_prefix        = $is_ocs ? 'payment-element' : 'card-element';
+		$full_id          = $id_prefix . '-' . $uniqid;
+		$prefix           = 'basic' === $settings['form-style'] ? 'basic-' : '';
 
 		if ( mb_strlen( $company ) > 22 ) {
 			$company = mb_substr( $company, 0, 19 ) . '...';
 		}
 
-		$start_amount   = ( 'fixed' === $amount_type ? esc_html( $amount ) : 1 );
 		$customer_email = forminator_clear_field_id( $customer_email );
 		$custom_fonts   = false;
-
-		if ( 'fixed' !== $amount_type ) {
-			$currency = 'usd';
-		}
 
 		// Generate payment intent object.
 		$this->mode = $mode;
 
-		if ( isset( $settings['form-font-family'] ) && 'custom' === $settings['form-font-family'] ) {
+		if ( isset( $settings[ $prefix . 'form-font-family' ] ) && 'custom' === $settings[ $prefix . 'form-font-family' ] ) {
 			$custom_fonts = true;
 		}
 
-		if ( ! isset( $settings['form-style'] ) ) {
-			$settings['form-style'] = 'default';
+		if ( ! isset( $settings['form-substyle'] ) ) {
+			$settings['form-substyle'] = 'default';
 		}
 
-		if( ! empty( $settings['form-font-family'] ) ) {
-			$field_font_family = $this->get_form_setting( 'cform-input-font-family', $settings, 'inherit' );
-			if( $field_font_family == 'custom' ) {
-				$data_font_family = $this->get_form_setting( 'cform-input-custom-family', $settings, 'inherit' );
+		$data_font_family = 'inherit';
+		$data_font_size   = '16px';
+		$data_font_weight = '400';
+
+		if ( ! empty( $settings[ $prefix . 'form-font-family' ] ) ) {
+			$field_font_family = $this->get_form_setting( $prefix . 'cform-input-font-family', $settings, $data_font_family );
+			$data_font_size    = $this->get_form_setting( $prefix . 'cform-input-font-size', $settings, '16' ) . 'px';
+			$data_font_weight  = $this->get_form_setting( $prefix . 'cform-input-font-weight', $settings, $data_font_weight );
+
+			if ( 'custom' === $field_font_family ) {
+				$data_font_family = $this->get_form_setting( $prefix . 'cform-input-custom-family', $settings, $data_font_family );
 			} else {
 				$data_font_family = $field_font_family;
 			}
-		} else {
-			$data_font_family = 'inherit';
+		}
+
+		$data_placeholder      = '#888888';
+		$data_font_color       = '#000000';
+		$data_font_color_focus = '#000000';
+		$data_font_color_error = '#000000';
+		$data_icon_color       = '#777771';
+		$data_icon_color_hover = '#17A8E3';
+		$data_icon_color_focus = '#17A8E3';
+		$data_icon_color_error = '#E04562';
+
+		if ( ! empty( $settings[ $prefix . 'cform-color-settings' ] ) ) {
+			$data_placeholder      = $this->get_form_setting( $prefix . 'input-placeholder', $settings, $data_placeholder );
+			$data_font_color       = $this->get_form_setting( $prefix . 'input-color', $settings, $data_font_color );
+			$data_font_color_focus = $this->get_form_setting( $prefix . 'input-color', $settings, $data_font_color_focus );
+			$data_font_color_error = $this->get_form_setting( $prefix . 'input-color', $settings, $data_font_color_error );
+			$data_icon_color       = $this->get_form_setting( $prefix . 'input-icon', $settings, $data_icon_color );
+			$data_icon_color_hover = $this->get_form_setting( $prefix . 'input-icon-hover', $settings, $data_icon_color_hover );
+			$data_icon_color_focus = $this->get_form_setting( $prefix . 'input-icon-focus', $settings, $data_icon_color_focus );
+			$data_icon_color_error = $this->get_form_setting( $prefix . 'label-validation-color', $settings, $data_icon_color_error );
 		}
 
 		$attr = array(
 			'data-field-id'         => $uniqid,
 			'data-is-payment'       => 'true',
 			'data-payment-type'     => $this->type,
+			'data-is-ocs'           => $is_ocs,
 			'data-secret'           => '',
 			'data-paymentid'        => '',
+			'data-currency'         => strtolower( $currency ),
 			'data-key'              => esc_html( $this->get_publishable_key( 'test' !== $mode ) ),
 			'data-card-icon'        => filter_var( $card_icon, FILTER_VALIDATE_BOOLEAN ),
 			'data-veify-zip'        => filter_var( $verify_zip, FILTER_VALIDATE_BOOLEAN ),
@@ -235,35 +291,135 @@ class Forminator_Stripe extends Forminator_Field {
 			'data-receipt'          => filter_var( $receipt, FILTER_VALIDATE_BOOLEAN ),
 			'data-receipt-email'    => esc_html( $customer_email ),
 			'data-custom-fonts'     => $custom_fonts,
-			'data-placeholder'      => $this->get_form_setting( 'input-placeholder', $settings, '#888888' ),
-			'data-font-color'       => $this->get_form_setting( 'input-color', $settings, '#000000' ),
-			'data-font-color-focus' => $this->get_form_setting( 'input-color', $settings, '#000000' ),
-			'data-font-color-error' => $this->get_form_setting( 'input-color', $settings, '#000000' ),
-			'data-font-size'        => $this->get_form_setting( 'cform-input-font-size', $settings, '16' ) . 'px',
-			// 'data-line-height'      => '1.3em',.
+			'data-placeholder'      => $data_placeholder,
+			'data-font-color'       => $data_font_color,
+			'data-font-color-focus' => $data_font_color_focus,
+			'data-font-color-error' => $data_font_color_error,
+			'data-font-size'        => $data_font_size,
 			'data-font-family'      => $data_font_family,
-			'data-font-weight'      => $this->get_form_setting( 'cform-input-font-weight', $settings, '400' ),
-			'data-icon-color'       => $this->get_form_setting( 'input-icon', $settings, '#777771' ),
-			'data-icon-color-hover' => $this->get_form_setting( 'input-icon-hover', $settings, '#17A8E3' ),
-			'data-icon-color-focus' => $this->get_form_setting( 'input-icon-focus', $settings, '#17A8E3' ),
-			'data-icon-color-error' => $this->get_form_setting( 'label-validation-color', $settings, '#E04562' ),
-			'aria-describedby'      => esc_attr( 'card-element-' . $uniqid . '-description' ),
+			'data-font-weight'      => $data_font_weight,
+			'data-icon-color'       => $data_icon_color,
+			'data-icon-color-hover' => $data_icon_color_hover,
+			'data-icon-color-focus' => $data_icon_color_focus,
+			'data-icon-color-error' => $data_icon_color_error,
 		);
+
+		if ( $is_ocs ) {
+			$elements_options  = array(
+				'loader'                => 'always',
+				'locale'                => $language,
+				'paymentMethodCreation' => 'manual',
+			);
+			$variables         = array(
+				'fontWeightNormal'      => $data_font_weight,
+				'fontSizeBase'          => $data_font_size,
+				'iconColor'             => $data_icon_color,
+				'iconHoverColor'        => $data_icon_color_hover,
+				'iconCardErrorColor'    => $data_icon_color_error,
+				'iconCardCvcErrorColor' => $data_icon_color_error,
+				'colorTextPlaceholder'  => $data_placeholder,
+			);
+			$custom_appearance = self::get_property( 'custom_appearance', $field, false );
+			if ( $custom_appearance ) {
+				$spacing = self::get_property( 'spacing_unit', $field, '' );
+				if ( $spacing ) {
+					$variables['spacingUnit'] = $spacing . 'px';
+				}
+				$border_radius = self::get_property( 'border_radius', $field, '' );
+				if ( $border_radius ) {
+					$variables['borderRadius'] = $border_radius . 'px';
+				}
+				$variables['colorPrimary']    = self::get_property( 'primary_color', $field, '' );
+				$variables['colorBackground'] = self::get_property( 'background_color', $field, '' );
+				$variables['colorText']       = self::get_property( 'text_color', $field, '' );
+				$variables['colorDanger']     = self::get_property( 'error', $field, '' );
+			}
+			// Remove empty values.
+			$variables = array_filter( $variables );
+
+			$appearance = array(
+				'theme'     => self::get_property( 'theme', $field, 'stripe' ),
+				'variables' => $variables,
+			);
+			if ( $custom_fonts && $data_font_family ) {
+				$appearance['variables']['fontFamily'] = $data_font_family;
+				$elements_options['fonts'][]           = array(
+					'family' => $data_font_family,
+					'cssSrc' => 'https://fonts.bunny.net/css?family=' . $data_font_family,
+				);
+			}
+			$elements_options['appearance'] = $appearance;
+
+			$dynamic_methods = self::get_property( 'automatic_payment_methods', $field, 'true' );
+			// If Only card is enabled, disable other payment methods.
+			if ( 'false' === $dynamic_methods ) {
+				$elements_options['paymentMethodTypes'] = array( 'card' );
+			}
+
+			/**
+			 * Filter Stripe OCS Elements options
+			 *
+			 * @since 1.38
+			 *
+			 * @param array $elements_options Elements options.
+			 * @param array $field Field.
+			 */
+			$elements_options = apply_filters( 'forminator_field_stripe_ocs_elements_options', $elements_options, $field );
+
+			$payment_options = array(
+				'layout' => self::get_layout( $field ),
+			);
+
+			if ( 'false' === $dynamic_methods ) {
+				$payment_options['wallets'] = array(
+					'applePay'  => 'never',
+					'googlePay' => 'never',
+				);
+			}
+			/**
+			 * Filter Stripe OCS Payment options
+			 *
+			 * @since 1.38
+			 *
+			 * @param array $payment_options Payment options.
+			 * @param array $field Field.
+			 */
+			$payment_options = apply_filters( 'forminator_field_stripe_ocs_elements_options', $payment_options, $field );
+			$billing_phone   = self::get_property( 'billing_phone', $field, '' );
+
+			$attr = array(
+				'data-elements-options' => wp_json_encode( $elements_options, JSON_PRETTY_PRINT ),
+				'data-payment-options'  => wp_json_encode( $payment_options, JSON_PRETTY_PRINT ),
+				'data-field-id'         => $uniqid,
+				'data-is-payment'       => 'true',
+				'data-payment-type'     => $this->type,
+				'data-is-ocs'           => $is_ocs,
+				'data-secret'           => '',
+				'data-paymentid'        => '',
+				'data-currency'         => strtolower( $currency ),
+				'data-key'              => esc_html( $this->get_publishable_key( 'test' !== $mode ) ),
+				'data-receipt'          => filter_var( $receipt, FILTER_VALIDATE_BOOLEAN ),
+				'data-receipt-email'    => esc_html( $customer_email ),
+				'data-billing'          => filter_var( $billing, FILTER_VALIDATE_BOOLEAN ),
+				'data-billing-name'     => esc_html( $billing_name ),
+				'data-billing-email'    => esc_html( $billing_email ),
+				'data-billing-phone'    => esc_html( $billing_phone ),
+				'data-billing-address'  => esc_html( $billing_address ),
+				'data-return-url'       => esc_url( self::get_return_url() ),
+			);
+		}
+
+		if ( ! empty( $description ) ) {
+			$attr['aria-describedby'] = esc_attr( $full_id . '-description' );
+		}
 
 		$attributes = self::implode_attr( $attr );
 
 		$html = '<div class="forminator-field">';
 
-		if ( $label ) {
-			$html .= sprintf(
-				'<label for="%s" class="forminator-label">%s %s</label>',
-				$id . '-field',
-				$label,
-				forminator_get_required_icon()
-			);
-		}
+		$html .= self::get_field_label( $label, $id . '-field', true );
 
-		if ( 'material' === $settings['form-style'] ) {
+		if ( 'material' === $settings['form-substyle'] ) {
 			$classes = 'forminator-input--wrap forminator-input--stripe';
 
 			if ( empty( $label ) ) {
@@ -273,19 +429,19 @@ class Forminator_Stripe extends Forminator_Field {
 			$html .= '<div class="' . $classes . '">';
 		}
 
-		$html .= sprintf( '<div id="card-element-%s" %s class="forminator-stripe-element"></div>', $uniqid, $attributes );
+		$html .= sprintf( '<div id="%s" %s class="forminator-stripe-element%s"></div>', $full_id, $attributes, ( $is_ocs ? ' forminator-stripe-payment-element' : '' ) );
 
 		$html .= sprintf( '<input type="hidden" name="paymentid" value="%s" id="forminator-stripe-paymentid"/>', '' );
 		$html .= sprintf( '<input type="hidden" name="paymentmethod" value="%s" id="forminator-stripe-paymentmethod"/>', '' );
 		$html .= sprintf( '<input type="hidden" name="subscriptionid" value="%s" id="forminator-stripe-subscriptionid"/>', '' );
 
-		if ( 'material' === $settings['form-style'] ) {
+		if ( 'material' === $settings['form-substyle'] ) {
 			$html .= '</div>';
 		}
 
 		$html .= '<span class="forminator-card-message"><span class="forminator-error-message" aria-hidden="true"></span></span>';
 
-		$html .= self::get_description( $description, 'card-element-' . $uniqid );
+		$html .= self::get_description( $description, $full_id );
 
 		$html .= '</div>';
 
@@ -293,12 +449,36 @@ class Forminator_Stripe extends Forminator_Field {
 	}
 
 	/**
+	 * Get layout Stripe settings
+	 *
+	 * @param array $field Field.
+	 * @return array
+	 */
+	private static function get_layout( $field ) {
+		$layout = self::get_property( 'layout', $field, 'tabs' );
+		if ( 'accordion+radio' === $layout ) {
+			$radios = true;
+			$layout = 'accordion';
+		}
+		$data = array(
+			'type'             => $layout,
+			'defaultCollapsed' => false,
+		);
+
+		if ( 'accordion' === $layout ) {
+			$data['spacedAccordionItems'] = false;
+			$data['radios']               = ! empty( $radios );
+		}
+		return $data;
+	}
+
+	/**
 	 * Generate Payment Intent object
 	 *
 	 * @since 1.7.3
 	 *
-	 * @param $amount
-	 * @param $field
+	 * @param int|float $amount Amount.
+	 * @param array     $field Field.
 	 *
 	 * @return mixed
 	 */
@@ -321,27 +501,43 @@ class Forminator_Stripe extends Forminator_Field {
 		$metadata_object = array();
 
 		foreach ( $metadata as $meta ) {
-			$label = trim( $meta['label'] );
+			$label = esc_html( $meta['label'] );
+			$value = esc_html( $meta['value'] );
 			// Payment doesn't work with empty meta labels.
-			if ( '' === $label && '' === $meta['value'] ) {
+			if ( '' === $label && '' === $value ) {
 				continue;
 			}
-
 			if ( '' === $label ) {
-				$meta['label'] = $meta['value'];
+				$label = $value;
 			}
 
-			$metadata_object[ $meta['label'] ] = $meta['value'];
+			$metadata_object[ $label ] = $value;
 		}
 
 		// Default options.
 		$options = array(
-			'amount'              => $this->calculate_amount( $amount, $currency ),
-			'currency'            => $currency,
-			'capture_method'      => 'manual',
-			'confirmation_method' => 'manual',
-			'confirm'             => false,
+			'amount'                 => (int) $this->calculate_amount( $amount, $currency ),
+			'currency'               => $currency,
+			'confirm'                => false,
+			'payment_method_options' => array(
+				'wechat_pay' => array(
+					'client' => 'web', // Specify the client type.
+				),
+			),
 		);
+
+		$dynamic_methods = self::get_property( 'automatic_payment_methods', $field, 'true' );
+		if ( 'false' === $dynamic_methods ) {
+			$options['payment_method_types'] = array( 'card' );
+		} else {
+			$options['automatic_payment_methods'] = array(
+				'enabled' => true,
+			);
+		}
+
+		if ( ! empty( Forminator_CForm_Front_Action::$prepared_data['paymentmethod'] ) ) {
+			$options['payment_method'] = Forminator_CForm_Front_Action::$prepared_data['paymentmethod'];
+		}
 
 		// Check if metadata is not empty and add it to the options.
 		if ( ! empty( $metadata_object ) ) {
@@ -350,7 +546,7 @@ class Forminator_Stripe extends Forminator_Field {
 
 		// Check if statement_description is not empty and add it to the options.
 		if ( ! empty( $company ) ) {
-			$options['statement_descriptor'] = $company;
+			$options['statement_descriptor_suffix'] = $company;
 		}
 
 		// Check if description is not empty and add it to the options.
@@ -358,13 +554,16 @@ class Forminator_Stripe extends Forminator_Field {
 			$options['description'] = $description;
 		}
 
+		$options = apply_filters( 'forminator_stripe_payment_intent_options', $options, $field );
+
 		try {
 			// Create Payment Intent object.
 			$intent = \Forminator\Stripe\PaymentIntent::create( $options );
 		} catch ( Exception $e ) {
 			$response = array(
-				'message' => $e->getMessage(),
-				'errors'  => array(),
+				'message'     => $e->getMessage(),
+				'errors'      => array(),
+				'paymentPlan' => $this->payment_plan_hash,
 			);
 
 			wp_send_json_error( $response );
@@ -378,8 +577,8 @@ class Forminator_Stripe extends Forminator_Field {
 	 *
 	 * @since 1.11
 	 *
-	 * @param $amount
-	 * @param $currency
+	 * @param int|float $amount Amount.
+	 * @param string    $currency Currency.
 	 *
 	 * @return float|int
 	 */
@@ -387,7 +586,7 @@ class Forminator_Stripe extends Forminator_Field {
 		$zero_decimal_currencies = $this->get_zero_decimal_currencies();
 
 		// Check if currency is zero decimal, then return original amount.
-		if ( in_array( $currency, $zero_decimal_currencies ) ) {
+		if ( in_array( $currency, $zero_decimal_currencies, true ) ) {
 			return $amount;
 		}
 
@@ -436,20 +635,36 @@ class Forminator_Stripe extends Forminator_Field {
 	 *
 	 * @since 1.7.3
 	 *
-	 * @param $submitted_data
-	 * @param $field
+	 * @param array $submitted_data Submitted data.
+	 * @param array $field Field.
+	 * @throws Exception When there is an error.
 	 */
 	public function update_paymentIntent( $submitted_data, $field ) {
 		$mode     = self::get_property( 'mode', $field, 'test' );
 		$currency = self::get_property( 'currency', $field, $this->get_default_currency() );
+		$is_multi = self::get_property( 'automatic_payment_methods', $field, 'true' );
 
-		if ( isset( $this->payment_plan['payment_method'] ) && ! empty( $this->payment_plan['payment_method'] ) && 'subscription' === $this->payment_plan['payment_method'] ) {
-			wp_send_json_success(
-				array(
-					'paymentid'     => 'subscription',
-					'paymentsecret' => 'subscription',
-				)
+		if ( ! empty( $this->payment_plan['payment_method'] ) && 'subscription' === $this->payment_plan['payment_method'] ) {
+			$response_data = array(
+				'paymentid'     => 'subscription',
+				'paymentsecret' => 'subscription',
+				'paymentPlan'   => $this->payment_plan_hash,
 			);
+
+			if ( 'false' === $is_multi && class_exists( 'Forminator_Stripe_Subscription' ) ) {
+				try {
+					$stripe_addon   = Forminator_Stripe_Subscription::get_instance();
+					$field_object   = Forminator_Core::get_field_object( 'stripe' );
+					$payment_plan   = $field_object->get_payment_plan( $field );
+					$payment_intent = $stripe_addon->create_payment_intent( $field_object, Forminator_Front_Action::$module_object, Forminator_Front_Action::$prepared_data, $field, $payment_plan );
+
+					$response_data['paymentid']     = $payment_intent->id;
+					$response_data['paymentsecret'] = $payment_intent->client_secret;
+				} catch ( Exception $e ) {
+					$response_data['paymentmethod_failed'] = '1';
+				}
+			}
+			wp_send_json_success( $response_data );
 		}
 
 		// apply merge tags to payment description.
@@ -468,10 +683,17 @@ class Forminator_Stripe extends Forminator_Field {
 		Forminator_Gateway_Stripe::set_stripe_app_info();
 
 		$field_id = Forminator_Field::get_property( 'element_id', $field );
-		$amount   = $submitted_data[ $field_id ];
+		$amount   = $submitted_data[ $field_id ] ?? 0;
 		$id       = $submitted_data['paymentid'];
 		// Check if we already have payment ID, if not generate new one.
 		if ( empty( $id ) ) {
+			if ( ! $amount && ! empty( $submitted_data['stripe_first_payment_intent'] ) ) {
+				// If amount is empty, set it to 1 for payment intent. Anyway, it will be updated during actual payment.
+				$amount = 1;
+				// Filter amount. It can be used to modify amount before creating payment intent for low-value currency
+				// to achieve minimum Stripe charge amount .5 euro. Use $field['currency'] to get currency code.
+				$amount = apply_filters( 'forminator_stripe_default_payment_intent_amount', $amount, $field );
+			}
 			$payment_intent = $this->generate_paymentIntent( $amount, $field );
 
 			$id = $payment_intent->id;
@@ -503,15 +725,26 @@ class Forminator_Stripe extends Forminator_Field {
 		// Throw error if payment ID is empty.
 		if ( empty( $id ) ) {
 			$response = array(
-				'message' => __( 'Your Payment ID is empty, please reload the page and try again!', 'forminator' ),
-				'errors'  => array(),
+				'paymentPlan' => $this->payment_plan_hash,
+				'message'     => esc_html__( 'Your Payment ID is empty, please reload the page and try again!', 'forminator' ),
+				'errors'      => array(),
 			);
 
 			wp_send_json_error( $response );
 		}
 
-		// Check if the PaymentIntent already succeeded and continue.
-		if ( 'succeeded' === $intent->status ) {
+		$is_intent = ! empty( $submitted_data['stripe-intent'] );
+
+		if ( $is_intent ) {
+			wp_send_json_success(
+				array(
+					'paymentid'     => $id,
+					'paymentsecret' => $intent->client_secret,
+					'paymentPlan'   => $this->payment_plan_hash,
+				)
+			);
+		} elseif ( 'succeeded' === $intent->status ) {
+			// Check if the PaymentIntent already succeeded and continue.
 			wp_send_json_success(
 				array(
 					'paymentid'     => $id,
@@ -520,19 +753,23 @@ class Forminator_Stripe extends Forminator_Field {
 			);
 		} else {
 			try {
+				// Check payment method.
+				if ( ! empty( $submitted_data['payment_method_type'] ) && in_array( $submitted_data['payment_method_type'], self::get_unsupported_payment_methods(), true ) ) {
+					throw new Exception( esc_html__( 'The selected Payment Method is not supported.', 'forminator' ) );
+				}
 				// Check payment amount.
 				if ( 0 > $amount ) {
-					throw new Exception( __( 'Payment amount should be larger than 0.', 'forminator' ) );
+					throw new Exception( esc_html__( 'Payment amount should be larger than 0.', 'forminator' ) );
 				}
 
 				// Check payment ID.
 				if ( empty( $id ) ) {
-					throw new Exception( __( 'Your Payment ID is empty!', 'forminator' ) );
+					throw new Exception( esc_html__( 'Your Payment ID is empty!', 'forminator' ) );
 				}
 
 				// Check payment method.
-				if ( ! isset( $submitted_data['payment_method'] ) || is_null( $submitted_data['payment_method'] ) ) {
-					throw new Exception( __( 'Your Payment ID is empty!', 'forminator' ) );
+				if ( empty( $submitted_data['payment_method'] ) ) {
+					throw new Exception( esc_html__( 'Your Payment Method is empty!', 'forminator' ) );
 				}
 
 				$options = array(
@@ -560,13 +797,15 @@ class Forminator_Stripe extends Forminator_Field {
 					array(
 						'paymentid'     => $id,
 						'paymentsecret' => $intent->client_secret,
+						'paymentPlan'   => $this->payment_plan_hash,
 					)
 				);
 
 			} catch ( Exception $e ) {
 				$response = array(
-					'message' => $e->getMessage(),
-					'errors'  => array(),
+					'message'     => $e->getMessage(),
+					'errors'      => array(),
+					'paymentPlan' => $this->payment_plan_hash,
 				);
 
 				wp_send_json_error( $response );
@@ -575,13 +814,34 @@ class Forminator_Stripe extends Forminator_Field {
 	}
 
 	/**
+	 * Get unsupported payment methods
+	 *
+	 * @return array
+	 */
+	private static function get_unsupported_payment_methods() {
+		return apply_filters(
+			'forminator_stripe_unsupported_payment_methods',
+			// All Stripe dynamic payment methods without immediate confirmation.
+			array(
+				'sepa_debit',
+				'multibanco',
+				'boleto',
+				'ach_credit_transfer',
+				'ach_debit',
+				'sofort',
+				'funded',
+			)
+		);
+	}
+
+	/**
 	 * Get form setting
 	 *
 	 * @since 1.9
 	 *
-	 * @param $id
-	 * @param $settings
-	 * @param $fallback
+	 * @param int   $id Id.
+	 * @param array $settings Settings.
+	 * @param mixed $fallback Fallback method.
 	 *
 	 * @return mixed
 	 */
@@ -598,8 +858,8 @@ class Forminator_Stripe extends Forminator_Field {
 	/**
 	 * Field back-end validation
 	 *
-	 * @param array        $field
-	 * @param array|string $data
+	 * @param array        $field Field.
+	 * @param array|string $data Data.
 	 */
 	public function validate( $field, $data ) {
 		$id = self::get_property( 'element_id', $field );
@@ -608,7 +868,7 @@ class Forminator_Stripe extends Forminator_Field {
 	/**
 	 * Sanitize data
 	 *
-	 * @param array        $field
+	 * @param array        $field Field.
 	 * @param array|string $data - the data to be sanitized.
 	 *
 	 * @return array|string $data - the data after sanitization
@@ -622,8 +882,11 @@ class Forminator_Stripe extends Forminator_Field {
 	}
 
 	/**
+	 * Is available
+	 *
 	 * @since 1.7
 	 * @inheritdoc
+	 * @param array $field Field.
 	 */
 	public function is_available( $field ) {
 		$mode = self::get_property( 'mode', $field, 'test' );
@@ -647,7 +910,7 @@ class Forminator_Stripe extends Forminator_Field {
 	 *
 	 * @since 1.7
 	 *
-	 * @param bool $live
+	 * @param bool $live Live?.
 	 *
 	 * @return bool|string
 	 */
@@ -670,7 +933,7 @@ class Forminator_Stripe extends Forminator_Field {
 	 *
 	 * @since 1.7
 	 *
-	 * @param bool $live
+	 * @param bool $live Live?.
 	 *
 	 * @return bool|string
 	 */
@@ -679,10 +942,10 @@ class Forminator_Stripe extends Forminator_Field {
 			$stripe = new Forminator_Gateway_Stripe();
 
 			if ( $live ) {
-				return $stripe->get_live_secret();
+				return $stripe->get_live_secret( true );
 			}
 
-			return $stripe->get_test_secret();
+			return $stripe->get_test_secret( true );
 		} catch ( Forminator_Gateway_Exception $e ) {
 			return false;
 		}
@@ -705,9 +968,12 @@ class Forminator_Stripe extends Forminator_Field {
 	}
 
 	/**
-	 * @param array $field
+	 * Process to entry data
+	 *
+	 * @param array $field Field.
 	 *
 	 * @return array
+	 * @throws Exception When there is an error.
 	 */
 	public function process_to_entry_data( $field ) {
 
@@ -733,12 +999,12 @@ class Forminator_Stripe extends Forminator_Field {
 				throw new Exception( $intent->get_error_message() );
 			} elseif ( ! is_object( $intent ) ) {
 				// Make sure Payment Intent is object.
-				throw new Exception( __( 'Payment Intent object is not valid Payment object.', 'forminator' ) );
+				throw new Exception( esc_html__( 'Payment Intent object is not valid Payment object.', 'forminator' ) );
 			}
 
 			// Check if the PaymentIntent is set or empty.
 			if ( empty( $intent->id ) ) {
-				throw new Exception( __( 'Payment Intent ID is not valid!', 'forminator' ) );
+				throw new Exception( esc_html__( 'Payment Intent ID is not valid!', 'forminator' ) );
 			}
 
 			$charge_amount = $this->get_payment_amount( $field );
@@ -763,10 +1029,10 @@ class Forminator_Stripe extends Forminator_Field {
 		 *
 		 * @since 1.7
 		 *
-		 * @param array                        $entry_data
-		 * @param array                        $field            field properties.
-		 * @param Forminator_Form_Model $module_object
-		 * @param array                        $submitted_data
+		 * @param array                        $entry_data Entry data.
+		 * @param array                        $field Field properties.
+		 * @param Forminator_Form_Model $module_object Forminator_Form_Model.
+		 * @param array                        $submitted_data Submitted data.
 		 * @param array                        $field_data_array current entry meta.
 		 *
 		 * @return array
@@ -779,8 +1045,8 @@ class Forminator_Stripe extends Forminator_Field {
 	/**
 	 * Make linkify transaction_id
 	 *
-	 * @param $transaction_id
-	 * @param $meta_value
+	 * @param string $transaction_id Transaction Id.
+	 * @param array  $meta_value Meta value.
 	 *
 	 * @return string
 	 */
@@ -810,9 +1076,10 @@ class Forminator_Stripe extends Forminator_Field {
 	/**
 	 * Retrieve PaymentIntent object
 	 *
-	 * @param $field
+	 * @param array $field Field.
 	 *
 	 * @return mixed object|string
+	 * @throws Exception When there is an error.
 	 */
 	public function get_paymentIntent( $field ) {
 		$mode     = self::get_property( 'mode', $field, 'test' );
@@ -828,8 +1095,8 @@ class Forminator_Stripe extends Forminator_Field {
 
 		try {
 			// Makue sure payment ID exist.
-			if ( ! isset( Forminator_CForm_Front_Action::$prepared_data['paymentid'] ) ) {
-				throw new Exception( __( 'Stripe Payment ID does not exist.', 'forminator' ) );
+			if ( empty( Forminator_CForm_Front_Action::$prepared_data['paymentid'] ) ) {
+				throw new Exception( esc_html__( 'Stripe Payment ID does not exist.', 'forminator' ) );
 			}
 
 			// Check payment amount.
@@ -846,10 +1113,11 @@ class Forminator_Stripe extends Forminator_Field {
 	 *
 	 * @since 1.15
 	 *
-	 * @param $field
-	 * @param $submitted_data
+	 * @param array $field Field.
+	 * @param array $submitted_data Submitted data.
 	 *
 	 * @return mixed object|string
+	 * @throws Exception When there is an error.
 	 */
 	public function get_paymentMethod( $field, $submitted_data ) {
 		$mode     = self::get_property( 'mode', $field, 'test' );
@@ -866,7 +1134,7 @@ class Forminator_Stripe extends Forminator_Field {
 		try {
 			// Makue sure payment ID exist.
 			if ( ! isset( $submitted_data['paymentid'] ) ) {
-				throw new Exception( __( 'Stripe Payment ID does not exist.', 'forminator' ) );
+				throw new Exception( esc_html__( 'Stripe Payment ID does not exist.', 'forminator' ) );
 			}
 
 			// Check payment amount.
@@ -879,8 +1147,18 @@ class Forminator_Stripe extends Forminator_Field {
 	}
 
 	/**
+	 * Get Stripe return URL to pass it in API calls
 	 *
-	 * @param $intent
+	 * @return string
+	 */
+	public static function get_return_url() {
+		return apply_filters( 'forminator_stripe_return_url', 'https://stripe.com' );
+	}
+
+	/**
+	 * Confirm paymentIntent
+	 *
+	 * @param mixed $intent Payment Intent.
 	 *
 	 * @since 1.14.9
 	 *
@@ -888,7 +1166,7 @@ class Forminator_Stripe extends Forminator_Field {
 	 */
 	public function confirm_paymentIntent( $intent ) {
 		try {
-			return $intent->confirm();
+			return $intent->confirm( array( 'return_url' => self::get_return_url() ) );
 		} catch ( Exception $e ) {
 			return $this->get_error( $e );
 		}
@@ -897,7 +1175,7 @@ class Forminator_Stripe extends Forminator_Field {
 	/**
 	 * Get the exception error and return WP_Error
 	 *
-	 * @param $e
+	 * @param mixed $e Exception.
 	 *
 	 * @since 1.14.9
 	 *
@@ -916,19 +1194,57 @@ class Forminator_Stripe extends Forminator_Field {
 	}
 
 	/**
+	 * Get ALL fields that payment amount depends on
+	 *
+	 * @param array $field_settings Field settings.
+	 * @return array
+	 */
+	public function get_amount_dependent_fields_all( $field_settings ) {
+		$depend_field = self::get_conditions_dependent_fields( $field_settings );
+
+		$plans = self::get_property( 'payments', $field_settings, array() );
+		foreach ( $plans as $plan ) {
+			$plan_depends = self::get_plan_dependent_fields( $plan );
+			$depend_field = array_merge( $depend_field, $plan_depends );
+		}
+
+		return array_values( array_unique( $depend_field ) );
+	}
+
+	/**
 	 * Get the fields that an amount depends on
 	 *
 	 * @param array $field_settings Field settings.
 	 * @return array
 	 */
 	public function get_amount_dependent_fields( $field_settings ) {
-		$depend_field       = array();
 		$this->payment_plan = $this->get_payment_plan( $field_settings );
 		$plan               = $this->payment_plan;
 
+		$amount                  = $this->get_payment_amount( $field_settings );
+		$this->payment_plan_hash = md5( wp_json_encode( $plan ) . $amount );
+
+		$conditions_depends = self::get_conditions_dependent_fields( $field_settings );
+		$plan_depends       = self::get_plan_dependent_fields( $plan );
+		$depend_field       = array_merge( $conditions_depends, $plan_depends );
+
+		return array_unique( $depend_field );
+	}
+
+	/**
+	 * Get the fields that conditions based on
+	 *
+	 * @param array $field_settings Field settings.
+	 *
+	 * @return array
+	 */
+	private static function get_conditions_dependent_fields( $field_settings ) {
+		$depend_field = array();
+
 		$payments = self::get_property( 'payments', $field_settings, array() );
-		$payments = wp_list_pluck( $payments, 'conditions' );
-		foreach ( $payments as $conditions ) {
+
+		foreach ( $payments as $payment ) {
+			$conditions = $payment['conditions'] ?? array();
 			if ( empty( $conditions ) || ! is_array( $conditions ) ) {
 				continue;
 			}
@@ -939,6 +1255,17 @@ class Forminator_Stripe extends Forminator_Field {
 			}
 		}
 
+		return $depend_field;
+	}
+
+	/**
+	 * Get the fields that a plan depends on
+	 *
+	 * @param array $plan Plan.
+	 * @return array
+	 */
+	private static function get_plan_dependent_fields( $plan ) {
+		$depend_field = array();
 		if ( empty( $plan['payment_method'] ) ) {
 			return $depend_field;
 		}
@@ -965,7 +1292,7 @@ class Forminator_Stripe extends Forminator_Field {
 	 *
 	 * @since 1.7
 	 *
-	 * @param array $field
+	 * @param array $field Field.
 	 *
 	 * @return double
 	 */
@@ -1037,7 +1364,7 @@ class Forminator_Stripe extends Forminator_Field {
 	/**
 	 * Get Payment plan
 	 *
-	 * @param $field
+	 * @param array $field Field.
 	 *
 	 * @return array
 	 */
@@ -1046,6 +1373,8 @@ class Forminator_Stripe extends Forminator_Field {
 
 		if ( ! empty( $payments ) ) {
 			foreach ( $payments as $payment_settings ) {
+				$payment_settings['condition_rule']   = ! empty( $payment_settings['condition_rule'] ) ? $payment_settings['condition_rule'] : 'all';
+				$payment_settings['condition_action'] = 'show';
 				if ( ! Forminator_Field::is_hidden( $field, $payment_settings ) ) {
 					return $payment_settings;
 				}
@@ -1076,17 +1405,17 @@ class Forminator_Stripe extends Forminator_Field {
 	/**
 	 * Payment method
 	 *
-	 * @param $method
+	 * @param string $method Payment method.
 	 *
 	 * @return string|void
 	 */
 	public function payment_method( $method ) {
 		switch ( $method ) {
 			case 'single':
-				$method = __( 'One Time', 'forminator' );
+				$method = esc_html__( 'One Time', 'forminator' );
 				break;
 			case 'subscription':
-				$method = __( 'Subscription', 'forminator' );
+				$method = esc_html__( 'Subscription', 'forminator' );
 				break;
 			default:
 				$method = '';

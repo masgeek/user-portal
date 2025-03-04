@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Html class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -11,36 +17,43 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Forminator_Html extends Forminator_Field {
 
 	/**
+	 * Name
+	 *
 	 * @var string
 	 */
 	public $name = '';
 
 	/**
+	 * Slug
+	 *
 	 * @var string
 	 */
 	public $slug = 'html';
 
 	/**
+	 * Type
+	 *
 	 * @var string
 	 */
 	public $type = 'html';
 
 	/**
+	 * Position
+	 *
 	 * @var int
 	 */
 	public $position = 17;
 
 	/**
+	 * Options
+	 *
 	 * @var array
 	 */
 	public $options = array();
 
 	/**
-	 * @var string
-	 */
-	public $category = 'standard';
-
-	/**
+	 * Icon
+	 *
 	 * @var string
 	 */
 	public $icon = 'sui-icon-code';
@@ -53,7 +66,7 @@ class Forminator_Html extends Forminator_Field {
 	public function __construct() {
 		parent::__construct();
 
-		$this->name = __( 'HTML', 'forminator' );
+		$this->name = esc_html__( 'HTML', 'forminator' );
 	}
 
 	/**
@@ -64,7 +77,7 @@ class Forminator_Html extends Forminator_Field {
 	 */
 	public function defaults() {
 		return array(
-			'field_label' => __( 'HTML', 'forminator' ),
+			'field_label' => esc_html__( 'HTML', 'forminator' ),
 		);
 	}
 
@@ -73,7 +86,7 @@ class Forminator_Html extends Forminator_Field {
 	 *
 	 * @since 1.0.5
 	 *
-	 * @param array $settings
+	 * @param array $settings Settings.
 	 *
 	 * @return array
 	 */
@@ -89,7 +102,7 @@ class Forminator_Html extends Forminator_Field {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $field
+	 * @param array                  $field Field.
 	 * @param Forminator_Render_Form $views_obj Forminator_Render_Form object.
 	 *
 	 * @return mixed
@@ -117,10 +130,15 @@ class Forminator_Html extends Forminator_Field {
 			$form_id = $settings['form_id'];
 		}
 
-			$html .= forminator_replace_variables(
-				wp_kses_post( self::get_property( 'variations', $field ) ),
-				$form_id
-			);
+		// To allow iframes in content.
+		add_filter( 'wp_kses_allowed_html', array( 'Forminator_Core', 'add_iframe_to_kses_allowed_html' ) );
+		$content = wp_kses_post( self::get_property( 'variations', $field ) );
+		remove_filter( 'wp_kses_allowed_html', array( 'Forminator_Core', 'add_iframe_to_kses_allowed_html' ) );
+
+		$html .= forminator_replace_variables(
+			$content,
+			$form_id
+		);
 
 		$html .= '</div>';
 

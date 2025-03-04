@@ -1,4 +1,10 @@
 <?php
+/**
+ * Template admin/views/settings/tab-payments.php
+ *
+ * @package Forminator
+ */
+
 $section    = Forminator_Core::sanitize_text_field( 'section', 'dashboard' );
 $plugin_url = forminator_plugin_url();
 $nonce      = wp_create_nonce( 'forminator_save_payments_settings' );

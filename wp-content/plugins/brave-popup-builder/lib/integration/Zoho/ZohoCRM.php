@@ -37,7 +37,7 @@ if ( ! class_exists( 'BravePop_ZohoCRM' ) ) {
          //error_log('#Zoho CRM ADD to List: '.$this->api_key.' '.$this->api_secret.' '.$this->refresh_token.' ');
          if(!$email){ return null; }
          if(!$this->api_key || !$this->api_secret || !$this->refresh_token){ 
-            error_log('API KEY, SECRET or Access/Refresh Token Missing!');
+            // error_log('API KEY, SECRET or Access/Refresh Token Missing!');
             return false;
          }
          
@@ -77,24 +77,24 @@ if ( ! class_exists( 'BravePop_ZohoCRM' ) ) {
                'method' => 'POST',
                'headers' => array( "Authorization"=> 'Zoho-oauthtoken ' . $access_token   ),
                'body'=>'{
-                  "data": ['.json_encode($contact).']
+                  "data": ['.wp_json_encode($contact).']
                   }'
             );
 
             $response = wp_remote_post( 'https://www.zohoapis.'.$this->domain.'/crm/v2/Leads', $args);
             $body = wp_remote_retrieve_body( $response );
             $data = json_decode( $body );
-            // error_log('$body->status: '.json_encode($data->data[0]->status));
-            //error_log('$body: '.json_encode($body));
+            // error_log('$body->status: '.wp_json_encode($data->data[0]->status));
+            //error_log('$body: '.wp_json_encode($body));
             if(isset($data->data[0]->status) && $data->data[0]->status === 'success'){
-               //error_log(json_encode($response['response']['code']));
+               //error_log(wp_json_encode($response['response']['code']));
                return $data->data[0]->status;
             }else{
                return false;
             }
 
          }else{
-            error_log('NO ACCESS TOKEN');
+            // error_log('NO ACCESS TOKEN');
             return false;
          }
 

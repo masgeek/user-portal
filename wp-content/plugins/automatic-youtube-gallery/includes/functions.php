@@ -22,6 +22,8 @@ if ( ! defined( 'WPINC' ) ) {
  * @return mixed
  */
 function ayg_build_gallery( $args ) {
+	$general_settings = get_option( 'ayg_general_settings' );
+
 	global $post;
 
 	// Vars
@@ -67,6 +69,11 @@ function ayg_build_gallery( $args ) {
 		$attributes['uid'] = md5( $source_type . sanitize_text_field( $attributes[ $source_type ] ) . sanitize_text_field( $attributes['theme'] ) );
 	}
 
+	$attributes['lazyload'] = 0;
+	if ( isset( $general_settings['lazyload'] ) && ! empty( $general_settings['lazyload'] ) ) {
+		$attributes['lazyload'] = 1;
+	}
+
 	// Get Videos
 	$api_params = array(
 		'type'       => $source_type,
@@ -93,16 +100,12 @@ function ayg_build_gallery( $args ) {
 				update_option( 'ayg_gallery_page_ids', $pages );
 			}		
 		}
-
-		// Enqueue dependencies
-		wp_enqueue_style( AYG_SLUG . '-public' );
-		wp_enqueue_script( AYG_SLUG . '-public' );
 		
 		// Gallery
 		$videos = array();		
 
-		$gallery_id_from_url = get_query_var( 'ayg_gallery' );	
-		$video_id_from_url = get_query_var( 'ayg_video' );	
+		$gallery_id_from_url = get_query_var( 'ayg_gallery_id' );	
+		$video_id_from_url = get_query_var( 'ayg_video_id' );	
 
 		if ( $attributes['uid'] == $gallery_id_from_url ) {
 			$video = ayg_db_get_video( $video_id_from_url );		
@@ -144,13 +147,42 @@ function ayg_build_gallery( $args ) {
 			}
 		}
 
+		// Enqueue dependencies
+		wp_enqueue_style( AYG_SLUG . '-public' );
+
+		wp_enqueue_script( AYG_SLUG . '-public' );		
+		if ( $attributes['theme'] == $theme && 'classic' == $attributes['theme'] ) {
+			wp_enqueue_script( AYG_SLUG . '-theme-classic' );
+		}
+
 		// Output
 		ob_start();
 		include ayg_get_template( AYG_DIR . "public/templates/theme-{$theme}.php", $attributes['theme'] );
 		return ob_get_clean();
 	} else {
-		return '<p class="ayg-error">' . $response->error_message . '</p>';
+		return sprintf(	'<div class="ayg ayg-error">%s</div>', wp_kses_post( $response->error_message )	);
 	}
+}
+
+/**
+ * Combine video attributes as a string.
+ * 
+ * @since 2.5.0
+ * @param array  $atts Array of video attributes.
+ * @param string       Combined attributes string.
+ */
+function ayg_combine_video_attributes( $atts ) {
+	$attributes = array();
+	
+	foreach ( $atts as $key => $value ) {
+		if ( '' === $value ) {
+			$attributes[] = $key;
+		} else {
+			$attributes[] = sprintf( '%s="%s"', $key, $value );
+		}
+	}
+	
+	return implode( ' ', $attributes );
 }
 
 /**
@@ -358,41 +390,52 @@ function ayg_get_default_settings() {
 	$defaults = array(
 		'ayg_general_settings' => array(
 			'api_key'          => '',
-			'development_mode' => 1
+			'development_mode' => 1,
+			'lazyload'         => 0
 		),
 		'ayg_gallery_settings' => array(
-			'theme'                => 'classic',
-			'columns'              => 3,
-			'per_page'             => 12,
-			'thumb_ratio'          => 56.25,
-			'thumb_title'          => 1,
-			'thumb_title_length'   => 0,
-			'thumb_excerpt'        => 1,
-			'thumb_excerpt_length' => 75,
-			'pagination'           => 1,
-			'pagination_type'      => 'more'
+			'theme'                 => 'classic',
+			'columns'               => 3,
+			'per_page'              => 12,
+			'thumb_ratio'           => 56.25,
+			'thumb_title'           => 1,
+			'thumb_title_length'    => 0,
+			'thumb_excerpt'         => 1,
+			'thumb_excerpt_length'  => 75,
+			'pagination'            => 1,
+			'pagination_type'       => 'more',
+			'more_button_label'     => __( 'Load More', 'automatic-youtube-gallery' ),
+			'previous_button_label' => __( 'Previous', 'automatic-youtube-gallery' ),
+			'next_button_label'     => __( 'Next', 'automatic-youtube-gallery' ),
+			'scroll_top_offset'     => 10
 		),
 		'ayg_player_settings' => array(
-			'player_ratio'       => 56.25,
-			'player_title'       => 1,
-			'player_description' => 1,
-			'autoplay'           => 0,
-			'autoadvance'        => 1,
-			'loop'               => 0,
-			'controls'           => 1,
-			'modestbranding'     => 1,
-			'cc_load_policy'     => 0,
-			'iv_load_policy'     => 0,
-			'hl'                 => '',
-			'cc_lang_pref'       => ''
+			'player_type'           => 'youtube',
+			'player_color'          => '#00b3ff',
+			'player_width'          => '',
+			'player_ratio'          => 56.25,
+			'player_title'          => 1,
+			'player_description'    => 1,
+			'autoplay'              => 0,
+			'autoadvance'           => 1,
+			'loop'                  => 0,
+			'muted'                 => 0,
+			'controls'              => 1,
+			'modestbranding'        => 1,
+			'cc_load_policy'        => 0,
+			'iv_load_policy'        => 0,
+			'hl'                    => '',
+			'cc_lang_pref'          => '',
+			'privacy_enhanced_mode' => 0,
+			'origin'                => 0
 		),
 		'ayg_livestream_settings' => array(
 			'fallback_message' => __( 'Sorry, but the channel is not currently streaming live content. Please check back later.', 'automatic-youtube-gallery' )
 		),
-		'ayg_privacy_settings' => array(
-			'cookie_consent'   => 0,
-			'consent_message'  => __( 'Please accept YouTube cookies to play this video. By accepting you will be accessing content from YouTube, a service provided by an external third party.', 'automatic-youtube-gallery' ),
-			'button_label'     => __( 'Accept', 'automatic-youtube-gallery' )
+		'ayg_privacy_settings' => array(			
+			'cookie_consent'  => 0,
+			'consent_message' => __( 'Please accept YouTube cookies to play this video. By accepting you will be accessing content from YouTube, a service provided by an external third party.', 'automatic-youtube-gallery' ),
+			'button_label'    => __( 'Accept', 'automatic-youtube-gallery' )
 		)
 	);
 
@@ -507,12 +550,12 @@ function ayg_get_editor_fields() {
 					'description'       => __( 'Specifies how frequently we should check your YouTube source for new videos/updates.', 'automatic-youtube-gallery' ),
 					'type'              => 'select',
 					'options' => array(
-						'900'     => __( '15 minutes', 'automatic-youtube-gallery' ),
-						'1800'    => __( '30 minutes', 'automatic-youtube-gallery' ),
+						'900'     => __( '15 Minutes', 'automatic-youtube-gallery' ),
+						'1800'    => __( '30 Minutes', 'automatic-youtube-gallery' ),
 						'3600'    => __( '1 Hour', 'automatic-youtube-gallery' ),
 						'86400'   => __( '1 Day', 'automatic-youtube-gallery' ),
 						'604800'  => __( '1 Week', 'automatic-youtube-gallery' ),
-						'2419200' => __( ' 1Month', 'automatic-youtube-gallery' )
+						'2419200' => __( '1 Month', 'automatic-youtube-gallery' )
 					),
 					'value'             => 86400,
 					'sanitize_callback' => 'intval'
@@ -545,7 +588,7 @@ function ayg_get_gallery_settings_fields() {
 		array(
 			'name'              => 'theme',
 			'label'             => __( 'Select Theme (Layout)', 'automatic-youtube-gallery' ),
-			'description'       => ( ayg_fs()->is_not_paying() ? sprintf( __( '<a href="%s">Upgrade Pro</a> for more themes (Inline, Popup, Slider, Playlist).', 'automatic-youtube-gallery' ), esc_url( ayg_fs()->get_upgrade_url() ) ) : '' ),
+			'description'       => ( ayg_fs()->is_not_paying() ? sprintf( __( '<a href="%s">Upgrade Pro</a> for more themes (Popup, Inline, Slider, Playlist).', 'automatic-youtube-gallery' ), esc_url( ayg_fs()->get_upgrade_url() ) ) : '' ),
 			'type'              => 'select',
 			'options'           => array( 
 				'classic' => __( 'Classic', 'automatic-youtube-gallery' )
@@ -640,6 +683,30 @@ function ayg_get_gallery_settings_fields() {
 			),
 			'value'             => $gallery_settings['pagination_type'],
 			'sanitize_callback' => 'sanitize_key'
+		),
+		array(
+			'name'              => 'more_button_label',
+			'label'             => __( 'More Button Label', 'automatic-youtube-gallery' ),
+			'description'       => __( 'Enter the more button label text.', 'automatic-youtube-gallery' ),
+			'type'              => 'text',
+			'value'             => isset( $gallery_settings['more_button_label'] ) ? $gallery_settings['more_button_label'] : __( 'Load More', 'automatic-youtube-gallery' ),
+			'sanitize_callback' => 'sanitize_text_field'
+		),
+		array(
+			'name'              => 'previous_button_label',
+			'label'             => __( 'Previous Button Label', 'automatic-youtube-gallery' ),
+			'description'       => __( 'Enter the previous button label text.', 'automatic-youtube-gallery' ),
+			'type'              => 'text',
+			'value'             => isset( $gallery_settings['previous_button_label'] ) ? $gallery_settings['previous_button_label'] : __( 'Previous', 'automatic-youtube-gallery' ),
+			'sanitize_callback' => 'sanitize_text_field'
+		),
+		array(
+			'name'              => 'next_button_label',
+			'label'             => __( 'Next Button Label', 'automatic-youtube-gallery' ),
+			'description'       => __( 'Enter the next button label text.', 'automatic-youtube-gallery' ),
+			'type'              => 'text',
+			'value'             => isset( $gallery_settings['next_button_label'] ) ? $gallery_settings['next_button_label'] : __( 'Next', 'automatic-youtube-gallery' ),
+			'sanitize_callback' => 'sanitize_text_field'
 		)
 	);
 
@@ -662,7 +729,7 @@ function ayg_get_player_description( $video, $words_count = 30 ) {
 		$words_array[ $words_count ] = '<span class="ayg-player-description-dots">...</span></span><span class="ayg-player-description-more">' . $words_array[ $words_count ];
 
 		$description  = '<span class="ayg-player-description-less">' . implode( ' ', $words_array ) . '</span>';
-		$description .= '<a href="javascript:void(0);" class="ayg-player-description-toggle-btn">[+] ' . __( 'Show More', 'automatic-youtube-gallery' ) . '</a>';
+		$description .= '<a href="#" class="ayg-player-description-toggle-btn">[+] ' . __( 'Show More', 'automatic-youtube-gallery' ) . '</a>';
 	}
 
 	$description = nl2br( $description );
@@ -681,6 +748,14 @@ function ayg_get_player_settings_fields() {
 	$player_settings = get_option( 'ayg_player_settings' );
 
 	$fields = array(
+		array(
+			'name'              => 'player_width',
+			'label'             => __( 'Player Width', 'automatic-youtube-gallery' ),
+			'description'       => __( 'In pixels. Maximum width of the player. Leave this field empty to scale 100% of its enclosing container/html element.', 'automatic-youtube-gallery' ),
+			'type'              => 'text',
+			'value'             => isset( $player_settings['player_width'] ) ? $player_settings['player_width'] : '',
+			'sanitize_callback' => 'ayg_sanitize_int'
+		),
 		array(
 			'name'              => 'player_ratio',
 			'label'             => __( 'Player Height (Ratio)', 'automatic-youtube-gallery' ),	
@@ -732,7 +807,15 @@ function ayg_get_player_settings_fields() {
 			'type'              => 'checkbox',
 			'value'             => $player_settings['loop'],
 			'sanitize_callback' => 'intval'
-		),		
+		),	
+		array(
+			'name'              => 'muted',
+			'label'             => __( 'Muted', 'automatic-youtube-gallery' ),			
+			'description'       => __( 'Check this option to turn OFF the audio output of the video by default.', 'automatic-youtube-gallery' ),
+			'type'              => 'checkbox',
+			'value'             => isset( $player_settings['muted'] ) ? $player_settings['muted'] : 0,
+			'sanitize_callback' => 'intval'
+		),	
 		array(
 			'name'              => 'controls',
 			'label'             => __( 'Show Player Controls', 'automatic-youtube-gallery' ),			
@@ -797,12 +880,12 @@ function ayg_get_player_settings_fields() {
  * Get a single video page URL.
  *
  * @since  2.1.0
- * @param  string $video_id YouTube Video ID.
- * @param  array  $args     An array of gallery options.
- * @return string           Single video URL.
+ * @param  stdClass $video YouTube video object.
+ * @param  array    $args  An array of gallery options.
+ * @return string          Single video URL.
  */
-function ayg_get_single_video_url( $video_id, $attributes ) {
-	return apply_filters( 'ayg_single_video_url', '', $video_id, $attributes );
+function ayg_get_single_video_url( $video, $attributes ) {
+	return apply_filters( 'ayg_single_video_url', '', $video, $attributes );
 }
 
 /**
@@ -834,20 +917,100 @@ function ayg_get_uniqid() {
 }
 
 /**
- * Check if Yoast SEO plugin is active.
+ * Get YouTube domain.
  *
- * @since  2.1.0
- * @return bool $has_yoast True if the Yoast plugin is installed and active, false if not.
+ * @since  2.3.0
+ * @return string YouTube embed domain.
  */
-function ayg_has_yoast() {
-	$has_yoast = false;
+function ayg_get_youtube_domain() {
+	$player_settings = get_option( 'ayg_player_settings' );
 
-	$active_plugins = apply_filters( 'active_plugins', get_option( 'active_plugins' ) );
-	if ( in_array( 'wordpress-seo/wp-seo.php', $active_plugins ) || in_array( 'wordpress-seo-premium/wp-seo-premium.php', $active_plugins ) ) {
-		$has_yoast = true;
+	$domain = 'https://www.youtube.com';
+	if ( isset( $player_settings['privacy_enhanced_mode'] ) && ! empty( $player_settings['privacy_enhanced_mode'] ) ) {
+		$domain = 'https://www.youtube-nocookie.com';
 	}
 
-	return $has_yoast;
+	return $domain;
+}
+
+/**
+ * Get the YouTube embed URL.
+ *
+ * @since  2.5.0
+ * @param  string $video_id   YouTube video ID.
+ * @param  array  $attributes Array of user attributes.
+ * @return string             Player embed URL.
+ */
+function ayg_get_youtube_embed_url( $video_id, $attributes = array() ) {
+	$player_settings = get_option( 'ayg_player_settings' );
+
+	$player_website = 'https://www.youtube.com';
+	if ( isset( $player_settings['privacy_enhanced_mode'] ) && ! empty( $player_settings['privacy_enhanced_mode'] ) ) {
+		$player_website = 'https://www.youtube-nocookie.com';
+	}
+
+	if ( empty( $video_id ) ) {
+		return '';
+	}
+
+	$url = $player_website . '/embed/' . $video_id . '?enablejsapi=1&playsinline=1&rel=0';
+
+	if ( isset( $player_settings['origin'] ) && ! empty( $player_settings['origin'] ) ) {
+		$site_url_parts = parse_url( site_url() );
+		$origin = $site_url_parts['scheme'] . '://' . $site_url_parts['host'];
+
+		$url = add_query_arg( 'origin', $origin, $url );
+	}
+
+	if ( ! is_array( $attributes ) ) {
+		$attributes = (array) $attributes;
+	}
+
+	$autoplay = isset( $attributes['autoplay'] ) ? (int) $attributes['autoplay'] : 0;
+	if ( 1 == $autoplay ) {
+		$url = add_query_arg( 'autoplay', 1, $url );
+	}
+
+	$loop = isset( $attributes['loop'] ) ? (int) $attributes['loop'] : 0;
+	if ( 1 == $loop ) {
+		$url = add_query_arg( 'playlist', $video_id, $url );
+		$url = add_query_arg( 'loop', 1, $url );
+	}
+
+	$muted = isset( $attributes['muted'] ) ? (int) $attributes['muted'] : 0;
+	if ( 1 == $muted ) {
+		$url = add_query_arg( 'mute', 1, $url );
+	}
+
+	$controls = isset( $attributes['controls'] ) ? (int) $attributes['controls'] : 1;
+	if ( 0 == $controls ) {
+		$url = add_query_arg( 'controls', 0, $url );
+	}
+
+	$modestbranding = isset( $attributes['modestbranding'] ) ? (int) $attributes['modestbranding'] : 0;
+	if ( 1 == $modestbranding ) {
+		$url = add_query_arg( 'modestbranding', 1, $url );
+	}
+
+	$cc_load_policy = isset( $attributes['cc_load_policy'] ) ? (int) $attributes['cc_load_policy'] : 0;
+	if ( 1 == $cc_load_policy ) {
+		$url = add_query_arg( 'cc_load_policy', 1, $url );
+	}
+
+	$iv_load_policy = isset( $attributes['iv_load_policy'] ) ? (int) $attributes['iv_load_policy'] : 0;
+	if ( 0 == $iv_load_policy ) {
+		$url = add_query_arg( 'iv_load_policy', 3, $url );
+	}
+
+	if ( isset( $attributes['hl'] ) && ! empty( $attributes['hl'] ) ) {
+		$url = add_query_arg( 'hl', sanitize_text_field( $attributes['hl'] ), $url );
+	}
+
+	if ( isset( $attributes['cc_lang_pref'] ) && ! empty( $attributes['cc_lang_pref'] ) ) {
+		$url = add_query_arg( 'cc_lang_pref', sanitize_text_field( $attributes['cc_lang_pref'] ), $url );
+	}
+
+	return apply_filters( 'ayg_youtube_embed_url', $url, $video_id, $attributes );
 }
 
 /**
@@ -926,9 +1089,9 @@ function ayg_trim_words( $text, $num_characters, $append = '...' ) {
 /**
  * Gallery HTML output.
  *
- * @since  1.0.0
- * @param  array $video      YouTube video object.
- * @param  array $attributes Array of user attributes.
+ * @since 1.0.0
+ * @param array $video      YouTube video object.
+ * @param array $attributes Array of user attributes.
  */
 function the_ayg_gallery_thumbnail( $video, $attributes ) {
 	include ayg_get_template( AYG_DIR . 'public/templates/thumbnail.php' );
@@ -937,11 +1100,22 @@ function the_ayg_gallery_thumbnail( $video, $attributes ) {
 /**
  * Pagination HTML output.
  *
- * @since  1.0.0
- * @param  array $attributes Array of user attributes.
+ * @since 1.0.0
+ * @param array $attributes Array of user attributes.
  */
 function the_ayg_pagination( $attributes ) {
 	if ( ! empty( $attributes['pagination'] ) ) {
 		include ayg_get_template( AYG_DIR . 'public/templates/pagination.php' );
 	}	
+}
+
+/**
+ * Gallery HTML output.
+ *
+ * @since 2.5.0
+ * @param array $video      YouTube video object.
+ * @param array $attributes Array of user attributes.
+ */
+function the_ayg_player( $video, $attributes ) {
+	include ayg_get_template( AYG_DIR . 'public/templates/player.php' );
 }

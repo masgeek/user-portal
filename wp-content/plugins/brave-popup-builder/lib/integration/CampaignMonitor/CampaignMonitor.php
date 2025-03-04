@@ -3,6 +3,9 @@ if ( ! class_exists( 'BravePop_CampaignMonitor' ) ) {
    
    class BravePop_CampaignMonitor {
 
+      protected $api_key;
+      protected $clientID;
+
       function __construct() {
          $braveSettings = get_option('_bravepopup_settings');
          $integrations = $braveSettings && isset($braveSettings['integrations']) ? $braveSettings['integrations'] : array() ;
@@ -39,8 +42,8 @@ if ( ! class_exists( 'BravePop_CampaignMonitor' ) ) {
                   $finalLists[] = $listItem;
                }
             }
-            // error_log(json_encode($finalLists));
-            return json_encode($finalLists);
+            // error_log(wp_json_encode($finalLists));
+            return wp_json_encode($finalLists);
          }else{
             return false;
          }
@@ -82,7 +85,7 @@ if ( ! class_exists( 'BravePop_CampaignMonitor' ) ) {
                'content-type' => 'application/json', 
                'Authorization' => 'Basic '.base64_encode($this->api_key.":x" )
             ),
-            'body' => json_encode($contact)
+            'body' => wp_json_encode($contact)
          );
 
          $response = wp_remote_post( 'https://api.createsend.com/api/v3.2/subscribers/'.$list_id.'.json', $args );

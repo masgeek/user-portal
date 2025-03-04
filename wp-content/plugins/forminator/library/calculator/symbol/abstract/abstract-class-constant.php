@@ -1,4 +1,9 @@
 <?php
+/**
+ * The Forminator_Calculator_Symbol_Constant_Abstract class.
+ *
+ * @package Forminator
+ */
 
 /**
  * This class is the base class for all symbols that are of the type "constant".
@@ -30,5 +35,4 @@ abstract class Forminator_Calculator_Symbol_Constant_Abstract extends Forminator
 	public function get_value() {
 		return $this->value;
 	}
-
 }

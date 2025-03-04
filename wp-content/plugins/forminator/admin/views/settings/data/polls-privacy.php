@@ -1,3 +1,11 @@
+<?php
+/**
+ * Template admin/views/settings/data/polls-privacy.php
+ *
+ * @package Forminator
+ */
+
+?>
 <div class="sui-box-settings-row">
 
 	<div class="sui-box-settings-col-1">
@@ -14,8 +22,8 @@
 				'forever'     => get_option( 'poll_retain_submission_forever' ),
 				'number'      => get_option( 'forminator_retain_poll_submissions_interval_number', 0 ),
 				'unit'        => get_option( 'forminator_retain_poll_submissions_interval_unit', 'days' ),
-				'title'       => __( 'Submissions Retention', 'forminator' ),
-				'description' => __( 'How long do you want to retain the poll\'s submissions for?', 'forminator' ),
+				'title'       => esc_html__( 'Submissions Retention', 'forminator' ),
+				'description' => esc_html__( 'How long do you want to retain the poll\'s submissions for?', 'forminator' ),
 			)
 		);
 
@@ -26,8 +34,8 @@
 				'forever'     => get_option( 'retain_poll_forever' ),
 				'number'      => get_option( 'forminator_retain_votes_interval_number', 0 ),
 				'unit'        => get_option( 'forminator_retain_votes_interval_unit', 'days' ),
-				'title'       => __( 'IP Retention', 'forminator' ),
-				'description' => __( 'Choose how long to retain IP address before a submission is anonymized. Keep in mind that the IP address is being used in checking multiple votes from same user.', 'forminator' ),
+				'title'       => esc_html__( 'IP Retention', 'forminator' ),
+				'description' => esc_html__( 'Choose how long to retain IP address before a submission is anonymized. Keep in mind that the IP address is being used in checking multiple votes from same user.', 'forminator' ),
 			)
 		);
 		?>

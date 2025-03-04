@@ -1,10 +1,15 @@
 <?php
+/**
+ * The Forminator Aweber Oauth.
+ *
+ * @package Forminator
+ */
 
 /**
- * Class Forminator_Addon_Aweber_Oauth
+ * Class Forminator_Aweber_Oauth
  * Helpers for OAuth
  */
-class Forminator_Addon_Aweber_Oauth {
+class Forminator_Aweber_Oauth {
 
 	/**
 	 * Create Signature Base
@@ -44,10 +49,10 @@ class Forminator_Addon_Aweber_Oauth {
 		 *
 		 * @since 1.3
 		 *
-		 * @param string $signature_base
-		 * @param string $request_method
-		 * @param string $request_url
-		 * @param array  $request_data
+		 * @param string $signature_base Signature base.
+		 * @param string $request_method Request method.
+		 * @param string $request_url Request URL.
+		 * @param array  $request_data Request data.
 		 */
 		$signature_base = apply_filters( 'forminator_addon_aweber_oauth_signature_base', $signature_base, $request_method, $request_url, $request_data );
 
@@ -55,14 +60,14 @@ class Forminator_Addon_Aweber_Oauth {
 	}
 
 	/**
-	 * collapse data for signature
+	 * Collapse data for signature
 	 *
 	 * @since 1.0
 	 *
 	 * Turns an array of request data into a string, as used by the oauth
 	 * signature
 	 *
-	 * @param mixed $data
+	 * @param mixed $data Request Data.
 	 *
 	 * @return string
 	 */
@@ -116,8 +121,8 @@ class Forminator_Addon_Aweber_Oauth {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $application_key
-	 * @param $oauth_token_secret
+	 * @param string $application_key Application key.
+	 * @param string $oauth_token_secret Token secret.
 	 *
 	 * @return string
 	 */
@@ -143,7 +148,7 @@ class Forminator_Addon_Aweber_Oauth {
 	 *
 	 * @since 1.0
 	 *
-	 * @param int $timestamp
+	 * @param int $timestamp Timestamp.
 	 *
 	 * @return string
 	 */
@@ -159,7 +164,7 @@ class Forminator_Addon_Aweber_Oauth {
 		 *
 		 * @since 1.3
 		 *
-		 * @param string $oauth_nonce
+		 * @param string $oauth_nonce Nonce.
 		 * @param int    $timestamp current timestamp for future reference.
 		 */
 		$oauth_nonce = apply_filters( 'forminator_addon_aweber_oauth_nonce', $oauth_nonce, $timestamp );

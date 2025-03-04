@@ -41,6 +41,7 @@ if ( ! trait_exists( 'Kenta_Widgets_Controls' ) ) {
 				'title-tag'             => 'h3',
 				'title-style'           => 'style-1',
 				'content-align'         => 'left',
+				'list-icon'             => 'yes',
 				'link-underline'        => 'no',
 				'title-typography'      => [
 					'family'        => 'inherit',
@@ -167,6 +168,20 @@ if ( ! trait_exists( 'Kenta_Widgets_Controls' ) ) {
 			$selector = $defaults['async-selector'];
 
 			$controls = [
+				( new Toggle( $this->getSlug( 'list-icon' ) ) )
+					->setLabel( __( 'List Icon', 'kenta' ) )
+					->asyncCss( "$selector .kenta-widget ul li", [
+						'--fa-display'     => AsyncCss::unescape( AsyncCss::valueMapper( [
+							'yes' => 'inline-block',
+							'no'  => 'none'
+						] ) ),
+						'--widget-list-pl' => AsyncCss::unescape( AsyncCss::valueMapper( [
+							'yes' => '1.4rem',
+							'no'  => '0'
+						] ) ),
+					] )
+					->setDefaultValue( $defaults['list-icon'] )
+				,
 				( new Toggle( $this->getSlug( 'link-underline' ) ) )
 					->setLabel( __( 'Link Underline', 'kenta' ) )
 					->asyncCss( "$selector a", [
@@ -218,6 +233,14 @@ if ( ! trait_exists( 'Kenta_Widgets_Controls' ) ) {
 
 				if ( $sidebar_style === 'style-1' ) {
 					$css[".$id .kenta-widget"] = $widgets_css;
+				}
+
+				// list icon style
+				if ( ! $options->checked( $this->getSlug( 'list-icon' ), $settings ) ) {
+					$css[".$id .kenta-widget ul li"] = [
+						'--fa-display'     => 'none',
+						'--widget-list-pl' => '0',
+					];
 				}
 
 				$css[".$id"] = array_merge(

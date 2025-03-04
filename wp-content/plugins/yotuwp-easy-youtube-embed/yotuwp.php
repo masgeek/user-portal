@@ -3,7 +3,7 @@
 * Plugin Name: YotuWP - YouTube Gallery
 * Plugin URI: https://www.yotuwp.com/
 * Description: Easy embed YouTube playlist, channel, videos and user videos to posts/pages/widgets
-* Version: 1.3.12
+* Version: 1.3.14
 * Text Domain: yotuwp-easy-youtube-embed
 * Domain Path: /languages
 * Author URI: https://www.yotuwp.com/contact/
@@ -17,7 +17,7 @@ if( !defined( 'YTDS' ) )
 	define( 'YTDS', DIRECTORY_SEPARATOR );
 
 if( !defined( 'YOTUWP_VERSION' ) )
-	define( 'YOTUWP_VERSION', '1.3.12' );
+	define( 'YOTUWP_VERSION', '1.3.14' );
 
 global $yotuwp, $yotuwp_inline_script;
 
@@ -810,6 +810,8 @@ class YotuWP{
 	public function template( $template, $data, $settings) {
 		global $yotuwp;
 
+		$template = sanitize_file_name($template);
+
 		$yotuwp->data = array(
 			'data' => $data,
 			'settings' => $settings
@@ -952,14 +954,35 @@ class YotuWP{
 	}
 
 	public function register_settings() {
-		register_setting( 'yotu', 'yotu-settings' );
-		register_setting( 'yotu', 'yotu-player' );
-		register_setting( 'yotu', 'yotu-styling' );
-		register_setting( 'yotu', 'yotu-api' );
-		register_setting( 'yotu', 'yotu-cache' );
-		register_setting( 'yotu', 'yotu-effects' );	
+		register_setting( 'yotu', 'yotu-settings', array(
+			'sanitize_callback' => array( $this, 'admin_post_save_data' ),
+		) );
+		register_setting( 'yotu', 'yotu-player', array(
+			'sanitize_callback' => array( $this, 'admin_post_save_data' ),
+		));
+		register_setting( 'yotu', 'yotu-styling' , array(
+			'sanitize_callback' => array( $this, 'admin_post_save_data' ),
+		));
+		register_setting( 'yotu', 'yotu-api' , array(
+			'sanitize_callback' => array( $this, 'admin_post_save_data' ),
+		));
+		register_setting( 'yotu', 'yotu-cache' , array(
+			'sanitize_callback' => array( $this, 'admin_post_save_data' ),
+		));
+		register_setting( 'yotu', 'yotu-effects' , array(
+			'sanitize_callback' => array( $this, 'admin_post_save_data' ),
+		));	
 
 		do_action( 'yotu_register_setting' );
+	}
+
+
+	function admin_post_save_data( $inputs = NULL ){
+		foreach( $inputs as $key => $val ) {
+			$inputs[ $key ] = sanitize_text_field( esc_js($val));
+		}
+
+		return $inputs;
 	}
 
 

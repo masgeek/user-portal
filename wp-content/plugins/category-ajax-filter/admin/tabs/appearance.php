@@ -210,7 +210,7 @@ $ptypes = apply_filters('tc_caf_pagi_type', array($caf_admin_fliters, 'tc_caf_pa
      <?php
 foreach ($ptypes as $key => $ptype) {
     if ($caf_pagi_type == $key) {$selected = 'selected';} else { $selected = '';}
-    echo '<option value="' . $key . '" ' . $selected . '>' . esc_html($ptype) . '</option>';
+    echo '<option value="' . esc_attr($key) . '" ' . esc_attr($selected) . '>' . esc_html($ptype) . '</option>';
 }
 ?>
     </select>
@@ -224,6 +224,60 @@ foreach ($ptypes as $key => $ptype) {
     </div>
 	</div>
     <!---- END PAGINATION TOGGLE ---->
+
+
+
+
+
+<!---- START SORTING TOGGLE ---->
+
+<div class="tab-panel post-sorting">
+
+<div class="tab-header" data-content="post-sorting"><i class="fa fa-sort-numeric-asc left" aria-hidden="true"></i><?php echo esc_html__('Sorting', 'category-ajax-filter'); ?><i class="fa fa-angle-down" aria-hidden="true"></i></div>
+
+<div class="tab-content post-sorting">
+
+<div class='app-tab-content' id="app-extra">
+<!-- START POST ORDERS BY ROW GROUP -->
+<div class="col-sm-12 row-bottom">
+	<div class="form-group row">
+    <label for="caf-post-orders-by" class='col-sm-12 bold-span-title'><?php echo esc_html__('Posts Order By', 'category-ajax-filter'); ?><span class='info'><?php echo esc_html__('Set posts order by setting.', 'category-ajax-filter'); ?></span></label>
+    <div class="col-sm-12">
+    <select class="form-control caf_orders_by" data-import="caf_post_orders_by" id="caf-post-orders-by" name="caf-post-orders-by">
+    <option value="author" <?php if ($caf_post_orders_by == 'author') {echo "selected";}?>>Author</option>
+	<option value="title" <?php if ($caf_post_orders_by == 'title') {echo "selected";}?>>Title</option>
+     	<option value="ID" <?php if ($caf_post_orders_by == 'ID') {echo "selected";}?>>Post ID</option>
+	<option value="date" <?php if ($caf_post_orders_by == 'date') {echo "selected";}?>>Date</option>
+     <option value="rand" <?php if ($caf_post_orders_by == 'rand') {echo "selected";}?>>Random</option>
+    </select>
+	</div>
+  </div>
+  </div>
+  <!-- END POST ORDERS BY ROW GROUP -->
+ <!-- START POST ORDERS BY ROW GROUP -->
+ <div class="col-sm-12 row-bottom">
+	<div class="form-group row">
+    <label for="caf-posts-order-type" class='col-sm-12 bold-span-title'><?php echo esc_html__('Posts Order Type', 'category-ajax-filter'); ?><span class='info'><?php echo esc_html__('Set posts order Type.', 'category-ajax-filter'); ?></span></label>
+    <div class="col-sm-12">
+    <select class="form-control caf_import" data-import="caf_posts_orders_type" id="caf-posts-order-type" name="caf-posts-order-type">
+    <option value="asc" <?php if ($caf_post_order_type == 'asc') {echo "selected";}?>>Asc</option>
+     <option value="desc" <?php if ($caf_post_order_type == 'desc') {echo "selected";}?>>Desc</option>
+    </select>
+	</div>
+	</div>
+  </div>
+  <!-- END POST ORDERS BY ROW GROUP -->
+
+
+</div>
+</div>
+</div>
+<!---- END Sorting TOGGLE ---->
+
+
+
+
+
 <?php do_action("tc_caf_after_caf_post_pagi_tab");?>
     <!---- START POST ANIMATION TOGGLE ---->
 
@@ -246,11 +300,11 @@ foreach ($animations as $key => $animation) {
     if ($caf_post_animation == $key) {$selected = 'selected';} else { $selected = '';}
 
     if ($key == $animation) {
-        echo "<optgroup label='" . $animation . "'>";
+        echo "<optgroup label='" . esc_attr($animation) . "'>";
     } else if ($key == "optionend") {
         echo "</optgroup>";
     } else {
-        echo '<option value="' . $key . '" ' . $selected . '>' . $animation . '</option>';
+        echo '<option value="' . esc_attr($key) . '" ' . esc_attr($selected) . '>' . esc_attr($animation) . '</option>';
     }
 }
 ?>

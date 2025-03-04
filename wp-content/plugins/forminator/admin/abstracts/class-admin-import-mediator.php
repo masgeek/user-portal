@@ -1,4 +1,10 @@
 <?php
+/**
+ * Forminator Admin Import Mediator
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -23,7 +29,7 @@ abstract class Forminator_Import_Mediator {
 	 * Insert form data
 	 * Override by child classes
 	 *
-	 * @param $id
+	 * @param int $id Id.
 	 *
 	 * @since 1.7
 	 * @return array Parsed form data
@@ -31,14 +37,13 @@ abstract class Forminator_Import_Mediator {
 	public function import_form( $id ) {
 
 		return array();
-
 	}
 
 	/**
 	 * Replaces invalid tags with forminator tags
 	 *
-	 * @param $mayhavetags
-	 * @param $tags
+	 * @param string $mayhavetags Tag to replace.
+	 * @param array  $tags Tags.
 	 *
 	 * @since 1.7
 	 * @return string returns string with valid field tag format
@@ -63,7 +68,7 @@ abstract class Forminator_Import_Mediator {
 	/**
 	 * Replace default tag
 	 *
-	 * @param $tags
+	 * @param string $tags Tag.
 	 *
 	 * @return string
 	 */
@@ -112,6 +117,7 @@ abstract class Forminator_Import_Mediator {
 			'website',
 			'checkbox',
 			'number',
+			'slider',
 			'textarea',
 			'text',
 			'select',
@@ -126,11 +132,13 @@ abstract class Forminator_Import_Mediator {
 			'postdata',
 			'pagination',
 			'stripe',
+			'stripe-ocs',
 			'currency',
 			'consent',
 			'gdprcheckbox',
 			'honeypot',
 			'captcha',
+			'rating',
 			'submit',
 		);
 
@@ -145,7 +153,7 @@ abstract class Forminator_Import_Mediator {
 	 */
 	public function random_wrapper_int() {
 		// get all forms.
-		$int = intval( (float) rand() / (float) getrandmax() * 9999 );
+		$int = intval( (float) wp_rand() / (float) getrandmax() * 9999 );
 
 		return absint( $int );
 	}
@@ -153,7 +161,7 @@ abstract class Forminator_Import_Mediator {
 	/**
 	 * Replaces cf7 tags with forminator tags
 	 *
-	 * @param $type
+	 * @param string $type Field type.
 	 *
 	 * @since 1.7
 	 * @return string returns string with valid field tag format
@@ -226,18 +234,19 @@ abstract class Forminator_Import_Mediator {
 	/**
 	 * Tries the form import
 	 *
-	 * @param $import_data
+	 * @param mixed $import_data Import data.
 	 *
 	 * @return array
+	 * @throws Exception Throws Exception.
 	 */
 	public function try_form_import( $import_data ) {
 		try {
 			if ( empty( $import_data ) || ! is_array( $import_data ) ) {
-				throw new Exception( __( 'Oops, looks like we found an issue. Import text can not include whitespace or special characters.', 'forminator' ) );
+				throw new Exception( esc_html__( 'Oops, looks like we found an issue. Import text can not include whitespace or special characters.', 'forminator' ) );
 			}
 
 			if ( ! isset( $import_data['type'] ) || 'form' !== $import_data['type'] ) {
-				throw new Exception( __( 'Oops, wrong module type. You can only import a module of the same type that you\'re currently viewing.', 'forminator' ) );
+				throw new Exception( esc_html__( 'Oops, wrong module type. You can only import a module of the same type that you\'re currently viewing.', 'forminator' ) );
 			}
 
 			$import_data = $this->parse_import_data( $import_data );
@@ -249,7 +258,7 @@ abstract class Forminator_Import_Mediator {
 			}
 
 			if ( ! $model instanceof Forminator_Form_Model ) {
-				throw new Exception( __( 'Failed to import form, please make sure import text is valid, and try again.', 'forminator' ) );
+				throw new Exception( esc_html__( 'Failed to import form, please make sure import text is valid, and try again.', 'forminator' ) );
 			}
 
 			$return_url = admin_url( 'admin.php?page=forminator-cform' );
@@ -271,17 +280,17 @@ abstract class Forminator_Import_Mediator {
 	/**
 	 * Parses form data structure
 	 *
-	 * @param $data
+	 * @param array $data Form data.
 	 *
 	 * @since 1.7
 	 * @return array Parsed form data
 	 */
 	public function parse_import_data( $data ) {
+		$fields    = array();
+		$form_data = array();
 		if ( empty( $data ) || ! is_array( $data ) || ! isset( $data['data']['fields'] ) ) {
 			return;
 		}
-
-		$fields = $form_data = array();
 
 		foreach ( $data['data']['fields'] as $key => $value ) {
 			$value['id'] = $value['element_id'];

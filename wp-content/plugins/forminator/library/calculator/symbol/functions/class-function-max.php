@@ -1,4 +1,9 @@
 <?php
+/**
+ * The Forminator_Calculator_Symbol_Function_Max class.
+ *
+ * @package Forminator
+ */
 
 /**
  * PHP max() function. Expects at least one parameter.
@@ -9,13 +14,18 @@
 class Forminator_Calculator_Symbol_Function_Max extends Forminator_Calculator_Symbol_Function_Abstract {
 
 	/**
-	 * @inheritdoc
+	 * Identifiers
+	 *
+	 * @var array
 	 */
 	protected $identifiers = array( 'max' );
 
 	/**
+	 * Execute
+	 *
 	 * @inheritdoc
-	 * @throws Forminator_Calculator_Exception
+	 * @param mixed $arguments Arguments.
+	 * @throws Forminator_Calculator_Exception When there is an Calculator error.
 	 */
 	public function execute( $arguments ) {
 		if ( count( $arguments ) < 1 ) {
@@ -26,5 +36,4 @@ class Forminator_Calculator_Symbol_Function_Max extends Forminator_Calculator_Sy
 
 		return $max;
 	}
-
 }

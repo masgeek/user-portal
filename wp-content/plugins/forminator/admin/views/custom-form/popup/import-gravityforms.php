@@ -1,4 +1,10 @@
 <?php
+/**
+ * Template admin/views/custom-form/popup/import-gravityforms.php
+ *
+ * @package Forminator
+ */
+
 $nonce = wp_create_nonce( 'forminator_save_import_form_gravity' );
 $forms = forminator_list_thirdparty_contact_forms( 'gravityforms' );
 ?>
@@ -20,7 +26,7 @@ $forms = forminator_list_thirdparty_contact_forms( 'gravityforms' );
 			<?php
 			if ( ! empty( $forms ) ) :
 				foreach ( $forms as $key => $value ) {
-					echo sprintf(
+					printf(
 						'<option value="%f">%s</option>',
 						absint( $value['id'] ),
 						esc_html( $value['title'] )

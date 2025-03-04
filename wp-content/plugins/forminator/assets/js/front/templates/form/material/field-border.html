@@ -1,7 +1,7 @@
 <?php if ( forminator_array_value_exists( $properties, 'field-border' ) ) { ?>
 
 	#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-input--wrap .forminator-input,
-	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-input--stripe div.StripeElement,
+	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-input--stripe div.StripeElement:not(.forminator-stripe-payment-element),
 	#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-select2 + .forminator-select .selection .select2-selection--single[role="combobox"] {
 		<?php if ( forminator_array_value_exists( $properties, 'field-border-width' ) && !empty( $properties['field-border-width'] ) ) { ?>
 			border-bottom-width: <?php echo $properties['field-border-width'] ?>px;
@@ -27,7 +27,7 @@
 	}
 
 	#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-input--wrap::after,
-	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-input--stripe div.StripeElement::after,
+	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-input--stripe div.StripeElement:not(.forminator-stripe-payment-element)::after,
 	#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-select2 + .forminator-select .selection .select2-selection--single[role="combobox"]:before {
 		<?php if ( forminator_array_value_exists( $properties, 'field-border-width' ) && !empty( $properties['field-border-width'] ) ) { ?>
 			height: <?php echo $properties['field-border-width'] ?>px;

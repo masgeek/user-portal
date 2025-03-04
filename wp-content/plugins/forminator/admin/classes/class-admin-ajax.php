@@ -1,4 +1,10 @@
 <?php
+/**
+ * Forminator Admin Addon Ajax
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -16,18 +22,19 @@ class Forminator_Admin_AJAX {
 	 * @since 1.0
 	 */
 	public function __construct() {
-		// Handle close welcome box
+
+		// Handle close welcome box.
 		add_action( 'wp_ajax_forminator_dismiss_welcome', array( $this, 'dismiss_welcome' ) );
 		add_action( 'wp_ajax_nopriv_forminator_dismiss_welcome', array( $this, 'dismiss_welcome' ) );
 
-		// Handle load google fonts
+		// Handle load google fonts.
 		add_action( 'wp_ajax_forminator_load_google_fonts', array( $this, 'load_google_fonts' ) );
 
-		// Handle load reCaptcha preview
+		// Handle load reCaptcha preview.
 		add_action( 'wp_ajax_forminator_load_recaptcha_preview', array( $this, 'load_recaptcha_preview' ) );
 		add_action( 'wp_ajax_forminator_load_hcaptcha_preview', array( $this, 'load_hcaptcha_preview' ) );
 
-		// Handle save settings
+		// Handle save settings.
 		add_action( 'wp_ajax_forminator_save_builder', array( $this, 'save_builder' ) );
 		add_action( 'wp_ajax_forminator_save_poll', array( $this, 'save_poll_form' ) );
 		add_action( 'wp_ajax_forminator_save_quiz_nowrong', array( $this, 'save_quiz' ) );
@@ -57,12 +64,14 @@ class Forminator_Admin_AJAX {
 		add_action( 'wp_ajax_forminator_load_preview_polls_popup', array( $this, 'preview_module' ) );
 		add_action( 'wp_ajax_forminator_load_preview_quizzes_popup', array( $this, 'preview_module' ) );
 
-		// Handle exports popup
+		// Handle exports popup.
 		add_action( 'wp_ajax_forminator_load_exports_popup', array( $this, 'load_exports' ) );
 		add_action( 'wp_ajax_forminator_clear_exports_popup', array( $this, 'clear_exports' ) );
 
-		// Handle search user email
+		// Handle search user email.
 		add_action( 'wp_ajax_forminator_builder_search_emails', array( $this, 'search_emails' ) );
+
+		add_action( 'wp_ajax_forminator_create_module_from_template', array( $this, 'create_module_from_template' ) );
 
 		add_action( 'wp_ajax_forminator_load_privacy_settings_popup', array( $this, 'load_privacy_settings' ) );
 		add_action( 'wp_ajax_forminator_save_privacy_settings_popup', array( $this, 'save_privacy_settings' ) );
@@ -90,19 +99,25 @@ class Forminator_Admin_AJAX {
 		add_action( 'wp_ajax_forminator_load_import_quiz_popup', array( $this, 'load_import' ) );
 		add_action( 'wp_ajax_forminator_save_import_quiz_popup', array( $this, 'save_import' ) );
 
+		// Handle PDFs.
+		add_action( 'wp_ajax_forminator_save_pdf', array( $this, 'save_pdf' ) );
+		add_action( 'wp_ajax_forminator_fetch_pdfs', array( $this, 'fetch_pdfs' ) );
+		add_action( 'wp_ajax_forminator_delete_pdf', array( $this, 'delete_pdf' ) );
+
 		add_action(
-            'wp_ajax_forminator_save_accessibility_settings_popup',
-            array(
+			'wp_ajax_forminator_save_accessibility_settings_popup',
+			array(
 				$this,
 				'save_accessibility_settings',
-            )
-        );
+			)
+		);
 
 		add_action( 'wp_ajax_forminator_save_dashboard_settings_popup', array( $this, 'save_dashboard_settings' ) );
 
 		add_action( 'wp_ajax_forminator_stripe_settings_modal', array( $this, 'stripe_settings_modal' ) );
 		add_action( 'wp_ajax_forminator_stripe_update_page', array( $this, 'stripe_update_page' ) );
 		add_action( 'wp_ajax_forminator_disconnect_stripe', array( $this, 'stripe_disconnect' ) );
+		add_action( 'wp_ajax_forminator_set_encryption_key', array( $this, 'set_encryption_key' ) );
 
 		add_action( 'wp_ajax_forminator_paypal_settings_modal', array( $this, 'paypal_settings_modal' ) );
 		add_action( 'wp_ajax_forminator_paypal_update_page', array( $this, 'paypal_update_page' ) );
@@ -143,6 +158,9 @@ class Forminator_Admin_AJAX {
 		add_action( 'wp_ajax_forminator_save_report', array( $this, 'save_report' ) );
 		add_action( 'wp_ajax_forminator_fetch_report', array( $this, 'fetch_report' ) );
 		add_action( 'wp_ajax_forminator_report_update_status', array( $this, 'update_report_status' ) );
+
+		// Process Permission settings.
+		add_action( 'wp_ajax_forminator_save_permissions', array( $this, 'save_permissions' ) );
 	}
 
 	/**
@@ -152,16 +170,18 @@ class Forminator_Admin_AJAX {
 	 * @since 1.1 change superglobal POST to `get_post_data`
 	 */
 	public function save_quiz() {
-		if ( ! forminator_is_user_allowed() ) {
-			wp_send_json_error( __( 'Invalid request, you are not allowed to do that action.', 'forminator' ) );
+		if ( ! forminator_is_user_allowed( 'forminator-quiz' ) ) {
+			wp_send_json_error( esc_html__( 'Invalid request, you are not allowed to do that action.', 'forminator' ) );
 		}
 
-		forminator_validate_ajax( 'forminator_save_quiz' );
+		forminator_validate_ajax( 'forminator_save_quiz', false, 'forminator-quiz' );
 
 		$submitted_data = $this->get_post_data();
 
 		$quiz_data = array();
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified in forminator_validate_ajax.
 		if ( ! empty( $_POST['data'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- Sanitized in Forminator_Core::sanitize_array.
 			$quiz_data = Forminator_Core::sanitize_array( json_decode( wp_unslash( $_POST['data'] ), true ) );
 		}
 
@@ -173,12 +193,12 @@ class Forminator_Admin_AJAX {
 		$template = new stdClass();
 
 		$template->type = isset( $submitted_data['action'] ) ? $submitted_data['action'] : '';
-		// Check if results exist
+		// Check if results exist.
 		if ( isset( $quiz_data['results'] ) && is_array( $quiz_data['results'] ) ) {
 			$template->results = $quiz_data['results'];
 		}
 
-		// Check if answers exist
+		// Check if answers exist.
 		if ( isset( $quiz_data['questions'] ) ) {
 			$template->questions = $quiz_data['questions'];
 		}
@@ -208,15 +228,17 @@ class Forminator_Admin_AJAX {
 	 * @since 1.1 change superglobal POST to `get_post_data`
 	 */
 	public function save_poll_form() {
-		if ( ! forminator_is_user_allowed() ) {
-			wp_send_json_error( __( 'Invalid request, you are not allowed to do that action.', 'forminator' ) );
+		if ( ! forminator_is_user_allowed( 'forminator-poll' ) ) {
+			wp_send_json_error( esc_html__( 'Invalid request, you are not allowed to do that action.', 'forminator' ) );
 		}
 
-		forminator_validate_ajax( 'forminator_save_poll' );
+		forminator_validate_ajax( 'forminator_save_poll', false, 'forminator-poll' );
 
 		$submitted_data = $this->get_post_data();
 		$poll_data      = array();
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified in forminator_validate_ajax.
 		if ( ! empty( $_POST['data'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- Sanitized in Forminator_Core::sanitize_array.
 			$poll_data = Forminator_Core::sanitize_array( json_decode( wp_unslash( $_POST['data'] ), true ) );
 		}
 
@@ -248,11 +270,11 @@ class Forminator_Admin_AJAX {
 	 * @since 1.2
 	 */
 	public function save_builder() {
-		if ( ! forminator_is_user_allowed() ) {
-			wp_send_json_error( __( 'Invalid request, you are not allowed to do that action.', 'forminator' ) );
+		if ( ! forminator_is_user_allowed( 'forminator-cform' ) ) {
+			wp_send_json_error( esc_html__( 'Invalid request, you are not allowed to do that action.', 'forminator' ) );
 		}
 
-		forminator_validate_ajax( 'forminator_save_builder_fields' );
+		forminator_validate_ajax( 'forminator_save_builder_fields', false, 'forminator-cform' );
 
 		$submitted_data = $this->get_post_data();
 		$form_data      = array();
@@ -262,9 +284,11 @@ class Forminator_Admin_AJAX {
 		$status         = isset( $submitted_data['status'] ) ? $submitted_data['status'] : '';
 		$version        = isset( $submitted_data['version'] ) ? $submitted_data['version'] : '1.0';
 		$template       = new stdClass();
-		$action         = false;
+		$action         = '';
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified in forminator_validate_ajax.
 		if ( ! empty( $_POST['data'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- Sanitized in Forminator_Core::sanitize_array.
 			$form_data = Forminator_Core::sanitize_array( json_decode( wp_unslash( $_POST['data'] ), true ) );
 		}
 
@@ -280,14 +304,14 @@ class Forminator_Admin_AJAX {
 			$action     = 'update';
 
 			if ( ! is_object( $form_model ) ) {
-				wp_send_json_error( __( "Form model doesn't exist", 'forminator' ) );
+				wp_send_json_error( esc_html__( 'Form model doesn\'t exist', 'forminator' ) );
 			}
 
 			if ( empty( $status ) ) {
 				$status = $form_model->status;
 			}
 
-			// we need to empty fields cause we will send new data
+			// we need to empty fields cause we will send new data.
 			$form_model->clear_fields();
 		}
 
@@ -310,28 +334,199 @@ class Forminator_Admin_AJAX {
 			$template->notifications = $form_data['notifications'];
 		}
 
-		// Sanitize settings
-		$settings				= $form_data['settings'];
-		$activation_method		= ! empty( $settings['activation-method'] ) ? $settings['activation-method'] : '';
-		if ( 'manual' == $activation_method ) {
+		// Sanitize settings.
+		$settings          = $form_data['settings'];
+		$activation_method = ! empty( $settings['activation-method'] ) ? $settings['activation-method'] : '';
+		if ( 'manual' === $activation_method ) {
 			$settings['automatic-login'] = '';
 		}
+
+		if ( isset( $settings['fields-style'] ) && 'custom' === $settings['fields-style'] ) {
+			$settings['spacing'] = ! empty( $settings['spacing'] ) ? $settings['spacing'] : 0;
+		}
+
 		$settings['version'] = $version;
 		$template->settings  = $settings;
 
 		$id = Forminator_Custom_Form_Admin::update( $id, $title, $status, $template );
 		if ( is_wp_error( $id ) ) {
-			wp_send_json_error( $id->get_error_message() );
+			wp_send_json_error( $id );
 		} else {
 			wp_send_json_success( $id );
 		}
 	}
 
 	/**
+	 * Save PDF
+	 *
+	 * @since 2.0
+	 * @throws Exception When failed to create PDF.
+	 */
+	public function save_pdf() {
+		if ( ! forminator_is_user_allowed( 'forminator-cform' ) ) {
+			wp_send_json_error( esc_html__( 'Invalid request, you are not allowed to do that action.', 'forminator' ) );
+		}
+
+		forminator_validate_ajax( 'forminator_save_builder_fields', false, 'forminator-cform' );
+
+		try {
+			$submitted_data = $this->get_post_data();
+
+			if ( ! class_exists( 'Forminator_PDF_Form_Actions' ) ) {
+				throw new Exception( esc_html__( 'PDF add-on is not installed.', 'forminator' ) );
+			}
+
+			$pdf_data['pdf_id'] = Forminator_PDF_Form_Actions::create_new_pdf_form( $submitted_data );
+
+			if ( empty( $pdf_data['pdf_id'] ) || ! is_numeric( $pdf_data['pdf_id'] ) ) {
+				throw new Exception( esc_html__( 'Failed to create PDF. Please try again.', 'forminator' ) );
+			}
+
+			wp_send_json_success( $pdf_data );
+
+		} catch ( Exception $e ) {
+			wp_send_json_error( $e->getMessage() );
+		}
+	}
+
+	/**
+	 * Deleta a PDF
+	 *
+	 * @since 2.0
+	 * @throws Exception When failed to delete PDF.
+	 */
+	public function delete_pdf() {
+		if ( ! forminator_is_user_allowed( 'forminator-cform' ) ) {
+			wp_send_json_error( esc_html__( 'Invalid request, you are not allowed to do that action.', 'forminator' ) );
+		}
+
+		forminator_validate_ajax( 'forminator_save_builder_fields', false, 'forminator-cform' );
+
+		try {
+			$pdf_data = $this->get_post_data();
+
+			if ( ! isset( $pdf_data['pdfId'] ) || empty( $pdf_data['pdfId'] ) ) {
+				throw new Exception( esc_html__( 'PDF not found.', 'forminator' ) );
+			}
+
+			Forminator_API::delete_form( $pdf_data['pdfId'] );
+
+			wp_send_json_success( $pdf_data['pdfId'] );
+
+		} catch ( Exception $e ) {
+			wp_send_json_error( $e->getMessage() );
+		}
+	}
+
+	/**
+	 * Fetch PDF files
+	 *
+	 * @since 2.0
+	 * @throws Exception When failed to fetch PDF.
+	 */
+	public function fetch_pdfs() {
+		if ( ! forminator_is_user_allowed( 'forminator-cform' ) ) {
+			wp_send_json_error( esc_html__( 'Invalid request, you are not allowed to do that action.', 'forminator' ) );
+		}
+
+		forminator_validate_ajax( 'forminator_save_builder_fields', false, 'forminator-cform' );
+
+		try {
+			$submitted_data = $this->get_post_data();
+			$pdfs           = Forminator_API::get_forms( null, 1, 999, 'pdf_form', $submitted_data['parent_form_id'] );
+
+			if ( is_wp_error( $pdfs ) || ! is_array( $pdfs ) ) {
+				throw new Exception( esc_html__( 'Forminator encountered an error while fetching the PDF files.', 'forminator' ) );
+			}
+
+			wp_send_json_success( $pdfs );
+
+		} catch ( Exception $e ) {
+			wp_send_json_error( $e->getMessage() );
+		}
+	}
+
+	/**
+	 * Save custom form settings
+	 *
+	 * @since 1.2
+	 */
+	public function save_builder_settings() {
+		_deprecated_function( 'save_builder_settings', '1.6', 'save_builder' );
+		if ( ! current_user_can( forminator_get_permission( 'forminator-cform' ) ) ) {
+			return;
+		}
+
+		forminator_validate_ajax( 'forminator_save_builder_fields', false, 'forminator-cform' );
+
+		$submitted_data = $this->get_post_data();
+		$id             = isset( $submitted_data['form_id'] ) ? intval( $submitted_data['form_id'] ) : 0;
+		$title          = $submitted_data['formName'];
+		$status         = isset( $submitted_data['status'] ) ? $submitted_data['status'] : '';
+		$version        = isset( $submitted_data['version'] ) ? $submitted_data['version'] : '1.0';
+
+		if ( is_null( $id ) || $id <= 0 ) {
+			$form_model = new Forminator_Form_Model();
+
+			if ( empty( $status ) ) {
+				$status = Forminator_Form_Model::STATUS_PUBLISH;
+			}
+		} else {
+			$form_model = Forminator_Base_Form_Model::get_model( $id );
+
+			if ( ! is_object( $form_model ) ) {
+				wp_send_json_error( esc_html__( "Form model doesn't exist", 'forminator' ) );
+			}
+			if ( empty( $status ) ) {
+				$status = $form_model->status;
+			}
+		}
+		$form_model->set_var_in_array( 'name', 'formName', $submitted_data, 'forminator_sanitize_field' );
+
+		$settings = $submitted_data['data'];
+
+		$settings['formName'] = $title;
+		$settings['version']  = $version;
+		$form_model->settings = $settings;
+
+		// status.
+		$form_model->status = $status;
+
+		// Save data.
+		$id = $form_model->save();
+
+		if ( is_wp_error( $id ) ) {
+			wp_send_json_error( $id->get_error_message() );
+		}
+
+		// add privacy settings to global option.
+		$override_privacy = false;
+		if ( isset( $settings['enable-submissions-retention'] ) ) {
+			$override_privacy = filter_var( $settings['enable-submissions-retention'], FILTER_VALIDATE_BOOLEAN );
+		}
+		$retention_number = null;
+		$retention_unit   = null;
+		if ( $override_privacy ) {
+			$retention_number = 0;
+			$retention_unit   = 'days';
+			if ( isset( $settings['submissions-retention-number'] ) ) {
+				$retention_number = (int) $settings['submissions-retention-number'];
+			}
+			if ( isset( $settings['submissions-retention-unit'] ) ) {
+				$retention_unit = $settings['submissions-retention-unit'];
+			}
+		}
+
+		forminator_update_form_submissions_retention( $id, $retention_number, $retention_unit );
+
+		wp_send_json_success( $id );
+	}
+
+	/**
 	 * Apply Appearance Preset ajax.
 	 */
 	public function apply_appearance_preset() {
-		forminator_validate_ajax( 'forminator_apply_preset' );
+		forminator_validate_ajax( 'forminator_apply_preset', false, 'forminator-cform' );
 
 		$preset_id = Forminator_Core::sanitize_text_field( 'preset_id' );
 		$ids       = filter_input( INPUT_POST, 'ids', FILTER_VALIDATE_INT, FILTER_REQUIRE_ARRAY );
@@ -349,6 +544,7 @@ class Forminator_Admin_AJAX {
 				$form_model->settings = self::merge_appearance_settings( $form_model->settings, $new_settings );
 
 				if ( $edit_form ) {
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- Sanitized in Forminator_Core::sanitize_array.
 					$settings     = isset( $_POST['settings'] ) ? Forminator_Core::sanitize_array( $_POST['settings'] ) : array();
 					$old_settings = json_decode( wp_unslash( $settings ), true );
 					if ( $old_settings ) {
@@ -358,20 +554,21 @@ class Forminator_Admin_AJAX {
 				}
 
 				// Save data.
-				$form_model->save();
+				$result = $form_model->save();
+				if ( ! is_wp_error( $result ) ) {
+					// Regenerare module css file.
+					Forminator_Render_Form::regenerate_css_file( $form_id );
 
-				// Regenerare module css file.
-				Forminator_Render_Form::regenerate_css_file( $form_id );
-
-				$count ++;
+					++$count;
+				}
 			}
 		}
 
 		if ( $edit_form ) {
-			wp_send_json_error( __( 'Something went wrong.', 'forminator' ) );
+			wp_send_json_error( esc_html__( 'Something went wrong.', 'forminator' ) );
 		}
-
-		$success = sprintf( __( 'Preset successfully applied to %d form(s).', 'forminator' ), $count );
+		/* translators: %s: Form count */
+		$success = sprintf( esc_html__( 'Preset successfully applied to %d form(s).', 'forminator' ), $count );
 		wp_send_json_success( $success );
 	}
 
@@ -400,7 +597,7 @@ class Forminator_Admin_AJAX {
 	 * Create Appearance Preset ajax.
 	 */
 	public function create_appearance_preset() {
-		forminator_validate_ajax( 'forminator_create_preset' );
+		forminator_validate_ajax( 'forminator_create_preset', false, 'forminator-settings' );
 
 		$id       = uniqid();
 		$settings = array();
@@ -408,7 +605,7 @@ class Forminator_Admin_AJAX {
 		$name     = Forminator_Core::sanitize_text_field( 'name' );
 
 		if ( empty( $name ) ) {
-			wp_send_json_error( __( 'Preset Name is empty.', 'forminator' ) );
+			wp_send_json_error( esc_html__( 'Preset Name is empty.', 'forminator' ) );
 		}
 
 		if ( ! empty( $form_id ) ) {
@@ -429,14 +626,14 @@ class Forminator_Admin_AJAX {
 	 * Delete Appearance Preset ajax.
 	 */
 	public function delete_appearance_preset() {
-		forminator_validate_ajax( 'forminator_appearance_preset' );
+		forminator_validate_ajax( 'forminator_appearance_preset', false, 'forminator-settings' );
 
 		$id = Forminator_Core::sanitize_text_field( 'preset_id' );
 		if ( empty( $id ) ) {
-			wp_send_json_error( __( 'Preset ID is empty.', 'forminator' ) );
+			wp_send_json_error( esc_html__( 'Preset ID is empty.', 'forminator' ) );
 		}
 		if ( 'default' === $id ) {
-			wp_send_json_error( __( 'Preset ID is incorrect.', 'forminator' ) );
+			wp_send_json_error( esc_html__( 'Preset ID is incorrect.', 'forminator' ) );
 		}
 
 		// Delete preset from list.
@@ -455,21 +652,23 @@ class Forminator_Admin_AJAX {
 	 * Save Appearance Preset ajax.
 	 */
 	public function save_appearance_preset() {
-		forminator_validate_ajax( 'forminator_appearance_preset' );
+		forminator_validate_ajax( 'forminator_appearance_preset', false, 'forminator-settings' );
 
 		$id = Forminator_Core::sanitize_text_field( 'presetId' );
 		if ( ! $id ) {
-			wp_send_json_error( esc_attr__( "Appearance preset id doesn't exist", 'forminator' ) );
+			wp_send_json_error( esc_html__( 'Appearance preset id doesn\'t exist', 'forminator' ) );
 		}
 
 		$settings = array();
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified in forminator_validate_ajax.
 		if ( ! empty( $_POST['settings'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- Sanitized in Forminator_Core::sanitize_array.
 			$settings = Forminator_Core::sanitize_array( json_decode( wp_unslash( $_POST['settings'] ), true ) );
 		}
 
 		self::save_preset( $id, $settings );
 
-		wp_send_json_success( esc_attr__( 'The preset has been successfully updated.', 'forminator' ) );
+		wp_send_json_success( esc_html__( 'The preset has been successfully updated.', 'forminator' ) );
 	}
 
 	/**
@@ -494,14 +693,130 @@ class Forminator_Admin_AJAX {
 	}
 
 	/**
+	 * Set encryption key
+	 */
+	public function set_encryption_key() {
+		forminator_validate_ajax( 'forminator_set_encryption_key' );
+
+		try {
+			$config_content = self::prepare_new_wp_config();
+			$config_file    = self::get_wp_config_file_path();
+
+			global $wp_filesystem;
+			// Write the modified content back to wp-config.php.
+			return $wp_filesystem->put_contents( $config_file, $config_content, FS_CHMOD_FILE );
+		} catch ( Exception $e ) {
+			wp_send_json_error( $e->getMessage() );
+		}
+		wp_send_json_success();
+	}
+
+	/**
+	 * Get full path to wp-config.php file.
+	 *
+	 * @return string
+	 */
+	public static function get_wp_config_file_path(): string {
+		$path = ABSPATH . 'wp-config.php';
+		if ( ! file_exists( ABSPATH . 'wp-config.php' )
+				&& file_exists( dirname( ABSPATH ) . '/wp-config.php' )
+				&& ! file_exists( dirname( ABSPATH ) . '/wp-settings.php' ) ) {
+			$path = dirname( ABSPATH ) . '/wp-config.php';
+		}
+
+		return apply_filters( 'forminator_wp_config_file_path', $path );
+	}
+
+	/**
+	 * Prepare new wp-config.php content
+	 *
+	 * @return string
+	 * @throws Exception Throws exception if failed to prepare new wp-config.php content.
+	 */
+	public static function prepare_new_wp_config() {
+		// Check if current user can write to files.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			throw new Exception( esc_html__( 'You do not have permission to write to the wp-config.php file.', 'forminator' ) );
+		}
+
+		global $wp_filesystem;
+		// Ensure we have the WP_Filesystem initialized.
+		if ( is_null( $wp_filesystem ) && ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+		WP_Filesystem();
+		if ( ! $wp_filesystem instanceof WP_Filesystem_Base ) {
+			throw new Exception( esc_html__( 'Unable to initialize WP_Filesystem.', 'forminator' ) );
+		}
+
+		// Get the path to wp-config.php.
+		$config_file = self::get_wp_config_file_path();
+
+		// Check if the file exists.
+		if ( ! $wp_filesystem->exists( $config_file ) ) {
+			throw new Exception( esc_html__( 'wp-config.php file not found.', 'forminator' ) );
+		}
+
+		// Read the wp-config.php content.
+		$config_content = $wp_filesystem->get_contents( $config_file );
+
+		if ( ! $config_content ) {
+			throw new Exception( esc_html__( 'Unable to read wp-config.php file content.', 'forminator' ) );
+		}
+
+		// Check if the constant already exists.
+		if ( strpos( $config_content, 'FORMINATOR_ENCRYPTION_KEY' ) !== false ) {
+			throw new Exception( esc_html__( 'FORMINATOR_ENCRYPTION_KEY constant already exists.', 'forminator' ) );
+		}
+
+		$secret       = Forminator_Encryption::generate_encryption_key();
+		$new_constant = sprintf(
+			"define( 'FORMINATOR_ENCRYPTION_KEY', '%s' );%s",
+			$secret,
+			PHP_EOL
+		);
+
+		// Append the new constant before the line that says "That's all, stop editing!".
+		$wp_comment  = "/* That's all, stop editing! Happy blogging. */";
+		$new_content = str_replace( $wp_comment, $new_constant . "\n\n$wp_comment", $config_content );
+
+		if ( $new_content === $config_content ) {
+			$wp_comment  = "/* That's all, stop editing! Happy publishing. */";
+			$new_content = str_replace( $wp_comment, $new_constant . "\n\n$wp_comment", $config_content );
+
+			if ( $new_content === $config_content ) {
+				throw new Exception( esc_html__( 'WP config file does not have the expected content.', 'forminator' ) );
+			}
+		}
+		return $new_content;
+	}
+
+	/**
+	 * Check if we can write to wp-config.php file
+	 *
+	 * @return bool
+	 */
+	public static function can_write_to_wp_config(): bool {
+		try {
+			self::prepare_new_wp_config();
+		} catch ( Exception $e ) {
+			return false;
+		}
+
+		return true;
+	}
+
+
+	/**
 	 * Load google fonts
 	 *
 	 * @since 1.0.5
 	 */
 	public function load_google_fonts() {
-		forminator_validate_ajax( 'forminator_load_google_fonts' );
+		forminator_validate_ajax( 'forminator_load_google_fonts', false, 'forminator' );
 
-		$is_object = isset( $_POST['data']['isObject'] ) ? sanitize_text_field( $_POST['data']['isObject'] ) : false;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified in forminator_validate_ajax.
+		$is_object = isset( $_POST['data']['isObject'] ) ? sanitize_text_field( wp_unslash( $_POST['data']['isObject'] ) ) : false;
 
 		$fonts = forminator_get_font_families( $is_object );
 		wp_send_json_success( $fonts );
@@ -513,8 +828,8 @@ class Forminator_Admin_AJAX {
 	 * @since 1.0
 	 */
 	public function load_captcha() {
-		// Validate nonce
-		forminator_validate_ajax( 'forminator_popup_captcha' );
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_popup_captcha', false, 'forminator-settings' );
 
 		$html = forminator_template( 'settings/popup/edit-captcha-content' );
 
@@ -527,8 +842,8 @@ class Forminator_Admin_AJAX {
 	 * @since 1.0
 	 */
 	public function save_captcha() {
-		// Validate nonce
-		forminator_validate_ajax( 'forminator_save_popup_captcha' );
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_save_popup_captcha', false, 'forminator-settings' );
 
 		update_option( 'forminator_captcha_key', Forminator_Core::sanitize_text_field( 'v2_captcha_key' ) );
 		update_option( 'forminator_captcha_secret', Forminator_Core::sanitize_text_field( 'v2_captcha_secret' ) );
@@ -539,10 +854,25 @@ class Forminator_Admin_AJAX {
 		update_option( 'forminator_v3_captcha_key', Forminator_Core::sanitize_text_field( 'v3_captcha_key' ) );
 		update_option( 'forminator_v3_captcha_secret', Forminator_Core::sanitize_text_field( 'v3_captcha_secret' ) );
 
-		update_option( 'forminator_hcaptcha_key', sanitize_text_field( $_POST['hcaptcha_key'] ) );
-		update_option( 'forminator_hcaptcha_secret', sanitize_text_field( $_POST['hcaptcha_secret'] ) );
-		update_option( 'forminator_captcha_tab_saved', sanitize_text_field( $_POST['captcha_tab_saved'] ) );
-		// update_option( "forminator_hcaptcha_noconflict", sanitize_text_field( $_POST['hcaptcha_noconflict'] ) );
+		$hcaptcha_key = '';
+		if ( isset( $_POST['hcaptcha_key'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified in forminator_validate_ajax.
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified in forminator_validate_ajax.
+			$hcaptcha_key = sanitize_text_field( wp_unslash( $_POST['hcaptcha_key'] ) );
+		}
+		$hcaptcha_secret = '';
+		if ( isset( $_POST['hcaptcha_secret'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified in forminator_validate_ajax.
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified in forminator_validate_ajax.
+			$hcaptcha_secret = sanitize_text_field( wp_unslash( $_POST['hcaptcha_secret'] ) );
+		}
+		$captcha_tab_saved = '';
+		if ( isset( $_POST['captcha_tab_saved'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified in forminator_validate_ajax.
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified in forminator_validate_ajax.
+			$captcha_tab_saved = sanitize_text_field( wp_unslash( $_POST['captcha_tab_saved'] ) );
+		}
+
+		update_option( 'forminator_hcaptcha_key', $hcaptcha_key );
+		update_option( 'forminator_hcaptcha_secret', $hcaptcha_secret );
+		update_option( 'forminator_captcha_tab_saved', $captcha_tab_saved );
 
 		update_option( 'forminator_captcha_language', Forminator_Core::sanitize_text_field( 'captcha_language' ) );
 
@@ -555,7 +885,7 @@ class Forminator_Admin_AJAX {
 	 * @since 1.0
 	 */
 	public function load_currency() {
-		forminator_validate_ajax( 'forminator_popup_currency' );
+		forminator_validate_ajax( 'forminator_popup_currency', false, 'forminator-settings' );
 
 		$html = forminator_template( 'settings/popup/edit-currency-content' );
 
@@ -568,8 +898,8 @@ class Forminator_Admin_AJAX {
 	 * @since 1.0
 	 */
 	public function save_currency() {
-		// Validate nonce
-		forminator_validate_ajax( 'forminator_save_popup_currency' );
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_save_popup_currency', false, 'forminator-settings' );
 
 		update_option( 'forminator_currency', Forminator_Core::sanitize_text_field( 'currency' ) );
 
@@ -582,22 +912,22 @@ class Forminator_Admin_AJAX {
 	 * @since 1.0.2
 	 */
 	public function load_pagination_entries() {
-		// Validate nonce
-		forminator_validate_ajax( 'forminator_popup_pagination_entries' );
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_popup_pagination_entries', false, 'forminator-settings' );
 
 		$html = forminator_template( 'settings/popup/edit-pagination-entries-content' );
 
 		wp_send_json_success( $html );
 	}
 
-	/*
+	/**
 	 * Load reCaptcha preview
 	 *
 	 * @since 1.5.4
 	 */
 	public function load_recaptcha_preview() {
 
-		forminator_validate_ajax( 'forminator_load_captcha_settings' );
+		forminator_validate_ajax( 'forminator_load_captcha_settings', false, 'forminator-settings' );
 
 		$site_language = get_locale();
 		$language      = get_option( 'forminator_captcha_language', '' );
@@ -639,28 +969,26 @@ class Forminator_Admin_AJAX {
 		wp_send_json_success( $html );
 	}
 
-	/*
+	/**
 	 * Load hCaptcha preview
 	 *
 	 * @since 1.15.?
 	 */
 	public function load_hcaptcha_preview() {
 
-		forminator_validate_ajax( 'forminator_load_captcha_settings' );
+		forminator_validate_ajax( 'forminator_load_captcha_settings', false, 'forminator-settings' );
 
 		$site_language = get_locale();
 		$language      = get_option( 'forminator_captcha_language', '' );
 		$language      = ! empty( $language ) ? $language : $site_language;
-
-		// $captcha = sanitize_text_field( $_POST['captcha'] );// phpcs:ignore -- data without nonce verification
 
 		$hcaptcha_key    = get_option( 'forminator_hcaptcha_key', '' );
 		$hcaptcha_secret = get_option( 'forminator_hcaptcha_secret', '' );
 		$onload          = 'forminator_render_admin_hcaptcha';
 
 		if ( ! empty( $hcaptcha_key ) && ! empty( $hcaptcha_secret ) ) {
+			// recaptchacompat=off seems to fix problems with hcaptcha container loading recaptcha instead of hcaptcha in the admin.
 			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-			// recaptchacompat=off seems to fix problems with hcaptcha container loading recaptcha instead of hcaptcha in the admin
 			$html  = '<script src="https://js.hcaptcha.com/1/api.js?hl=' . $language . '&onload=' . $onload . '&render=explicit&recaptchacompat=off" async defer></script>';
 			$html .= '<div class="forminator-hcaptcha h-captcha" data-sitekey="' . esc_attr( $hcaptcha_key ) . '"></div>';
 		} else {
@@ -676,8 +1004,8 @@ class Forminator_Admin_AJAX {
 	 * @since 1.0.2
 	 */
 	public function load_pagination_listings() {
-		// Validate nonce
-		forminator_validate_ajax( 'forminator_popup_pagination_listings' );
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_popup_pagination_listings', false, 'forminator-settings' );
 
 		$html = forminator_template( 'settings/popup/edit-pagination-listings-content' );
 
@@ -690,8 +1018,8 @@ class Forminator_Admin_AJAX {
 	 * @since 1.0.2
 	 */
 	public function save_pagination_listings() {
-		// Validate nonce
-		forminator_validate_ajax( 'forminator_save_popup_pagination_listings' );
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_save_popup_pagination_listings', false, 'forminator-settings' );
 
 		$pagination = filter_input( INPUT_POST, 'pagination_listings', FILTER_VALIDATE_INT );
 
@@ -702,10 +1030,9 @@ class Forminator_Admin_AJAX {
 
 		} else {
 
-			wp_send_json_error( __( 'Limit per page can not be less than one.', 'forminator' ) );
+			wp_send_json_error( esc_html__( 'Limit per page can not be less than one.', 'forminator' ) );
 
 		}
-
 	}
 
 	/**
@@ -714,8 +1041,8 @@ class Forminator_Admin_AJAX {
 	 * @since 1.1
 	 */
 	public function load_email_form() {
-		// Validate nonce
-		forminator_validate_ajax( 'forminator_load_popup_email_settings' );
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_load_popup_email_settings', false, 'forminator-settings' );
 
 		$html = forminator_template( 'settings/popup/edit-email-content' );
 
@@ -728,8 +1055,8 @@ class Forminator_Admin_AJAX {
 	 * @since 1.0.2
 	 */
 	public function load_uninstall_form() {
-		// Validate nonce
-		forminator_validate_ajax( 'forminator_popup_uninstall_form' );
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_popup_uninstall_form', false, 'forminator-settings' );
 
 		$html = forminator_template( 'settings/popup/edit-uninstall-content' );
 
@@ -743,8 +1070,8 @@ class Forminator_Admin_AJAX {
 	 * @since 1.0.2
 	 */
 	public function save_uninstall_form() {
-		// Validate nonce
-		forminator_validate_ajax( 'forminator_save_popup_uninstall_settings' );
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_save_popup_uninstall_settings', false, 'forminator-settings' );
 
 		$delete_uninstall = Forminator_Core::sanitize_text_field( 'delete_uninstall', false );
 		$delete_uninstall = filter_var( $delete_uninstall, FILTER_VALIDATE_BOOLEAN );
@@ -752,15 +1079,15 @@ class Forminator_Admin_AJAX {
 		$custom_upload      = Forminator_Core::sanitize_text_field( 'custom_upload', false );
 		$custom_upload      = filter_var( $custom_upload, FILTER_VALIDATE_BOOLEAN );
 		$custom_upload_root = Forminator_Core::sanitize_text_field( 'custom_upload_root' );
+		$custom_upload_root = ! empty( $custom_upload_root ) ? $custom_upload_root : 'forminator';
 
 		update_option( 'forminator_uninstall_clear_data', $delete_uninstall );
 
-		// Custom upload
+		// Custom upload.
 		update_option( 'forminator_custom_upload', $custom_upload );
 		update_option( 'forminator_custom_upload_root', $custom_upload_root );
 
 		wp_send_json_success();
-
 	}
 
 	/**
@@ -779,16 +1106,17 @@ class Forminator_Admin_AJAX {
 			$slug = 'quiz';
 		}
 
-		// Validate nonce
-		forminator_validate_ajax( 'forminator_popup_preview_' . $slug );
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_popup_preview_' . $slug, false, 'forminator' );
 
 		$preview_data = false;
 		// force -1 for preview.
 		$form_id = filter_input( INPUT_POST, 'id', FILTER_VALIDATE_INT );
 		$form_id = $form_id ? $form_id : - 1;
 
-		// Check if preview data set
-		if ( ! empty( $_POST['data'] ) ) {
+		// Check if preview data set.
+		if ( ! empty( $_POST['data'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified in forminator_validate_ajax.
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- Sanitized in Forminator_Core::sanitize_array.
 			$data = Forminator_Core::sanitize_array( $_POST['data'], 'data' );
 
 			if ( ! is_array( $data ) ) {
@@ -809,8 +1137,8 @@ class Forminator_Admin_AJAX {
 	 * @since 1.0
 	 */
 	public function load_exports() {
-		// Validate nonce
-		forminator_validate_ajax( 'forminator_load_exports' );
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_load_exports', false, 'forminator-settings' );
 
 		$form_id = filter_input( INPUT_POST, 'id', FILTER_VALIDATE_INT );
 
@@ -821,7 +1149,7 @@ class Forminator_Admin_AJAX {
 			$html = forminator_template( 'settings/popup/exports-content', $args );
 			wp_send_json_success( $html );
 		} else {
-			wp_send_json_error( __( 'Not valid module ID provided.', 'forminator' ) );
+			wp_send_json_error( esc_html__( 'Not valid module ID provided.', 'forminator' ) );
 		}
 	}
 
@@ -832,20 +1160,20 @@ class Forminator_Admin_AJAX {
 	 */
 	public function clear_exports() {
 		// Validate nonce.
-		forminator_validate_ajax( 'forminator_clear_exports' );
+		forminator_validate_ajax( 'forminator_clear_exports', false, 'forminator-settings' );
 
 		$form_id = filter_input( INPUT_POST, 'id', FILTER_VALIDATE_INT );
 
 		if ( ! $form_id ) {
-			wp_send_json_error( __( 'No ID was provided.', 'forminator' ) );
+			wp_send_json_error( esc_html__( 'No ID was provided.', 'forminator' ) );
 		}
 
 		$was_cleared = delete_export_logs( $form_id );
 
 		if ( $was_cleared ) {
-			wp_send_json_success( __( 'Exports cleared.', 'forminator' ) );
+			wp_send_json_success( esc_html__( 'Exports cleared.', 'forminator' ) );
 		} else {
-			wp_send_json_error( __( "Exports couldn't be cleared.", 'forminator' ) );
+			wp_send_json_error( esc_html__( 'Exports couldn\'t be cleared.', 'forminator' ) );
 		}
 	}
 
@@ -856,16 +1184,17 @@ class Forminator_Admin_AJAX {
 	 * @since 1.1 change superglobal POST to `get_post_data`
 	 */
 	public function search_emails() {
-		forminator_validate_ajax( 'forminator_search_emails' );
-		if ( ! current_user_can( 'manage_options' ) && ! current_user_can( 'manage_forminator' ) ) {
-			wp_send_json_error( array() );
-		}
+		$submitted_data  = $this->get_post_data();
+		$property        = isset( $submitted_data['property'] ) ? $submitted_data['property'] : '';
+		$permission_slug = isset( $submitted_data['permission'] ) ? $submitted_data['permission'] : '';
 
-		$submitted_data = $this->get_post_data();
+		forminator_validate_ajax( 'forminator_search_emails', false, $permission_slug );
 
 		// TODO : add ajax validate here and js admin too.
-		$admin_email  = ! empty( $submitted_data['admin_email'] ) ? true : false;
-		$search_email = ! empty( $submitted_data['q'] ) ? $submitted_data['q'] : false;
+		$admin_email    = ! empty( $submitted_data['admin_email'] ) ? true : false;
+		$search_email   = ! empty( $submitted_data['q'] ) ? $submitted_data['q'] : false;
+		$exclude_admins = ! empty( $submitted_data['exclude_admins'] ) ? $submitted_data['exclude_admins'] : false;
+		$is_permission  = ! empty( $submitted_data['is_permission'] ) ? $submitted_data['is_permission'] : false;
 
 		// return admin_email when requested.
 		if ( $admin_email ) {
@@ -883,6 +1212,15 @@ class Forminator_Admin_AJAX {
 			'order'   => 'ASC',
 		);
 
+		if ( $exclude_admins ) {
+			$args['role__not_in'] = 'Administrator';
+		}
+
+		$role = isset( $submitted_data['role'] ) ? $submitted_data['role'] : array();
+		if ( ! empty( $role ) ) {
+			$args['role__in'] = $role;
+		}
+
 		/**
 		 * Filter args to be passed on to get_users
 		 *
@@ -895,15 +1233,50 @@ class Forminator_Admin_AJAX {
 		 */
 		$args = apply_filters( 'forminator_builder_search_emails_args', $args, $search_email );
 
+		// Create a single array of users in permissions.
+		if ( 'specific_user' === $property ) {
+			$permitted_users = array();
+			$permissions     = get_option( 'forminator_permissions', array() );
+			$pid             = isset( $submitted_data['pid'] ) ? $submitted_data['pid'] : '';
+
+			foreach ( $permissions as $permission ) {
+				if (
+					(string) $pid !== (string) $permission['pid'] &&
+					isset( $permission['specific_user'] )
+				) {
+					$permitted_users = array_merge( $permitted_users, $permission['specific_user'] );
+				}
+			}
+		}
+
 		$users = get_users( $args );
 		$data  = array();
 		if ( ! empty( $users ) ) {
 			foreach ( $users as $user ) {
-				$data[] = array(
-					'id'           => $user->user_email,
-					'text'         => $user->user_email,
-					'display_name' => $user->display_name,
-				);
+
+				// Check if user has already been added to other permissions.
+				if ( 'specific_user' === $property ) {
+					if ( in_array( $user->ID, $permitted_users ) ) { // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict -- Possible of 0 or '0'.
+						continue;
+					}
+				}
+
+				if ( $is_permission ) {
+
+					$data[] = array(
+						'id'           => $user->ID,
+						'text'         => $user->user_email,
+						'display_name' => $user->display_name,
+					);
+
+				} else {
+
+					$data[] = array(
+						'id'           => $user->user_email,
+						'text'         => $user->user_email,
+						'display_name' => $user->display_name,
+					);
+				}
 			}
 		}
 
@@ -930,18 +1303,20 @@ class Forminator_Admin_AJAX {
 	 *                                    custom sanitize options, its assoc array
 	 *                                    'field_name_1' => 'function_to_call_1' function will called with `call_user_func_array`,
 	 *                                    'field_name_2' => 'function_to_call_2',
-	 *                                    }
+	 *                                    }.
+	 * @param string $permission_slug The slug that will be used to get the capability for checking.
 	 *
 	 * @return array
 	 * @since 1.1
 	 */
-	protected function get_post_data( $nonce_action = '', $sanitize_callbacks = array() ) {
+	protected function get_post_data( $nonce_action = '', $sanitize_callbacks = array(), $permission_slug = '' ) {
 		// do nonce / caps check when requested.
 		if ( ! empty( $nonce_action ) ) {
 			// it will wp_send_json_error.
-			forminator_validate_ajax( $nonce_action );
+			forminator_validate_ajax( $nonce_action, false, $permission_slug );
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified in forminator_validate_ajax.
 		$post_data = Forminator_Core::sanitize_array( $_POST );
 
 		// do some additional sanitize.
@@ -953,19 +1328,19 @@ class Forminator_Admin_AJAX {
 			}
 		}
 
-		// do some validation
+		// do some validation.
 
 		return $post_data;
 	}
 
-	/*
+	/**
 	 * Load Privacy Settings
 	 *
 	 * @since 1.0.6
 	 */
 	public function load_privacy_settings() {
-		// Validate nonce
-		forminator_validate_ajax( 'forminator_popup_privacy_settings' );
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_popup_privacy_settings', false, 'forminator-settings' );
 
 		$html = forminator_template( 'settings/popup/edit-privacy-settings' );
 
@@ -978,14 +1353,15 @@ class Forminator_Admin_AJAX {
 	 * @since 1.0.6
 	 */
 	public function save_privacy_settings() {
-		// Validate nonce
-		forminator_validate_ajax( 'forminator_save_privacy_settings' );
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_save_privacy_settings', false, 'forminator-settings' );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified in forminator_validate_ajax.
 		$post_data = Forminator_Core::sanitize_array( $_POST );
 
 		/**
 		 * CUSTOM FORMS
 		 */
-		// Account Erasure Requests
+		// Account Erasure Requests.
 		if ( isset( $post_data['erase_form_submissions'] ) ) {
 			$enable_erasure_request_erase_form_submissions = filter_var( $post_data['erase_form_submissions'], FILTER_VALIDATE_BOOLEAN );
 			update_option( 'forminator_enable_erasure_request_erase_form_submissions', $enable_erasure_request_erase_form_submissions );
@@ -994,7 +1370,7 @@ class Forminator_Admin_AJAX {
 
 		// Submissions Retention.
 		$cform_retain_forever = filter_var( $post_data['form_retain_submission_forever'], FILTER_VALIDATE_BOOLEAN );
-		update_option( 'retain_submission_forever', $cform_retain_forever );
+		update_option( 'retain_submission_forever', (string) $cform_retain_forever );
 		if ( $cform_retain_forever ) {
 			$post_data['form_retain_submission_number'] = 0;
 		}
@@ -1006,11 +1382,11 @@ class Forminator_Admin_AJAX {
 			update_option( 'forminator_retain_submissions_interval_number', $submissions_retention_number );
 		}
 		update_option( 'forminator_retain_submissions_interval_unit', $post_data['form_retain_submission_unit'] );
-		// Submissions Retention
+		// Submissions Retention.
 
-		// IP Retention
+		// IP Retention.
 		$cform_retain_ip_forever = filter_var( $post_data['form_retain_ip_forever'], FILTER_VALIDATE_BOOLEAN );
-		update_option( 'retain_ip_forever', $cform_retain_ip_forever );
+		update_option( 'retain_ip_forever', (string) $cform_retain_ip_forever );
 		if ( $cform_retain_ip_forever ) {
 			$post_data['form_retain_ip_number'] = 0;
 		}
@@ -1024,16 +1400,31 @@ class Forminator_Admin_AJAX {
 		update_option( 'forminator_retain_ip_interval_unit', $post_data['form_retain_ip_unit'] );
 		// IP Retention.
 
+		// Geolocation Retention.
+		$cform_retain_geolocation_forever = filter_var( $post_data['form_retain_geolocation_forever'], FILTER_VALIDATE_BOOLEAN );
+		update_option( 'retain_geolocation_forever', (string) $cform_retain_geolocation_forever );
+		if ( $cform_retain_geolocation_forever ) {
+			$post_data['form_retain_geolocation_number'] = 0;
+		}
+		if ( isset( $post_data['form_retain_geolocation_number'] ) ) {
+			$cform_geolocation_retention_number = intval( $post_data['form_retain_geolocation_number'] );
+			if ( $cform_geolocation_retention_number < 0 ) {
+				$cform_geolocation_retention_number = 0;
+			}
+			update_option( 'forminator_retain_geolocation_interval_number', $cform_geolocation_retention_number );
+		}
+		update_option( 'forminator_retain_geolocation_interval_unit', $post_data['form_retain_geolocation_unit'] );
+
 		/**
 		 * POLLS
 		 */
-		// Submissions Retention
+		// Submissions Retention.
 		$poll_retain_submissions_forever = filter_var( $post_data['poll_retain_submission_forever'], FILTER_VALIDATE_BOOLEAN );
-		update_option( 'poll_retain_submission_forever', $poll_retain_submissions_forever );
+		update_option( 'poll_retain_submission_forever', (string) $poll_retain_submissions_forever );
 		if ( $poll_retain_submissions_forever ) {
 			$post_data['poll_retain_submission_number'] = 0;
 		}
-		// Polls
+		// Polls.
 		if ( isset( $post_data['poll_retain_submission_number'] ) ) {
 			$poll_submissions_retention_number = intval( $post_data['poll_retain_submission_number'] );
 			if ( $poll_submissions_retention_number < 0 ) {
@@ -1042,11 +1433,11 @@ class Forminator_Admin_AJAX {
 			update_option( 'forminator_retain_poll_submissions_interval_number', $poll_submissions_retention_number );
 		}
 		update_option( 'forminator_retain_poll_submissions_interval_unit', $post_data['poll_retain_submission_unit'] );
-		// Submissions Retention
+		// Submissions Retention.
 
-		// IP Retention
+		// IP Retention.
 		$poll_retain_ip_forever = filter_var( $post_data['poll_retain_ip_forever'], FILTER_VALIDATE_BOOLEAN );
-		update_option( 'retain_poll_forever', $poll_retain_ip_forever );
+		update_option( 'retain_poll_forever', (string) $poll_retain_ip_forever );
 		if ( $poll_retain_ip_forever ) {
 			$post_data['poll_retain_ip_number'] = 0;
 		}
@@ -1058,14 +1449,14 @@ class Forminator_Admin_AJAX {
 			update_option( 'forminator_retain_votes_interval_number', $votes_retention_number );
 		}
 		update_option( 'forminator_retain_votes_interval_unit', $post_data['poll_retain_ip_unit'] );
-		// IP Retention
+		// IP Retention.
 
 		/**
 		 * QUIZ
 		 */
-		// Submissions Retention
+		// Submissions Retention.
 		$quiz_retain_submissions_forever = filter_var( $post_data['quiz_retain_submission_forever'], FILTER_VALIDATE_BOOLEAN );
-		update_option( 'quiz_retain_submission_forever', $quiz_retain_submissions_forever );
+		update_option( 'quiz_retain_submission_forever', (string) $quiz_retain_submissions_forever );
 		if ( $quiz_retain_submissions_forever ) {
 			$post_data['quiz_retain_submission_number'] = 0;
 		}
@@ -1077,7 +1468,7 @@ class Forminator_Admin_AJAX {
 			update_option( 'forminator_retain_quiz_submissions_interval_number', $quiz_submissions_retention_number );
 		}
 		update_option( 'forminator_retain_quiz_submissions_interval_unit', $post_data['quiz_retain_submission_unit'] );
-		// Submissions Retention
+		// Submissions Retention.
 
 		wp_send_json_success();
 	}
@@ -1087,16 +1478,16 @@ class Forminator_Admin_AJAX {
 	 */
 	public function reset_tracking_data() {
 		// Validate nonce.
-		forminator_validate_ajax( 'forminator_reset_tracking_data' );
+		forminator_validate_ajax( 'forminator_reset_tracking_data', false, 'forminator' );
 
 		$id = filter_input( INPUT_POST, 'id', FILTER_VALIDATE_INT );
 		if ( ! $id ) {
-			wp_send_json_error( __( 'Required id parameter is not set.', 'forminator' ) );
+			wp_send_json_error( esc_html__( 'Required id parameter is not set.', 'forminator' ) );
 		}
 
 		Forminator_Admin_Module_Edit_Page::reset_module_views( $id );
 
-		wp_send_json_success( __( 'Tracking Data has been reset successfully.', 'forminator' ) );
+		wp_send_json_success( esc_html__( 'Tracking Data has been reset successfully.', 'forminator' ) );
 	}
 
 	/**
@@ -1106,145 +1497,101 @@ class Forminator_Admin_AJAX {
 	 */
 	public function save_import() {
 		if ( ! Forminator::is_import_export_feature_enabled() ) {
-			wp_send_json_error( __( 'Import Export Feature disabled.', 'forminator' ) );
+			wp_send_json_error( esc_html__( 'Import Export Feature disabled.', 'forminator' ) );
+		}
+		if ( empty( $_POST['importable'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			wp_send_json_error( esc_html__( 'Import text can not be empty.', 'forminator' ) );
 		}
 		$current_action = current_action();
 		$slug           = str_replace( array( 'wp_ajax_forminator_save_import_', '_popup' ), '', $current_action );
-		// Validate nonce
-		forminator_validate_ajax( 'forminator_save_import_' . $slug );
-
-		$importable = json_decode( html_entity_decode( wp_unslash( $_POST['importable'] ) ), true );
-
-		$import_data = Forminator_Core::sanitize_array( $importable );
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_save_import_' . $slug, false, 'forminator-settings' );
 
 		// Modify recipients if replace all recipients checkbox has been checked.
-		$change_recipients = Forminator_Core::sanitize_text_field( 'change_recipients' );
-		if ( 'checked' === $change_recipients ) {
-			$import_data = $this->change_recipients( $import_data );
+		$change_recipients = 'checked' === Forminator_Core::sanitize_text_field( 'change_recipients' );
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput
+		$json  = wp_unslash( $_POST['importable'] );
+		$model = $this->import_json( $json, $slug, $change_recipients );
+
+		$return_url = admin_url( 'admin.php?page=forminator-' . forminator_get_prefix( $slug, 'c' ) );
+
+		/**
+		 * Fires after form import
+		 *
+		 * @since 1.27.0
+		 *
+		 * @param string $slug Module type.
+		 */
+		do_action( 'forminator_after_form_import', $slug );
+
+		wp_send_json_success(
+			array(
+				'id'  => $model->id,
+				'url' => $return_url,
+			)
+		);
+	}
+
+	/**
+	 * Create module from template
+	 *
+	 * @throws Exception When failed to create form template.
+	 */
+	public function create_module_from_template() {
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_create_form_from_template', false, 'forminator-cform' );
+		forminator_validate_ajax( 'forminator_create_form_from_template', false, 'forminator-templates' );
+
+		$template_id = filter_input( INPUT_POST, 'id' );
+
+		if ( empty( $template_id ) ) {
+			wp_send_json_error( esc_html__( 'Template ID is missing.', 'forminator' ) );
 		}
 
-		// hook custom data here.
-		$import_data = apply_filters( 'forminator_' . $slug . '_import_data', $import_data );
-
+		$form_admin = new Forminator_Custom_Form_Admin();
 		try {
-			if ( empty( $_POST['importable'] ) ) {
-				throw new Exception( __( 'Import text can not be empty.', 'forminator' ) );
+			$id = $form_admin->create_module_from_template( $template_id, '', 'template' );
+			if ( is_wp_error( $id ) ) {
+				throw new Exception( $id->get_error_message() );
 			}
+		} catch ( Exception $e ) {
+			wp_send_json_error( $e->getMessage() );
+		}
 
-			if ( empty( $import_data ) || ! is_array( $import_data ) ) {
-				throw new Exception( __( 'Oops, looks like we found an issue. Import text can not include whitespace or special characters.', 'forminator' ) );
-			}
+		$return_url = admin_url( 'admin.php?page=forminator-cform-wizard&id=' . $id );
 
-			if ( ! isset( $import_data['type'] ) || $slug !== $import_data['type'] ) {
-				throw new Exception( __( 'Oops, wrong module type. You can only import a module of the same type that you\'re currently viewing.', 'forminator' ) );
-			}
+		wp_send_json_success(
+			array(
+				'id'  => $id,
+				'url' => $return_url,
+			)
+		);
+	}
 
-			$class = 'Forminator_' . forminator_get_prefix( $slug, '', true ) . '_Model';
-			$model = $class::create_from_import_data( $import_data );
-
-			if ( is_wp_error( $model ) ) {
-				throw new Exception( $model->get_error_message() );
-			}
-
-			if ( ! $model instanceof Forminator_Base_Form_Model ) {
-				throw new Exception( __( 'Failed to import module, please make sure import text is valid, and try again.', 'forminator' ) );
-			}
-
-			$return_url = admin_url( 'admin.php?page=forminator-' . forminator_get_prefix( $slug, 'c' ) );
-
-			wp_send_json_success(
-				array(
-					'id'  => $model->id,
-					'url' => $return_url,
-				)
-			);
-
+	/**
+	 * Import Form
+	 *
+	 * @param string $json JSON data to import.
+	 * @param string $slug Module type.
+	 * @param bool   $change_recipients Change recipients.
+	 * @param bool   $draft Draft status.
+	 *
+	 * @throws Exception When import failed.
+	 */
+	public function import_json( string $json, string $slug, bool $change_recipients, bool $draft = false ) {
+		try {
+			$model = Forminator_Admin_Module::import_json( $json, '', $slug, $change_recipients, $draft );
+			return $model;
 		} catch ( Exception $e ) {
 			wp_send_json_error( $e->getMessage() );
 		}
 	}
 
 	/**
-	 * Change the recipients
-     *
-	 * @since 1.18.0
-	 *
-	 * @param mixed $data imported module data.
-	 *
-	 * @return array $data
-	 */
-	public function change_recipients( $data ) {
-		if ( ! empty( $data ) ) {
-			$current_user_email = wp_get_current_user()->user_email;
-
-			if ( 'poll' === $data['type'] ) {
-
-				if ( ! empty( $data['data']['settings']['admin-email-recipients'] ) ) {
-					$data['data']['settings']['admin-email-recipients'] = $this->apply_user_email( $data['data']['settings']['admin-email-recipients'], $current_user_email );
-				}
-				if ( ! empty( $data['data']['settings']['admin-email-cc-address'] ) ) {
-					$data['data']['settings']['admin-email-cc-address'] = $this->apply_user_email( $data['data']['settings']['admin-email-cc-address'], $current_user_email );
-				}
-				if ( ! empty( $data['data']['settings']['admin-email-bcc-address'] ) ) {
-					$data['data']['settings']['admin-email-bcc-address'] = $this->apply_user_email( $data['data']['settings']['admin-email-bcc-address'], $current_user_email );
-				}
-			} else {
-
-				if ( ! empty( $data['data']['notifications'] ) ) {
-
-					foreach ( $data['data']['notifications'] as $notif_key => $notif ) {
-						// Modify the recipients.
-						if ( ! empty( $notif['recipients'] ) ) {
-							$recipients = $this->apply_user_email( $notif['recipients'], $current_user_email );
-							$data['data']['notifications'][ $notif_key ]['recipients'] = $recipients;
-						}
-
-						// Modify the routing recipients.
-						if ( ! empty( $notif['routing'] ) ) {
-
-							foreach ( $notif['routing'] as $routing_key => $route ) {
-								if ( ! empty( $route['email'] ) ) {
-									$route_emails = $this->apply_user_email( $route['email'], $current_user_email );
-									$data['data']['notifications'][ $notif_key ]['routing'][ $routing_key ]['email'] = $route_emails;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		return $data;
-	}
-
-	/**
-	 * Apply user emails
-     *
-	 * @since 1.18.0
-	 *
-	 * @param string $data - Email recipients
-	 * @param string $current_user_email
-	 *
-	 * @return array $recipients
-	 */
-	public function apply_user_email( $data, $current_user_email ) {
-		$recipients = ! is_array( $data ) ? explode( ',', $data ) : $data;
-
-		foreach ( $recipients as $key => $recipient ) {
-			$recipient = trim( $recipient );
-
-			// Will not change recipients that use field tags like {email-1}.
-			if ( false === strpos( $recipient, '{' ) ) {
-				$recipients[ $key ] = $current_user_email;
-			}
-		}
-		$recipients = array_unique( $recipients );
-
-		return ! is_array( $data ) ? implode( ',', $recipients ) : $recipients;
-	}
-
-	/**
 	 * Get instance of thirdparty importer class
+	 *
+	 * @param string $type Import from.
 	 *
 	 * @since 1.5
 	 */
@@ -1286,7 +1633,7 @@ class Forminator_Admin_AJAX {
 			wp_send_json_success( '' );
 		}
 		// Validate nonce.
-		forminator_validate_ajax( 'forminator_popup_import_form_cf7' );
+		forminator_validate_ajax( 'forminator_popup_import_form_cf7', false, 'forminator-settings' );
 
 		$html = forminator_template( 'custom-form/popup/import-cf7' );
 
@@ -1302,10 +1649,10 @@ class Forminator_Admin_AJAX {
 	public function save_import_form_cf7() {
 
 		if ( ! Forminator::is_import_export_feature_enabled() || ! forminator_is_import_plugin_enabled( 'cf7' ) ) {
-			wp_send_json_error( __( 'Import Export Feature disabled.', 'forminator' ) );
+			wp_send_json_error( esc_html__( 'Import Export Feature disabled.', 'forminator' ) );
 		}
 		// Validate nonce.
-		forminator_validate_ajax( 'forminator_save_import_form_cf7' );
+		forminator_validate_ajax( 'forminator_save_import_form_cf7', false, 'forminator-settings' );
 
 		$post_data  = $this->get_post_data();
 		$importable = ( isset( $post_data['cf7_forms'] ) ? $post_data['cf7_forms'] : '' );
@@ -1334,12 +1681,11 @@ class Forminator_Admin_AJAX {
 					wp_send_json_success( $imported );
 				}
 			} else {
-				wp_send_json_error( __( 'Can\'t find form to import', 'forminator' ) );
+				wp_send_json_error( esc_html__( 'Can\'t find form to import', 'forminator' ) );
 			}
 		endif;
 
-		wp_send_json_error( __( 'Could not import the forms. Check if the selected form plugin is active', 'forminator' ) );
-
+		wp_send_json_error( esc_html__( 'Could not import the forms. Check if the selected form plugin is active', 'forminator' ) );
 	}
 
 
@@ -1353,7 +1699,7 @@ class Forminator_Admin_AJAX {
 			wp_send_json_success( '' );
 		}
 		// Validate nonce.
-		forminator_validate_ajax( 'forminator_popup_import_form_ninjaforms' );
+		forminator_validate_ajax( 'forminator_popup_import_form_ninjaforms', false, 'forminator-settings' );
 
 		$html = forminator_template( 'custom-form/popup/import-ninjaforms' );
 
@@ -1368,10 +1714,10 @@ class Forminator_Admin_AJAX {
 	public function save_import_form_ninja() {
 
 		if ( ! Forminator::is_import_export_feature_enabled() || ! forminator_is_import_plugin_enabled( 'ninjaforms' ) ) {
-			wp_send_json_error( __( 'Import Export Feature disabled.', 'forminator' ) );
+			wp_send_json_error( esc_html__( 'Import Export Feature disabled.', 'forminator' ) );
 		}
 		// Validate nonce.
-		forminator_validate_ajax( 'forminator_save_import_form_ninja' );
+		forminator_validate_ajax( 'forminator_save_import_form_ninja', false, 'forminator-settings' );
 
 		$importable = Forminator_Core::sanitize_text_field( 'ninjaforms' );
 		$importer   = ( ! empty( $this->importers( 'ninja' ) ) ? $this->importers( 'ninja' ) : '' );
@@ -1407,7 +1753,7 @@ class Forminator_Admin_AJAX {
 			}
 		endif;
 
-		wp_send_json_error( __( 'Could not import the forms. Check if the selected form plugin is active', 'forminator' ) );
+		wp_send_json_error( esc_html__( 'Could not import the forms. Check if the selected form plugin is active', 'forminator' ) );
 	}
 
 	/**
@@ -1420,7 +1766,7 @@ class Forminator_Admin_AJAX {
 			wp_send_json_success( '' );
 		}
 		// Validate nonce.
-		forminator_validate_ajax( 'forminator_popup_import_form_gravityforms' );
+		forminator_validate_ajax( 'forminator_popup_import_form_gravityforms', false, 'forminator-settings' );
 
 		$html = forminator_template( 'custom-form/popup/import-gravityforms' );
 
@@ -1435,10 +1781,10 @@ class Forminator_Admin_AJAX {
 	public function save_import_form_gravity() {
 
 		if ( ! Forminator::is_import_export_feature_enabled() || ! forminator_is_import_plugin_enabled( 'gravityforms' ) ) {
-			wp_send_json_error( __( 'Import Export Feature disabled.', 'forminator' ) );
+			wp_send_json_error( esc_html__( 'Import Export Feature disabled.', 'forminator' ) );
 		}
 		// Validate nonce.
-		forminator_validate_ajax( 'forminator_save_import_form_gravity' );
+		forminator_validate_ajax( 'forminator_save_import_form_gravity', false, 'forminator-settings' );
 
 		$importable = Forminator_Core::sanitize_text_field( 'gravityforms' );
 		$importer   = ( ! empty( $this->importers( 'gravity' ) ) ? $this->importers( 'gravity' ) : '' );
@@ -1473,7 +1819,6 @@ class Forminator_Admin_AJAX {
 				wp_send_json_success( $imported );
 			}
 		endif;
-
 	}
 
 	/**
@@ -1487,10 +1832,20 @@ class Forminator_Admin_AJAX {
 		}
 		$current_action = current_action();
 		$slug           = str_replace( array( 'wp_ajax_forminator_load_export_', '_popup' ), '', $current_action );
-		// Validate nonce
-		forminator_validate_ajax( 'forminator_popup_export_' . $slug );
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_popup_export_' . $slug, false, 'forminator' );
 
 		$html = forminator_template( 'common/popup/export', array( 'slug' => $slug ) );
+
+		/**
+		 * Fires after form export
+		 *
+		 * @since 1.27.0
+		 *
+		 * @param int $slug Module type.
+		 */
+
+		do_action( 'forminator_after_form_export', $slug );
 
 		wp_send_json_success( $html );
 	}
@@ -1507,8 +1862,8 @@ class Forminator_Admin_AJAX {
 
 		$current_action = current_action();
 		$slug           = str_replace( array( 'wp_ajax_forminator_load_import_', '_popup' ), '', $current_action );
-		// Validate nonce
-		forminator_validate_ajax( 'forminator_popup_import_' . $slug );
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_popup_import_' . $slug, false, 'forminator' );
 
 		$html = forminator_template( 'common/popup/import', array( 'slug' => $slug ) );
 
@@ -1521,20 +1876,19 @@ class Forminator_Admin_AJAX {
 	 * @since 1.6
 	 */
 	public function save_pagination() {
-		// Validate nonce
-		forminator_validate_ajax( 'forminator_save_popup_pagination' );
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_save_popup_pagination', false, 'forminator' );
 
 		$pagination         = filter_input( INPUT_POST, 'pagination_entries', FILTER_VALIDATE_INT );
 		$pagination_listing = filter_input( INPUT_POST, 'pagination_listings', FILTER_VALIDATE_INT );
 
 		if ( 1 > $pagination || 1 > $pagination_listing ) {
-			wp_send_json_error( __( 'Limit per page can not be less than one.', 'forminator' ) );
+			wp_send_json_error( esc_html__( 'Limit per page can not be less than one.', 'forminator' ) );
 		}
 
 		update_option( 'forminator_pagination_entries', $pagination );
 		update_option( 'forminator_pagination_listings', $pagination_listing );
 		wp_send_json_success();
-
 	}
 
 	/**
@@ -1543,8 +1897,8 @@ class Forminator_Admin_AJAX {
 	 * @since 1.6.1
 	 */
 	public function save_accessibility_settings() {
-		// Validate nonce
-		forminator_validate_ajax( 'forminator_save_accessibility_settings' );
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_save_accessibility_settings', false, 'forminator-settings' );
 
 		$enable_accessibility = filter_input( INPUT_POST, 'enable_accessibility', FILTER_VALIDATE_BOOLEAN );
 
@@ -1558,8 +1912,8 @@ class Forminator_Admin_AJAX {
 	 * @since 1.6.3
 	 */
 	public function save_dashboard_settings() {
-		// Validate nonce
-		forminator_validate_ajax( 'forminator_save_dashboard_settings' );
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_save_dashboard_settings', false, 'forminator-settings' );
 
 		$dashboard_settings = forminator_get_dashboard_settings();
 		$widgets            = array( 'forms', 'polls', 'quizzes' );
@@ -1571,7 +1925,7 @@ class Forminator_Admin_AJAX {
 		$drafts      = filter_input( INPUT_POST, 'draft', FILTER_VALIDATE_BOOLEAN, FILTER_REQUIRE_ARRAY );
 		$drafts      = is_array( $drafts ) ? $drafts : array();
 
-		// value based settings
+		// value based settings.
 		foreach ( $num_recents as $widget => $value ) {
 			if ( ! isset( $dashboard_settings[ $widget ] ) ) {
 				$dashboard_settings[ $widget ] = array();
@@ -1611,7 +1965,7 @@ class Forminator_Admin_AJAX {
 		$pagination_listing = filter_input( INPUT_POST, 'pagination_listings', FILTER_VALIDATE_INT );
 
 		if ( 1 > $pagination || 1 > $pagination_listing ) {
-			wp_send_json_error( __( 'Limit per page can not be less than one.', 'forminator' ) );
+			wp_send_json_error( esc_html__( 'Limit per page can not be less than one.', 'forminator' ) );
 		}
 
 		update_option( 'forminator_pagination_entries', $pagination );
@@ -1619,6 +1973,19 @@ class Forminator_Admin_AJAX {
 
 		$editor_settings = Forminator_Core::sanitize_text_field( 'editor_settings', false );
 		update_option( 'forminator_editor_settings', $editor_settings );
+
+		$old_usage_tracking = get_option( 'forminator_usage_tracking' );
+		$usage_tracking     = filter_input( INPUT_POST, 'usage_tracking', FILTER_VALIDATE_BOOLEAN );
+		update_option( 'forminator_usage_tracking', $usage_tracking );
+
+		/**
+		 * Triggered after save dashboard settings
+		 *
+		 * @param boolean $old_usage_tracking Old usage tracking value.
+		 *
+		 * @since 1.27.0
+		 */
+		do_action( 'forminator_after_dashboard_settings', $old_usage_tracking );
 
 		wp_send_json_success();
 	}
@@ -1629,21 +1996,21 @@ class Forminator_Admin_AJAX {
 	 * @since 1.7
 	 */
 	public function stripe_disconnect() {
-		// Validate nonce
-		forminator_validate_ajax( 'forminatorSettingsRequest' );
+		// Validate nonce.
+		forminator_validate_ajax( 'forminatorSettingsRequest', false, 'forminator-settings' );
 
 		if ( class_exists( 'Forminator_Gateway_Stripe' ) ) {
 			Forminator_Gateway_Stripe::store_settings( array() );
 		}
 		$data['notification'] = array(
 			'type'     => 'success',
-			'text'     => __( 'Stripe account disconnected successfully.', 'forminator' ),
+			'text'     => esc_html__( 'Stripe account disconnected successfully.', 'forminator' ),
 			'duration' => '4000',
 		);
 		$file                 = forminator_plugin_dir() . 'admin/views/settings/payments/section-stripe.php';
 
 		ob_start();
-		/** @noinspection PhpIncludeInspection */
+		/* @noinspection PhpIncludeInspection */
 		include $file;
 		$data['html'] = ob_get_clean();
 
@@ -1657,20 +2024,20 @@ class Forminator_Admin_AJAX {
 	 */
 	public function paypal_disconnect() {
 		// Validate nonce.
-		forminator_validate_ajax( 'forminatorSettingsRequest' );
+		forminator_validate_ajax( 'forminatorSettingsRequest', false, 'forminator-settings' );
 
 		if ( class_exists( 'Forminator_PayPal_Express' ) ) {
 			Forminator_PayPal_Express::store_settings( array() );
 		}
 		$data['notification'] = array(
 			'type'     => 'success',
-			'text'     => __( 'PayPal account disconnected successfully.', 'forminator' ),
+			'text'     => esc_html__( 'PayPal account disconnected successfully.', 'forminator' ),
 			'duration' => '4000',
 		);
 		$file                 = forminator_plugin_dir() . 'admin/views/settings/payments/section-paypal.php';
 
 		ob_start();
-		/** @noinspection PhpIncludeInspection */
+		/* @noinspection PhpIncludeInspection */
 		include $file;
 		$data['html'] = ob_get_clean();
 
@@ -1683,13 +2050,13 @@ class Forminator_Admin_AJAX {
 	 * @since 1.7
 	 */
 	public function stripe_update_page() {
-		// Validate nonce
-		forminator_validate_ajax( 'forminator_stripe_settings_modal' );
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_stripe_settings_modal', false, 'forminator-settings' );
 
 		$file = forminator_plugin_dir() . 'admin/views/settings/payments/section-stripe.php';
 
 		ob_start();
-		/** @noinspection PhpIncludeInspection */
+		/* @noinspection PhpIncludeInspection */
 		include $file;
 		$html = ob_get_clean();
 
@@ -1702,13 +2069,13 @@ class Forminator_Admin_AJAX {
 	 * @since 1.7
 	 */
 	public function paypal_update_page() {
-		// Validate nonce
-		forminator_validate_ajax( 'forminator_paypal_settings_modal' );
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_paypal_settings_modal', false, 'forminator-settings' );
 
 		$file = forminator_plugin_dir() . 'admin/views/settings/payments/section-paypal.php';
 
 		ob_start();
-		/** @noinspection PhpIncludeInspection */
+		/* @noinspection PhpIncludeInspection */
 		include $file;
 		$html = ob_get_clean();
 
@@ -1719,18 +2086,21 @@ class Forminator_Admin_AJAX {
 	 * Handle stripe settings
 	 *
 	 * @since 1.7
+	 * @throws Forminator_Gateway_Exception When connection fails.
 	 */
 	public function stripe_settings_modal() {
 		if ( ! class_exists( 'Forminator_Gateway_Stripe' ) ) {
 			return false;
 		}
 
-		// Validate nonce
-		forminator_validate_ajax( 'forminator_stripe_settings_modal' );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified in forminator_validate_ajax.
+		$post_data = Forminator_Core::sanitize_array( $_POST );
+
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_stripe_settings_modal', false, $post_data['page_slug'] );
 
 		$data = array();
 
-		$post_data          = Forminator_Core::sanitize_array( $_POST );
 		$is_connect_request = isset( $post_data['connect'] ) ? $post_data['connect'] : false;
 		$template_vars      = array();
 		try {
@@ -1740,13 +2110,16 @@ class Forminator_Admin_AJAX {
 			$test_secret      = isset( $post_data['test_secret'] ) ? $post_data['test_secret'] : $stripe->get_test_secret();
 			$live_key         = isset( $post_data['live_key'] ) ? $post_data['live_key'] : $stripe->get_live_key();
 			$live_secret      = isset( $post_data['live_secret'] ) ? $post_data['live_secret'] : $stripe->get_live_secret();
+			$page_slug        = isset( $post_data['page_slug'] ) ? $post_data['page_slug'] : '';
 			$default_currency = $stripe->get_default_currency();
 
 			$template_vars['test_key']    = $test_key;
 			$template_vars['test_secret'] = $test_secret;
 			$template_vars['live_key']    = $live_key;
 			$template_vars['live_secret'] = $live_secret;
-
+			if ( ( ! empty( $test_secret ) && 'sk_' === substr( $test_secret, 0, 3 ) ) || ( ! empty( $live_secret ) && 'sk_' === substr( $live_secret, 0, 3 ) ) ) {
+				$template_vars['has_deprecated_secret_key'] = true;
+			}
 			if ( ! empty( $is_connect_request ) ) {
 				if ( empty( $test_key ) ) {
 					throw new Forminator_Gateway_Exception(
@@ -1778,6 +2151,19 @@ class Forminator_Admin_AJAX {
 
 				Forminator_Gateway_Stripe::validate_keys( $live_key, $live_secret, Forminator_Gateway_Stripe::INVALID_LIVE_SECRET_EXCEPTION );
 
+				/**
+				 * Fires before stripe connected
+				 *
+				 * @since 1.35.0
+				 *
+				 * @param string $test_key Test key.
+				 * @param string $test_secret Test secret.
+				 * @param string $live_key Live key.
+				 * @param string $live_secret Live secret.
+				 * @param string $page_slug Page slug.
+				 */
+				do_action( 'forminator_before_stripe_connected', $test_key, $test_secret, $live_key, $live_secret, $page_slug );
+
 				Forminator_Gateway_Stripe::store_settings(
 					array(
 						'test_key'         => $test_key,
@@ -1790,7 +2176,7 @@ class Forminator_Admin_AJAX {
 
 				$data['notification'] = array(
 					'type'     => 'success',
-					'text'     => __( 'Stripe account connected successfully. You can now add the Stripe field to your forms and start collecting payments.', 'forminator' ),
+					'text'     => esc_html__( 'Stripe account connected successfully. You can now add the Stripe field to your forms and start collecting payments.', 'forminator' ),
 					'duration' => '4000',
 				);
 
@@ -1800,33 +2186,41 @@ class Forminator_Admin_AJAX {
 			$template_vars['error_message'] = $e->getMessage();
 
 			if ( Forminator_Gateway_Stripe::EMPTY_TEST_KEY_EXCEPTION === $e->getCode() ) {
-				$template_vars['test_key_error'] = __( 'Please input test publishable key' );
+				$template_vars['test_key_error'] = esc_html__( 'Please input test publishable key', 'forminator' );
 			}
 			if ( Forminator_Gateway_Stripe::EMPTY_TEST_SECRET_EXCEPTION === $e->getCode() ) {
-				$template_vars['test_secret_error'] = __( 'Please input test secret key' );
+				$template_vars['test_secret_error'] = esc_html__( 'Please input test secret key', 'forminator' );
 			}
 			if ( Forminator_Gateway_Stripe::EMPTY_LIVE_KEY_EXCEPTION === $e->getCode() ) {
-				$template_vars['live_key_error'] = __( 'Please input live publishable key' );
+				$template_vars['live_key_error'] = esc_html__( 'Please input live publishable key', 'forminator' );
 			}
 			if ( Forminator_Gateway_Stripe::EMPTY_LIVE_SECRET_EXCEPTION === $e->getCode() ) {
-				$template_vars['live_secret_error'] = __( 'Please input live secret key' );
+				$template_vars['live_secret_error'] = esc_html__( 'Please input live secret key', 'forminator' );
 			}
 			if ( Forminator_Gateway_Stripe::INVALID_TEST_SECRET_EXCEPTION === $e->getCode() ) {
-				$template_vars['test_secret_error'] = __( 'You\'ve entered an invalid test secret key' );
+				if ( ! empty( $test_secret ) && 'sk_' === substr( $test_secret, 0, 3 ) ) {
+					$template_vars['test_secret_error'] = esc_html__( 'You\'ve entered an invalid test secret key', 'forminator' );
+				} else {
+					$template_vars['test_secret_error'] = esc_html__( 'You\'ve entered an invalid test restricted key', 'forminator' );
+				}
 			}
 			if ( Forminator_Gateway_Stripe::INVALID_LIVE_SECRET_EXCEPTION === $e->getCode() ) {
-				$template_vars['live_secret_error'] = __( 'You\'ve entered an invalid live secret key' );
+				if ( ! empty( $live_secret ) && 'sk_' === substr( $live_secret, 0, 3 ) ) {
+					$template_vars['live_secret_error'] = esc_html__( 'You\'ve entered an invalid live secret key', 'forminator' );
+				} else {
+					$template_vars['live_secret_error'] = esc_html__( 'You\'ve entered an invalid live restricted key', 'forminator' );
+				}
 			}
 			if ( Forminator_Gateway_Stripe::INVALID_TEST_KEY_EXCEPTION === $e->getCode() ) {
-				$template_vars['test_key_error'] = __( 'You\'ve entered an invalid test publishable key' );
+				$template_vars['test_key_error'] = esc_html__( 'You\'ve entered an invalid test publishable key', 'forminator' );
 			}
 			if ( Forminator_Gateway_Stripe::INVALID_LIVE_KEY_EXCEPTION === $e->getCode() ) {
-				$template_vars['live_key_error'] = __( 'You\'ve entered an invalid live publishable key' );
+				$template_vars['live_key_error'] = esc_html__( 'You\'ve entered an invalid live publishable key', 'forminator' );
 			}
 		}
 
 		ob_start();
-		/** @noinspection PhpIncludeInspection */
+		/* @noinspection PhpIncludeInspection */
 		include forminator_plugin_dir() . 'admin/views/settings/payments/stripe.php';
 		$html = ob_get_clean();
 
@@ -1848,13 +2242,15 @@ class Forminator_Admin_AJAX {
 	 * Handle PayPal settings
 	 *
 	 * @since 1.7.1
+	 * @throws Forminator_Gateway_Exception When failed to connect.
 	 */
 	public function paypal_settings_modal() {
-		// Validate nonce
-		forminator_validate_ajax( 'forminator_paypal_settings_modal' );
+		// Validate nonce.
+		forminator_validate_ajax( 'forminator_paypal_settings_modal', false, 'forminator-settings' );
 
 		$data = array();
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified in forminator_validate_ajax.
 		$post_data          = Forminator_Core::sanitize_array( $_POST );
 		$is_connect_request = isset( $post_data['connect'] ) ? $post_data['connect'] : false;
 		$template_vars      = array();
@@ -1916,7 +2312,7 @@ class Forminator_Admin_AJAX {
 
 				$data['notification'] = array(
 					'type'     => 'success',
-					'text'     => __( 'PayPal account connected successfully. You can now add the PayPal field to your forms and start collecting payments.', 'forminator' ),
+					'text'     => esc_html__( 'PayPal account connected successfully. You can now add the PayPal field to your forms and start collecting payments.', 'forminator' ),
 					'duration' => '4000',
 				);
 
@@ -1926,33 +2322,33 @@ class Forminator_Admin_AJAX {
 			$template_vars['error_message'] = $e->getMessage();
 
 			if ( Forminator_PayPal_Express::EMPTY_SANDBOX_ID_EXCEPTION === $e->getCode() ) {
-				$template_vars['sandbox_id_error'] = __( 'Please input sandbox client id' );
+				$template_vars['sandbox_id_error'] = esc_html__( 'Please input sandbox client id', 'forminator' );
 			}
 			if ( Forminator_PayPal_Express::EMPTY_SANDBOX_SECRET_EXCEPTION === $e->getCode() ) {
-				$template_vars['sandbox_secret_error'] = __( 'Please input sandbox secret key' );
+				$template_vars['sandbox_secret_error'] = esc_html__( 'Please input sandbox secret key', 'forminator' );
 			}
 			if ( Forminator_PayPal_Express::EMPTY_LIVE_ID_EXCEPTION === $e->getCode() ) {
-				$template_vars['live_id_error'] = __( 'Please input live client id' );
+				$template_vars['live_id_error'] = esc_html__( 'Please input live client id', 'forminator' );
 			}
 			if ( Forminator_PayPal_Express::EMPTY_LIVE_SECRET_EXCEPTION === $e->getCode() ) {
-				$template_vars['live_secret_error'] = __( 'Please input live secret key' );
+				$template_vars['live_secret_error'] = esc_html__( 'Please input live secret key', 'forminator' );
 			}
 			if ( Forminator_PayPal_Express::INVALID_SANDBOX_SECRET_EXCEPTION === $e->getCode() ) {
-				$template_vars['sandbox_secret_error'] = __( 'You\'ve entered an invalid sandbox secret key' );
+				$template_vars['sandbox_secret_error'] = esc_html__( 'You\'ve entered an invalid sandbox secret key', 'forminator' );
 			}
 			if ( Forminator_PayPal_Express::INVALID_LIVE_SECRET_EXCEPTION === $e->getCode() ) {
-				$template_vars['live_secret_error'] = __( 'You\'ve entered an invalid live secret key' );
+				$template_vars['live_secret_error'] = esc_html__( 'You\'ve entered an invalid live secret key', 'forminator' );
 			}
 			if ( Forminator_PayPal_Express::INVALID_SANDBOX_ID_EXCEPTION === $e->getCode() ) {
-				$template_vars['sandbox_id_error'] = __( 'You\'ve entered an invalid sandbox client id' );
+				$template_vars['sandbox_id_error'] = esc_html__( 'You\'ve entered an invalid sandbox client id', 'forminator' );
 			}
 			if ( Forminator_PayPal_Express::INVALID_LIVE_ID_EXCEPTION === $e->getCode() ) {
-				$template_vars['live_id_error'] = __( 'You\'ve entered an invalid live client id' );
+				$template_vars['live_id_error'] = esc_html__( 'You\'ve entered an invalid live client id', 'forminator' );
 			}
 		}
 
 		ob_start();
-		/** @noinspection PhpIncludeInspection */
+		/* @noinspection PhpIncludeInspection */
 		include forminator_plugin_dir() . 'admin/views/settings/payments/paypal.php';
 		$html = ob_get_clean();
 
@@ -1981,6 +2377,29 @@ class Forminator_Admin_AJAX {
 		$notification_name = Forminator_Core::sanitize_text_field( 'prop' );
 		$input_value       = Forminator_Core::sanitize_text_field( 'value' );
 
+		$allowed_options = array(
+			'forminator_skip_pro_notice',
+			'forminator_cf7_notice_dismissed',
+			'forminator_stripe_rak_notice_dismissed',
+			'forminator_stripe_notice_dismissed',
+			'forminator_rating_success',
+			'forminator_rating_dismissed',
+			'forminator_publish_rating_later',
+			'forminator_publish_rating_later_dismiss',
+			'forminator_days_rating_later_dismiss',
+			'forminator_submission_rating_later',
+			'forminator_submission_rating_later_dismiss',
+			'forminator_hosting_banner_dismiss',
+			'forminator_hosting_banner_later',
+		);
+
+		if ( ! in_array( $notification_name, $allowed_options, true )
+				&& 0 !== strpos( $notification_name, 'forminator_addons_update_' )
+				&& 0 !== strpos( $notification_name, 'forminator_dismiss_feature_' )
+				) {
+			wp_send_json_error( esc_html__( 'Invalid option name', 'forminator' ) );
+		}
+
 		if ( ! empty( $input_value ) ) {
 			update_option( $notification_name, $input_value );
 		} else {
@@ -1991,6 +2410,22 @@ class Forminator_Admin_AJAX {
 
 		if ( $version_upgraded ) {
 			update_option( 'forminator_version_upgraded', false );
+		}
+
+		// Remove this code once the next feature is released, as it is a data tracking option.
+		if ( ! empty( $_POST['usage_value'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified in forminator_validate_ajax.
+			$old_usage_tracking = get_option( 'forminator_usage_tracking' );
+			$usage_value        = filter_input( INPUT_POST, 'usage_value', FILTER_VALIDATE_BOOLEAN );
+			update_option( 'forminator_usage_tracking', $usage_value );
+
+			/**
+			 * Triggered after Feature model Usage settings save
+			 *
+			 * @param boolean $old_usage_tracking Old usage tracking value.
+			 *
+			 * @since 1.27.0
+			 */
+			do_action( 'forminator_feature_usage_settings', $old_usage_tracking );
 		}
 
 		wp_send_json_success();
@@ -2025,6 +2460,18 @@ class Forminator_Admin_AJAX {
 		$notification_name = Forminator_Core::sanitize_text_field( 'prop' );
 		$form_id           = filter_input( INPUT_POST, 'form_id', FILTER_VALIDATE_INT );
 
+		$allowed_keys = array(
+			'forminator_publish_rating_later',
+			'forminator_publish_rating_later_dismiss',
+			'forminator_days_rating_later_dismiss',
+			'forminator_submission_rating_later',
+			'forminator_submission_rating_later_dismiss',
+		);
+
+		if ( ! in_array( $notification_name, $allowed_keys, true ) ) {
+			wp_send_json_error( esc_html__( 'Invalid notification name', 'forminator' ) );
+		}
+
 		update_post_meta( $form_id, $notification_name, true );
 
 		wp_send_json_success();
@@ -2047,30 +2494,14 @@ class Forminator_Admin_AJAX {
 	 * @since 1.7
 	 */
 	public function save_payments() {
-		forminator_validate_ajax( 'forminator_save_payments_settings' );
+		forminator_validate_ajax( 'forminator_save_payments_settings', false, 'forminator-settings' );
 
 		// stripe.
 		$default_currency = Forminator_Core::sanitize_text_field( 'stripe-default-currency' );
 		if ( $default_currency ) {
 
 			try {
-				$stripe = new Forminator_Gateway_Stripe();
-
-				$test_key    = $stripe->get_test_key();
-				$test_secret = $stripe->get_test_secret();
-				$live_key    = $stripe->get_live_key();
-				$live_secret = $stripe->get_live_secret();
-
-				Forminator_Gateway_Stripe::store_settings(
-					array(
-						'test_key'         => $test_key,
-						'test_secret'      => $test_secret,
-						'live_key'         => $live_key,
-						'live_secret'      => $live_secret,
-						'default_currency' => $default_currency,
-					)
-				);
-
+				Forminator_Gateway_Stripe::store_default_currency( $default_currency );
 			} catch ( Forminator_Gateway_Exception $e ) {
 				wp_send_json_error( $e->getMessage() );
 			}
@@ -2082,30 +2513,13 @@ class Forminator_Admin_AJAX {
 			$default_currency = $pp_default_currency;
 
 			try {
-				$paypal = new Forminator_PayPal_Express();
-
-				$sandbox_id     = $paypal->get_sandbox_id();
-				$sandbox_secret = $paypal->get_sandbox_secret();
-				$live_id        = $paypal->get_live_id();
-				$live_secret    = $paypal->get_live_secret();
-
-				Forminator_PayPal_Express::store_settings(
-					array(
-						'sandbox_id'     => $sandbox_id,
-						'sandbox_secret' => $sandbox_secret,
-						'live_id'        => $live_id,
-						'live_secret'    => $live_secret,
-						'currency'       => $default_currency,
-					)
-				);
-
+				Forminator_PayPal_Express::store_default_currency( $default_currency );
 			} catch ( Forminator_Gateway_Exception $e ) {
 				wp_send_json_error( $e->getMessage() );
 			}
 		}
 
 		wp_send_json_success();
-
 	}
 
 	/**
@@ -2114,7 +2528,7 @@ class Forminator_Admin_AJAX {
 	 * @since 1.7.2
 	 */
 	public function delete_poll_submissions() {
-		forminator_validate_ajax( 'forminatorPollEntries' );
+		forminator_validate_ajax( 'forminatorPollEntries', false, 'forminator-entries' );
 
 		$form_id = filter_input( INPUT_POST, 'id', FILTER_VALIDATE_INT );
 		if ( $form_id ) {
@@ -2124,21 +2538,21 @@ class Forminator_Admin_AJAX {
 			$file = forminator_plugin_dir() . 'admin/views/common/entries/content-none.php';
 
 			ob_start();
-			/** @noinspection PhpIncludeInspection */
+			/* @noinspection PhpIncludeInspection */
 			include $file;
 			$html = ob_get_clean();
 
 			$data['html']         = $html;
 			$data['notification'] = array(
 				'type'     => 'success',
-				'text'     => __( 'All the submissions deleted successfully.', 'forminator' ),
+				'text'     => esc_html__( 'All the submissions deleted successfully.', 'forminator' ),
 				'duration' => '4000',
 			);
 			wp_send_json_success( $data );
 		} else {
 			$data['notification'] = array(
 				'type'     => 'error',
-				'text'     => __( 'Submission delete failed.', 'forminator' ),
+				'text'     => esc_html__( 'Submission delete failed.', 'forminator' ),
 				'duration' => '4000',
 			);
 			wp_send_json_error( $data );
@@ -2151,7 +2565,7 @@ class Forminator_Admin_AJAX {
 	 * @since 1.14.12
 	 */
 	public function module_search() {
-		forminator_validate_ajax( 'forminator-nonce-search-module' );
+		forminator_validate_ajax( 'forminator-nonce-search-module', false, 'forminator' );
 		$html    = '';
 		$keyword = Forminator_Core::sanitize_text_field( 'search_keyword' );
 		$modules = Forminator_Admin_Module_Edit_Page::get_searched_modules( $keyword );
@@ -2174,26 +2588,30 @@ class Forminator_Admin_AJAX {
 		wp_send_json_success( $html );
 	}
 
+	/**
+	 * Addons page action
+	 *
+	 * @return void
+	 */
 	public function addons_page_actions() {
 		// Validate nonce.
-		forminator_validate_ajax( 'forminator_popup_addons_actions' );
+		forminator_validate_ajax( 'forminator_popup_addons_actions', false, 'forminator-addons' );
 
 		$action = Forminator_Core::sanitize_text_field( 'action' );
 		if ( ! $action ) {
 			wp_send_json_error(
-				array( 'message' => __( 'Required field missing', 'forminator' ) )
+				array( 'message' => esc_html__( 'Required field missing', 'forminator' ) )
 			);
 		}
 
 		$action = str_replace( 'forminator_', '', $action );
 
-		Forminator_Admin_Addons_page::get_instance()->addons_action_ajax( $action );
+		Forminator_Admin_Addons_Page::get_instance()->addons_action_ajax( $action );
 
 		// When the addons_action_ajax function did not send a response assume error.
 		wp_send_json_error(
-			array( 'message' => __( 'Unexpected action, we could not handle it.', 'forminator' ) )
+			array( 'message' => esc_html__( 'Unexpected action, we could not handle it.', 'forminator' ) )
 		);
-
 	}
 
 	/**
@@ -2203,7 +2621,7 @@ class Forminator_Admin_AJAX {
 	 */
 	public function filter_report_data() {
 		// Validate nonce.
-		forminator_validate_ajax( 'forminator_filter_report_data' );
+		forminator_validate_ajax( 'forminator_filter_report_data', false, 'forminator-reports' );
 
 		$form_id    = filter_input( INPUT_POST, 'form_id', FILTER_VALIDATE_INT );
 		$form_type  = Forminator_Core::sanitize_text_field( 'form_type' );
@@ -2228,11 +2646,12 @@ class Forminator_Admin_AJAX {
 					'reports'    => $report_data,
 					'chart_data' => $chart_data,
 				);
+				$response = apply_filters( 'forminator_report_data', $response, $form_id, $form_type, $start_date, $end_date );
 				wp_send_json_success( $response );
 			}
 		}
 		wp_send_json_error(
-			array( 'message' => __( 'Required field missing', 'forminator' ) )
+			array( 'message' => esc_html__( 'Required field missing', 'forminator' ) )
 		);
 	}
 
@@ -2242,7 +2661,7 @@ class Forminator_Admin_AJAX {
 	 * @since 1.20.0
 	 */
 	public function search_users() {
-		forminator_validate_ajax( 'forminator-fetch', 'nonce' );
+		forminator_validate_ajax( 'forminator-fetch', 'nonce', 'forminator-reports' );
 
 		$query = Forminator_Core::sanitize_text_field( 'query' );
 		$query = "*$query*";
@@ -2260,12 +2679,12 @@ class Forminator_Admin_AJAX {
 	 * @since 1.20.0
 	 */
 	public function get_avatar() {
-		forminator_validate_ajax( 'forminator-fetch', 'nonce' );
+		forminator_validate_ajax( 'forminator-fetch', 'nonce', 'forminator-reports' );
 
-		if ( ! current_user_can( forminator_get_admin_cap() ) ) {
+		if ( ! current_user_can( forminator_get_permission( 'forminator-reports' ) ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'Current user cannot add recipient.', 'forminator' ),
+					'message' => esc_html__( 'Current user cannot add recipient.', 'forminator' ),
 				)
 			);
 		}
@@ -2275,7 +2694,7 @@ class Forminator_Admin_AJAX {
 		if ( false === $email ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'Invalid email.', 'forminator' ),
+					'message' => esc_html__( 'Invalid email.', 'forminator' ),
 				)
 			);
 		}
@@ -2289,15 +2708,15 @@ class Forminator_Admin_AJAX {
 	 * @since 1.20.0
 	 */
 	public function fetch_report() {
-		forminator_validate_ajax( 'forminator-fetch', 'nonce' );
+		forminator_validate_ajax( 'forminator-fetch', 'nonce', 'forminator-reports' );
 
-		$report_id =  Forminator_Core::sanitize_text_field( 'report_id' );
+		$report_id    = Forminator_Core::sanitize_text_field( 'report_id' );
 		$report_value = array();
 
 		if ( empty( $report_id ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'Something went wrong.', 'forminator' ),
+					'message' => esc_html__( 'Something went wrong.', 'forminator' ),
 				)
 			);
 		}
@@ -2307,7 +2726,7 @@ class Forminator_Admin_AJAX {
 			$report_value = ! empty( $report_data->report_value ) ?
 				Forminator_Core::sanitize_html_array( maybe_unserialize( $report_data->report_value ) )
 				: array();
-			if ( isset(  $report_data->status ) ) {
+			if ( isset( $report_data->status ) ) {
 				$report_value['report_status'] = esc_html( $report_data->status );
 			}
 			$report_value['report_id'] = intval( $report_data->report_id );
@@ -2322,38 +2741,52 @@ class Forminator_Admin_AJAX {
 	 * @since 1.20.0
 	 */
 	public function save_report() {
-		forminator_validate_ajax( 'forminator-save', 'nonce' );
+		forminator_validate_ajax( 'forminator-save', 'nonce', 'forminator-reports' );
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified in forminator_validate_ajax.
 		if ( empty( $_POST['reports'] ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'Something went wrong.', 'forminator' ),
+					'message' => esc_html__( 'Something went wrong.', 'forminator' ),
 				)
 			);
 		}
 
 		$report_id    = Forminator_Core::sanitize_text_field( 'report_id' );
 		$status       = Forminator_Core::sanitize_text_field( 'status' );
-		$reports_data = Forminator_Core::sanitize_array( $_POST['reports'] );
+		$reports_data = Forminator_Core::sanitize_array( $_POST['reports'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput
+
+		$reports_data['report_status'] = $status;
 
 		if ( 0 !== (int) $report_id ) {
-			$result = Forminator_Form_Reports_Model::get_instance()->report_update( $report_id ,$reports_data, $status );
+			$result = Forminator_Form_Reports_Model::get_instance()->report_update( $report_id, $reports_data, $status );
 		} else {
-			$result = Forminator_Form_Reports_Model::get_instance()->report_save( $reports_data, $status );
+			$result                    = Forminator_Form_Reports_Model::get_instance()->report_save( $reports_data, $status );
+			$reports_data['report_id'] = $result;
 		}
-
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error();
 		}
+
+		/**
+		 * Fires after report save
+		 *
+		 * @since 1.27.0
+		 *
+		 * @param array $reports_data Report data.
+		 */
+
+		do_action( 'forminator_after_notification_update', $reports_data );
+
 		wp_send_json_success( $result );
 	}
 
-	/*
+	/**
 	 * Update report status
 	 */
 	public function update_report_status() {
-		forminator_validate_ajax( 'forminator-save', 'nonce' );
+		forminator_validate_ajax( 'forminator-save', 'nonce', 'forminator-reports' );
 
 		$report_id = Forminator_Core::sanitize_text_field( 'report_id' );
 		$status    = Forminator_Core::sanitize_text_field( 'status' );
@@ -2361,7 +2794,7 @@ class Forminator_Admin_AJAX {
 		if ( empty( $status ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'Something went wrong.', 'forminator' ),
+					'message' => esc_html__( 'Something went wrong.', 'forminator' ),
 				)
 			);
 		}
@@ -2370,6 +2803,191 @@ class Forminator_Admin_AJAX {
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error();
 		}
+
 		wp_send_json_success( $result );
+	}
+
+	/**
+	 * Save permission.
+	 */
+	public function save_permissions() {
+		forminator_validate_ajax( 'forminator_permission_nonce' );
+
+		$old_permissions = get_option( 'forminator_permissions', array() );
+		$post_data       = Forminator_Core::sanitize_array( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified in forminator_validate_ajax.
+		$permissions     = json_decode( wp_unslash( $post_data['permissions'] ), true );
+		$caps            = forminator_get_capabilities();
+
+		// Perform changes during save mode.
+		if ( 'new' === $post_data['mode'] ) {
+
+			foreach ( $permissions as $key => $permission ) {
+
+				/**
+				 * For specific users.
+				 * - Add caps to the users
+				 * - Check each permission for get_avatar then retrieve it.
+				 */
+				if ( 'specific' === $permission['permission_type'] ) {
+					foreach ( $permission['specific_user'] as $user_index => $user_id ) {
+						$user = get_user_by( 'ID', $user_id );
+
+						if ( false !== $user ) {
+
+							// Add caps to the user.
+							forminator_apply_capabilities( $user, $permission );
+
+							// Set user info.
+							$permissions[ $key ]['user_info'][ $user_id ]['name']  = $user->display_name;
+							$permissions[ $key ]['user_info'][ $user_id ]['email'] = $user->user_email;
+
+							// We only need avatar for first user.
+							if ( 0 === $user_index ) {
+								$permissions[ $key ]['avatar'] = get_avatar_url( $user->user_email, array( 'size' => 30 ) );
+							}
+						}
+					}
+
+					/**
+					 * For roles.
+					 * - Add caps to users under these roles.
+					 */
+				} else {
+					$role = get_role( $permission['user_role'] );
+
+					// Add caps to the role.
+					forminator_apply_capabilities( $role, $permission );
+
+					if ( empty( $permission['exclude_users'] ) ) {
+						continue;
+					}
+
+					// Set user info for excluded users.
+					foreach ( $permission['exclude_users'] as $user_id ) {
+						$user = get_user_by( 'ID', $user_id );
+
+						if ( false !== $user ) {
+							$permissions[ $key ]['user_info'][ $user_id ]['name']  = $user->display_name;
+							$permissions[ $key ]['user_info'][ $user_id ]['email'] = $user->user_email;
+						}
+					}
+				}
+			}
+
+			/**
+			 * EDIT mode.
+			 *
+			 * If specific users, get the missing users from new permission state then revoke their caps.
+			 * Add new caps if new ones are added.
+			 *
+			 * If role, add or remove caps as per new state.
+			 */
+		} else {
+			$pid = $post_data['pid'];
+			// phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict -- Possible for 0 or "0"
+			$old_permission = $old_permissions[ array_search( $pid, array_column( $old_permissions, 'pid' ) ) ];
+
+			if ( 'edit' === $post_data['mode'] ) {
+
+				foreach ( $permissions as $key => $permission ) {
+					if ( $old_permission['pid'] === $permission['pid'] ) {
+
+						// If specific user.
+						if ( 'specific' === $permission['permission_type'] ) {
+
+							// Remove caps from deleted users.
+							$deleted_users = array_diff( $old_permission['specific_user'], $permission['specific_user'] );
+							foreach ( $deleted_users as $user_id ) {
+								$graduate = get_user_by( 'ID', $user_id );
+
+								if ( false !== $graduate ) {
+									foreach ( $caps as $cap ) {
+										$graduate->remove_cap( $cap );
+									}
+								}
+							}
+
+							// Add/remove caps to the current users.
+							foreach ( $permission['specific_user'] as $user_index => $user_id ) {
+								$user = get_user_by( 'ID', $user_id );
+								forminator_apply_capabilities( $user, $permission );
+
+								// Set user info.
+								$permissions[ $key ]['user_info'][ $user_id ]['name']  = $user->display_name;
+								$permissions[ $key ]['user_info'][ $user_id ]['email'] = $user->user_email;
+
+								// We only need avatar for first user.
+								if ( 0 === $user_index ) {
+									$permissions[ $key ]['avatar'] = get_avatar_url( $user->user_email, array( 'size' => 30 ) );
+								}
+							}
+
+							// If role.
+						} else {
+							$role = get_role( $permission['user_role'] );
+
+							// Add/remove caps to the role.
+							forminator_apply_capabilities( $role, $permission );
+
+							if ( empty( $permission['exclude_users'] ) ) {
+								continue;
+							}
+
+							// Set user info for excluded users.
+							foreach ( $permission['exclude_users'] as $user_id ) {
+								$user = get_user_by( 'ID', $user_id );
+
+								if ( false !== $user ) {
+									$permissions[ $key ]['user_info'][ $user_id ]['name']  = $user->display_name;
+									$permissions[ $key ]['user_info'][ $user_id ]['email'] = $user->user_email;
+								}
+							}
+						}
+					}
+				}
+
+				/**
+				 * Delete mode.
+				 *
+				 * If specific users, get the missing users from new permission state then revoke their caps.
+				 * Add new caps if new ones are added.
+				 *
+				 * If role, add or remove caps as per new state.
+				 */
+			} elseif ( 'delete' === $post_data['mode'] ) {
+
+				// If specific user.
+				if ( 'specific' === $old_permission['permission_type'] ) {
+
+					// Remove caps from users.
+					foreach ( $old_permission['specific_user'] as $user_id ) {
+						$graduate = get_user_by( 'ID', $user_id );
+
+						if ( false !== $graduate ) {
+							foreach ( $caps as $cap ) {
+								$graduate->remove_cap( $cap );
+							}
+						}
+					}
+
+					// If role.
+				} else {
+					$role = get_role( $old_permission['user_role'] );
+
+					// Remove caps from the role.
+					if ( ! is_null( $role ) ) {
+						foreach ( $caps as $cap ) {
+							$role->remove_cap( $cap );
+						}
+					}
+				}
+			}
+		}
+
+		if ( update_option( 'forminator_permissions', $permissions ) ) {
+			wp_send_json_success( $permissions );
+		} else {
+			wp_send_json_error();
+		}
 	}
 }

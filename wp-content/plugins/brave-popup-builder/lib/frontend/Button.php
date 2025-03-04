@@ -5,6 +5,13 @@ if ( ! class_exists( 'BravePop_Element_Button' ) ) {
 
    class BravePop_Element_Button {
 
+      protected $data;
+      protected $popupID;
+      protected $stepIndex;
+      protected $elementIndex;
+      protected $goalItem;
+      protected $dynamicData;
+
       function __construct($data=null, $popupID=null, $stepIndex=0, $elementIndex=0, $device='desktop', $goalItem=false, $dynamicData=null) {
          $this->data = $data;
          $this->popupID = $popupID;
@@ -88,33 +95,36 @@ if ( ! class_exists( 'BravePop_Element_Button' ) ) {
          $actionStepNum  = isset($this->data->action->actionData->step) ? (Int)$this->data->action->actionData->step  - 1 : '';
          $actionCouponCode  = isset($this->data->action->actionData->coupon) ? $this->data->action->actionData->coupon : '';
          $actionCouponAfter  = isset($this->data->action->actionData->onCouponApply) ? $this->data->action->actionData->onCouponApply : '';
+         $actionCouponAfterStep  = !empty($this->data->action->actionData->couponStep) ? (Int)$this->data->action->actionData->couponStep - 1 : '';
+         $closeAfterClick = ($actionType === 'dynamic' ||$actionType === 'url' || $actionType === 'call'|| $actionType === 'javascript') && !empty($this->data->action->actionData->closeAfter) ? true : false;
          
          $track = isset($this->data->action->track) ? $this->data->action->track : false;
          $eventCategory = isset($this->data->action->trackData->eventCategory) ? $this->data->action->trackData->eventCategory : 'popup';
          $eventAction = isset($this->data->action->trackData->eventAction) ? $this->data->action->trackData->eventAction : 'click';
          $eventLabel = isset($this->data->action->trackData->eventLabel) ? $this->data->action->trackData->eventLabel : '';
-
-         $actionTrack = ($actionType !== 'step' || $actionType !== 'close') && $track ? 'onclick="brave_send_ga_event(\''.$eventCategory.'\', \''.$eventAction.'\', \''.$eventLabel.'\');"':'';
-         $actionInlineTrack = ($actionType === 'step' || $actionType === 'close') && $track ? 'brave_send_ga_event(\''.$eventCategory.'\', \''.$eventAction.'\', \''.$eventLabel.'\');':'';
+         //url, dynamic, close, call, step, javascript
+         $actionInlineTrack = $track ? 'brave_send_ga_event(\''.$eventCategory.'\', \''.$eventAction.'\', \''.$eventLabel.'\');':'';
          $goalAction = $this->goalItem ? 'brave_complete_goal('.$this->popupID.', \'click\');"':'';
-
-         $actionJS = $actionType === 'javascript' && isset($this->data->action->actionData->javascript) ? 'onclick="'.$this->data->action->actionData->javascript.' '.$actionInlineTrack.' '.$goalAction.'"': '';
+         $closeAfter = $closeAfterClick ? 'brave_close_popup(\''.$this->popupID.'\', \''.$this->stepIndex.'\'); ':'';
+         $actionJS = $actionType === 'javascript' && isset($this->data->action->actionData->javascript) ? 'onclick="'.$this->data->action->actionData->javascript.' '.$actionInlineTrack.' '.$goalAction.$closeAfter.'"': '';
 
          //Dynamic Data
          $dynamicAttrs = ''; $dynamicClasses = '';
          if(isset($this->data->action->actionData->dynamicURL)){
             $dynamicActionLink  = bravepopup_dynamicLink_data($this->data->action->actionData, $this->dynamicData, $this->data->id);
-            //error_log(json_encode($dynamicActionLink));
+            //error_log(wp_json_encode($dynamicActionLink));
             if(isset($dynamicActionLink->link)){   $actionURL  =  $dynamicActionLink->link;  }
             if(!empty($dynamicActionLink->attr)){   $dynamicAttrs = $dynamicActionLink->attr;    }
             if(!empty($dynamicActionLink->classes)){   $dynamicClasses = $dynamicActionLink->classes;    }
          }
 
-         $actionLink = ($actionType === 'dynamic' ||$actionType === 'url') && $actionURL ? 'onclick="'.$goalAction.'" href="'.do_shortcode($actionURL).'" '.($actionNewWindow ? 'target="_blank"' : '').' '.($relType ? 'rel="'.$relType.'"' : '').'':'';
-         $actionCall = ($actionType === 'call') && $actionPhone ? 'onclick="'.$goalAction.'" href="tel:'.$actionPhone.'"':'';
+         
+         $actionLink = ($actionType === 'dynamic' ||$actionType === 'url') && $actionURL ? 'onclick="'.$goalAction.$closeAfter.'" href="'.do_shortcode($actionURL).'" '.($actionNewWindow ? 'target="_blank"' : '').' '.($relType ? 'rel="'.$relType.'"' : '').'':'';
+         $actionCall = ($actionType === 'call') && $actionPhone ? 'onclick="'.$goalAction.$closeAfter.'" href="tel:'.$actionPhone.'"':'';
          $actionStep = $actionType === 'step' && $actionStepNum >=0 ? 'onclick="brave_action_step('.$this->popupID.', '.$this->stepIndex.', '.$actionStepNum.'); '.$actionInlineTrack.' '.$goalAction.'"':'';
          $actionClose = $actionType === 'close' ? 'onclick="brave_close_popup(\''.$this->popupID.'\', \''.$this->stepIndex.'\'); '.$actionInlineTrack.' '.$goalAction.'"':'';
-         $actionCoupon = $actionType === 'coupon' && $actionCouponCode ? 'onclick="brave_apply_woo_coupon(\''.$actionCouponCode.'\', '.$this->popupID.', \''.$this->data->id.'\', \''.$actionCouponAfter.'\'); '.$actionInlineTrack.' '.$goalAction.'"':'';
+         $actionCouponStep = $actionType === 'coupon' && $actionCouponAfterStep ? 'brave_action_step('.$this->popupID.', '.$this->stepIndex.', '.$actionCouponAfterStep.');':'';
+         $actionCoupon = $actionType === 'coupon' && $actionCouponCode ? 'onclick="brave_apply_woo_coupon(\''.$actionCouponCode.'\', '.$this->popupID.', \''.$this->data->id.'\', \''.$actionCouponAfter.'\'); '.$actionInlineTrack.' '.$goalAction.''.$actionCouponStep.'"':'';
          $hasClickAction = ($actionType === 'dynamic' || $actionType === 'url' || $actionType === 'call' || $actionType === 'step' || $actionType === 'close' || $actionType === 'javascript' || $actionType === 'coupon') ? 'brave_element--has-click-action' : '';
          $customClass = !empty($this->data->classes) ? ' '. str_replace(',',' ',$this->data->classes) : '';
 
@@ -139,7 +149,7 @@ if ( ! class_exists( 'BravePop_Element_Button' ) ) {
                   <div class="brave_element__wrap">
                      <div class="brave_element__inner">
                         <div class="brave_element__styler">
-                           <a class="brave_element__inner_link '.$dynamicClasses.'" '.$actionLink.' '.$actionDownload.' '.$actionCall.' '.$actionStep . $actionClose. $actionTrack. $actionJS. $actionCoupon. $dynamicAttrs.'>
+                           <a class="brave_element__inner_link '.$dynamicClasses.'" '.$actionLink.' '.$actionDownload.' '.$actionCall.' '.$actionStep . $actionClose. $actionJS. $actionCoupon. $dynamicAttrs.'>
                               '.(!$iconRight ? $iconHTML:'').'<div class="brave_element__button_text">'.$buttonText.$loadingIcon.'</div>'.($iconRight ? $iconHTML:'').'
                            </a>
                         </div>

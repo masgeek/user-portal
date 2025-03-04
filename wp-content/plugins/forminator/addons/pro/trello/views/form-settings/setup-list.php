@@ -1,4 +1,10 @@
 <?php
+/**
+ * Template for setup list
+ *
+ * @package Forminator
+ */
+
 // defaults.
 $vars = array(
 	'error_message'    => '',
@@ -10,13 +16,17 @@ $vars = array(
 	'step_description' => '',
 );
 
-/** @var array $template_vars */
+/**
+ * Template variables.
+ *
+ * @var array $template_vars
+ * */
 foreach ( $template_vars as $key => $val ) {
 	$vars[ $key ] = $val;
 }
 
 $vars['step_description'] = sprintf(
-	/* translators: ... */
+/* translators: 1: Board name */
 	esc_html__( 'Which list from %1$s do you want auto-generated cards to be added to?', 'forminator' ),
 	'<b>' . esc_html( $vars['board_name'] ) . '</b>'
 );
@@ -25,32 +35,16 @@ $vars['step_description'] = sprintf(
 <div class="forminator-integration-popup__header">
 
 	<h3 id="forminator-integration-popup__title" class="sui-box-title sui-lg" style="overflow: initial; white-space: normal; text-overflow: initial;">
-		<?php echo esc_html( __( 'Assign List', 'forminator' ) ); ?>
+		<?php esc_html_e( 'Assign List', 'forminator' ); ?>
 	</h3>
 
 	<p id="forminator-integration-popup__description" class="sui-description"><?php echo wp_kses_post( $vars['step_description'] ); ?></p>
 
 	<?php if ( ! empty( $vars['error_message'] ) ) : ?>
-		<div
-			role="alert"
-			class="sui-notice sui-notice-red sui-active"
-			style="display: block; text-align: left;"
-			aria-live="assertive"
-		>
-
-			<div class="sui-notice-content">
-
-				<div class="sui-notice-message">
-
-					<span class="sui-notice-icon sui-icon-info" aria-hidden="true"></span>
-
-					<p><?php echo esc_html( $vars['error_message'] ); ?></p>
-
-				</div>
-
-			</div>
-
-		</div>
+		<?php
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is already escaped.
+			echo Forminator_Admin::get_red_notice( esc_html( $vars['error_message'] ) );
+		?>
 	<?php endif; ?>
 
 </div>

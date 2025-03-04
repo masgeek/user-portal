@@ -8,7 +8,7 @@
 
 <div class="kcmp-notice notice notice-error is-dismissible">
     <div class="kcmp-notice-logo">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 500 500">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 500 500">
             <defs>
                 <style>.a {
                         clip-path: url(#b);
@@ -26,7 +26,7 @@
     </div>
 
     <div class="kcmp-notice-message">
-        <h1><?php esc_html_e( 'Your Kenta theme needs to be upgraded!', 'kenta-companion' ); ?></h1>
+        <h1><?php esc_html_e( 'Your Kenta theme is outdated!', 'kenta-companion' ); ?></h1>
         <p>
 			<?php esc_html_e( "For your site to run properly, please update both the kenta theme and the companion plugin to the latest version.", 'kenta-companion' ); ?>
 
@@ -34,7 +34,10 @@
 
         <p>
 			<?php
-			echo sprintf( esc_html__( 'Please navigate to %s to update your theme.', 'kenta-companion' ), '<a href="' . esc_url( admin_url( 'themes.php' ) ) . '">' . __( 'Appearance -> Themes', 'kenta-companion' ) . '</a>' );
+			echo sprintf( esc_html__( 'Please navigate to %s to update your theme.', 'kenta-companion' ), '<a class="notice-action" href="' . esc_url( admin_url( 'themes.php' ) ) . '">' 
+                . '<i class="dashicons-before dashicons-admin-appearance"></i>'
+                . __( 'Appearance -> Themes', 'kenta-companion' ) 
+                . '</a>' );
 			?>
         </p>
     </div>

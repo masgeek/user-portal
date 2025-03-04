@@ -61,7 +61,7 @@ add_action('wp_ajax_nopriv_bravepop_ajax_popup_complete_goal', 'bravepop_ajax_po
 
 function bravepop_ajax_popup_complete_goal(){
    if(!isset($_POST['popupID']) || !isset($_POST['security'])){ wp_die(); }
-   // error_log(json_encode($_REQUEST));
+   // error_log(wp_json_encode($_REQUEST));
    check_ajax_referer('brave-ajax-nonce', 'security');
 
    $popupID = sanitize_text_field(wp_unslash($_POST['popupID']));

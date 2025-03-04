@@ -1,4 +1,9 @@
 <?php
+/**
+ * The Forminator_Gateway_Exception class.
+ *
+ * @package Forminator
+ */
 
 /**
  * Gateway Exception catcher

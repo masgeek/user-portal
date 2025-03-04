@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Base_Form_Model class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -13,22 +19,26 @@ abstract class Forminator_Base_Form_Model {
 	/**
 	 * Form ID
 	 *
-	 * @int
+	 * @var int
 	 */
 	public $id;
 	/**
 	 * Form name
 	 *
-	 * @string
+	 * @var string
 	 */
 	public $name;
 
 	/**
+	 * Client Id
+	 *
 	 * @var string
 	 */
 	public $client_id;
 
 	/**
+	 * Status
+	 *
 	 * @var string
 	 */
 	public $status;
@@ -49,13 +59,15 @@ abstract class Forminator_Base_Form_Model {
 
 	/**
 	 * Form settings
-	 * array
+	 *
+	 * @var array
 	 */
 	public $settings = array();
 
 	/**
 	 * Form notification
-	 * array
+	 *
+	 * @var array
 	 */
 	public $notifications = array();
 
@@ -75,12 +87,14 @@ abstract class Forminator_Base_Form_Model {
 
 	/**
 	 * WP_Post
+	 *
+	 * @var WP_Post
 	 */
 	public $raw;
 	/**
 	 * This post type
 	 *
-	 * @string
+	 * @var string
 	 */
 	protected $post_type;
 
@@ -90,12 +104,12 @@ abstract class Forminator_Base_Form_Model {
 	/**
 	 * Save form
 	 *
-	 * @param bool $clone
+	 * @param bool $clone_form Clone.
 	 *
 	 * @return mixed
 	 * @since 1.0
 	 */
-	public function save( $clone = false ) {
+	public function save( $clone_form = false ) {
 		// todo use save_post for saving the form and update_post_meta for saving fields.
 		// prepare the data.
 		$maps      = array_merge( $this->get_default_maps(), $this->get_maps() );
@@ -110,14 +124,16 @@ abstract class Forminator_Base_Form_Model {
 					} elseif ( isset( $map['default'] ) ) {
 						$post_data[ $map['field'] ] = $map['default'];
 					}
-				} else {
-					if ( 'fields' === $map['field'] ) {
+				} elseif ( 'fields' === $map['field'] ) {
 						$meta_data[ $map['field'] ] = $this->get_fields_as_array();
-					} else {
-						$meta_data[ $map['field'] ] = $this->{$attribute};
-					}
+				} else {
+					$meta_data[ $map['field'] ] = $this->{$attribute};
 				}
 			}
+		}
+		$validate = forminator_validate_registration_form_settings( $meta_data['settings'] );
+		if ( is_wp_error( $validate ) ) {
+			return $validate;
 		}
 
 		$post_data['post_type'] = $this->post_type;
@@ -130,7 +146,7 @@ abstract class Forminator_Base_Form_Model {
 		}
 
 		// If cloned we have to update the fromID.
-		if ( $clone ) {
+		if ( $clone_form ) {
 			$meta_data['settings']['form_id'] = $id;
 		}
 
@@ -140,6 +156,8 @@ abstract class Forminator_Base_Form_Model {
 	}
 
 	/**
+	 * Get fields
+	 *
 	 * @return Forminator_Form_Field_Model[]
 	 * @since 1.0
 	 */
@@ -182,7 +200,7 @@ abstract class Forminator_Base_Form_Model {
 		$real_fields = $this->get_real_fields();
 		$fields      = array_filter(
 			$real_fields,
-			function( $value ) use ( $group_id ) {
+			function ( $value ) use ( $group_id ) {
 				return ! $group_id ? empty( $value->parent_group ) : $group_id === $value->parent_group;
 			}
 		);
@@ -200,7 +218,7 @@ abstract class Forminator_Base_Form_Model {
 		$fields         = $this->get_fields();
 		$grouped_fields = array_filter(
 			$fields,
-			function( $value ) use ( $group_id ) {
+			function ( $value ) use ( $group_id ) {
 				return ! $group_id ? empty( $value->parent_group ) : $group_id === $value->parent_group;
 			}
 		);
@@ -222,16 +240,18 @@ abstract class Forminator_Base_Form_Model {
 	}
 
 	/**
-	 * @param        $property
-	 * @param        $name
-	 * @param        $array
-	 * @param string   $sanitize_function custom sanitize function to use, default is sanitize_title.
+	 * Set var in array
+	 *
+	 * @param string $property Property.
+	 * @param string $name Name.
+	 * @param string $array_values Array values.
+	 * @param string $sanitize_function custom sanitize function to use, default is sanitize_title.
 	 *
 	 * @since 1.0
 	 * @since 1.2 Add $sanitize_function as optional param
 	 */
-	public function set_var_in_array( $property, $name, $array, $sanitize_function = 'sanitize_title' ) {
-		$val = isset( $array[ $name ] ) ? $array[ $name ] : null;
+	public function set_var_in_array( $property, $name, $array_values, $sanitize_function = 'sanitize_title' ) {
+		$val = isset( $array_values[ $name ] ) ? $array_values[ $name ] : null;
 		if ( is_callable( $sanitize_function ) ) {
 			$val = call_user_func_array( $sanitize_function, array( $val ) );
 		}
@@ -241,7 +261,7 @@ abstract class Forminator_Base_Form_Model {
 	/**
 	 * Add field
 	 *
-	 * @param $field
+	 * @param mixed $field Field.
 	 *
 	 * @since 1.0
 	 */
@@ -252,7 +272,7 @@ abstract class Forminator_Base_Form_Model {
 	/**
 	 * Get field
 	 *
-	 * @param $slug
+	 * @param string $slug Slug.
 	 *
 	 * @return Forminator_Form_Field|null
 	 * @since 1.0
@@ -265,7 +285,7 @@ abstract class Forminator_Base_Form_Model {
 	/**
 	 * Remove field
 	 *
-	 * @param $slug
+	 * @param string $slug Slug.
 	 *
 	 * @since 1.0
 	 */
@@ -285,7 +305,8 @@ abstract class Forminator_Base_Form_Model {
 	/**
 	 * Load model
 	 *
-	 * @param $id
+	 * @param int   $id Id.
+	 * @param mixed $callback Callback function.
 	 *
 	 * @return bool|$this
 	 * @since 1.0
@@ -313,8 +334,8 @@ abstract class Forminator_Base_Form_Model {
 	/**
 	 * Load preview
 	 *
-	 * @param $id
-	 * @param $data
+	 * @param int   $id Id.
+	 * @param array $data Data for preview.
 	 *
 	 * @return bool|Forminator_Base_Form_Model
 	 * @since 1.0
@@ -411,7 +432,7 @@ abstract class Forminator_Base_Form_Model {
 	/**
 	 * Count all form types
 	 *
-	 * @param string $status
+	 * @param string $status Status.
 	 *
 	 * @return int
 	 * @since 1.0
@@ -426,10 +447,9 @@ abstract class Forminator_Base_Form_Model {
 			} else {
 				return 0;
 			}
-		} else {
-			if ( 'forminator_forms' === $this->post_type ) {
+		} elseif ( 'forminator_forms' === $this->post_type ) {
 				unset( $count_posts['leads'] );
-			}
+				unset( $count_posts['pdf_form'] );
 		}
 
 		return array_sum( $count_posts );
@@ -463,9 +483,10 @@ abstract class Forminator_Base_Form_Model {
 	/**
 	 * Get all paginated
 	 *
-	 * @param int      $current_page
-	 * @param null|int $per_page
-	 * @param string   $status
+	 * @param int      $current_page Current page.
+	 * @param null|int $per_page Limit per page.
+	 * @param string   $status Status.
+	 * @param null|int $pdf_parent_id PDF parent Id.
 	 *
 	 * @return array
 	 * @since 1.5.4 add optional param per_page
@@ -473,7 +494,7 @@ abstract class Forminator_Base_Form_Model {
 	 *
 	 * @since 1.2
 	 */
-	public function get_all_paged( $current_page = 1, $per_page = null, $status = '' ) {
+	public function get_all_paged( $current_page = 1, $per_page = null, $status = '', $pdf_parent_id = null ) {
 		if ( is_null( $per_page ) ) {
 			$per_page = forminator_form_view_per_page();
 		}
@@ -489,9 +510,24 @@ abstract class Forminator_Base_Form_Model {
 		}
 
 		if ( 'forminator_forms' === $this->post_type ) {
-			$args['meta_key']     = 'forminator_form_meta';
-			$args['meta_value']   = 'form-type";s:5:"leads"';
-			$args['meta_compare'] = 'NOT LIKE';
+			if ( 'pdf_form' === $status ) {
+				$args['meta_key']     = 'forminator_form_meta'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				$args['meta_value']   = '("parent_form_id";s:[0-9]+:"' . $pdf_parent_id . '";)'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				$args['meta_compare'] = 'REGEXP';
+			} else {
+				$args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					array(
+						'key'     => 'forminator_form_meta',
+						'value'   => 'form-type";s:5:"leads"',
+						'compare' => 'NOT LIKE',
+					),
+					array(
+						'key'     => 'forminator_form_meta',
+						'value'   => '"form-type";s:[0-9]+:"pdf-form"',
+						'compare' => 'NOT REGEXP',
+					),
+				);
+			}
 		}
 
 		$query  = new WP_Query( $args );
@@ -512,7 +548,7 @@ abstract class Forminator_Base_Form_Model {
 	 * Get all
 	 *
 	 * @param string $status post_status arg.
-	 * @param int    $limit
+	 * @param int    $limit Limit.
 	 *
 	 * @return array()
 	 * @since 1.0
@@ -544,7 +580,39 @@ abstract class Forminator_Base_Form_Model {
 	}
 
 	/**
-	 * Get modules from field id
+	 * Get 3 models with old stripe field
+	 *
+	 * @return array
+	 */
+	public function get_models_with_old_stripe() {
+		$max_title_length = 50;
+
+		$models = array();
+		$data   = $this->get_models( 99, 'publish' );
+
+		foreach ( $data as $model ) {
+			if ( $model->get_field( 'stripe-1' ) && ! $model->get_field( 'stripe-ocs-1' ) ) {
+				$title = $model->settings['formName'] ?? "Form #{$model->id}";
+				$title = mb_strlen( $title ) > $max_title_length ? mb_substr( $title, 0, $max_title_length ) . '...' : $title;
+
+				$models[] = array(
+					'id'    => $model->id,
+					'title' => $title,
+				);
+			}
+			// Return only 3 forms.
+			if ( 3 === count( $models ) ) {
+				break;
+			}
+		}
+
+		return $models;
+	}
+
+	/**
+	 * Get modules from field
+	 *
+	 * @param int $id Id.
 	 *
 	 * @return array
 	 * @since 1.9
@@ -568,6 +636,9 @@ abstract class Forminator_Base_Form_Model {
 
 	/**
 	 * Get modules from field id & version
+	 *
+	 * @param int    $id Id.
+	 * @param string $version Version.
 	 *
 	 * @return array
 	 * @since 1.9
@@ -593,7 +664,7 @@ abstract class Forminator_Base_Form_Model {
 	 * Get Models
 	 *
 	 * @param int    $total - the total. Defaults to 4.
-	 * @param string $status
+	 * @param string $status Status.
 	 *
 	 * @return array $models
 	 * @since 1.6 add `status` as optional param
@@ -621,22 +692,27 @@ abstract class Forminator_Base_Form_Model {
 	}
 
 	/**
-	 * @param $post
+	 * Load form
+	 *
+	 * @param WP_Post $post Post.
 	 *
 	 * @return mixed
 	 * @since 1.0
 	 */
-	private function _load( $post ) {
+	private function _load( $post ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 		if ( $this->post_type === $post->post_type ) {
 			$class         = get_class( $this );
 			$object        = new $class();
 			$meta          = get_post_meta( $post->ID, self::META_KEY, true );
-			$maps          = array_merge( $this->get_default_maps(), $this->get_maps() );
 			$fields        = ! empty( $meta['fields'] ) ? $meta['fields'] : array();
 			$form_settings = array(
 				'version'                    => '1.0',
 				'cform-section-border-color' => '#E9E9E9',
 			);
+			if ( $fields ) {
+				$meta['fields'] = static::disable_fields( $fields );
+			}
+			$maps = array_merge( $this->get_default_maps(), $this->get_maps() );
 
 			// Update version from form settings.
 			if ( isset( $meta['settings']['version'] ) ) {
@@ -654,38 +730,34 @@ abstract class Forminator_Base_Form_Model {
 					if ( 'post' === $map['type'] ) {
 						$att                  = $map['field'];
 						$object->{$attribute} = $post->{$att};
-					} else {
-						if ( ! empty( $meta['fields'] ) && 'fields' === $map['field'] ) {
+					} elseif ( ! empty( $meta['fields'] ) && 'fields' === $map['field'] ) {
 							$meta['fields'] = forminator_decode_html_entity( $meta['fields'] );
 							$password_count = 0;
-							foreach ( $meta['fields'] as $field_data ) {
-								// Prevent creating empty wrappers.
-								if ( isset( $field_data['type'] ) ) {
+						foreach ( $meta['fields'] as $field_data ) {
+							// Prevent creating empty wrappers.
+							if ( isset( $field_data['type'] ) ) {
 
-									if ( 'honeypot' === $field_data['type'] ) {
+								if ( 'honeypot' === $field_data['type'] ) {
+									continue;
+								}
+
+								if ( 'password' === $field_data['type'] ) {
+									if ( $password_count >= 1 ) {
 										continue;
-									}
-
-									if ( 'password' === $field_data['type'] ) {
-										if ( $password_count >= 1 ) {
-											continue;
-										} else {
-											$password_count++;
-										}
+									} else {
+										++$password_count;
 									}
 								}
-								$field          = new Forminator_Form_Field_Model( $form_settings );
-								$field->form_id = $post->ID;
-								$field->slug    = $field_data['id'];
-								unset( $field_data['id'] );
-								$field->import( $field_data );
-								$object->add_field( $field );
 							}
-						} else {
-							if ( isset( $meta[ $map['field'] ] ) ) {
-								$object->{$attribute} = $meta[ $map['field'] ];
-							}
+							$field          = new Forminator_Form_Field_Model( $form_settings );
+							$field->form_id = $post->ID;
+							$field->slug    = $field_data['id'];
+							unset( $field_data['id'] );
+							$field->import( $field_data );
+							$object->add_field( $field );
 						}
+					} elseif ( isset( $meta[ $map['field'] ] ) ) {
+								$object->{$attribute} = $meta[ $map['field'] ];
 					}
 				}
 			}
@@ -722,6 +794,16 @@ abstract class Forminator_Base_Form_Model {
 	}
 
 	/**
+	 * Disable fields
+	 *
+	 * @param array $fields Fields.
+	 * @return array
+	 */
+	protected static function disable_fields( $fields ) {
+		return $fields;
+	}
+
+	/**
 	 * Validate registration fields mapping for Registration forms
 	 * If the field is removed - replace it to the first field in the list
 	 *
@@ -737,7 +819,7 @@ abstract class Forminator_Base_Form_Model {
 			$i = 0;
 			do {
 				$first_id = isset( $field_ids[ $i ] ) ? $field_ids[ $i ] : null;
-				$i ++;
+				++$i;
 				$is_password = false !== strpos( $first_id, 'password' );
 				$go_next     = empty( $first_id ) || $is_password;
 			} while ( $go_next );
@@ -748,12 +830,12 @@ abstract class Forminator_Base_Form_Model {
 				}
 				$value_parts = explode( '-', $value );
 				if ( ! $first_id
-					 || 'registration-' !== substr( $key, 0, 13 )
-					 || '-field' !== substr( $key, - 6 )
-					 || 'registration-role-field' === $key
-					 || in_array( $value, $field_ids, true )
-					 // for multiple fields like name, address.
-					 || 2 < count( $value_parts ) && in_array( $value_parts[0] . '-' . $value_parts[1], $field_ids, true )
+					|| 'registration-' !== substr( $key, 0, 13 )
+					|| '-field' !== substr( $key, - 6 )
+					|| 'registration-role-field' === $key
+					|| in_array( $value, $field_ids, true )
+					// for multiple fields like name, address.
+					|| ( 2 < count( $value_parts ) && in_array( $value_parts[0] . '-' . $value_parts[1], $field_ids, true ) )
 				) {
 					continue;
 				}
@@ -802,12 +884,15 @@ abstract class Forminator_Base_Form_Model {
 		}
 
 		foreach ( $this->fields as $field ) {
-			/** @var Forminator_Form_Field_Model $field */
+			/**
+			 * Forminator_Form_Field_Model
+			 *
+			 * @var Forminator_Form_Field_Model $field */
 			if ( strpos( $field->form_id, 'wrapper-' ) === 0 ) {
 				$form_id = $field->form_id;
 			} else {
 				// Backward Compat.
-				$form_id = $field->formID; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.NotSnakeCaseMemberVar
+				$form_id = $field->formID; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			}
 
 			if ( ! isset( $wrappers[ $form_id ] ) ) {
@@ -815,7 +900,6 @@ abstract class Forminator_Base_Form_Model {
 					'wrapper_id' => $form_id,
 				);
 			}
-
 			$field_data                           = $field->to_formatted_array();
 			$field_data                           = $this->migrate_payments( $field_data );
 			$wrappers[ $form_id ]['parent_group'] = ! empty( $field->parent_group ) ? $field->parent_group : '';
@@ -830,11 +914,13 @@ abstract class Forminator_Base_Form_Model {
 	/**
 	 * Migrate payment fields to new behavior with multi payments
 	 *
+	 * @param array $field Field.
+	 *
 	 * @return array
 	 * @since 1.15
 	 */
 	private function migrate_payments( $field ) {
-		if ( ! isset( $field['type'] ) || 'stripe' !== $field['type'] ) {
+		if ( ! isset( $field['type'] ) || ( 'stripe' !== $field['type'] && 'stripe-ocs' !== $field['type'] ) ) {
 			return $field;
 		}
 
@@ -981,7 +1067,7 @@ abstract class Forminator_Base_Form_Model {
 	/**
 	 * Return model
 	 *
-	 * @param string $class_name
+	 * @param string $class_name Class name.
 	 *
 	 * @return self
 	 * @since 1.0
@@ -1057,7 +1143,7 @@ abstract class Forminator_Base_Form_Model {
 	/**
 	 * Export integrations setting
 	 *
-	 * @param $exportable_data
+	 * @param array $exportable_data Exportable data.
 	 *
 	 * @return array
 	 * @since 1.4
@@ -1071,7 +1157,7 @@ abstract class Forminator_Base_Form_Model {
 		foreach ( $connected_addons as $connected_addon ) {
 			try {
 				$settings = $connected_addon->get_addon_settings( $model_id, 'form' );
-				if ( $settings instanceof Forminator_Addon_Settings_Abstract ) {
+				if ( $settings instanceof Forminator_Integration_Settings ) {
 					$exportable_integrations[ $connected_addon->get_slug() ] = $settings->to_exportable_data();
 				}
 			} catch ( Exception $e ) {
@@ -1096,12 +1182,14 @@ abstract class Forminator_Base_Form_Model {
 	/**
 	 * Create model from import data
 	 *
-	 * @param        $import_data
+	 * @param array  $import_data Import data.
+	 * @param string $name Form name.
 	 *
 	 * @return self|Forminator_Form_Model|Forminator_Poll_Model|Forminator_Quiz_Model|WP_Error
 	 * @since 1.4
+	 * @throws Exception When there is an error.
 	 */
-	public static function create_from_import_data( $import_data ) {
+	public static function create_from_import_data( $import_data, $name = '' ) {
 		$class = static::class;
 
 		if ( Forminator::is_import_integrations_feature_enabled() ) {
@@ -1110,11 +1198,11 @@ abstract class Forminator_Base_Form_Model {
 
 		try {
 			if ( ! Forminator::is_import_export_feature_enabled() ) {
-				throw new Exception( __( 'Export Import feature disabled', 'forminator' ) );
+				throw new Exception( esc_html__( 'Export Import feature disabled', 'forminator' ) );
 			}
 
 			if ( ! is_callable( array( $class, 'model' ) ) ) {
-				throw new Exception( __( 'Model loader for importer does not exist.', 'forminator' ) );
+				throw new Exception( esc_html__( 'Model loader for importer does not exist.', 'forminator' ) );
 			}
 
 			// call static method ::model.
@@ -1130,8 +1218,8 @@ abstract class Forminator_Base_Form_Model {
 			 */
 			do_action( 'forminator_before_create_model_from_import_data', $import_data, $class );
 
-			if ( ! isset( $import_data['type'] ) || empty( $import_data['type'] ) ) {
-				throw new Exception( __( 'Invalid format of import data type', 'forminator' ) );
+			if ( empty( $import_data['type'] ) ) {
+				throw new Exception( esc_html__( 'Invalid format of import data type', 'forminator' ) );
 			}
 
 			$meta = ( isset( $import_data['data'] ) ? $import_data['data'] : array() );
@@ -1139,20 +1227,25 @@ abstract class Forminator_Base_Form_Model {
 			$meta = self::clear_stripe_plan_ids( $meta );
 
 			if ( empty( $meta ) ) {
-				throw new Exception( __( 'Invalid format of import data', 'forminator' ) );
+				throw new Exception( esc_html__( 'Invalid format of import data', 'forminator' ) );
 			}
 
-			if ( ! isset( $meta['settings'] ) || empty( $meta['settings'] ) ) {
-				throw new Exception( __( 'Invalid format of import data settings', 'forminator' ) );
+			if ( empty( $meta['settings'] ) ) {
+				throw new Exception( esc_html__( 'Invalid format of import data settings', 'forminator' ) );
 			}
 
-			if ( ! isset( $meta['settings']['formName'] ) || empty( $meta['settings']['formName'] ) ) {
-				throw new Exception( __( 'Invalid format of import data name', 'forminator' ) );
+			if ( empty( $meta['settings']['formName'] ) ) {
+				throw new Exception( esc_html__( 'Invalid format of import data name', 'forminator' ) );
+			}
+
+			if ( $name ) {
+				$meta['settings']['formName'] = $name;
 			}
 
 			$form_name = $meta['settings']['formName'];
 
 			$type = $import_data['type'];
+
 			switch ( $type ) {
 				case 'quiz':
 					$post_type = 'forminator_quizzes';
@@ -1168,7 +1261,7 @@ abstract class Forminator_Base_Form_Model {
 			$post_status = ( isset( $import_data['status'] ) && ! empty( $import_data['status'] ) ) ? $import_data['status'] : self::STATUS_PUBLISH;
 
 			/**
-			 * todo : use @see self::save()
+			 * Todo : use @see self::save()
 			 */
 			$post_data = array(
 				'post_title'  => $form_name,
@@ -1182,21 +1275,20 @@ abstract class Forminator_Base_Form_Model {
 				throw new Exception( $post_id->get_error_message(), $post_id->get_error_code() );
 			}
 
-			if ( ! isset( $meta['settings'] ) ) {
-				$meta['settings'] = array();
-			}
 			// update form_id.
-			$meta['settings']['form_id'] = $post_id;
+			$meta['settings']['form_id']         = $post_id;
+			$meta['settings']['previous_status'] = 'draft';
 
 			update_post_meta( $post_id, self::META_KEY, $meta );
 
-			/** @var Forminator_Base_Form_Model|Forminator_Poll_Model|Forminator_Quiz_Model|Forminator_Form_Model $model */
-			$model    = $model->load( $post_id );
-			$fields   = array( $meta );
-			$settings = $meta['settings'];
+			/**
+			 * Forminator_Base_Form_Model
+			 *
+			 * @var Forminator_Base_Form_Model|Forminator_Poll_Model|Forminator_Quiz_Model|Forminator_Form_Model $model */
+			$model = $model->load( $post_id );
 
 			if ( ! $model instanceof $class ) {
-				throw new Exception( __( 'Failed to load imported Forminator model', 'forminator' ) );
+				throw new Exception( esc_html__( 'Failed to load imported Forminator model', 'forminator' ) );
 			}
 
 			/**
@@ -1205,22 +1297,16 @@ abstract class Forminator_Base_Form_Model {
 			 * @param int $post_id - module id.
 			 * @param string $post_status - module status.
 			 * @param object $model - module model.
+			 * @param array $import_data - Import data.
 			 *
 			 * @since 1.11
+			 * @since 1.32 Added the `$import_data` parameter.
 			 */
-			do_action( 'forminator_' . $type . '_action_imported', $post_id, $post_status, $model );
-			/**
-			 * Action called after form saved to database
-			 *
-			 * @param int $id - form id.
-			 * @param string $form_name - form title.
-			 * @param string $post_status - form status.
-			 * @param array $fields - form fields.
-			 * @param array $settings - form settings.
-			 *
-			 * @since 1.11
-			 */
-			do_action( 'forminator_custom_form_action_create', $post_id, $form_name, $post_status, $fields, $settings );
+			do_action( 'forminator_' . $type . '_action_imported', $post_id, $post_status, $model, $import_data );
+
+			// Call do action after create imported module.
+			self::module_update_do_action( $type, $post_id, $model );
+
 		} catch ( Exception $e ) {
 			$code = $e->getCode();
 			if ( empty( $code ) ) {
@@ -1249,7 +1335,7 @@ abstract class Forminator_Base_Form_Model {
 	/**
 	 * Clear Stripe plan IDs
 	 *
-	 * @param $data
+	 * @param array $data Data.
 	 *
 	 * @return mixed
 	 */
@@ -1257,7 +1343,7 @@ abstract class Forminator_Base_Form_Model {
 		if ( isset( $data['fields'] ) ) {
 			$i = 0;
 			foreach ( $data['fields'] as $field ) {
-				if ( isset( $field['type'] ) && 'stripe' === $field['type'] ) {
+				if ( isset( $field['type'] ) && ( 'stripe' === $field['type'] || 'stripe-ocs' === $field['type'] ) ) {
 					if ( isset( $field['payments'] ) ) {
 						$x = 0;
 						foreach ( $field['payments'] as $plan ) {
@@ -1272,12 +1358,12 @@ abstract class Forminator_Base_Form_Model {
 							$data['fields'][ $i ]['payments'][ $x ]['plan_id']      = '';
 							$data['fields'][ $i ]['payments'][ $x ]['live_plan_id'] = '';
 							$data['fields'][ $i ]['payments'][ $x ]['test_plan_id'] = '';
-							$x ++;
+							++$x;
 						}
 					}
 				}
 
-				$i ++;
+				++$i;
 			}
 		}
 
@@ -1287,9 +1373,9 @@ abstract class Forminator_Base_Form_Model {
 	/**
 	 * Import Integrations data model
 	 *
-	 * @param $model
-	 * @param $import_data
-	 * @param $module
+	 * @param mixed  $model Model.
+	 * @param array  $import_data Import data.
+	 * @param string $module Module.
 	 *
 	 * @return Forminator_Base_Form_Model
 	 * @since 1.4
@@ -1312,12 +1398,12 @@ abstract class Forminator_Base_Form_Model {
 		foreach ( $integrations_data as $slug => $integrations_datum ) {
 			try {
 				$addon = forminator_get_addon( $slug );
-				if ( $addon instanceof Forminator_Addon_Abstract ) {
+				if ( $addon instanceof Forminator_Integration ) {
 					$method = 'get_addon_settings';
 					if ( method_exists( $addon, $method ) ) {
 						$settings = $addon->$method( $model->id, static::$module_slug );
 					}
-					if ( ! empty( $settings ) && $settings instanceof Forminator_Addon_Form_Settings_Abstract ) {
+					if ( ! empty( $settings ) && $settings instanceof Forminator_Integration_Form_Settings ) {
 						$settings->import_data( $integrations_datum );
 					}
 				}
@@ -1332,8 +1418,8 @@ abstract class Forminator_Base_Form_Model {
 	/**
 	 * Get status of prevent_store
 	 *
-	 * @param int   $id
-	 * @param array $settings
+	 * @param int   $id Id.
+	 * @param array $settings Settings.
 	 *
 	 * @return boolean
 	 * @since 1.5
@@ -1347,7 +1433,7 @@ abstract class Forminator_Base_Form_Model {
 
 		$store_submissions = isset( $settings['store_submissions'] ) ? $settings['store_submissions'] : $store_submissions;
 		// We have to reverse this because disable store submissions was changed to positive statement since 1.15.12
-		// from prevent store to store submissions
+		// from prevent store to store submissions.
 		$is_prevent_store = filter_var( $store_submissions, FILTER_VALIDATE_BOOLEAN ) ? false : true;
 
 		/**
@@ -1367,7 +1453,7 @@ abstract class Forminator_Base_Form_Model {
 	/**
 	 * Flag if module should be loaded via ajax
 	 *
-	 * @param bool $force
+	 * @param bool $force Force.
 	 *
 	 * @return bool
 	 * @since 1.6.1
@@ -1401,34 +1487,28 @@ abstract class Forminator_Base_Form_Model {
 	/**
 	 * Flag if module should be loaded via ajax (Global settings)
 	 *
-	 * @param bool $force
+	 * @param bool $force Force.
 	 *
 	 * @return bool
 	 * @since 1.6.1
 	 */
 	private static function is_global_ajax_load( $force = false ) {
-		// default disabled.
-
-		// from settings.
-		$settings_enabled = get_option( 'forminator_module_enable_load_ajax', false );
-
 		// from constant.
 		$enabled = defined( 'FORMINATOR_MODULE_ENABLE_LOAD_AJAX' ) && FORMINATOR_MODULE_ENABLE_LOAD_AJAX;
 
 		// if one is true, then its enabled.
-		$enabled = $force || $settings_enabled || $enabled;
+		$enabled = $force || $enabled;
 
 		/**
 		 * Filter flag is ajax load of module
 		 *
 		 * @param bool $enabled
-		 * @param bool $settings_enabled
 		 * @param bool $force
 		 *
 		 * @return bool
 		 * @since  1.6
 		 */
-		$enabled = apply_filters( 'forminator_module_is_ajax_load', $enabled, $settings_enabled, $force );
+		$enabled = apply_filters( 'forminator_module_is_ajax_load', $enabled, $force );
 
 		return $enabled;
 	}
@@ -1472,16 +1552,8 @@ abstract class Forminator_Base_Form_Model {
 	 * @since 1.6.1
 	 */
 	private static function is_global_use_donotcachepage_constant() {
-		// default disabled.
-
-		// from settings.
-		$settings_enabled = get_option( 'forminator_module_use_donotcachepage', false );
-
 		// from constant.
 		$enabled = defined( 'FORMINATOR_MODULE_USE_DONOTCACHEPAGE' ) && FORMINATOR_MODULE_USE_DONOTCACHEPAGE;
-
-		// if one is true, then its enabled.
-		$enabled = $settings_enabled || $enabled;
 
 		/**
 		 * Filter flag is use `DONOTCACHEPAGE` of module
@@ -1544,7 +1616,7 @@ abstract class Forminator_Base_Form_Model {
 		);
 
 		// Allow module slug to be translated for messages.
-		$module_slug   = static::$module_slug;
+		$module_slug = static::$module_slug;
 		switch ( $module_slug ) {
 			case 'quiz':
 				$module_slug = esc_html__( 'quiz', 'forminator' );
@@ -1623,7 +1695,7 @@ abstract class Forminator_Base_Form_Model {
 	/**
 	 * Check if we can show the form
 	 *
-	 * @param $is_preview
+	 * @param bool $is_preview Is preview.
 	 *
 	 * @since 1.19.0
 	 * @return bool
@@ -1666,12 +1738,52 @@ abstract class Forminator_Base_Form_Model {
 	 * Get expiry date
 	 *
 	 * Before 1.15.4 expiry date is being saved like: 1 Mar 2022
-	 * Since we changed it to save as Unix timestamp, we need to process it
+	 * Since we changed it to save as Unix timestamp, we need to process
+	 *
+	 * @param string $expire_date Expire date.
 	 *
 	 * @since 1.19.0
 	 * @return string
 	 */
 	public function get_expiry_date( $expire_date ) {
 		return is_numeric( $expire_date ) ? (int) $expire_date / 1000 : strtotime( $expire_date );
+	}
+
+	/**
+	 * Call do action when module update
+	 *
+	 * @param string $type module type.
+	 * @param string $post_id post ID.
+	 * @param object $model model array.
+	 *
+	 * @return void
+	 */
+	public static function module_update_do_action( $type, $post_id, $model ) {
+		$model_array                 = (array) $model;
+		$post_status                 = ! empty( $model_array['status'] ) ? $model_array['status'] : '';
+		$settings                    = ! empty( $model_array['settings'] ) ? $model_array['settings'] : array();
+		$settings['previous_status'] = 'draft';
+		switch ( $type ) {
+			case 'form':
+				$fields    = ! empty( $model->fields ) ? $model->get_fields_grouped() : array();
+				$form_name = $model_array['settings']['formName'];
+				/** This action is documented in library/modules/custom-forms/admin/admin-loader.php */
+				do_action( 'forminator_custom_form_action_update', $post_id, $form_name, $post_status, $fields, $settings );
+				break;
+			case 'poll':
+				$answer = ! empty( $model->fields ) ? $model->get_fields_as_array() : array();
+				/** This action is documented in library/modules/polls/admin/admin-loader.php */
+				do_action( 'forminator_poll_action_update', $post_id, $post_status, $answer, $settings );
+				break;
+			case 'quiz':
+				$quiz_type = $model_array['quiz_type'];
+				$questions = $model_array['questions'];
+				$results   = $model_array['results'];
+				/** This action is documented in library/modules/quizzes/admin/admin-loader.php */
+				do_action( 'forminator_quiz_action_update', $post_id, $quiz_type, $post_status, $questions, $results, $settings );
+				break;
+			default:
+				break;
+		}
 	}
 }

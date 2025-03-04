@@ -35,10 +35,10 @@ if ( ! class_exists( __NAMESPACE__ . '\\Rating' ) ) {
 		protected $type = 'rate';
 
 		/**
-		 * Show after 2 days
+		 * Show after 1 week.
 		 *
 		 * @since 2.0
-		 * @var string $type
+		 * @var string $time
 		 */
 		protected $time = WEEK_IN_SECONDS; // After 1 week.
 

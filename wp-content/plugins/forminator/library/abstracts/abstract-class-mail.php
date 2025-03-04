@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator Mail.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -11,6 +17,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 1.0
  */
 abstract class Forminator_Mail {
+	/**
+	 * Message variables
+	 *
+	 * @var array
+	 */
 	protected $message_vars;
 
 	/**
@@ -78,6 +89,13 @@ abstract class Forminator_Mail {
 	 * @var array
 	 */
 	protected $attachment = array();
+
+	/**
+	 * Selected PDFs
+	 *
+	 * @var array
+	 */
+	protected $pdfs = array();
 
 	/**
 	 * Main constructor
@@ -172,22 +190,22 @@ abstract class Forminator_Mail {
 	 * @since 1.0.3
 	 * @since 1.6.2 add $custom_form model, and entry
 	 *
-	 * @param array                       $notification
-	 * @param Forminator_Base_Form_Model  $module
-	 * @param Forminator_Form_Entry_Model $entry
-	 * @param                             $lead_model
+	 * @param array                       $notification Notification.
+	 * @param Forminator_Base_Form_Model  $module Base Form Model.
+	 * @param Forminator_Form_Entry_Model $entry Entry Form Model.
+	 * @param array                       $lead_model Lead Model.
 	 *
 	 * @return array
 	 */
 	public function get_admin_email_recipients( $notification, $module = null, $entry = null, $lead_model = array() ) {
 
-		$email 		= array();
+		$email      = array();
 		$recipients = array();
 		if ( isset( $notification['email-recipients'] ) && 'routing' === $notification['email-recipients'] ) {
 			if ( ! empty( $notification['routing'] ) ) {
 				foreach ( $notification['routing'] as $routing ) {
 					if ( $this->is_routing( $routing, $module ) ) {
-						if( false !== strpos( $routing['email'], ',' ) ) {
+						if ( false !== strpos( $routing['email'], ',' ) ) {
 							$recipients = array_merge( array_map( 'trim', explode( ',', $routing['email'] ) ), $recipients );
 						} else {
 							$recipients[] = trim( $routing['email'] );
@@ -201,19 +219,17 @@ abstract class Forminator_Mail {
 		if ( ! empty( $recipients ) ) {
 			foreach ( $recipients as $key => $recipient ) {
 				$recipient = $this->get_recipient( $recipient, $module, $entry, $lead_model );
-				if( false !== strpos( $recipient, ',' ) ) {
+				if ( false !== strpos( $recipient, ',' ) ) {
 					$emails = array_map( 'trim', explode( ',', $recipient ) );
-					if( ! empty( $emails ) ) {
+					if ( ! empty( $emails ) ) {
 						foreach ( $emails as $email_key => $email_recipient ) {
 							if ( is_email( $email_recipient ) ) {
 								$email[] = $email_recipient;
 							}
 						}
 					}
-				} else {
-					if ( is_email( $recipient ) ) {
+				} elseif ( is_email( $recipient ) ) {
 						$email[] = $recipient;
-					}
 				}
 			}
 		}
@@ -240,7 +256,7 @@ abstract class Forminator_Mail {
 	 *
 	 * @since 1.0.3
 	 *
-	 * @param array $recipients
+	 * @param array $recipients Recipients.
 	 */
 	public function set_recipients( $recipients ) {
 		$this->recipients = array();
@@ -292,16 +308,33 @@ abstract class Forminator_Mail {
 	}
 
 	/**
+	 * Set PDFs
+	 *
+	 * @since 2.0
+	 *
+	 * @param array $notification - Selected PDFs in form notifications.
+	 */
+	public function set_pdfs( $notification ) {
+		if ( ! empty( $notification['email-pdfs'] ) ) {
+			$this->pdfs = $notification['email-pdfs'];
+		} else {
+			$this->pdfs = array();
+		}
+	}
+
+
+	/**
 	 * Set attachment
 	 *
 	 * @since 1.0
 	 *
 	 * @param array $attachment - the mail attachment.
+	 * @param mixed $custom_form Custom form.
+	 * @param mixed $entry - Entry.
 	 */
-	public function set_attachment( $attachment ) {
-		$this->attachment = $attachment;
+	public function set_attachment( $attachment, $custom_form = null, $entry = null ) {
+		$this->attachment = apply_filters( 'forminator_custom_form_mail_attachment', $attachment, $custom_form, $entry, $this->pdfs );
 	}
-
 	/**
 	 * Set headers
 	 *
@@ -330,9 +363,15 @@ abstract class Forminator_Mail {
 		$subject       = wp_strip_all_tags( $subject );
 		$this->subject = $subject;
 
-		$message       = stripslashes( $this->message );
-		$message       = wpautop( $message );
-		$message       = make_clickable( $message );
+		$message = make_clickable( wpautop( stripslashes( $this->message ) ) );
+
+		/**
+		 * Filter email body that will be sent by Forminator Mailer
+		 *
+		 * @param string $message
+		 */
+		$message = apply_filters( 'forminator_email_message', $message );
+
 		$this->message = $message;
 	}
 
@@ -403,8 +442,8 @@ abstract class Forminator_Mail {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $form_field_value
-	 * @param $condition
+	 * @param mixed $form_field_value Form field value.
+	 * @param array $condition Condition.
 	 *
 	 * @return bool
 	 */
@@ -417,9 +456,9 @@ abstract class Forminator_Mail {
 	 *
 	 * @since 1.6.2
 	 *
-	 * @param string $slug         question slug.
-	 * @param  int    $answer_index answer index.
-	 * @param  int    $quiz_model
+	 * @param string $slug         Question slug.
+	 * @param int    $answer_index Answer index.
+	 * @param int    $quiz_model Quiz model.
 	 *
 	 * @return bool
 	 */
@@ -447,7 +486,7 @@ abstract class Forminator_Mail {
 	 *
 	 * @since   1.15.3
 	 *
-	 * @param   array $form_data  submitted data.
+	 * @param   array $form_data Submitted data.
 	 *
 	 * @return  string
 	 */

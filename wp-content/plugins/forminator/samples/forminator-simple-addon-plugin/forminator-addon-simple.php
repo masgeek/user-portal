@@ -1,44 +1,56 @@
 <?php
+/**
+ * The Forminator_Integration_Simple class.
+ *
+ * @package Forminator
+ */
 
-final class Forminator_Addon_Simple extends Forminator_Addon_Abstract {
+/**
+ * Class Forminator_Integration_Simple
+ */
+final class Forminator_Integration_Simple extends Forminator_Integration {
 
-	private static $_instance = null;
 	/**
-	 * Use this trait to mark this addon as PRO
+	 * Slug
+	 *
+	 * @var string
 	 */
-	protected $_slug                   = 'simple';
-	protected $_version                = FORMINATOR_ADDON_SIMPLE_VERSION;
-	protected $_min_forminator_version = '1.1';
-	protected $_short_title            = 'simple';
-	protected $_title                  = 'Simple';
-	protected $_url                    = 'http://wpmudev.com';
-	protected $_full_path              = __FILE__;
-	protected $_icon                   = '';
-	protected $_icon_x2                = '';
-	protected $_image                  = '';
-	protected $_image_x2               = '';
+	protected $_slug = 'simple';
 
+	/**
+	 * Version
+	 *
+	 * @var string
+	 */
+	protected $_version = FORMINATOR_ADDON_SIMPLE_VERSION;
+
+	/**
+	 * Minimum Forminator version
+	 *
+	 * @var string
+	 */
+	protected $_min_forminator_version = '1.1';
+
+	/**
+	 * Short title
+	 *
+	 * @var string
+	 */
+	protected $_short_title = 'simple';
+
+	/**
+	 * Title
+	 *
+	 * @var string
+	 */
+	protected $_title = 'Simple';
+
+	/**
+	 * Forminator_Integration_Simple constructor
+	 */
 	public function __construct() {
 		// late init to allow translation.
-		$this->_description                = __( 'Make your form Simple-able', 'forminator' );
-		$this->_activation_error_message   = __( 'Sorry but we failed to activate Simple Integration, don\'t hesitate to contact us', 'forminator' );
-		$this->_deactivation_error_message = __( 'Sorry but we failed to deactivate Simple Integration, please try again', 'forminator' );
-
-		$this->_update_settings_error_message = __(
-			'Sorry, we failed to update settings, please check your form and try again',
-			'forminator'
-		);
-	}
-
-	/**
-	 * @return self|null
-	 */
-	public static function get_instance() {
-		if ( is_null( self::$_instance ) ) {
-			self::$_instance = new self();
-		}
-
-		return self::$_instance;
+		$this->_description = esc_html__( 'Make your form Simple-able', 'forminator' );
 	}
 
 	/**
@@ -51,13 +63,23 @@ final class Forminator_Addon_Simple extends Forminator_Addon_Abstract {
 	}
 
 	/**
-	 * Flag for check if and addon connected to a form(form settings suchs as list name completed)
-	 *
-	 * @param $form_id
+	 * Authorized Callback
 	 *
 	 * @return bool
 	 */
-	public function is_form_connected( $form_id ) {
+	public function is_authorized() {
+		return false;
+	}
+
+	/**
+	 * Flag for check if and addon connected to a form(form settings such as list name completed)
+	 *
+	 * @param int    $module_id Form ID.
+	 * @param string $module_slug Module type.
+	 * @param bool   $check_lead Check is lead connected or not.
+	 * @return bool
+	 */
+	public function is_module_connected( $module_id, $module_slug = 'form', $check_lead = false ) {
 		return false;
 	}
 }

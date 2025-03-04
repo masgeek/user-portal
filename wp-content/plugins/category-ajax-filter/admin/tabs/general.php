@@ -11,12 +11,14 @@ if (!defined('ABSPATH')) {
 	<div class="tab-panel query">
 		<div class="tab-header active" data-content="query"><i class="fa fa-check-square-o left" aria-hidden="true"></i> <?php echo esc_html__('Query Options', 'category-ajax-filter'); ?> <i class="fa fa-angle-down" aria-hidden="true"></i></div>
 		<div class="tab-content query active">
+<?php do_action("tc_caf_before_custom_post_type_select_row");?>
+
 	<!---- START FULL ROW CUSTOM POST TYPE ---->
 	<div class='col-sm-12 row-bottom'>
 	<!-- FORM GROUP -->
 	<div class="form-group row">
     <label for="custom-post-type-select" class="col-sm-12 col-form-label"><?php echo esc_html__('Custom Post Type', 'category-ajax-filter'); ?><span class="info">
-       <?php echo esc_html__('Select your post type to filter. Deaflut: Post', 'category-ajax-filter'); ?>
+       <?php echo esc_html__('Select your post type to filter. Default: Post', 'category-ajax-filter'); ?>
         </span></label>
     <div class="col-sm-12">
     <select class="form-control tc_caf_object_field tc_caf_select" data-field-type='select' id="custom-post-type-select" name="custom-post-type-select">
@@ -24,7 +26,7 @@ if (!defined('ABSPATH')) {
     <?php
 foreach ($cpost_types as $cpost_type) {
     if ($select == $cpost_type) {$sel = 'selected';} else { $sel = '';}
-    echo "<option value='" . $cpost_type . "' $sel>" . esc_html($cpost_type) . "</option>";
+    echo "<option value='" . esc_attr($cpost_type) . "' ".esc_attr($sel).">" . esc_html($cpost_type) . "</option>";
 }
 ?>
     </select>
@@ -46,7 +48,7 @@ if (class_exists("TC_CAF_PRO") && TC_CAF_PRO_PLUGIN_VERSION > '4.4.1') {
 } else {
     ?>
 	<div class="form-group row">
-    <label for="caf-taxonomy" class="col-sm-12 col-form-label"><?php echo esc_html__('Taxonomy', 'category-ajax-filter'); ?><span class="info"><?php echo esc_html__('Select your taxonomy from dropdown. Deaflut: Category', 'category-ajax-filter'); ?></span></label>
+    <label for="caf-taxonomy" class="col-sm-12 col-form-label"><?php echo esc_html__('Taxonomy', 'category-ajax-filter'); ?><span class="info"><?php echo esc_html__('Select your taxonomy from dropdown. Default: Category', 'category-ajax-filter'); ?></span></label>
     <div class="col-sm-12">
     <select class="form-control tc_caf_object_field tc_caf_select" data-field-type='select' id="caf-taxonomy" name="caf-taxonomy">
 	<?php
@@ -54,7 +56,7 @@ $taxo = get_object_taxonomies($select);
     if ($taxo) {
         foreach ($taxo as $tax1) {
             if ($tax == $tax1) {$sl = "selected";} else { $sl = "";}
-            echo "<option value='" . $tax1 . "' id='hide' $sl>" . esc_html($tax1) . "</option>";
+            echo "<option value='" . esc_attr($tax1) . "' id='hide' ".esc_attr($sl).">" . esc_html($tax1) . "</option>";
         }
     }
     ?>
@@ -79,7 +81,7 @@ if (class_exists("TC_CAF_PRO") && TC_CAF_PRO_PLUGIN_VERSION > '4.4.1') {
 	<div class='col-sm-12 row-bottom'>
 	<!---- FORM GROUP TERMS ---->
 	<div class="form-group row">
-    <label for="caf-terms" class="col-sm-12 col-form-label"><?php echo esc_html__('Terms', 'category-ajax-filter'); ?><span class="info"><?php echo esc_html__('Select Terms that you want to show on frontend. Deaflut: 5/ASC ORDER', 'category-ajax-filter'); ?></span></label>
+    <label for="caf-terms" class="col-sm-12 col-form-label"><?php echo esc_html__('Terms', 'category-ajax-filter'); ?><span class="info"><?php echo esc_html__('Select Terms that you want to show on frontend. Default: 5/ASC ORDER', 'category-ajax-filter'); ?></span></label>
     <div class="col-sm-12 ">
 	<ul class="category-lists">
 	<li id="all-cat"><input name='all-select' class='category-list-all check' id='category-all-btn' type='checkbox' onClick="selectAllCats(event)"><label for='category-all-btn' class='category-list-all-label'><?php echo esc_html__('All', 'category-ajax-filter'); ?></label></li>
@@ -96,7 +98,7 @@ if (class_exists("TC_CAF_PRO") && TC_CAF_PRO_PLUGIN_VERSION > '4.4.1') {
 //var_dump($terms_sel);
                     if (in_array($term->term_id, $terms_sel)) {$sl1 = 'checked';} else { $sl1 = '';}}}
 
-            echo "<li><input name='category-list[]' class='category-list check' id='category-list-id$term->term_id' type='checkbox' value='" . $term->term_id . "' $sl1><label for='category-list-id$term->term_id' class='category-list-label'>" . esc_html($term->name) . "</label></li>";
+            echo "<li><input name='category-list[]' class='category-list check' id='category-list-id".esc_attr($term->term_id)."' type='checkbox' value='" . esc_attr($term->term_id) . "' ".esc_attr($sl1)."><label for='category-list-id".esc_attr($term->term_id)."' class='category-list-label'>" . esc_html($term->name) . "</label></li>";
         }
     }
     ?>

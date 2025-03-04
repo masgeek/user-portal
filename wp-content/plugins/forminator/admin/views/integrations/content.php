@@ -1,4 +1,11 @@
-<?php $url = forminator_plugin_url(); ?>
+<?php
+/**
+ * Template admin/views/integrations/content.php
+ *
+ * @package Forminator
+ */
+
+$url = forminator_plugin_url(); ?>
 
 <div class="sui-row-with-sidenav forminator-integrations-wrapper">
 
@@ -57,30 +64,27 @@
 
 				</div>
 
-				<div class="sui-box">
+				<div class="sui-box sui-message">
 
-					<div class="sui-box-body sui-block-content-center">
+					<?php if ( forminator_is_show_branding() ) : ?>
+						<img src="<?php echo esc_url( $url ) . 'assets/images/forminator-disabled.png'; ?>"
+							srcset="<?php echo esc_url( $url ) . 'assets/images/forminator-disabled.png'; ?> 1x,
+							<?php echo esc_url( $url ) . 'assets/images/forminator-disabled@2x.png'; ?> 2x"
+							alt="<?php esc_html_e( 'Forminator APIs', 'forminator' ); ?>"
+							class="sui-image sui-image-center fui-image"/>
+					<?php endif; ?>
 
-						<?php if ( forminator_is_show_branding() ) : ?>
-							<img src="<?php echo esc_url( $url ) . 'assets/img/forminator-disabled.png'; ?>"
-								srcset="<?php echo esc_url( $url ) . 'assets/img/forminator-disabled.png'; ?> 1x,
-								<?php echo esc_url( $url ) . 'assets/img/forminator-disabled@2x.png'; ?> 2x"
-								alt="<?php esc_html_e( 'Forminator APIs', 'forminator' ); ?>"
-								class="sui-image sui-image-center fui-image"/>
-						<?php endif; ?>
-
-						<div class="fui-limit-block-600 fui-limit-block-center">
-
+					<div class="fui-limit-block-600 fui-limit-block-center">
 						<p>
 							<?php
 							esc_html_e( 'Build your own integrations and custom Forminator apps using our full featured API! Visit the Forminator API Docs to get started.', 'forminator' );
 							?>
 						</p>
 						<p>
-							<a href="https://wpmudev.com/docs/wpmu-dev-plugins/forminator-api-docs/" target="_blank" class="sui-button sui-button-blue">Get Started</a>
+							<a href="https://wpmudev.com/docs/wpmu-dev-plugins/forminator-api-docs/" target="_blank" class="sui-button sui-button-blue">
+								<?php esc_html_e( 'Get Started', 'forminator' ); ?>
+							</a>
 						</p>
-						</div>
-
 					</div>
 
 				</div>

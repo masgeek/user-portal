@@ -1,4 +1,9 @@
 <?php
+/**
+ * Forminator Admin Data
+ *
+ * @package Forminator
+ */
 
 /**
  * Class Forminator_Admin_Data
@@ -7,9 +12,12 @@
  */
 class Forminator_Admin_Data {
 
+	/**
+	 * Forminator Instance
+	 *
+	 * @var Forminator|null
+	 */
 	public $core = null;
-
-	public static $pages = null;
 
 	/**
 	 * Current Nonce
@@ -65,20 +73,20 @@ class Forminator_Admin_Data {
 	/**
 	 * Return published pages
 	 *
-	 * @return mixed
-	 * @since 1.8
+	 * @return array
 	 */
 	public static function get_pages() {
-		if ( ! is_null( self::$pages ) ) {
-			return self::$pages;
+		$cached_pages = wp_cache_get( 'forminator_cached_pages', 'forminator-cache' );
+		if ( false !== $cached_pages ) {
+			return $cached_pages;
 		}
-
 		global $wpdb;
+		$sql   = "SELECT ID, post_title FROM {$wpdb->posts} WHERE post_type = 'page' AND post_status = 'publish' ORDER BY post_title ASC";
+		$pages = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
+		// Cache the result.
+		wp_cache_set( 'forminator_cached_pages', $pages, 'forminator-cache' );
 
-		$sql         = "SELECT ID, post_title FROM {$wpdb->posts} WHERE post_type = 'page' AND post_status = 'publish' ORDER BY post_title ASC";
-		self::$pages = $wpdb->get_results( $sql );
-
-		return self::$pages;
+		return $pages;
 	}
 
 	/**
@@ -89,12 +97,16 @@ class Forminator_Admin_Data {
 	 */
 	public function admin_js_defaults() {
 		// Generate addon nonce.
-		Forminator_Addon_Admin_Ajax::get_instance()->generate_nonce();
-		$id = filter_input( INPUT_GET, 'id', FILTER_VALIDATE_INT );
+		Forminator_Integration_Admin_Ajax::get_instance()->generate_nonce();
+		$id   = filter_input( INPUT_GET, 'id', FILTER_VALIDATE_INT );
+		$user = wp_get_current_user();
+
+		$dashboard = class_exists( 'WPMUDEV_Dashboard' );
 
 		return array(
 			'ajaxUrl'                        => forminator_ajax_url(),
 			'adminUrl'                       => admin_url(),
+			'siteUrl'                        => site_url(),
 			'akismetEnabled'                 => is_plugin_active( 'akismet/akismet.php' ),
 			'application'                    => '',
 			'is_touch'                       => wp_is_mobile(),
@@ -105,6 +117,7 @@ class Forminator_Admin_Data {
 			'pollEditUrl'                    => menu_page_url( 'forminator-poll-wizard', false ),
 			'settingsUrl'                    => menu_page_url( 'forminator-settings', false ),
 			'integrationsUrl'                => menu_page_url( 'forminator-integrations', false ),
+			'addonsUrl'                      => menu_page_url( 'forminator-addons', false ),
 			'hasCaptcha'                     => forminator_has_captcha_settings(),
 			'hasV2Captcha'                   => forminator_has_v2_captcha_settings(),
 			'hasV2InvisibleCaptcha'          => forminator_has_v2_invisible_captcha_settings(),
@@ -114,6 +127,7 @@ class Forminator_Admin_Data {
 			'hasStripe'                      => forminator_has_stripe_connected(),
 			'formNonce'                      => $this->get_nonce(),
 			'resetTrackingDataNonce'         => wp_create_nonce( 'forminator_reset_tracking_data' ),
+			'createNonce'                    => wp_create_nonce( 'forminator_create_module' ),
 			'previewNonce'                   => wp_create_nonce( 'forminator_load_module' ),
 			'searchNonce'                    => wp_create_nonce( 'forminator_search_emails' ),
 			'gFontNonce'                     => wp_create_nonce( 'forminator_load_google_fonts' ),
@@ -125,15 +139,20 @@ class Forminator_Admin_Data {
 			'quizProcessNonce'               => wp_create_nonce( 'forminator_quiz_request' ),
 			'quizExportNonce'                => wp_create_nonce( 'forminator_popup_export_quiz' ),
 			'cloneNonce'                     => wp_create_nonce( 'forminator-nonce-clone-' . $id ),
+			'load_cloud_templates'           => wp_create_nonce( 'forminator_load_cloud_templates' ),
+			'save_cloud_templates'           => wp_create_nonce( 'forminator_save_cloud_templates' ),
+			'create_form_nonce'              => wp_create_nonce( 'forminator_create_form_from_template' ),
+			'templates_per_page'             => apply_filters( 'forminator_templates_per_page', 100 ),
 			'addons_enabled'                 => Forminator::is_addons_feature_enabled(),
 			'pluginUrl'                      => forminator_plugin_url(),
 			'imagesUrl'                      => forminator_plugin_url() . 'assets/images',
-			'addonNonce'                     => Forminator_Addon_Admin_Ajax::get_instance()->get_nonce(),
+			'addonNonce'                     => Forminator_Integration_Admin_Ajax::get_instance()->get_nonce(),
 			'countries'                      => forminator_get_countries_list(),
 			'userList'                       => forminator_list_users(),
 			'variables'                      => forminator_get_vars(),
-			'variablesForHiddenField'		 => forminator_get_vars( true ),
+			'variablesForHiddenField'        => forminator_get_vars( true ),
 			'payment_variables'              => forminator_get_payment_vars(),
+			'stripe_subscription_variables'  => forminator_get_stripe_subscription_vars(),
 			'maxUpload'                      => forminator_get_max_upload(),
 			'captchaLangs'                   => forminator_get_captcha_languages(),
 			'erasure'                        => get_option( 'forminator_enable_erasure_request_erase_form_submissions', false ),
@@ -155,7 +174,10 @@ class Forminator_Admin_Data {
 			'postTypeList'                   => forminator_post_type_list(),
 			'postCategories'                 => forminator_post_categories(),
 			'isPro'                          => FORMINATOR_PRO,
-			'userRoles'                      => get_editable_roles(),
+			'dashboardPlugin'                => $dashboard,
+			'isWPMUDEVloggedIn'              => $dashboard && WPMUDEV_Dashboard::$api->get_key(),
+			'expiredMembership'              => $dashboard && forminator_get_wpmudev_membership() === 'expired',
+			'userRoles'                      => forminator_get_accessible_user_roles(),
 			'pages'                          => self::get_pages(),
 			'hasPayPal'                      => forminator_has_paypal_settings(),
 			'pollAnswerColors'               => forminator_get_poll_chart_colors(),
@@ -167,14 +189,21 @@ class Forminator_Admin_Data {
 			'paypalForms'                    => $this->get_forms_by_field_type( 'paypal' ),
 			'form_modules'                   => $this->get_modules( 'get_forms' ),
 			'quiz_modules'                   => $this->get_modules( 'get_quizzes' ),
-			'poll_modules'                   => $this->get_modules( 'get_polls' )
+			'poll_modules'                   => $this->get_modules( 'get_polls' ),
+			'pdfAddonActive'                 => class_exists( 'Forminator_PDF_Addon' ),
+			'wpmudevMembership'              => forminator_get_wpmudev_membership(), // 'free'
+			'pdfExtensionsEnabled'           => $this->pdf_extensions_enabled(),
+			'userPermissions'                => $user->get_role_caps(),
+			'manage_forminator_templates'    => forminator_is_user_allowed( 'forminator-templates' ),
+			'cloudDisabled'                  => forminator_cloud_templates_disabled(),
+			'globalTracking'                 => forminator_global_tracking(),
 		);
 	}
 
 	/**
 	 * Get form by field
 	 *
-	 * @param $type
+	 * @param string $type Field type.
 	 *
 	 * @return array
 	 */
@@ -187,7 +216,7 @@ class Forminator_Admin_Data {
 					foreach ( $form->fields as $f => $field ) {
 						$field_array = $field->to_formatted_array();
 						$field_type  = isset( $field_array['type'] ) ? $field_array['type'] : '';
-						if ( $type === $field_type ) {
+						if ( $type === $field_type || ( 'stripe' === $type && 'stripe-ocs' === $field_type ) ) {
 							$field_forms[ $form->id ] = isset( $form->settings['formName'] ) ? $form->settings['formName'] : '';
 						}
 					}
@@ -200,6 +229,8 @@ class Forminator_Admin_Data {
 
 	/**
 	 * Print forms select
+	 *
+	 * @param string $method Method time.
 	 *
 	 * @return array
 	 * @since 1.0
@@ -220,6 +251,20 @@ class Forminator_Admin_Data {
 		}
 
 		return $modules;
+	}
 
+	/**
+	 * Check MPDF extensions.
+	 *
+	 * @since 1.25
+	 *
+	 * @return bool
+	 */
+	public function pdf_extensions_enabled() {
+		if ( function_exists( 'forminator_pdf_extensions_enabled' ) ) {
+			return forminator_pdf_extensions_enabled();
+		}
+
+		return false;
 	}
 }

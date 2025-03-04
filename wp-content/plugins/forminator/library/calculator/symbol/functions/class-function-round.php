@@ -1,4 +1,9 @@
 <?php
+/**
+ * The Forminator_Calculator_Symbol_Function_Round class.
+ *
+ * @package Forminator
+ */
 
 /**
  * PHP round() function aka rounds a float.
@@ -13,13 +18,18 @@
 class Forminator_Calculator_Symbol_Function_Round extends Forminator_Calculator_Symbol_Function_Abstract {
 
 	/**
-	 * @inheritdoc
+	 * Identifiers
+	 *
+	 * @var array
 	 */
 	protected $identifiers = array( 'round' );
 
 	/**
+	 * Execute
+	 *
 	 * @inheritdoc
-	 * @throws Forminator_Calculator_Exception
+	 * @param mixed $arguments Arguments.
+	 * @throws Forminator_Calculator_Exception When there is an Calculator error.
 	 */
 	public function execute( $arguments ) {
 		$count = count( $arguments );
@@ -32,5 +42,4 @@ class Forminator_Calculator_Symbol_Function_Round extends Forminator_Calculator_
 
 		return round( $number, $precision );
 	}
-
 }

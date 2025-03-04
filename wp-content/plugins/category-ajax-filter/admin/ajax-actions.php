@@ -30,7 +30,7 @@ class CAF_admin_ajax
         } else {
             $data['terms'] = '';
         }
-        echo json_encode($data);
+        echo wp_json_encode($data);
         wp_die();
     }
 
@@ -47,7 +47,7 @@ class CAF_admin_ajax
             ]);
             $data['terms'] = $terms;
         }
-        echo json_encode($data);
+        echo wp_json_encode($data);
         wp_die();
     }
 

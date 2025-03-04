@@ -3,6 +3,8 @@ if ( ! class_exists( 'BravePop_Moosend' ) ) {
    
    class BravePop_Moosend {
 
+      protected $api_key;
+
       function __construct() {
          $braveSettings = get_option('_bravepopup_settings');
          $integrations = $braveSettings && isset($braveSettings['integrations']) ? $braveSettings['integrations'] : array() ;
@@ -36,8 +38,8 @@ if ( ! class_exists( 'BravePop_Moosend' ) ) {
                   $finalLists[] = $listItem;
                }
             }
-            //error_log(json_encode($finalLists));
-            return json_encode($finalLists);
+            //error_log(wp_json_encode($finalLists));
+            return wp_json_encode($finalLists);
          }else{
             return false;
          }
@@ -69,11 +71,11 @@ if ( ! class_exists( 'BravePop_Moosend' ) ) {
          $args = array(
             'method' => 'POST',
             'headers' => array('content-type' => 'application/json'),
-            'body' => json_encode($contact)
+            'body' => wp_json_encode($contact)
          );
 
          $response = wp_remote_post( 'https://api.moosend.com/v3/subscribers/'.$list_id.'/subscribe.json?apikey='.$this->api_key, $args );
-         //error_log(json_encode($response));
+         //error_log(wp_json_encode($response));
          $body = wp_remote_retrieve_body( $response );
          $data = json_decode( $body );
 

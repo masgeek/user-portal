@@ -70,8 +70,16 @@
 
 			$form.data('validator', null).unbind('validate').validate({
 
-				// add support for hidden required fields (uploads, wp_editor) when required
-				ignore: ":hidden:not(.do-validate)",
+				ignore( index, element ) {
+					// Add support for hidden required fields (uploads, wp_editor) and for skipping pagination when required.
+					return (
+						( $( element ).is( ':hidden:not(.do-validate)' ) &&
+								! $( element ).closest(
+									'.forminator-pagination'
+								).length ) ||
+							$( element ).closest( '.forminator-hidden' ).length
+					);
+				},
 
 				errorPlacement: function (error, element) {
 					$form.trigger('validation:error');
@@ -126,8 +134,10 @@
 					var getError    = false;
 					var getDesc     = false;
 
-					var errorMessage = this.errorMap[element.name];
-					var errorMarkup  = '<span class="forminator-error-message" aria-hidden="true"></span>';
+					var errorMessage    = this.errorMap[element.name];
+					var errorId         = holder.attr('id') + '-error';
+					var ariaDescribedby = holder.attr('aria-describedby');
+					var errorMarkup     = '<span class="forminator-error-message" id="'+ errorId +'"></span>';
 
 					if ( holderDate.length > 0 ) {
 
@@ -135,7 +145,7 @@
 						getError  = getColumn.find( '.forminator-error-message[data-error-field="' + holder.data( 'field' ) + '"]' );
 						getDesc   = getColumn.find( '.forminator-description' );
 
-						errorMarkup = '<span class="forminator-error-message" data-error-field="' + holder.data( 'field' ) + '" aria-hidden="true"></span>';
+						errorMarkup = '<span class="forminator-error-message" data-error-field="' + holder.data( 'field' ) + '" id="'+ errorId +'"></span>';
 
 						if ( 0 === getError.length ) {
 
@@ -157,7 +167,7 @@
 								if ( 0 === holderField.find( '.forminator-error-message' ).length ) {
 
 									holderField.append(
-										'<span class="forminator-error-message" aria-hidden="true"></span>'
+										'<span class="forminator-error-message" id="'+ errorId +'"></span>'
 									);
 								}
 							}
@@ -182,7 +192,7 @@
 								if ( 0 === holderField.find( '.forminator-error-message' ).length ) {
 
 									holderField.append(
-										'<span class="forminator-error-message" aria-hidden="true"></span>'
+										'<span class="forminator-error-message" id="'+ errorId +'"></span>'
 									);
 								}
 							}
@@ -198,7 +208,7 @@
 								if ( 0 === holderField.find( '.forminator-error-message' ).length ) {
 
 									holderField.append(
-										'<span class="forminator-error-message" aria-hidden="true"></span>'
+										'<span class="forminator-error-message" id="'+ errorId +'"></span>'
 									);
 								}
 							}
@@ -216,7 +226,7 @@
 						getError  = getColumn.find( '.forminator-error-message[data-error-field="' + holder.data( 'field' ) + '"]' );
 						getDesc   = getColumn.find( '.forminator-description' );
 
-						errorMarkup = '<span class="forminator-error-message" data-error-field="' + holder.data( 'field' ) + '" aria-hidden="true"></span>';
+						errorMarkup = '<span class="forminator-error-message" data-error-field="' + holder.data( 'field' ) + '" id="'+ errorId +'"></span>';
 
 						if ( 0 === getError.length ) {
 
@@ -239,7 +249,7 @@
 								if ( 0 === holderField.find( '.forminator-error-message' ).length ) {
 
 									holderField.append(
-										'<span class="forminator-error-message" aria-hidden="true"></span>'
+										'<span class="forminator-error-message" id="'+ errorId +'"></span>'
 									);
 								}
 							}
@@ -255,7 +265,7 @@
 								if ( 0 === holderField.find( '.forminator-error-message' ).length ) {
 
 									holderField.append(
-										'<span class="forminator-error-message" aria-hidden="true"></span>'
+										'<span class="forminator-error-message" id="'+ errorId +'"></span>'
 									);
 								}
 							}
@@ -288,6 +298,19 @@
 
 					}
 
+					// Field aria describedby for screen readers
+					if (ariaDescribedby) {
+						var ids = ariaDescribedby.split(' ');
+						var errorIdExists = ids.includes(errorId);
+						if (!errorIdExists) {
+						  ids.push(errorId);
+						}
+						var updatedAriaDescribedby = ids.join(' ');
+						holder.attr('aria-describedby', updatedAriaDescribedby);
+					} else {
+						holder.attr('aria-describedby', errorId);
+					}
+
 					// Field invalid status for screen readers
 					holder.attr( 'aria-invalid', 'true' );
 
@@ -305,6 +328,9 @@
 					var holderDate  = holder.closest( '.forminator-date-input' );
 					var holderError = '';
 
+					var errorId = holder.attr('id') + '-error';
+					var ariaDescribedby = holder.attr('aria-describedby');
+
 					if ( holderDate.length > 0 ) {
 						holderError = holderDate.parent().find( '.forminator-error-message[data-error-field="' + holder.data( 'field' ) + '"]' );
 					} else if ( holderTime.length > 0 ) {
@@ -313,7 +339,19 @@
 						holderError = holderField.find( '.forminator-error-message' );
 					}
 
-						// Remove invalid attribute for screen readers
+					// Remove or Update describedby attribute for screen readers
+					if (ariaDescribedby) {
+						var ids = ariaDescribedby.split(' ');
+						ids = ids.filter(function (id) {
+							return id !== errorId;
+						});
+						var updatedAriaDescribedby = ids.join(' ');
+						holder.attr('aria-describedby', updatedAriaDescribedby);
+					} else {
+						holder.removeAttr('aria-describedby');
+					}
+
+					// Remove invalid attribute for screen readers
 					holder.removeAttr( 'aria-invalid' );
 
 					// Remove error message
@@ -337,6 +375,11 @@
 				validator.form();
 			});
 
+			// Inline validation for upload field.
+			$form.find( '.forminator-input-file, .forminator-input-file-required' ).on( 'change', function () {
+				$( this ).trigger( 'focusout' );
+			})
+
 			// Trigger change for the hour field.
 			$( '.time-minutes.has-time-limiter, .time-ampm.has-time-limiter' ).on( 'change', function () {
 				var hourContainer = $( this ).closest( '.forminator-col' ).siblings( '.forminator-col' ).first();
@@ -344,7 +387,7 @@
 			});
 
 			// Trigger change for the required checkbox field.
-			$( '.forminator-field.required input[type="checkbox"]' ).on( 'change', function () {
+			$( '.forminator-field.required input[type="checkbox"]' ).on( 'input', function () {
 				$( this ).not( ':checked' ).trigger( 'focusout' );
 			});
 		}
@@ -373,25 +416,31 @@
 		return url(value, element) || url('http://' + value, element);
 	});
 	$.validator.addMethod("forminatorPhoneNational", function ( value, element ) {
-		var phone = $( element );
+		var iti = intlTelInput.getInstance( element );
+		var elem  = $( element );
+		if ( !elem.data('required') && value === '+' +iti.getSelectedCountryData().dialCode ) {
+			return true;
+		}
+
 		if (
-			'undefined' !== typeof phone.data( 'country' ) &&
-			phone.data( 'country' ).toLowerCase() !== phone.intlTelInput( 'getSelectedCountryData' ).iso2
+			'undefined' !== typeof elem.data( 'country' ) &&
+			elem.data( 'country' ).toLowerCase() !== iti.getSelectedCountryData().iso2
 		) {
 			return false;
 		}
 
 		// Uses intlTelInput to check if the number is valid.
-		return this.optional( element ) || phone.intlTelInput( 'isValidNumber' );
+		return this.optional( element ) || iti.isValidNumberPrecise();
 	});
 	$.validator.addMethod("forminatorPhoneInternational", function (value, element) {
+		const iti = intlTelInput.getInstance( element );
 		// check whether phone field is international and optional
-		if ( !$(element).data('required') && value === '+' +$(element).intlTelInput( 'getSelectedCountryData' ).dialCode ) {
+		if ( !$(element).data('required') && value === '+' +iti.getSelectedCountryData().dialCode ) {
 			return true;
 		}
 
 		// Uses intlTelInput to check if the number is valid.
-		return this.optional(element) || $(element).intlTelInput('isValidNumber');
+		return this.optional(element) || iti.isValidNumberPrecise();
 	});
 	$.validator.addMethod("dateformat", function (value, element, param) {
 		// dateITA method from jQuery Validator additional. Date method is deprecated and doesn't work for all formats
@@ -430,9 +479,33 @@
 		}
 		return this.optional(element) || check;
 	});
+
+	function forminatorRetrieveEditorText( value, element ) {
+		// Retrieve the text if it is an editor.
+		if (
+			$( element ).hasClass( 'wp-editor-area' ) &&
+			$( element ).hasClass( 'forminator-textarea' )
+		) {
+			value = $( '<div/>' ).html( value ).text();
+		}
+		return value;
+	}
+
 	$.validator.addMethod("maxwords", function (value, element, param) {
+		value = forminatorRetrieveEditorText( value, element );
 		return this.optional(element) || value.trim().split(/\s+/).length <= param;
 	});
+	// override core jquertvalidation maxlength. Ignore tags.
+	$.validator.methods.maxlength = function ( value, element, length ) {
+		value = value.replace( /<[^>]*>/g, '' );
+		value = forminatorRetrieveEditorText( value, element );
+
+		if ( value.length > length ) {
+			return false;
+		}
+
+		return true;
+	};
 	$.validator.addMethod("trim", function( value, element, param ) {
 		return true === this.optional( element ) || 0 !== value.trim().length;
 	});

@@ -111,19 +111,19 @@ if ( ! trait_exists( 'Kenta_Button_Controls' ) ) {
 					'custom'  => __( 'Custom (Premium)', 'kenta' ),
 				],
 				'shadow'               => [
-					'rgba(44, 62, 80, 0.2)',
+					'var(--kenta-primary-color)',
 					'0px',
-					'0px',
-					'15px',
-					'0px',
+					'5px',
+					'10px',
+					'-5px',
 					false
 				],
 				'shadow-active'        => [
-					'rgba(44, 62, 80, 0.2)',
+					'var(--kenta-primary-color)',
 					'0px',
-					'0px',
-					'15px',
-					'0px',
+					'5px',
+					'10px',
+					'-5px',
 					true
 				],
 				'typography'           => [

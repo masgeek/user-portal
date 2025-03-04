@@ -16,8 +16,8 @@ if ( ! class_exists( 'BravePop_Mailster' ) ) {
                $finalLists[] = $listItem;
             }
 
-            //error_log(json_encode($finalLists));
-            return json_encode($finalLists);
+            //error_log(wp_json_encode($finalLists));
+            return wp_json_encode($finalLists);
          }
          
       }
@@ -36,7 +36,7 @@ if ( ! class_exists( 'BravePop_Mailster' ) ) {
             }
             
             $theData['fields'] = $finalFields;
-            return json_encode($theData);
+            return wp_json_encode($theData);
          }
          
       }
@@ -66,10 +66,10 @@ if ( ! class_exists( 'BravePop_Mailster' ) ) {
             }
          }
 
-         //error_log(json_encode($contact));
+         //error_log(wp_json_encode($contact));
          $subscriber_id = mailster( 'subscribers' )->add( $contact , true );
          $userAdded = mailster( 'subscribers' )->assign_lists( $subscriber_id, $list_id, false);
-         //error_log(json_encode($subscriber_id));
+         //error_log(wp_json_encode($subscriber_id));
       
          if(is_wp_error($userAdded)){
             return false;

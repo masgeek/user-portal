@@ -1,4 +1,10 @@
 <?php
+/**
+ * Template admin/views/common/reports/content.php
+ *
+ * @package Forminator
+ */
+
 $section = Forminator_Core::sanitize_text_field( 'section', 'dashboard' );
 ?>
 <div id="forminator-reports" class="sui-row-with-sidenav">
@@ -7,11 +13,11 @@ $section = Forminator_Core::sanitize_text_field( 'section', 'dashboard' );
 			<li class="sui-vertical-tab <?php echo esc_attr( 'dashboard' === $section ? 'current' : '' ); ?>">
 				<a href="#" data-nav="dashboard"><?php esc_html_e( 'Dashboard', 'forminator' ); ?></a>
 			</li>
-            <li class="sui-vertical-tab <?php echo esc_attr( 'notification' === $section ? 'current' : '' ); ?>">
-                <a href="#" data-nav="notification">
+			<li class="sui-vertical-tab <?php echo esc_attr( 'notification' === $section ? 'current' : '' ); ?>">
+				<a href="#" data-nav="notification">
 					<?php esc_html_e( 'Notifications', 'forminator' ); ?>
-                </a>
-            </li>
+				</a>
+			</li>
 		</ul>
 		<div class="sui-sidenav-settings">
 			<div class="sui-form-field sui-sidenav-hide-lg">

@@ -1,6 +1,14 @@
+<?php
+/**
+ * Template admin/views/common/list/header.php
+ *
+ * @package Forminator
+ */
+
+?>
 <header class="sui-header">
 
-	<h1 class="sui-header-title"><?php echo esc_html( $title ); ?></h1>
+	<h1 class="sui-header-title"><?php echo esc_html( $module_title ); ?></h1>
 
 	<div class="sui-actions-left">
 

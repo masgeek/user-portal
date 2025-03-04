@@ -1,4 +1,10 @@
 <?php
+/**
+ * Template admin/views/custom-form/popup/import-ninjaforms.php
+ *
+ * @package Forminator
+ */
+
 $nonce = wp_create_nonce( 'forminator_save_import_form_ninja' );
 $forms = forminator_list_thirdparty_contact_forms( 'ninjaforms' );
 ?>
@@ -20,7 +26,7 @@ $forms = forminator_list_thirdparty_contact_forms( 'ninjaforms' );
 			<?php
 			if ( ! empty( $forms ) ) :
 				foreach ( $forms as $key => $value ) {
-					echo sprintf(
+					printf(
 						'<option value="%f">%s</option>',
 						absint( $value->get_id() ),
 						esc_html( $value->get_setting( 'title' ) )

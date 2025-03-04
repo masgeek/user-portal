@@ -2,9 +2,18 @@
 
 namespace LottaFramework;
 
-use Illuminate\Container\Container;
+use LottaFramework\Container\Container;
 
 class Utils {
+
+	/**
+	 * Echo version for clsx
+	 *
+	 * @param ...$args
+	 */
+	public static function the_clsx( ...$args ) {
+		echo esc_attr( self::clsx( ...$args ) );
+	}
 
 	/**
 	 * A utility for constructing className strings conditionally.
@@ -34,12 +43,12 @@ class Utils {
 	}
 
 	/**
-	 * Echo version for clsx
+	 * Print attribute string
 	 *
-	 * @param ...$args
+	 * @param $attributes
 	 */
-	public static function the_clsx( ...$args ) {
-		echo esc_attr( self::clsx( ...$args ) );
+	public static function print_attribute_string( $attributes ) {
+		echo self::render_attribute_string( $attributes );
 	}
 
 	/**
@@ -60,15 +69,6 @@ class Utils {
 	}
 
 	/**
-	 * Print attribute string
-	 *
-	 * @param $attributes
-	 */
-	public static function print_attribute_string( $attributes ) {
-		echo self::render_attribute_string( $attributes );
-	}
-
-	/**
 	 * Encode uri component
 	 *
 	 * @param $str
@@ -85,22 +85,6 @@ class Utils {
 		];
 
 		return strtr( rawurlencode( $str ), $revert );
-	}
-
-	/**
-	 * Get application instance
-	 *
-	 * @param null $abstract
-	 * @param array $parameters
-	 *
-	 * @return Application|mixed|object
-	 */
-	public static function app( $abstract = null, array $parameters = [] ) {
-		if ( is_null( $abstract ) ) {
-			return Container::getInstance();
-		}
-
-		return Container::getInstance()->make( $abstract, $parameters );
 	}
 
 	/**
@@ -216,7 +200,7 @@ class Utils {
 	 * @return string
 	 */
 	public static function rand_key() {
-		return md5( time() . '-' . uniqid( wp_rand(), true ) . '-' . wp_rand() );
+		return 'lotta_rand_' . md5( time() . '-' . uniqid( wp_rand(), true ) . '-' . wp_rand() );
 	}
 
 	/**
@@ -330,6 +314,17 @@ class Utils {
 	}
 
 	/**
+	 * Echo version for customizer_url
+	 *
+	 * @param $location
+	 *
+	 * @return void
+	 */
+	public static function the_customizer_url( $location ) {
+		echo esc_url( self::customizer_url( $location ) );
+	}
+
+	/**
 	 * Get customizer_url
 	 *
 	 * @param $location
@@ -344,17 +339,6 @@ class Utils {
 	}
 
 	/**
-	 * Echo version for customizer_url
-	 *
-	 * @param $location
-	 *
-	 * @return void
-	 */
-	public static function the_customizer_url( $location ) {
-		echo esc_url( self::customizer_url( $location ) );
-	}
-
-	/**
 	 * Register translation string
 	 *
 	 * @param $str
@@ -366,6 +350,22 @@ class Utils {
 		} else {
 			do_action( 'wpml_register_single_string', self::app()->id(), $domain, $str );
 		}
+	}
+
+	/**
+	 * Get application instance
+	 *
+	 * @param null $abstract
+	 * @param array $parameters
+	 *
+	 * @return Application|mixed|object
+	 */
+	public static function app( $abstract = null, array $parameters = [] ) {
+		if ( is_null( $abstract ) ) {
+			return Container::getInstance();
+		}
+
+		return Container::getInstance()->make( $abstract, $parameters );
 	}
 
 	/**

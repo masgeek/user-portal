@@ -1,4 +1,9 @@
 <?php
+/**
+ * The Forminator_Calculator_Symbol_Function_Hours_Between class.
+ *
+ * @package Forminator
+ */
 
 /**
  * Always positive (abs)
@@ -11,13 +16,18 @@
 class Forminator_Calculator_Symbol_Function_Hours_Between extends Forminator_Calculator_Symbol_Function_Abstract {
 
 	/**
-	 * @inheritdoc
+	 * Identifiers
+	 *
+	 * @var array
 	 */
 	protected $identifiers = array( 'hoursBetween' );
 
 	/**
+	 * Execute
+	 *
 	 * @inheritdoc
-	 * @throws Forminator_Calculator_Exception
+	 * @param mixed $arguments Arguments.
+	 * @throws Forminator_Calculator_Exception When there is an Calculator error.
 	 */
 	public function execute( $arguments ) {
 		if ( count( $arguments ) !== 2 ) {
@@ -30,7 +40,5 @@ class Forminator_Calculator_Symbol_Function_Hours_Between extends Forminator_Cal
 		$hours_between = $between / HOUR_IN_SECONDS;
 
 		return ceil( $hours_between );
-
 	}
-
 }

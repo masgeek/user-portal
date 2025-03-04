@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Quiz_Model class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -16,26 +22,36 @@ class Forminator_Quiz_Model extends Forminator_Base_Form_Model {
 	public static $module_slug = 'quiz';
 
 	/**
+	 * Post type
+	 *
 	 * @var string
 	 */
 	protected $post_type = 'forminator_quizzes';
 
 	/**
+	 * Results
+	 *
 	 * @var array
 	 */
 	public $results = array();
 
 	/**
+	 * Questions
+	 *
 	 * @var array
 	 */
 	public $questions = array();
 
 	/**
+	 * Quiz type
+	 *
 	 * @var string
 	 */
 	public $quiz_type = '';
 
 	/**
+	 * Get maps
+	 *
 	 * @since 1.0
 	 * @return array
 	 */
@@ -60,9 +76,11 @@ class Forminator_Quiz_Model extends Forminator_Base_Form_Model {
 	}
 
 	/**
+	 * Get right answer for question
+	 *
 	 * @since 1.0
 	 *
-	 * @param $slug
+	 * @param string $slug Slug.
 	 *
 	 * @return array|bool
 	 */
@@ -94,7 +112,7 @@ class Forminator_Quiz_Model extends Forminator_Base_Form_Model {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $slug
+	 * @param string $slug Slug.
 	 *
 	 * @return mixed
 	 */
@@ -115,8 +133,8 @@ class Forminator_Quiz_Model extends Forminator_Base_Form_Model {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $slug
-	 * @param $index
+	 * @param string $slug Slug.
+	 * @param string $index Index.
 	 *
 	 * @return bool
 	 */
@@ -139,8 +157,8 @@ class Forminator_Quiz_Model extends Forminator_Base_Form_Model {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $slug
-	 * @param $index
+	 * @param string $slug Slug.
+	 * @param string $index Index.
 	 *
 	 * @return mixed
 	 */
@@ -156,6 +174,8 @@ class Forminator_Quiz_Model extends Forminator_Base_Form_Model {
 	}
 
 	/**
+	 * Get priority
+	 *
 	 * @since 1.0
 	 * @since 1.3 use results instead of non existent value of priority_order
 	 * @return mixed
@@ -196,7 +216,7 @@ class Forminator_Quiz_Model extends Forminator_Base_Form_Model {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $slug
+	 * @param string $slug Slug.
 	 *
 	 * @return mixed|null
 	 */
@@ -240,7 +260,7 @@ class Forminator_Quiz_Model extends Forminator_Base_Form_Model {
 	/**
 	 * Export integrations setting
 	 *
-	 * @param $exportable_data
+	 * @param array $exportable_data Exportable data.
 	 * @return array
 	 */
 	public function export_integrations_data( $exportable_data ) {
@@ -252,9 +272,9 @@ class Forminator_Quiz_Model extends Forminator_Base_Form_Model {
 	 *
 	 * @since 1.4
 	 *
-	 * @param $model
-	 * @param $import_data
-	 * @param $module
+	 * @param mixed  $model Model.
+	 * @param array  $import_data Import data.
+	 * @param string $module Module.
 	 *
 	 * @return Forminator_Base_Form_Model
 	 */
@@ -267,7 +287,7 @@ class Forminator_Quiz_Model extends Forminator_Base_Form_Model {
 	 *
 	 * @since 1.6.1
 	 *
-	 * @param $answer_results
+	 * @param array $answer_results Answer results.
 	 *
 	 * @return array contains `title`, `order`, `slug` if found, return empty array otherwise
 	 */
@@ -355,7 +375,6 @@ class Forminator_Quiz_Model extends Forminator_Base_Form_Model {
 		}
 
 		return $top_result;
-
 	}
 
 	/**
@@ -451,7 +470,9 @@ class Forminator_Quiz_Model extends Forminator_Base_Form_Model {
 	/**
 	 * Get the count of answered questions for multi-answer questions
 	 *
-	 * @since ?
+	 * @param array $questions Questions.
+	 * @param array $user_answers User answers.
+	 *
 	 * @return int
 	 */
 	public function count_answered_questions( $questions, $user_answers ) {
@@ -460,7 +481,7 @@ class Forminator_Quiz_Model extends Forminator_Base_Form_Model {
 		foreach ( $questions as $key => $val ) {
 			foreach ( $user_answers as $a_key => $a_val ) {
 				if ( false !== strpos( $a_key, $val['slug'] ) ) {
-					$answered_questions ++;
+					++$answered_questions;
 					break;
 				}
 			}

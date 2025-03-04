@@ -1,4 +1,9 @@
 <?php
+/**
+ * The Forminator_Calculator_Symbol_Number class.
+ *
+ * @package Forminator
+ */
 
 /**
  * This class is the class that represents symbols of type "number".

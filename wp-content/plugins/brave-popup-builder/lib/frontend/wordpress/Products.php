@@ -4,6 +4,12 @@ if ( ! class_exists( 'BravePop_Element_Products' ) ) {
    
 
    class BravePop_Element_Products {
+
+      protected $data;
+      protected $popupID;
+      protected $stepIndex;
+      protected $elementIndex;
+      protected $goalItem;
       
       function __construct($data=null, $popupID=null, $stepIndex=0, $elementIndex=0, $device='desktop', $goalItem=false) {
          $this->data = $data;
@@ -120,6 +126,7 @@ if ( ! class_exists( 'BravePop_Element_Products' ) ) {
          $addToCartActionFuncs = '';
          $addToCartActionFuncs .= $closeOnAddToCart ? 'brave_close_on_add_to_cart('.$this->popupID.');' :'';
          $addToCartActionFuncs .= $this->goalItem ? 'brave_complete_goal('.$this->popupID.', \'click\');':'';
+         $addToCartActionFuncs = function_exists('is_checkout') && is_checkout() ? 'brave_update_checkout_on_add_to_cart();':'';
          $addToCartAction = $addToCartActionFuncs ? 'onclick="'.$addToCartActionFuncs.'"':'';
 
          // The Loop
@@ -152,6 +159,10 @@ if ( ! class_exists( 'BravePop_Element_Products' ) ) {
 
                            //POST IMAGE
                            if($displayImage) {
+                              $lazyLoad = bravepop_should_lazyload();
+                              $imgURL = get_the_post_thumbnail_url($productID, 'large');
+                              $imgSrc = $lazyLoad ? 'data-lazy="'.$imgURL.'" src="'.bravepop_get_preloader().'"' : 'src="'.$imgURL.'"';
+
                               $postHTML .=  '<div class="brave_product__image">';
                               if($layout === 1 && $displayButton){
                                  $postHTML .=  '<div class="brave_product__addtocart">'.$cartButton.'</div>';
@@ -159,7 +170,7 @@ if ( ! class_exists( 'BravePop_Element_Products' ) ) {
                                  // $postHTML .=  '<div class="brave_product__addtocart">'.do_shortcode('[add_to_cart show_price="false" style="" id="'.$productID.'"]').'</div>';
                               }
                               $postHTML .= ($layout === 2 || $linkImage ) ? '<a '.$newWindowHTML.' href="'.get_the_permalink($productID).'">' : '';
-                              $postHTML .= get_the_post_thumbnail_url($productID, 'large') ? '<img class="brave_element_img_item skip-lazy no-lazyload" src="'.bravepop_get_preloader().'" data-lazy="'.get_the_post_thumbnail_url($productID, 'large').'" alt="' . $theproduct->get_name() . '" />' : '<div class="brave_product__image__fake"><span class="fas fa-image"></span></div>';
+                              $postHTML .= get_the_post_thumbnail_url($productID, 'large') ? '<img class="brave_element_img_item skip-lazy no-lazyload" '.$imgSrc.' alt="' . $theproduct->get_name() . '" />' : '<div class="brave_product__image__fake"><span class="fas fa-image"></span></div>';
                               $postHTML .= ($layout === 2 || $linkImage ) ? '</a>' : '';
                               $postHTML .=  '</div>';
                            }
@@ -185,11 +196,12 @@ if ( ! class_exists( 'BravePop_Element_Products' ) ) {
                               }
 
                                  //PRICE
-                                 $regularPrice = $variableProduct ? $currency.$theproduct->get_variation_regular_price( 'min' ) : $currency.$theproduct->get_regular_price();
-                                 $salePrice = $variableProduct ? $currency.$theproduct->get_variation_sale_price( 'min' ) : $currency.$theproduct->get_sale_price();
-                                 $crossedOutRegularPrice = $showRegularDelPrice ? '<del>'.$regularPrice.'</del>': '';
-                                 $postPrice = $theproduct->is_on_sale() ? $crossedOutRegularPrice .$salePrice : $regularPrice;
-                                 $postHTML .= $price && $postPrice ?'<div class="brave_product__price">'.$postPrice.'</div>': '';
+                                 $regularPrice = $variableProduct ? $theproduct->get_variation_regular_price( 'min' ) : $theproduct->get_regular_price();
+                                 $salePrice = $variableProduct ? $theproduct->get_variation_sale_price( 'min' ) : $theproduct->get_sale_price();
+                                 $crossedOutRegularPrice = $showRegularDelPrice && $theproduct->is_on_sale() ? '<del>'.$currency.wc_get_price_to_display( $theproduct, array( 'price' => $regularPrice  )).'</del>': '';
+                                 $postPrice = wc_get_price_to_display( $theproduct, array( 'price' => $theproduct->is_on_sale() ?  $salePrice : $regularPrice ) );
+
+                                 $postHTML .= $price && $postPrice ?'<div class="brave_product__price">'.$crossedOutRegularPrice.$currency.$postPrice.'</div>': '';
                                  $postDesc = $theproduct->get_short_description();
 
                                  $postHTML .=  $displayContent ?'<div class="brave_product__content__excerpt">'.mb_strimwidth($postDesc, 0, $contentWords).'</div>' : '';

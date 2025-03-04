@@ -1,13 +1,20 @@
 <?php
+/**
+ * Forminator GFBlock Quizzes.
+ *
+ * @package Forminator
+ */
 
 /**
- * Class Forminator_GFBlock_Forms
+ * Class Forminator_GFBlock_Quizzes
  *
- * @since 1.0 Gutenber Addon
+ * @since 1.0 Gutenber Integration
  */
 class Forminator_GFBlock_Quizzes extends Forminator_GFBlock_Abstract {
 
 	/**
+	 * Forminator_GFBlock_Quizzes Instance
+	 *
 	 * @var self|null
 	 */
 	private static $_instance = null;
@@ -15,7 +22,7 @@ class Forminator_GFBlock_Quizzes extends Forminator_GFBlock_Abstract {
 	/**
 	 * Block identifier
 	 *
-	 * @since 1.0 Gutenber Addon
+	 * @since 1.0 Gutenber Integration
 	 *
 	 * @var string
 	 */
@@ -24,7 +31,7 @@ class Forminator_GFBlock_Quizzes extends Forminator_GFBlock_Abstract {
 	/**
 	 * Get Instance
 	 *
-	 * @since 1.0 Gutenberg Addon
+	 * @since 1.0 Gutenberg Integration
 	 * @return self|null
 	 */
 	public static function get_instance() {
@@ -38,7 +45,7 @@ class Forminator_GFBlock_Quizzes extends Forminator_GFBlock_Abstract {
 	/**
 	 * Forminator_GFBlock_Forms constructor.
 	 *
-	 * @since 1.0 Gutenberg Addon
+	 * @since 1.0 Gutenberg Integration
 	 */
 	public function __construct() {
 		// Initialize block.
@@ -48,7 +55,7 @@ class Forminator_GFBlock_Quizzes extends Forminator_GFBlock_Abstract {
 	/**
 	 * Render block markup on front-end
 	 *
-	 * @since 1.0 Gutenberg Addon
+	 * @since 1.0 Gutenberg Integration
 	 * @param array $properties Block properties.
 	 *
 	 * @return string
@@ -60,7 +67,7 @@ class Forminator_GFBlock_Quizzes extends Forminator_GFBlock_Abstract {
 	/**
 	 * Preview form markup in block
 	 *
-	 * @since 1.0 Gutenberg Addon
+	 * @since 1.0 Gutenberg Integration
 	 * @param array $properties Block properties.
 	 *
 	 * @return string
@@ -77,7 +84,7 @@ class Forminator_GFBlock_Quizzes extends Forminator_GFBlock_Abstract {
 	 * Enqueue assets ( scritps / styles )
 	 * Should be overriden in block class
 	 *
-	 * @since 1.0 Gutenberg Addon
+	 * @since 1.0 Gutenberg Integration
 	 */
 	public function load_assets() {
 		// Scripts.
@@ -107,8 +114,8 @@ class Forminator_GFBlock_Quizzes extends Forminator_GFBlock_Abstract {
 	/**
 	 * Print block preview markup
 	 *
-	 * @since 1.0 Gutenberg Addon
-	 * @param WP_REST_Request $data
+	 * @since 1.0 Gutenberg Integration
+	 * @param WP_REST_Request $data Request data.
 	 */
 	public function preview_block_markup( $data ) {
 		// Get properties.
@@ -138,7 +145,7 @@ class Forminator_GFBlock_Quizzes extends Forminator_GFBlock_Abstract {
 	/**
 	 * Return forms IDs and Names
 	 *
-	 * @since 1.0 Gutenberg Addon
+	 * @since 1.0 Gutenberg Integration
 	 * @return array
 	 */
 	public function get_forms() {
@@ -169,6 +176,11 @@ class Forminator_GFBlock_Quizzes extends Forminator_GFBlock_Abstract {
 		return $form_list;
 	}
 
+	/**
+	 * Localize
+	 *
+	 * @return string[]
+	 */
 	public function localize() {
 		return array(
 			'choose_quiz'      => esc_html__( 'Choose Quiz', 'forminator' ),
@@ -176,6 +188,8 @@ class Forminator_GFBlock_Quizzes extends Forminator_GFBlock_Abstract {
 			'rendering'        => esc_html__( 'Rendering...', 'forminator' ),
 			'quiz'             => esc_html__( 'Quiz', 'forminator' ),
 			'quiz_description' => esc_html__( 'Embed and display your Forminator quiz in this block', 'forminator' ),
+			'preview_image'    => forminator_plugin_url() . 'addons/pro/gutenberg/assets/quiz-preview-image.png',
+			'preview_alt'      => esc_html__( 'Preview', 'forminator' ),
 		);
 	}
 }

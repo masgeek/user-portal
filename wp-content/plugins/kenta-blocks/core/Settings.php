@@ -27,7 +27,35 @@ final class Settings {
 	 * @param array $settings
 	 */
 	private function __construct( array $settings = [] ) {
-		$this->addSettings( $settings );
+		$this->add_settings( $settings );
+	}
+
+	/**
+	 * Batch add settings
+	 *
+	 * @param $settings
+	 */
+	public function add_settings( $settings ) {
+		foreach ( $settings as $id => $args ) {
+			$this->add_setting( $id, $args );
+		}
+	}
+
+	/**
+	 * Add single setting
+	 *
+	 * @param $id
+	 * @param $args
+	 */
+	public function add_setting( $id, $args ) {
+		$default = $args['default'] ?? null;
+		$value   = get_option( $id, $default );
+
+		$this->settings[ $id ] = array(
+			'sanitize' => $args['sanitize'] ?? null,
+			'default'  => $default,
+			'value'    => $value
+		);
 	}
 
 	/**
@@ -39,34 +67,6 @@ final class Settings {
 		}
 
 		return self::$instance;
-	}
-
-	/**
-	 * Batch add settings
-	 *
-	 * @param $settings
-	 */
-	public function addSettings( $settings ) {
-		foreach ( $settings as $id => $args ) {
-			$this->addSetting( $id, $args );
-		}
-	}
-
-	/**
-	 * Add single setting
-	 *
-	 * @param $id
-	 * @param $args
-	 */
-	public function addSetting( $id, $args ) {
-		$default = $args['default'] ?? null;
-		$value   = get_option( $id, $default );
-
-		$this->settings[ $id ] = array(
-			'sanitize' => $args['sanitize'] ?? null,
-			'default'  => $default,
-			'value'    => $value
-		);
 	}
 
 	/**
@@ -90,17 +90,6 @@ final class Settings {
 	}
 
 	/**
-	 * Get setting args
-	 *
-	 * @param $key
-	 *
-	 * @return mixed|null
-	 */
-	public function get( $key ) {
-		return $this->settings[ $key ] ?? null;
-	}
-
-	/**
 	 * Get setting value
 	 *
 	 * @param $key
@@ -111,6 +100,17 @@ final class Settings {
 		$setting = $this->get( $key );
 
 		return $setting !== null ? $setting['value'] : null;
+	}
+
+	/**
+	 * Get setting args
+	 *
+	 * @param $key
+	 *
+	 * @return mixed|null
+	 */
+	public function get( $key ) {
+		return $this->settings[ $key ] ?? null;
 	}
 
 	/**

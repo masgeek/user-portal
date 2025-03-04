@@ -1,5 +1,11 @@
 <?php
-/** @noinspection PhpIncludeInspection */
+/**
+ * The Forminator_Addon_Admin_Ajax class.
+ *
+ * @package Forminator
+ */
+
+/* @noinspection PhpIncludeInspection */
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -82,11 +88,13 @@ class Forminator_Addon_Admin_Ajax {
 	/**
 	 * Validate Ajax request
 	 *
+	 * @param string $page_slug Page slug.
+	 *
 	 * @since 1.1
 	 */
-	private function validate_ajax() {
-		if ( ! forminator_is_user_allowed() || ! check_ajax_referer( self::$_nonce_action, false, false ) ) {
-			$this->send_json_errors( __( 'Invalid request, you are not allowed to do that action.', 'forminator' ) );
+	private function validate_ajax( $page_slug = '' ) {
+		if ( ! forminator_is_user_allowed( $page_slug ) || ! check_ajax_referer( self::$_nonce_action, false, false ) ) {
+			$this->send_json_errors( esc_html__( 'Invalid request, you are not allowed to do that action.', 'forminator' ) );
 		}
 	}
 
@@ -97,10 +105,14 @@ class Forminator_Addon_Admin_Ajax {
 	 * @since 1.1
 	 */
 	public function deactivate() {
-		$this->validate_ajax();
+		$this->validate_ajax( 'forminator-integrations' );
 		$data  = $this->validate_and_sanitize_fields( array( 'slug' ) );
 		$slug  = $data['slug'];
 		$addon = forminator_get_addon( $slug );
+
+		if ( ! $addon instanceof Forminator_Addon_Abstract ) {
+			return;
+		}
 
 		if ( ! empty( $data['global_id'] ) ) {
 			$addon->multi_global_id = $data['global_id'];
@@ -124,11 +136,11 @@ class Forminator_Addon_Admin_Ajax {
 		}
 
 		$this->send_json_success(
-			__( 'Addon Deactivated', 'forminator' ),
+			esc_html__( 'Addon Deactivated', 'forminator' ),
 			array(
 				'notification' => array(
 					'type' => 'success',
-					'text' => '<strong>' . $addon->get_title() . '</strong> ' . __( 'has been disconnected successfully.' ),
+					'text' => '<strong>' . $addon->get_title() . '</strong> ' . esc_html__( 'has been disconnected successfully.', 'forminator' ),
 				),
 			)
 		);
@@ -140,7 +152,7 @@ class Forminator_Addon_Admin_Ajax {
 	 * @since 1.1
 	 */
 	public function settings() {
-		$this->validate_ajax();
+		$this->validate_ajax( 'forminator-integrations' );
 		$sanitized_post_data = $this->validate_and_sanitize_fields( array( 'slug', 'current_step', 'step' ) );
 		$slug                = $sanitized_post_data['slug'];
 		$step                = $sanitized_post_data['step'];
@@ -150,10 +162,13 @@ class Forminator_Addon_Admin_Ajax {
 			$form_id = $sanitized_post_data['form_id'];
 			unset( $sanitized_post_data['form_id'] );
 		}
+		if ( ! forminator_get_addon( $slug ) instanceof Forminator_Addon_Abstract ) {
+			return;
+		}
 		$addon = $this->validate_addon_from_slug( $slug );
 
 		if ( ! $addon->is_settings_available() ) {
-			$this->send_json_errors( __( 'This Addon does not have settings available', 'forminator' ) );
+			$this->send_json_errors( esc_html__( 'This Addon does not have settings available', 'forminator' ) );
 		}
 
 		if ( isset( $sanitized_post_data['global_id'] ) ) {
@@ -173,7 +188,6 @@ class Forminator_Addon_Admin_Ajax {
 			'',
 			$wizard
 		);
-
 	}//end settings()
 
 	/**
@@ -182,13 +196,16 @@ class Forminator_Addon_Admin_Ajax {
 	 * @since 1.1
 	 */
 	public function deactivate_for_module() {
-		$this->validate_ajax();
+		$this->validate_ajax( 'forminator' );
 		$sanitized_post_data = $this->validate_and_sanitize_fields( array( 'slug', 'module_id', 'module_type' ) );
 		$slug                = $sanitized_post_data['slug'];
 		$module_id           = $sanitized_post_data['module_id'];
 		$module_type         = $sanitized_post_data['module_type'];
 
 		$addon = $this->validate_addon_from_slug( $slug );
+		if ( ! $addon instanceof Forminator_Addon_Abstract ) {
+			return;
+		}
 		if ( ! empty( $sanitized_post_data['global_id'] ) ) {
 			$addon->multi_global_id = $sanitized_post_data['global_id'];
 			unset( $sanitized_post_data['global_id'] );
@@ -226,29 +243,28 @@ class Forminator_Addon_Admin_Ajax {
 			$settings->$disconnect( $sanitized_post_data );
 
 			$this->send_json_success(
-				/* translators: ... */
-				sprintf( __( 'Successfully disconnected %1$s from this module', 'forminator' ), $addon->get_title() ),
+			/* translators: integration title */
+				sprintf( esc_html__( 'Successfully disconnected %s from this module', 'forminator' ), $addon->get_title() ),
 				array(
 					'notification' => array(
 						'type' => 'success',
-						'text' => '<strong>' . $addon_title . '</strong> ' . __( 'Successfully disconnected from this module' ),
+						'text' => '<strong>' . $addon_title . '</strong> ' . esc_html__( 'Successfully disconnected from this module', 'forminator' ),
 					),
 				)
 			);
 		} else {
 			$this->send_json_errors(
-				/* translators: ... */
-				sprintf( __( 'Failed to disconnect %1$s from this module', 'forminator' ), $addon->get_title() ),
+			/* translators: integration title */
+				sprintf( esc_html__( 'Failed to disconnect %s from this module', 'forminator' ), $addon->get_title() ),
 				array(),
 				array(
 					'notification' => array(
 						'type' => 'error',
-						'text' => '<strong>' . $addon->get_title() . '</strong> ' . __( 'Failed to disconnected from this module' ),
+						'text' => '<strong>' . $addon->get_title() . '</strong> ' . esc_html__( 'Failed to disconnected from this module', 'forminator' ),
 					),
 				)
 			);
 		}
-
 	}
 
 	/**
@@ -257,13 +273,13 @@ class Forminator_Addon_Admin_Ajax {
 	 * @since 1.1
 	 */
 	public function get_addons() {
-		$this->validate_ajax();
-		/** @noinspection PhpUnusedLocalVariableInspection */
+		$this->validate_ajax( 'forminator-integrations' );
+		/* @noinspection PhpUnusedLocalVariableInspection */
 		$addons = forminator_get_registered_addons_grouped_by_connected();
 
 		ob_start();
 
-		/** @noinspection PhpIncludeInspection */
+		/* @noinspection PhpIncludeInspection */
 		include_once forminator_plugin_dir() . 'admin/views/integrations/page-content.php';
 
 		$html = ob_get_clean();
@@ -272,7 +288,6 @@ class Forminator_Addon_Admin_Ajax {
 			'',
 			$html
 		);
-
 	}
 
 	/**
@@ -299,8 +314,8 @@ class Forminator_Addon_Admin_Ajax {
 	 *
 	 * @since 1.1
 	 *
-	 * @param string $message
-	 * @param array  $additional_data
+	 * @param string $message Message.
+	 * @param array  $additional_data Data.
 	 */
 	private function send_json_success( $message = '', $additional_data = array() ) {
 		wp_send_json_success(
@@ -317,9 +332,9 @@ class Forminator_Addon_Admin_Ajax {
 	 *
 	 * @since 1.1
 	 *
-	 * @param string $message
-	 * @param array  $errors
-	 * @param array  $additional_data
+	 * @param string $message Message.
+	 * @param array  $errors Errors.
+	 * @param array  $additional_data Data.
 	 */
 	private function send_json_errors( $message = '', $errors = array(), $additional_data = array() ) {
 		wp_send_json_error(
@@ -338,15 +353,15 @@ class Forminator_Addon_Admin_Ajax {
 	 *
 	 * @since 1.1
 	 *
-	 * @param array $required_fields
+	 * @param array $required_fields Required fields.
 	 *
 	 * @return mixed
 	 */
 	private function validate_and_sanitize_fields( $required_fields = array() ) {
-		$post_data = isset( $_POST['data'] )
-			? ( is_string( $_POST['data'] )
+		$post_data = isset( $_POST['data'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			? ( is_string( $_POST['data'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing
 				? filter_input( INPUT_POST, 'data' )
-				: Forminator_Core::sanitize_array( $_POST['data'], 'data' ) )
+				: Forminator_Core::sanitize_array( $_POST['data'], 'data' ) ) // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput
 			: '';
 		if ( ! $post_data ) {
 			$post_data = filter_input( INPUT_GET, 'data' );
@@ -362,14 +377,14 @@ class Forminator_Addon_Admin_Ajax {
 		$errors = array();
 		foreach ( $required_fields as $key => $required_field ) {
 			if ( ! isset( $post_data[ $required_field ] ) ) {
-				/* translators: ... */
-				$errors[] = sprintf( __( 'Field %s is required', 'forminator' ), $required_field );
+				/* translators: %s: Required field */
+				$errors[] = sprintf( esc_html__( 'Field %s is required', 'forminator' ), $required_field );
 				continue;
 			}
 		}
 
 		if ( ! empty( $errors ) ) {
-			$this->send_json_errors( __( 'Please check your form.', 'forminator' ), $errors );
+			$this->send_json_errors( esc_html__( 'Please check your form.', 'forminator' ), $errors );
 		}
 
 		// TODO: sanitize.
@@ -388,7 +403,7 @@ class Forminator_Addon_Admin_Ajax {
 	 *
 	 * @since 1.5.2
 	 *
-	 * @param $slug
+	 * @param string $slug Addon slug.
 	 *
 	 * @return Forminator_Addon_Abstract
 	 */
@@ -397,12 +412,12 @@ class Forminator_Addon_Admin_Ajax {
 
 		if ( ! $addon || ! $addon instanceof Forminator_Addon_Abstract ) {
 			$this->send_json_errors(
-				__( 'Addon not found', 'forminator' ),
+				esc_html__( 'Addon not found', 'forminator' ),
 				array(),
 				array(
 					'notification' => array(
 						'type' => 'error',
-						'text' => '<strong>' . $slug . '</strong> ' . __( 'Integration Not Found' ),
+						'text' => '<strong>' . $slug . '</strong> ' . esc_html__( 'Integration Not Found', 'forminator' ),
 					),
 				)
 			);
@@ -436,7 +451,7 @@ class Forminator_Addon_Admin_Ajax {
 	 * Refresh email lists
 	 */
 	public function refresh_email_lists() {
-		$this->validate_ajax();
+		$this->validate_ajax( 'forminator-integrations' );
 		$sanitized_post_data = $this->validate_and_sanitize_fields( array( 'slug', 'global_id' ) );
 
 		$slug  = $sanitized_post_data['slug'];
@@ -469,7 +484,7 @@ class Forminator_Addon_Admin_Ajax {
 	 * @since 1.1
 	 */
 	public function get_module_addons() {
-		$this->validate_ajax();
+		$this->validate_ajax( 'forminator' );
 		$sanitized_post_data = $this->validate_and_sanitize_fields( array( 'module_id', 'module_type' ) );
 		$module_id           = $sanitized_post_data['module_id'];
 		$module_slug         = $sanitized_post_data['module_type'];
@@ -493,7 +508,7 @@ class Forminator_Addon_Admin_Ajax {
 	 * @since 1.1
 	 */
 	public function module_settings() {
-		$this->validate_ajax();
+		$this->validate_ajax( 'forminator' );
 		$sanitized_post_data = $this->validate_and_sanitize_fields( array( 'slug', 'step', 'module_id', 'module_type', 'current_step' ) );
 		$slug                = $sanitized_post_data['slug'];
 		$step                = $sanitized_post_data['step'];
@@ -502,10 +517,13 @@ class Forminator_Addon_Admin_Ajax {
 		$module_type         = $sanitized_post_data['module_type'];
 
 		$addon = $this->validate_addon_from_slug( $slug );
+		if ( ! $addon instanceof Forminator_Addon_Abstract ) {
+			return;
+		}
 
 		$is_settings_available = 'is_' . $module_type . '_settings_available';
 		if ( ! $addon->$is_settings_available( $module_id ) ) {
-			$this->send_json_errors( __( 'This Addon does not have module settings available', 'forminator' ) );
+			$this->send_json_errors( esc_html__( 'This Addon does not have module settings available', 'forminator' ) );
 		}
 
 		forminator_maybe_attach_addon_hook( $addon );
@@ -530,7 +548,5 @@ class Forminator_Addon_Admin_Ajax {
 			'',
 			$wizard
 		);
-
 	}//end module_settings()
-
 }

@@ -280,7 +280,7 @@ if ( ! class_exists( 'Kenta_Menu_Element' ) ) {
 				],
 			];
 
-			return $presets[ $preset ] ?? [];
+			return apply_filters( $this->getSlug( 'top_level_preset_args' ), $presets[ $preset ] ?? [], $this->getSlug(''), $preset );
 		}
 
 		/**
@@ -309,6 +309,11 @@ if ( ! class_exists( 'Kenta_Menu_Element' ) ) {
 						'initial' => 'var(--kenta-base-color)',
 						'active'  => 'var(--kenta-base-color)',
 					],
+					$this->getSlug( 'dropdown_border' )          => [
+						'width' => 1,
+						'style' => 'none',
+						'color' => 'var(--kenta-base-300)'
+					],
 					$this->getSlug( 'dropdown_divider' )          => [
 						'width' => 1,
 						'style' => 'solid',
@@ -325,6 +330,11 @@ if ( ! class_exists( 'Kenta_Menu_Element' ) ) {
 					$this->getSlug( 'dropdown_background_color' ) => [
 						'initial' => 'var(--kenta-accent-color)',
 						'active'  => 'var(--kenta-accent-color)',
+					],
+					$this->getSlug( 'dropdown_border' )          => [
+						'width' => 1,
+						'style' => 'none',
+						'color' => 'var(--kenta-accent-active)'
 					],
 					$this->getSlug( 'dropdown_divider' )          => [
 						'width' => 1,
@@ -343,6 +353,11 @@ if ( ! class_exists( 'Kenta_Menu_Element' ) ) {
 						'initial' => 'var(--kenta-base-color)',
 						'active'  => 'var(--kenta-primary-color)',
 					],
+					$this->getSlug( 'dropdown_border' )          => [
+						'width' => 1,
+						'style' => 'none',
+						'color' => 'var(--kenta-base-300)'
+					],
 					$this->getSlug( 'dropdown_divider' )          => [
 						'width' => 1,
 						'style' => 'solid',
@@ -360,6 +375,11 @@ if ( ! class_exists( 'Kenta_Menu_Element' ) ) {
 						'initial' => 'var(--kenta-accent-color)',
 						'active'  => 'var(--kenta-primary-color)',
 					],
+					$this->getSlug( 'dropdown_border' )          => [
+						'width' => 1,
+						'style' => 'none',
+						'color' => 'var(--kenta-accent-active)'
+					],
 					$this->getSlug( 'dropdown_divider' )          => [
 						'width' => 1,
 						'style' => 'solid',
@@ -369,7 +389,7 @@ if ( ! class_exists( 'Kenta_Menu_Element' ) ) {
 				],
 			];
 
-			return $presets[ $preset ] ?? [];
+			return apply_filters( $this->getSlug( 'dropdown_preset_args' ), $presets[ $preset ] ?? [], $this->getSlug(''), $preset );
 		}
 
 		/**
@@ -422,6 +442,7 @@ if ( ! class_exists( 'Kenta_Menu_Element' ) ) {
 					Css::dimensions( CZ::get( $this->getSlug( 'dropdown_item_padding' ), $dropdown_preset ), '--dropdown-item-padding' ),
 					Css::dimensions( CZ::get( $this->getSlug( 'dropdown_radius' ), $dropdown_preset ), '--dropdown-radius' ),
 					Css::shadow( CZ::get( $this->getSlug( 'dropdown_shadow' ), $dropdown_preset ), '--dropdown-box-shadow' ),
+					Css::border( CZ::get( $this->getSlug( 'dropdown_border' ), $dropdown_preset ), '--dropdown-border' ),
 					Css::border( CZ::get( $this->getSlug( 'dropdown_divider' ), $dropdown_preset ), '--dropdown-divider' )
 				);
 

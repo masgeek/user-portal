@@ -10,6 +10,7 @@ use LottaFramework\Customizer\Controls\Border;
 use LottaFramework\Customizer\Controls\BoxShadow;
 use LottaFramework\Customizer\Controls\Info;
 use LottaFramework\Customizer\Controls\MultiSelect;
+use LottaFramework\Customizer\Controls\Number;
 use LottaFramework\Customizer\Controls\Separator;
 use LottaFramework\Customizer\Controls\Slider;
 use LottaFramework\Customizer\Controls\Tabs;
@@ -38,6 +39,7 @@ if ( ! class_exists( 'Kenta_Header_Row' ) ) {
 
 				$css[".kenta-header-row-{$this->id}"] = array_merge(
 					[
+						'z-index' => CZ::get( $this->getRowControlKey( 'z_index' ) ),
 						'display' => [
 							'desktop' => ( isset( $visibility['desktop'] ) && $visibility['desktop'] === 'yes' ) ? 'block' : 'none',
 							'tablet'  => ( isset( $visibility['tablet'] ) && $visibility['tablet'] === 'yes' ) ? 'block' : 'none',
@@ -119,6 +121,13 @@ if ( ! class_exists( 'Kenta_Header_Row' ) ) {
 					->enableResponsive()
 					->setMin( 20 )
 					->setMax( 800 )
+				,
+				( new Number( $this->getRowControlKey( 'z_index' ) ) )
+					->setLabel( __( 'Z Index', 'kenta' ) )
+					->setMin( - 99999 )
+					->setMax( 99999 )
+					->setDefaultUnit( false )
+					->setDefaultValue( $this->getRowControlDefault( 'z_index', 9 ) )
 				,
 				( new Toggle( $this->getRowControlKey( 'render_empty' ) ) )
 					->setLabel( __( 'Render Empty Row', 'kenta' ) )

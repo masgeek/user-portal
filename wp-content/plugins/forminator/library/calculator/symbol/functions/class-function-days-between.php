@@ -1,4 +1,9 @@
 <?php
+/**
+ * The Forminator_Calculator_Symbol_Function_Days_Between class.
+ *
+ * @package Forminator
+ */
 
 /**
  * Always positive (abs)
@@ -11,13 +16,18 @@
 class Forminator_Calculator_Symbol_Function_Days_Between extends Forminator_Calculator_Symbol_Function_Abstract {
 
 	/**
-	 * @inheritdoc
+	 * Identifiers
+	 *
+	 * @var array
 	 */
 	protected $identifiers = array( 'daysBetween' );
 
 	/**
+	 * Execute
+	 *
 	 * @inheritdoc
-	 * @throws Forminator_Calculator_Exception
+	 * @param mixed $arguments Arguments.
+	 * @throws Forminator_Calculator_Exception When there is an Calculator error.
 	 */
 	public function execute( $arguments ) {
 		if ( count( $arguments ) !== 2 ) {
@@ -30,7 +40,5 @@ class Forminator_Calculator_Symbol_Function_Days_Between extends Forminator_Calc
 		$days_between = $between / DAY_IN_SECONDS;
 
 		return ceil( $days_between );
-
 	}
-
 }

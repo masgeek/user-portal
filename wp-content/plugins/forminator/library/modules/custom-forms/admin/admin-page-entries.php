@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_CForm_View_Page class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -41,6 +47,8 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 	/**
 	 * Initialise variables
 	 *
+	 * @param int|null $form_id Form id.
+	 *
 	 * @since 1.0
 	 */
 	public function before_render( $form_id = null ) {
@@ -82,10 +90,11 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 	 * Action delete_all
 	 */
 	public function delete_all_action() {
-		$entry = isset( $_GET['entry'] ) ? Forminator_Core::sanitize_array( $_GET['entry'] ) : array();
+		$entry = isset( $_GET['entry'] ) ? Forminator_Core::sanitize_array( $_GET['entry'] ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
 		if ( ! empty( $entry ) ) {
 			$entries = implode( ',', $entry );
 			Forminator_Form_Entry_Model::delete_by_entrys( $this->model->id, $entries );
+			$this->delete_signup_user_entry( $entry );
 			$this->maybe_redirect_to_referer();
 			exit;
 		}
@@ -95,7 +104,7 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 	 * Action approve_users
 	 */
 	public function approve_users() {
-		$entries = isset( $_GET['entry'] ) ? Forminator_Core::sanitize_array( $_GET['entry'] ) : array();
+		$entries = isset( $_GET['entry'] ) ? Forminator_Core::sanitize_array( $_GET['entry'] ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
 		if ( ! empty( $entries ) ) {
 			$users_approved         = 0;
 			$email_activation_users = 0;
@@ -106,20 +115,22 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 				if ( ! $activation_key ) {
 					continue;
 				} elseif ( 'email' === $activation_method ) {
-					$email_activation_users++;
+					++$email_activation_users;
 				} elseif ( 'manual' === $activation_method ) {
-					require_once dirname( dirname( __FILE__ ) ) . '/user/class-forminator-cform-user-signups.php';
+					require_once dirname( __DIR__ ) . '/user/class-forminator-cform-user-signups.php';
 					$userdata = Forminator_CForm_User_Signups::activate_signup( $activation_key, true );
 					if ( ! is_wp_error( $userdata ) ) {
-						$users_approved++;
+						++$users_approved;
 					}
 				} else {
 					continue;
 				}
 			}
-			$notice = sprintf( __( '%s users approved successfully.', 'forminator' ), '<strong>' . $users_approved . '</strong>' );
+			/* Translators: 1. Approved users. */
+			$notice = sprintf( esc_html__( '%s users approved successfully.', 'forminator' ), '<strong>' . $users_approved . '</strong>' );
 			if ( $email_activation_users ) {
-				$notice .= '<br>' . sprintf( __( '%1$sNote:%2$s This action does not apply to user accounts awaiting email activation.', 'forminator' ), '<strong>', '</strong>' );
+				/* Translators: 1. Opening <strong> tag, 2. closing <strong> tag. */
+				$notice .= '<br>' . sprintf( esc_html__( '%1$sNote:%2$s This action does not apply to user accounts awaiting email activation.', 'forminator' ), '<strong>', '</strong>' );
 			}
 			$args = array(
 				'page'      => $this->get_admin_page(),
@@ -127,7 +138,7 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 				'form_id'   => $this->get_form_id(),
 			);
 
-			$args['forminator_text_notice'] = urlencode( $notice );
+			$args['forminator_text_notice'] = rawurlencode( $notice );
 
 			$fallback_redirect = add_query_arg(
 				$args,
@@ -209,36 +220,30 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 						if ( 'file' === $key && isset( $value['file_url'] ) ) {
 							$output .= $value['file_url'] . ', ';
 						}
-					} else {
-						if ( ! is_int( $key ) ) {
-							if ( 'postdata' === $key ) {
-								$output .= "$value, ";
-							} else {
+					} elseif ( ! is_int( $key ) ) {
+						if ( 'postdata' === $key ) {
+							$output .= "$value, ";
+						} elseif ( is_string( $key ) ) {
 
-								if ( is_string( $key ) ) {
-									if ( 'product-id' === $key || 'product-quantity' === $key ) {
-										if ( 0 === $product_cost ) {
-											$product_cost = $value;
-										} else {
-											$product_cost = $product_cost * $value;
-										}
-										$is_product = true;
-									} else {
-										$output .= "$value $key , ";
-									}
+							if ( 'product-id' === $key || 'product-quantity' === $key ) {
+								if ( 0 === $product_cost ) {
+									$product_cost = $value;
+								} else {
+									$product_cost = $product_cost * $value;
 								}
+								$is_product = true;
+							} else {
+								$output .= "$value $key , ";
 							}
 						}
 					}
 				}
 				if ( $is_product ) {
 					$output = $product_cost;
-				} else {
-					if ( ! empty( $output ) ) {
+				} elseif ( ! empty( $output ) ) {
 						$output = substr( trim( $output ), 0, - 1 );
-					} else {
-						$output = implode( ',', $data );
-					}
+				} else {
+					$output = implode( ',', $data );
 				}
 
 				return $output;
@@ -259,28 +264,34 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 	 * @return array
 	 */
 	private function build_fields_mappers() {
-		/** @var  Forminator_Form_Model $model */
-		$model          = $this->model;
-		$fields         = apply_filters( 'forminator_custom_form_build_fields_mappers', $model->get_grouped_real_fields() );
+		/**
+		 * Forminator_Form_Model
+		 *
+		 * @var  Forminator_Form_Model $model */
+		$model  = $this->model;
+		$fields = apply_filters( 'forminator_custom_form_build_fields_mappers', $model->get_grouped_real_fields() );
 
-		/** @var  Forminator_Form_Field_Model $fields */
+		/**
+		 * Forminator_Form_Field_Model
+		 *
+		 * @var  Forminator_Form_Field_Model $fields */
 		$mappers = array(
 			array(
 				// read form model's property.
 				'property' => 'entry_id', // must be on entries.
-				'label'    => __( 'ID', 'forminator' ),
+				'label'    => esc_html__( 'ID', 'forminator' ),
 				'type'     => 'entry_entry_id',
 			),
 			array(
 				// read form model's property.
 				'property' => 'time_created', // must be on entries.
-				'label'    => __( 'Date Submitted', 'forminator' ),
+				'label'    => esc_html__( 'Date Submitted', 'forminator' ),
 				'type'     => 'entry_time_created',
 			),
 		);
 
 		foreach ( $fields as $field ) {
-			$mapper = self::build_field_mapper( $field );
+			$mapper = $this->build_field_mapper( $field );
 
 			if ( ! empty( $mapper ) ) {
 				$mappers[] = $mapper;
@@ -309,7 +320,7 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 
 		// base mapper for every field.
 		$mapper             = array();
-		$mapper['meta_key'] = $field->slug;
+		$mapper['meta_key'] = $field->slug; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- false positive
 		$mapper['label']    = $field->get_label_for_entry();
 		$mapper['type']     = $field_type;
 
@@ -318,9 +329,8 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 			$mapper['rich'] = isset( $field_array['editor-type'] ) ? $field_array['editor-type'] : false;
 		} elseif ( 'number' === $field_type || 'currency' === $field_type || 'calculation' === $field_type ) {
 			$field_array = $field->to_array();
-			$decimal     = 'calculation' === $field_type ? 2 : 0;
 			$separator   = Forminator_Field::get_property( 'separators', $field_array, 'blank' );
-			$precision   = Forminator_Field::get_property( 'precision', $field_array, $decimal );
+			$precision   = Forminator_Field::get_calculable_precision( $field_array );
 			$separators  = Forminator_Field::forminator_separators( $separator, $field_array );
 
 			$mapper['separator'] = $separators['separator'];
@@ -438,37 +448,37 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 				// if no subfield enabled when multiple name remove mapper (means dont show it on export).
 				$mapper = array();
 			}
-		} elseif ( 'stripe' === $field_type ) {
-			$mapper['label']         = __( 'Stripe Payment', 'forminator' );
+		} elseif ( 'stripe' === $field_type || 'stripe-ocs' === $field_type ) {
+			$mapper['label']         = esc_html__( 'Stripe Payment', 'forminator' );
 			$mapper['sub_metas']     = array();
 			$mapper['sub_metas'][]   = array(
 				'key'                => 'mode',
-				'label'              => __( 'Mode', 'forminator' ),
+				'label'              => esc_html__( 'Mode', 'forminator' ),
 				'transform_callback' => 'strtoupper',
 			);
 			$mapper['sub_metas'][]   = array(
 				'key'   => 'product_name',
-				'label' => __( 'Product / Plan Name', 'forminator' ),
+				'label' => esc_html__( 'Product / Plan Name', 'forminator' ),
 			);
 			$mapper['sub_metas'][]   = array(
 				'key'   => 'payment_type',
-				'label' => __( 'Payment type', 'forminator' ),
+				'label' => esc_html__( 'Payment type', 'forminator' ),
 			);
 			$mapper['sub_metas'][]   = array(
 				'key'   => 'amount',
-				'label' => __( 'Amount', 'forminator' ),
+				'label' => esc_html__( 'Amount', 'forminator' ),
 			);
 			$mapper['sub_metas'][]   = array(
 				'key'   => 'currency',
-				'label' => __( 'Currency', 'forminator' ),
+				'label' => esc_html__( 'Currency', 'forminator' ),
 			);
 			$mapper['sub_metas'][]   = array(
 				'key'   => 'quantity',
-				'label' => __( 'Quantity', 'forminator' ),
+				'label' => esc_html__( 'Quantity', 'forminator' ),
 			);
 			$transaction_link_mapper = array(
 				'key'   => 'transaction_id',
-				'label' => __( 'Transaction ID', 'forminator' ),
+				'label' => esc_html__( 'Transaction ID', 'forminator' ),
 			);
 			if ( class_exists( 'Forminator_Stripe' ) ) {
 				$transaction_link_mapper['transform_callback'] = array( 'Forminator_Stripe', 'linkify_transaction_id' );
@@ -477,13 +487,13 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 			$mapper['sub_metas'][] = $transaction_link_mapper;
 			$mapper['sub_metas'][] = array(
 				'key'                => 'status',
-				'label'              => __( 'Status', 'forminator' ),
+				'label'              => esc_html__( 'Status', 'forminator' ),
 				'transform_callback' => 'ucfirst',
 			);
 			if ( class_exists( 'Forminator_Stripe_Subscription' ) ) {
 				$manage_mapper                       = array(
 					'key'   => 'subscription_id',
-					'label' => __( 'Manage', 'forminator' ),
+					'label' => esc_html__( 'Manage', 'forminator' ),
 				);
 				$manage_mapper['transform_callback'] = array( 'Forminator_Stripe_Subscription', 'manage_subscription' );
 				$manage_mapper['num_transform_arg']  = 2;
@@ -491,30 +501,30 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 				$mapper['sub_metas'][] = $manage_mapper;
 			}
 		} elseif ( 'paypal' === $field_type ) {
-			$mapper['label']         = __( 'PayPal Checkout', 'forminator' );
+			$mapper['label']         = esc_html__( 'PayPal Checkout', 'forminator' );
 			$mapper['sub_metas']     = array();
 			$mapper['sub_metas'][]   = array(
 				'key'                => 'mode',
-				'label'              => __( 'Mode', 'forminator' ),
+				'label'              => esc_html__( 'Mode', 'forminator' ),
 				'transform_callback' => 'strtoupper',
 			);
 			$mapper['sub_metas'][]   = array(
 				'key'                => 'status',
-				'label'              => __( 'Status', 'forminator' ),
+				'label'              => esc_html__( 'Status', 'forminator' ),
 				'transform_callback' => 'ucfirst',
 			);
 			$mapper['sub_metas'][]   = array(
 				'key'   => 'amount',
-				'label' => __( 'Amount', 'forminator' ),
+				'label' => esc_html__( 'Amount', 'forminator' ),
 			);
 			$mapper['sub_metas'][]   = array(
 				'key'                => 'currency',
-				'label'              => __( 'Currency', 'forminator' ),
+				'label'              => esc_html__( 'Currency', 'forminator' ),
 				'transform_callback' => 'strtoupper',
 			);
 			$transaction_link_mapper = array(
 				'key'   => 'transaction_id',
-				'label' => __( 'Transaction ID', 'forminator' ),
+				'label' => esc_html__( 'Transaction ID', 'forminator' ),
 			);
 			if ( class_exists( 'Forminator_PayPal' ) ) {
 				$transaction_link_mapper['transform_callback'] = array( 'Forminator_PayPal', 'linkify_transaction_id' );
@@ -526,12 +536,17 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 
 			$mapper['sub_metas'] = array();
 			foreach ( $group_fields as $group_field ) {
-				$field_mapper        = $this->build_field_mapper( $group_field );
+				$field_mapper = $this->build_field_mapper( $group_field );
 				if ( ! empty( $field_mapper ) ) {
-					$field_mapper['key'] = $field_mapper['meta_key'];
+					$field_mapper['key']   = $field_mapper['meta_key'];
 					$mapper['sub_metas'][] = $field_mapper;
 				}
 			}
+		} elseif ( 'rating' === $field_type ) {
+			$mapper['max_rating'] = $field->__get( 'max_rating' );
+			$mapper['suffix']     = $field->__get( 'suffix' );
+			$mapper['icon']       = $field->__get( 'icon' );
+			$mapper['size']       = $field->__get( 'size' );
 		}
 
 		return $mapper;
@@ -544,13 +559,22 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 	 */
 	public function get_fields_mappers() {
 		if ( empty( $this->fields_mappers ) ) {
-			$this->fields_mappers = $this->build_fields_mappers();
+			$fields_mappers = $this->build_fields_mappers();
+			/**
+			 * Filter fields mappers
+			 *
+			 * @param array  $fields_mappers Fields mappers.
+			 * @param object $model Forminator_Form_Model object.
+			 */
+			$this->fields_mappers = apply_filters( 'forminator_fields_mappers', $fields_mappers, $this->model );
 		}
 
 		return $this->fields_mappers;
 	}
 
 	/**
+	 * Get flatten fields mappers
+	 *
 	 * @return array
 	 */
 	public function get_flatten_fields_mappers() {
@@ -629,13 +653,15 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 	/**
 	 * Entries iterator
 	 *
-	 * @param null   $entries
-	 * @param string $form_type
+	 * @param null|array $entries Entries.
+	 * @param string     $form_type Form type.
 	 *
 	 * @return array
 	 */
 	public function entries_iterator( $entries = null, $form_type = '' ) {
 		/**
+		 * Example
+		 *
 		 * @example
 		 * {
 		 *  id => 'ENTRY_ID'
@@ -687,7 +713,7 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 
 		$total_colspan += count( $fields_headers ); // 2 for each header colspan.
 		if ( $fields_left > 0 ) {
-			$total_colspan++;
+			++$total_colspan;
 		}
 
 		// all headers including Id + Date, start from 0 and max is 4.
@@ -703,7 +729,10 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 		}
 
 		foreach ( $this->entries as $entry ) {
-			/**@var Forminator_Form_Entry_Model $entry */
+			/**
+			 * Forminator_Form_Entry_Model
+			 *
+			 * @var Forminator_Form_Entry_Model $entry */
 
 			// create placeholder.
 			$iterator = array(
@@ -794,6 +823,12 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 					$detail_args['point']     = $mapper['point'];
 					$detail_args['precision'] = $mapper['precision'];
 				}
+				if ( 'rating' === $mapper['type'] ) {
+					$detail_args['size']       = $mapper['size'];
+					$detail_args['icon']       = $mapper['icon'];
+					$detail_args['suffix']     = $mapper['suffix'];
+					$detail_args['max_rating'] = $mapper['max_rating'];
+				}
 
 				$detail_items[] = $detail_args;
 			}
@@ -821,7 +856,7 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 			$iterator = apply_filters( 'forminator_custom_form_entries_iterator', $iterator, $entry );
 
 			$entries_iterator[] = $iterator;
-			$numerator_id --;
+			--$numerator_id;
 		}
 
 		return $entries_iterator;
@@ -882,8 +917,8 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 	 *
 	 * @since 1.1
 	 *
-	 * @param  array $addon_additional_items
-	 * @param  array $meta_data
+	 * @param  array $addon_additional_items Additional items.
+	 * @param  array $meta_data Meta data.
 	 *
 	 * @return mixed
 	 */
@@ -934,7 +969,7 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 	 *
 	 * @since 1.1
 	 *
-	 * @return array|Forminator_Addon_Abstract[]
+	 * @return array|Forminator_Integration[]
 	 */
 	public function get_connected_addons() {
 		if ( is_null( self::$connected_addons ) ) {
@@ -943,12 +978,12 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 			$connected_addons = forminator_get_addons_instance_connected_with_module( $this->form_id, 'form' );
 			foreach ( $connected_addons as $connected_addon ) {
 				try {
-					$form_hooks = $connected_addon->get_addon_form_hooks( $this->form_id );
-					if ( $form_hooks instanceof Forminator_Addon_Form_Hooks_Abstract ) {
+					$form_hooks = $connected_addon->get_addon_hooks( $this->form_id, 'form' );
+					if ( $form_hooks instanceof Forminator_Integration_Form_Hooks ) {
 						self::$connected_addons[] = $connected_addon;
 					}
 				} catch ( Exception $e ) {
-					forminator_addon_maybe_log( $connected_addon->get_slug(), 'failed to get_addon_form_hooks', $e->getMessage() );
+					forminator_addon_maybe_log( $connected_addon->get_slug(), 'failed to get_addon_hooks', $e->getMessage() );
 				}
 			}
 		}
@@ -979,7 +1014,8 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 	/**
 	 * Redirect to referer if available
 	 *
-	 * @param string $fallback_redirect
+	 * @param string $fallback_redirect Fallback redirect.
+	 * @param bool   $to_referer Referrer.
 	 */
 	protected function maybe_redirect_to_referer( $fallback_redirect = '', $to_referer = true ) {
 
@@ -1016,7 +1052,7 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 	/**
 	 * Check payment
 	 *
-	 * @param $form_id
+	 * @param int $form_id Form Id.
 	 *
 	 * @return bool
 	 */
@@ -1029,11 +1065,10 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 	/**
 	 * Executor of adding additional items on entry page
 	 *
-	 * @see   Forminator_Addon_Form_Hooks_Abstract::on_render_entry()
+	 * @see   Forminator_Integration_Form_Hooks::on_render_entry()
 	 * @since 1.1
 	 *
-	 * @param Forminator_Form_Entry_Model $entry_model
-	 * @param $quiz_id
+	 * @param Forminator_Form_Entry_Model $entry_model Form entry model.
 	 *
 	 * @return array
 	 */
@@ -1044,7 +1079,7 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 
 		foreach ( $registered_addons as $registered_addon ) {
 			try {
-				$form_hooks = $registered_addon->get_addon_form_hooks( $this->form_id );
+				$form_hooks = $registered_addon->get_addon_hooks( $this->form_id, 'form' );
 				$meta_data  = forminator_find_addon_meta_data_from_entry_model( $registered_addon, $entry_model );
 
 				$addon_additional_items = $form_hooks->on_render_entry( $entry_model, $meta_data );// run and forget.
@@ -1057,5 +1092,21 @@ class Forminator_CForm_View_Page extends Forminator_Admin_View_Page {
 		}
 
 		return $additonal_items;
+	}
+
+	/**
+	 * Delete signup user entry
+	 *
+	 * @param array $entry Entry.
+	 */
+	public function delete_signup_user_entry( $entry ) {
+		foreach ( $entry as $entry_id ) {
+			$entry_model    = new Forminator_Form_Entry_Model( $entry_id );
+			$activation_key = $entry_model->get_meta( 'activation_key' );
+			if ( ! empty( $activation_key ) ) {
+				$user_data = new Forminator_CForm_User_Data();
+				$user_data->delete_signup_by_activation( $activation_key );
+			}
+		}
 	}
 }

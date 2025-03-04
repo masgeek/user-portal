@@ -2,8 +2,11 @@
 
 WPMU DEV Free Notices module (short wpmu-free-notices) is used in our free plugins hosted on wordpress.org
 It will display,
+
 * A welcome message upon plugin activation that offers the user a 5-day introduction email course for the plugin.
+
 * After 7 days a message asking the user to rate the plugin on wordpress.org.
+
 * After 2 days a giveaway notice asking for email subscription.
 
 # How to use it #
@@ -26,8 +29,12 @@ Make sure to change the following:
 2. Update the params to new format (See example below).
 3. Both `wdev-email-message-` and `wdev-rating-message-` filters have been changed to `wdev_email_title_`/`wdev_email_message_` and `wdev_rating_title_`/`wdev_rating_message_`
 
+## IMPORTANT:
 
-## Code Example (from Smush) ##
+DO NOT include this submodule in Pro plugins. These notices are only for wp.org versions.
+
+
+## Code Example : Registering a plugin (from Smush) ##
 
 ```
 #!php
@@ -48,7 +55,6 @@ function mycustom_free_notices_init() {
                 'title'        => 'Smush', // Plugin title.
                 'wp_slug'      => 'wp-smushit', // Plugin slug on wp.org
                 'cta_email'    => __( 'Get Fast!', 'ga_trans' ), // Email button CTA.
-                'mc_list_id'   => '4b14b58816', // Mailchimp list id for the plugin - e.g. 4b14b58816 is list id for Smush.
                 'installed_on' => time(), // Plugin installed time (timestamp). Default to current time.
                 'screens'      => array( // Screen IDs of plugin pages.
                     'toplevel_page_smush',
@@ -82,7 +88,7 @@ Only wp.org plugins are listed below.
 
 To see the notices before the due time, you can fake the current time by appending `&wpmudev_notice_time=CUSTOMTIMESTAMP` to the url on a page where the notice should be visible. Please make sure you are using a timestamp after the due time.
 
-## Optional: Customize the messages via filters ##
+## Optional: Customize the notices via filters ##
 
 ```
 <?php
@@ -107,6 +113,24 @@ add_filter(
 function custom_rating_message( $message ) {
     $message = 'Hi %s, you used %s for a while now! This is a custom <u>rating message</u>';
     return $message;
+}
+```
+
+```
+<?php
+// To disable or enable a notice type.
+add_filter(
+    'wpmudev_notices_is_disabled',
+    'custom_rating_message',
+    10,
+    2
+);
+function disable_rating_message( $disabled, $type, $plugin ) {
+    if ( 'rate' === $type && 'beehive' === $plugin ) {
+        return true;
+    }
+    
+    return $disabled;
 }
 ```
 

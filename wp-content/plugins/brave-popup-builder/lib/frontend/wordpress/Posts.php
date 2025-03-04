@@ -5,6 +5,12 @@ if ( ! class_exists( 'BravePop_Element_Posts' ) ) {
 
    class BravePop_Element_Posts {
 
+      protected $data;
+      protected $popupID;
+      protected $stepIndex;
+      protected $elementIndex;
+      protected $goalItem;
+
       function __construct($data=null, $popupID=null, $stepIndex=0, $elementIndex=0, $device='desktop', $goalItem=false) {
          $this->data = $data;
          $this->popupID = $popupID;
@@ -145,7 +151,7 @@ if ( ! class_exists( 'BravePop_Element_Posts' ) ) {
             }
          }
 
-         //error_log(json_encode($the_query));
+         //error_log(wp_json_encode($the_query));
 
          if(!$the_query){ return ''; }
 
@@ -170,8 +176,11 @@ if ( ! class_exists( 'BravePop_Element_Posts' ) ) {
                                     $postHTML .=  '<h4><a '.$newWindowHTML.' href="'.get_the_permalink($thepost->ID).'" '.$goalAction.'>'. get_the_title($thepost->ID) .'</a></h4>';
                                  $postHTML .=  '</div>';
                               }
+                              $lazyLoad = bravepop_should_lazyload();
+                              $imgURL = get_the_post_thumbnail_url($thepost->ID, $imageSize);
+                              $imgSrc = $lazyLoad ? 'data-lazy="'.$imgURL.'" src="'.bravepop_get_preloader().'"' : 'src="'.$imgURL.'"';
 
-                              $postHTML .=  has_post_thumbnail($thepost->ID) ? '<a '.$newWindowHTML.' href="'.get_the_permalink($thepost->ID).'"><img class="brave_element_img_item skip-lazy no-lazyload" src="'.bravepop_get_preloader().'" data-lazy="'.get_the_post_thumbnail_url($thepost->ID, $imageSize).'" alt="'. get_the_title($thepost->ID) .'" /></a>' : '<div class="brave_post__image__fake"></div>';
+                              $postHTML .=  has_post_thumbnail($thepost->ID) ? '<a '.$newWindowHTML.' href="'.get_the_permalink($thepost->ID).'"><img class="brave_element_img_item skip-lazy no-lazyload" '.$imgSrc.' alt="'. get_the_title($thepost->ID) .'" /></a>' : '<div class="brave_post__image__fake"></div>';
                               
                               $postHTML .=  '</div>';
                            }

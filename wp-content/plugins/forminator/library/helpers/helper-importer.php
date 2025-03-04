@@ -1,4 +1,9 @@
 <?php
+/**
+ * Importer helper functions.
+ *
+ * @package Forminator
+ */
 
 /**
  * Return status of external plugins for Import/export feature
@@ -7,7 +12,7 @@
  * plugin will be disabled
  *
  * @since 1.7
- * @param  string $plugin name of the plugin.
+ * @param  string $plugin Name of the plugin.
  * @return bool
  */
 function forminator_is_import_plugin_enabled( $plugin ) {
@@ -51,7 +56,8 @@ function forminator_is_import_plugin_enabled( $plugin ) {
 /**
  * Get plugin deactivation link
  *
- * @param $plugin
+ * @param string $plugin Name of the plugin.
+ * @param string $slug Plugin slug.
  *
  * @since 1.7
  *
@@ -63,7 +69,7 @@ function forminator_get_disable_url( $plugin, $slug ) {
 	}
 
 	if ( is_plugin_active_for_network( $slug ) ) {
-		return wp_nonce_url( trailingslashit( network_admin_url() ). 'plugins.php?action=deactivate&amp;plugin=' . $slug . '&amp;plugin_status=all', 'deactivate-plugin_' . $slug );
+		return wp_nonce_url( trailingslashit( network_admin_url() ) . 'plugins.php?action=deactivate&amp;plugin=' . $slug . '&amp;plugin_status=all', 'deactivate-plugin_' . $slug );
 	} else {
 		return wp_nonce_url( 'plugins.php?action=deactivate&amp;plugin=' . $slug . '&amp;plugin_status=all', 'deactivate-plugin_' . $slug );
 	}
@@ -77,7 +83,7 @@ function forminator_get_disable_url( $plugin, $slug ) {
  * plugin will be disabled
  *
  * @since 1.7
- * @param  string $plugin name of the plugin.
+ * @param  array $plugins Name of the plugins.
  * @return bool
  */
 function forminator_are_import_plugins_enabled( $plugins = array() ) {
@@ -98,6 +104,8 @@ function forminator_are_import_plugins_enabled( $plugins = array() ) {
 
 /**
  * Return all the contact forms from thirdparties
+ *
+ * @param string $type type.
  *
  * @since 1.7
  * @return array list of forms

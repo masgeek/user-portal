@@ -85,7 +85,7 @@ if ( ! class_exists( 'Kenta_Copyright_Element' ) ) {
 			}
 
 			$theme       = wp_get_theme();
-			$theme_info  = sprintf( '<a href="%s" target="_blank">%s</a>', esc_url( $theme->get( 'ThemeURI' ) ), $theme->get( 'Name' ) . ' ' . esc_html( __( 'Theme', 'kenta' ) ) );
+			$theme_info  = sprintf( '<a href="%s" target="_blank">%s</a>', esc_url( $theme->get( 'ThemeURI' ) ), $theme->get( 'Name' ) );
 			$author_info = sprintf( '<a href="%s" target="_blank">%s</a>', esc_url( $theme->get( 'AuthorURI' ) ), $theme->get( 'Author' ) );
 
 			$text = CZ::get( $this->getSlug( 'text' ) ) ?? 'Copyright &copy; {current_year}  -  {about_theme} By {about_author}';

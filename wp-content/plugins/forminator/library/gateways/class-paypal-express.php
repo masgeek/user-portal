@@ -40,6 +40,13 @@ class Forminator_PayPal_Express extends Forminator_Payment_Gateway {
 	protected $sandbox_secret = '';
 
 	/**
+	 * Sandbox encrypted Secret
+	 *
+	 * @var string
+	 */
+	protected $sandbox_secret_encrypted = '';
+
+	/**
 	 * Live Client Id
 	 *
 	 * @var string
@@ -52,6 +59,13 @@ class Forminator_PayPal_Express extends Forminator_Payment_Gateway {
 	 * @var string
 	 */
 	protected $live_secret = '';
+
+	/**
+	 * Live encrypted Secret
+	 *
+	 * @var string
+	 */
+	protected $live_secret_encrypted = '';
 
 	/**
 	 * Live Mode flag
@@ -100,7 +114,18 @@ class Forminator_PayPal_Express extends Forminator_Payment_Gateway {
 	 */
 	public function init_settings() {
 		global $wp;
-		$config = get_option( 'forminator_paypal_configuration', array() );
+		$config_key = 'forminator_paypal_configuration';
+		$config     = get_option( $config_key, array() );
+		if ( ! empty( $config['is_salty'] ) && defined( 'FORMINATOR_ENCRYPTION_KEY' ) ) {
+			// Re-encrypt settings after setting FORMINATOR_ENCRYPTION_KEY constant.
+			self::reencrypt_settings( $config );
+			$config = get_option( $config_key, array() );
+		} elseif ( ( ! empty( $config['sandbox_secret'] ) && empty( $config['sandbox_secret_encrypted'] ) )
+		           || ( ! empty( $config['live_secret'] ) && empty( $config['live_secret_encrypted'] ) ) ) {
+			// Encrypt secret keys.
+			self::store_settings( $config );
+			$config = get_option( $config_key, array() );
+		}
 
 		$this->sandbox_id     = isset( $config['sandbox_id'] ) ? esc_html( $config['sandbox_id'] ) : '';
 		$this->sandbox_secret = isset( $config['sandbox_secret'] ) ? esc_html( $config['sandbox_secret'] ) : '';
@@ -116,7 +141,11 @@ class Forminator_PayPal_Express extends Forminator_Payment_Gateway {
 
 		if ( empty( $this->sandbox_secret ) && defined( 'FORMINATOR_PAYPAL_SANDBOX_SECRET' ) ) {
 			$this->sandbox_secret = FORMINATOR_PAYPAL_SANDBOX_SECRET;
+		} else {
+			$this->sandbox_secret_encrypted = $config['sandbox_secret_encrypted'] ?? '';
 		}
+
+		$this->live_secret_encrypted = $config['live_secret_encrypted'] ?? '';
 
 		add_filter( 'script_loader_src', array( $this, 'forminator_remove_ver_paypal' ), 9999 );
 	}
@@ -129,9 +158,15 @@ class Forminator_PayPal_Express extends Forminator_Payment_Gateway {
 	}
 
 	/**
+	 * Get test secret
+	 *
+	 * @param bool $decrypted Get decrypted key.
 	 * @return string
 	 */
-	public function get_sandbox_secret() {
+	public function get_sandbox_secret( bool $decrypted = false ) {
+		if ( $decrypted && ! empty( $this->sandbox_secret_encrypted ) ) {
+			return Forminator_Encryption::decrypt( $this->sandbox_secret_encrypted );
+		}
 		return $this->sandbox_secret;
 	}
 
@@ -154,9 +189,15 @@ class Forminator_PayPal_Express extends Forminator_Payment_Gateway {
 	}
 
 	/**
+	 * Get live secret
+	 *
+	 * @param bool $decrypted Get decrypted key.
 	 * @return string
 	 */
-	public function get_live_secret() {
+	public function get_live_secret( bool $decrypted = false ) {
+		if ( $decrypted && ! empty( $this->live_secret_encrypted ) ) {
+			return Forminator_Encryption::decrypt( $this->live_secret_encrypted );
+		}
 		return $this->live_secret;
 	}
 
@@ -179,8 +220,50 @@ class Forminator_PayPal_Express extends Forminator_Payment_Gateway {
 	 *
 	 * @param $settings
 	 */
-	public static function store_settings( $settings ) {
-		update_option( 'forminator_paypal_configuration', $settings );
+	public static function store_settings( array $settings ) {
+		$option_name = 'forminator_paypal_configuration';
+		$settings    = self::prepare_settings( $settings );
+		update_option( $option_name, $settings );
+	}
+
+	/**
+	 * Store default currency
+	 *
+	 * @param string $currency Currency.
+	 */
+	public static function store_default_currency( string $currency ) {
+		$option_name          = 'forminator_paypal_configuration';
+		$settings             = get_option( $option_name, array() );
+		$settings['currency'] = $currency;
+		update_option( $option_name, $settings );
+	}
+
+	/**
+	 * Encrypt secret keys
+	 *
+	 * @param array $settings Settings.
+	 * @return array
+	 */
+	public static function prepare_settings( array $settings ): array {
+		return Forminator_Encryption::encrypt_secret_keys(
+			array( 'sandbox_secret', 'live_secret' ),
+			$settings,
+		);
+	}
+
+	/**
+	 * Re-encrypt settings
+	 *
+	 * @param array $settings Settings.
+	 */
+	public static function reencrypt_settings( array $settings ) {
+		foreach ( $settings as $key => $val ) {
+			if ( in_array( $key, array( 'sandbox_secret_encrypted', 'live_secret_encrypted' ), true ) ) {
+				$k              = str_replace( '_encrypted', '', $key );
+				$settings[ $k ] = Forminator_Encryption::decrypt( $val, true );
+			}
+		}
+		self::store_settings( $settings );
 	}
 
 	/**
@@ -286,12 +369,12 @@ class Forminator_PayPal_Express extends Forminator_Payment_Gateway {
 			$result = $this->api_request( 'v1/oauth2/token', $mode, $args, 'POST' );
 
 			if ( ! isset( $result->access_token ) || empty( $result->access_token ) ) {
-				throw new Forminator_Gateway_Exception( __( 'Failed to configure PayPal payment', 'forminator' ) );
+				throw new Forminator_Gateway_Exception( esc_html__( 'Failed to configure PayPal payment', 'forminator' ) );
 			}
 		} catch ( Exception $e ) {
 			forminator_maybe_log( __METHOD__, $e->getMessage() );
 			throw new Forminator_Gateway_Exception(
-				__( 'Some error has occurred while connecting to your PayPal account. Please resolve the following errors and try to connect again.', 'forminator' ),
+				esc_html__( 'Some error has occurred while connecting to your PayPal account. Please resolve the following errors and try to connect again.', 'forminator' ),
 				$error,
 				$e
 			);
@@ -322,7 +405,7 @@ class Forminator_PayPal_Express extends Forminator_Payment_Gateway {
 
 		// Determinate client ID & Secret from mode.
 		$client_id     = 'live' === $mode ? $this->live_id : $this->sandbox_id;
-		$client_secret = 'live' === $mode ? $this->live_secret : $this->sandbox_secret;
+		$client_secret = 'live' === $mode ? $this->get_live_secret( true ) : $this->get_sandbox_secret( true );
 
 		$headers = array(
 			'Content-Type'  => 'application/json',

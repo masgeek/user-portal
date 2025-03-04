@@ -143,7 +143,7 @@
 			var formula               = calcField.formula;
 			var joinedFieldTypes      = this.settings.forminatorFields.join('|');
 			var incrementFieldPattern = "(" + joinedFieldTypes + ")-\\d+";
-			var pattern               = new RegExp('\\{(' + incrementFieldPattern + ')(\\-[A-Za-z-_]+)?(\\-[A-Za-z0-9-_]+)?\\}', 'g');
+			var pattern               = new RegExp('\\{(' + incrementFieldPattern + '(?:-min|-max)?)(\\-[A-Za-z-_]+)?(\\-[A-Za-z0-9-_]+)?\\}', 'g');
 
 			formula = this.maybeReplaceCalculationGroups(formula);
 
@@ -213,9 +213,12 @@
 								//find element by select name
 								$element = this.$el.find('select[name="' + element_id + '"]');
 								if ($element.length === 0) {
-									//find element by direct id (for name field mostly)
-									//will work for all field with element_id-[somestring]
-									$element = $form.find('#' + element_id);
+									$element = this.$el.find('select[name="' + element_id + '[]"]');
+									if ($element.length === 0) {
+										//find element by direct id (for name field mostly)
+										//will work for all field with element_id-[somestring]
+										$element = $form.find('#' + element_id);
+									}
 								}
 							}
 						}
@@ -302,7 +305,7 @@
 		},
 
 		maybeReplaceCalculationGroups: function (formula) {
-			var pattern = new RegExp('\\{((?:calculation|number|currency|radio|select|checkbox)-\\d+)-\\*\\}', 'g');
+			var pattern = new RegExp('\\{((?:calculation|number|slider|currency|radio|select|checkbox)-\\d+(?:-min|-max)?)-\\*\\}', 'g');
 			var matches;
 			while( matches = pattern.exec( formula ) ) {
 				var fullMatch = matches[0];
@@ -325,7 +328,7 @@
 
 			var joinedFieldTypes      = this.settings.forminatorFields.join('|');
 			var incrementFieldPattern = "(" + joinedFieldTypes + ")-\\d+";
-			var pattern               = new RegExp('\\{(' + incrementFieldPattern + ')(\\-[A-Za-z-_]+)?(\\-[A-Za-z0-9-_]+)?\\}', 'g');
+			var pattern               = new RegExp('\\{(' + incrementFieldPattern + '(?:-min|-max)?)(\\-[A-Za-z-_]+)?(\\-[A-Za-z0-9-_]+)?\\}', 'g');
 			var parsedFormula         = formula;
 
 			var matches;
@@ -430,10 +433,12 @@
 			} else if (this.field_is_select($element)) {
 				checked = $element.find("option").filter(':selected');
 				if (checked.length) {
-					calculation = checked.data('calculation');
-					if (calculation !== undefined) {
-						value = Number(calculation);
-					}
+					checked.each( function () {
+						calculation = $( this ).data( 'calculation' );
+						if ( calculation !== undefined ) {
+							value += Number( calculation );
+						}
+					} );
 				}
 			} else if ( this.field_has_inputMask( $element ) ) {
 				value = parseFloat( $element.inputmask('unmaskedvalue').replace(',','.') );
@@ -497,9 +502,23 @@
 			}
 
 			var $error_holder = $field_holder.find('.forminator-error-message');
+			var $error_id = $element.attr('id') + '-error';
+			var $element_aria_describedby = $element.attr('aria-describedby');
+
+			if ($element_aria_describedby) {
+				var ids = $element_aria_describedby.split(' ');
+				var errorIdExists = ids.includes($error_id);
+				if (!errorIdExists) {
+					ids.push($error_id);
+				}
+				var updatedAriaDescribedby = ids.join(' ');
+				$element.attr('aria-describedby', updatedAriaDescribedby);
+			} else {
+				$element.attr('aria-describedby', $error_id);
+			}
 
 			if ($error_holder.length === 0) {
-				$field_holder.append('<span class="forminator-error-message" aria-hidden="true"></span>');
+				$field_holder.append('<span class="forminator-error-message" id="' + $error_id + '"></span>');
 				$error_holder = $field_holder.find('.forminator-error-message');
 			}
 
@@ -516,6 +535,19 @@
 			}
 
 			var $error_holder = $field_holder.find('.forminator-error-message');
+			var $error_id = $element.attr('id') + '-error';
+			var $element_aria_describedby = $element.attr('aria-describedby');
+
+			if ($element_aria_describedby) {
+				var ids = $element_aria_describedby.split(' ');
+				ids = ids.filter(function (id) {
+					return id !== $error_id;
+				});
+				var updatedAriaDescribedby = ids.join(' ');
+			  	$element.attr('aria-describedby', updatedAriaDescribedby);
+			} else {
+			  	$element.removeAttr('aria-describedby');
+			}
 
 			$element.removeAttr('aria-invalid');
 			$error_holder.remove();

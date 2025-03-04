@@ -1,4 +1,10 @@
 <?php
+/**
+ * Template admin/views/quiz/entries/content-leads-none.php
+ *
+ * @package Forminator
+ */
+
 $entries          = $this->get_entries();
 $form_type        = $this->get_form_type();
 $count            = $this->get_total_entries();
@@ -24,7 +30,7 @@ if ( $page_number > 1 ) {
 		</td>
 
 		<td colspan="5">
-			<?php echo esc_html( date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $entry->date_created_sql ) ) ); ?>
+			<?php echo esc_html( gmdate( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $entry->date_created_sql ) ) ); ?>
 			<span class="sui-accordion-open-indicator">
 							<i class="sui-icon-chevron-down"></i>
 						</span>
@@ -45,7 +51,7 @@ if ( $page_number > 1 ) {
 
 						<h2 class="fui-entries-title"><?php echo '#' . esc_attr( $first_item ); ?></h2>
 
-						<p class="sui-description"><?php echo esc_html( date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $entry->date_created_sql ) ) ); ?></p>
+						<p class="sui-description"><?php echo esc_html( gmdate( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $entry->date_created_sql ) ) ); ?></p>
 
 					</div>
 
@@ -93,12 +99,21 @@ if ( $page_number > 1 ) {
 
 							foreach ( $meta as $key => $val ) {
 								if ( isset( $val['isCorrect'] ) && boolval( $val['isCorrect'] ) ) {
-									$right ++;
+									++$right;
 								}
 							}
 							?>
 
-							<p class="sui-description"><?php echo sprintf( esc_html__( 'You got %1$s/%2$s correct answers.', 'forminator' ), intval( $right ), intval( $total ) ); ?></p>
+							<p class="sui-description">
+								<?php
+								printf(
+								/* translators: 1: Correct answer, 2: total */
+									esc_html__( 'You got %1$s/%2$s correct answers.', 'forminator' ),
+									intval( $right ),
+									intval( $total )
+								);
+								?>
+							</p>
 
 							<table class="fui-entries-table">
 
@@ -116,10 +131,10 @@ if ( $page_number > 1 ) {
 									<?php foreach ( $meta as $answer ) : ?>
 
 										<?php
-										$total ++;
+										++$total;
 
 										if ( $answer['isCorrect'] ) {
-											$right ++;
+											++$right;
 										}
 
 										if ( isset( $answer['answer'] ) ) {
@@ -141,12 +156,10 @@ if ( $page_number > 1 ) {
 															echo '<span class="sui-tag sui-tag-error">' . esc_html( $val ) . '</span>';
 														}
 													}
-												} else {
-													if ( $answer['isCorrect'] ) {
+												} elseif ( $answer['isCorrect'] ) {
 														echo '<span class="sui-tag sui-tag-success">' . esc_html( $user_answer ) . '</span>';
-													} else {
-														echo '<span class="sui-tag sui-tag-error">' . esc_html( $user_answer ) . '</span>';
-													}
+												} else {
+													echo '<span class="sui-tag sui-tag-error">' . esc_html( $user_answer ) . '</span>';
 												}
 												?>
 											</td>
@@ -212,7 +225,15 @@ if ( $page_number > 1 ) {
 
 										<tr>
 
-											<td colspan="2"><?php echo wp_kses_post( sprintf( __( '<strong>Quiz Result:</strong> %s', 'forminator' ), $meta['result']['title'] ) ); ?></td>
+											<td colspan="2">
+												<?php
+												printf(
+													'<strong>%1$s<strong> %2$s',
+													esc_html__( 'Quiz Result:', 'forminator' ),
+													esc_html( $meta['result']['title'] )
+												);
+												?>
+											</td>
 
 										</tr>
 
@@ -235,6 +256,6 @@ if ( $page_number > 1 ) {
 	</tr>
 
 	<?php
-	$first_item --;
+	--$first_item;
 
 endforeach;

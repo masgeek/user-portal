@@ -1,10 +1,10 @@
 === Brave - Create Popup, Optins, Lead Generation, Survey, Sticky Elements & Interactive Content ===
 Contributors: getbrave
-Tags: popup, wordpress popup, popups, woocommerce popup, lead generation, lead capture, modal, optin
+Tags: popup, wordpress popup, popups, woocommerce popup, lead generation
 Requires at least: 5.2
-Tested up to: 6.1.1
-Stable tag: 0.6.1
-Requires PHP: 5.6.20
+Tested up to: 6.6.2
+Stable tag: 0.7.6
+Requires PHP: 7.2.24
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -118,6 +118,90 @@ The PRO version lets you create unlimited steps that you can link to each other 
 
 
 == Changelog ==
+= 0.7.6 - 09 Jan 2025. =
+* Fixed: Warning messages in PHP 8.2.
+* Fixed: Incorrect Inline form fields width when form has hidden fields.
+* Added: Not all ActiveCampaign tags were being loaded in the backend.
+* Added: Ability to add contacts to Convertkit Sequences.
+* Added: Allow Shortcodes in hidden Form fields.
+
+
+= 0.7.5 - 09 Sep 2024. =
+* Fixed: Embedded Content Crashed pages after the latest update.
+
+
+= 0.7.4 - 08 Oct 2024. =
+* Added: PHP 8.2+ Compatibility.
+
+
+= 0.7.3 - 23 Sep 2024. =
+* Added: Sender.net Integration
+* Fixed: Minor bug fixes.
+
+
+= 0.7.2 - 03 Sep 2024. =
+* Fixed: SQL Injection vulnerablities.
+
+
+= 0.7.1 - 12 Aug 2024. =
+* Fixed: Sometimes opening the Form Newsletter Settings tab crashes the editor.
+* Fixed: Klaviyo Newsletter could not be setup as the lists were not loading. 
+* Fixed: Zoho Integration CSRF Risk.
+
+
+= 0.7.0 - 11 Jun 2024. =
+* Added: Ability to target both UTM Keys and values.
+* Added: Ability to append current URL parameters to the form redirect url.
+* Fixed: Updated Twitter social share icon to the new one.
+* Fixed: XSS Security vulnerablity (Medium severity).
+
+
+= 0.6.9 - 04 Jun 2024. =
+* Added: Ability to exclude Custom Posts.
+* Fixed: XSS Security vulnerablity (Medium severity).
+
+
+= 0.6.8 - 21 Apr 2024. =
+* Added: WeGlot Integration.
+
+
+= 0.6.7 - 12 Mar 2024. =
+* Added: Ability to Add contact to Getresponse Autoresponder.
+* Added: Ability to delay the appearance of the close button.
+* Fixed: Products Elements weren't respecting the Woocommerce Tax price display setting. 
+* Fixed: The Disable IP address option in Analytics was not working in some cases.
+
+
+= 0.6.6 - 21 Feb 2024. =
+* Added: Ability to hide campaigns based on UTM keywords.
+* Fixed: A few PHP deprecation errors.
+* Fixed: SSFR vulnerability.
+* Fixed: WPML Translated Woocommerce Products were not being listed in the Products Element Settings.
+
+
+= 0.6.5 - 08 Jan 2024. =
+* Added: Ability to Auto close popup when a button with a URL is clicked.
+* Fixed: Google Analytics Event Integration was broken.
+
+
+= 0.6.4 - 19 Dec 2023. =
+* Fixed: XSS vulnerability in List Element.
+* Fixed: Text Elements Crashed when it had emojis in them.
+* Fixed: Scroll Trigger & Ajax Loading feature was not working together.
+
+
+= 0.6.3 - 13 Nov 2023. =
+* Added: Updated Klaviyo Integration. Please make sure you add Your Klaviyo Site ID in the Brave Integrations section.
+* Fixed: XSS vulnarability in Text Element.
+* Fixed: Renamed SendinBlue to their new name Brevo.
+
+
+= 0.6.2 - 12 Oct 2023. =
+* Added: New Settings Page. Go to Brave > Settings to access global settings.
+* Fixed: Conflict with Flatsome theme finally fixed!
+* Fixed: Form Submission Redirect URL sometimes failed.
+
+
 = 0.6.1 - 20 Apr 2023. =
 * Added: OmniSend Integration.
 * Added: Upgraded Mailerlite Integration with version 2.

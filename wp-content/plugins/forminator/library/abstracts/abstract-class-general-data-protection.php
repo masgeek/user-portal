@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator General Data Protection.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -23,29 +29,58 @@ abstract class Forminator_General_Data_Protection {
 	 */
 	protected $name;
 
-	protected $cron_cleanup_interval;
+	/**
+	 * Cron cleanup interval
+	 *
+	 * @var int
+	 */
+	protected static $cron_cleanup_interval;
 
+	/**
+	 * Exporters
+	 *
+	 * @var array
+	 */
 	protected $exporters = array();
-	protected $erasers   = array();
 
-	public function __construct( $name, $cron_cleanup_interval = 'hourly' ) {
+	/**
+	 * Erasers
+	 *
+	 * @var array
+	 */
+	protected $erasers = array();
+
+	/**
+	 * Forminator_General_Data_Protection Constructor
+	 *
+	 * @param mixed $name Name.
+	 * @param mixed $cron_cleanup_interval Cron cleanup interval.
+	 */
+	public function __construct( $name, $cron_cleanup_interval = HOUR_IN_SECONDS ) {
 		$this->name                  = $name;
-		$this->cron_cleanup_interval = $cron_cleanup_interval;
+		self::$cron_cleanup_interval = $cron_cleanup_interval;
 		$this->init();
 	}
 
+	/**
+	 * Init
+	 *
+	 * @return void
+	 */
 	protected function init() {
 		add_action( 'admin_init', array( $this, 'add_privacy_message' ) );
 		add_filter( 'wp_privacy_personal_data_exporters', array( $this, 'register_exporters' ), 10 );
 		add_filter( 'wp_privacy_personal_data_erasers', array( $this, 'register_erasers' ), 10 );
 
-		// for data removal / anonymize data.
-		if ( ! wp_next_scheduled( 'forminator_general_data_protection_cleanup' ) ) {
-			wp_schedule_event( time(), $this->get_cron_cleanup_interval(), 'forminator_general_data_protection_cleanup' );
-		}
-
+		add_action( 'init', array( __CLASS__, 'data_protection_cleanup' ) );
 		add_action( 'forminator_general_data_protection_cleanup', array( $this, 'personal_data_cleanup' ) );
+	}
 
+	/**
+	 * Data cleanup action
+	 */
+	public static function data_protection_cleanup() {
+		forminator_set_recurring_action( 'forminator_general_data_protection_cleanup', self::get_cron_cleanup_interval() );
 	}
 
 	/**
@@ -93,7 +128,7 @@ abstract class Forminator_General_Data_Protection {
 			return false;
 		}
 
-		$retain_time = strtotime( '-' . $retain_number . ' ' . $retain_unit, current_time( 'timestamp' ) );
+		$retain_time = strtotime( '-' . $retain_number . ' ' . $retain_unit, current_time( 'timestamp' ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested -- We are using the current timestamp based on the site's timezone.
 		$retain_time = date_i18n( 'Y-m-d H:i:s', $retain_time );
 
 		return $retain_time;
@@ -104,7 +139,7 @@ abstract class Forminator_General_Data_Protection {
 	 *
 	 * @since 1.0.6
 	 *
-	 * @param Forminator_Form_Entry_Model $entry_model
+	 * @param Forminator_Form_Entry_Model $entry_model Form entry model.
 	 */
 	protected function anonymize_entry_model( Forminator_Form_Entry_Model $entry_model ) {
 		if ( isset( $entry_model->meta_data['_forminator_user_ip'] ) ) {
@@ -126,8 +161,9 @@ abstract class Forminator_General_Data_Protection {
 	/**
 	 * Delete older entries
 	 *
-	 * @param int    $module_id
-	 * @param string $retain_time
+	 * @param int    $module_id Module Id.
+	 * @param string $retain_time Retain time.
+	 * @param bool   $is_draft Is draft?.
 	 */
 	protected function delete_older_entries( $module_id, $retain_time, $is_draft = false ) {
 		$entry_ids = Forminator_Form_Entry_Model::get_older_entry_ids( $retain_time, '', $module_id, $is_draft );
@@ -139,7 +175,7 @@ abstract class Forminator_General_Data_Protection {
 	/**
 	 * Append registered exporters to wp exporter
 	 *
-	 * @param array $exporters
+	 * @param array $exporters Exporters.
 	 *
 	 * @return array
 	 */
@@ -154,7 +190,7 @@ abstract class Forminator_General_Data_Protection {
 	/**
 	 * Append registered eraser to wp eraser
 	 *
-	 * @param array $erasers
+	 * @param array $erasers Erasers.
 	 *
 	 * @return array
 	 */
@@ -166,6 +202,14 @@ abstract class Forminator_General_Data_Protection {
 		return $erasers;
 	}
 
+	/**
+	 * Add exporter
+	 *
+	 * @param mixed  $id ID.
+	 * @param string $name Name.
+	 * @param mixed  $callback Callback method.
+	 * @return array
+	 */
 	public function add_exporter( $id, $name, $callback ) {
 		$this->exporters[ $id ] = array(
 			'exporter_friendly_name' => $name,
@@ -175,6 +219,14 @@ abstract class Forminator_General_Data_Protection {
 		return $this->exporters;
 	}
 
+	/**
+	 * Summary of add_eraser
+	 *
+	 * @param mixed  $id ID.
+	 * @param string $name Name.
+	 * @param mixed  $callback Callback method.
+	 * @return array
+	 */
 	public function add_eraser( $id, $name, $callback ) {
 		$this->erasers[ $id ] = array(
 			'eraser_friendly_name' => $name,
@@ -189,8 +241,8 @@ abstract class Forminator_General_Data_Protection {
 	 *
 	 * @return string
 	 */
-	public function get_cron_cleanup_interval() {
-		$cron_cleanup_interval = $this->cron_cleanup_interval;
+	public static function get_cron_cleanup_interval() {
+		$cron_cleanup_interval = self::$cron_cleanup_interval;
 
 		/**
 		 * Filter interval to be used for cleanup process
@@ -207,6 +259,7 @@ abstract class Forminator_General_Data_Protection {
 	/**
 	 * Cleanup personal data
 	 *
+	 * @since 1.27 Change from WP cron to Action Scheduler
 	 * @return bool
 	 */
 	public function personal_data_cleanup() {

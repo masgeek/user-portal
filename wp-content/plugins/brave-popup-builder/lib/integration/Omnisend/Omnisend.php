@@ -3,6 +3,8 @@ if ( ! class_exists( 'BravePop_Omnisend' ) ) {
    
    class BravePop_Omnisend {
 
+      protected $api_key;
+
       function __construct() {
          $braveSettings = get_option('_bravepopup_settings');
          $integrations = $braveSettings && isset($braveSettings['integrations']) ? $braveSettings['integrations'] : array() ;
@@ -17,13 +19,13 @@ if ( ! class_exists( 'BravePop_Omnisend' ) ) {
             'headers' => array(
                'X-API-KEY' => $apiKey
             ),         );
-         $response = wp_remote_get( 'https://api.omnisend.com/v3/contacts?limit=10', $args );
-         //error_log(json_encode($response));
+         $response = wp_remote_get( 'https://api.omnisend.com/v3/contacts?limit=100', $args );
+         //error_log(wp_json_encode($response));
          $body = wp_remote_retrieve_body( $response );
          $data = json_decode( $body );
          
          if($data && isset($data->contacts)){
-            return json_encode(array());
+            return wp_json_encode(array());
          }else{
             return false;
          }
@@ -101,12 +103,12 @@ if ( ! class_exists( 'BravePop_Omnisend' ) ) {
                'content-type' => 'application/json',
                'X-API-KEY' => $this->api_key
             ),
-            'body' => json_encode($contact)
+            'body' => wp_json_encode($contact)
          );
          
          $response = wp_remote_post( 'https://api.omnisend.com/v3/contacts', $args );
-         // error_log(json_encode($contact));
-         // error_log(json_encode($response));
+         // error_log(wp_json_encode($contact));
+         // error_log(wp_json_encode($response));
          $body = wp_remote_retrieve_body( $response );
          $data = json_decode( $body );
 

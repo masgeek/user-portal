@@ -53,11 +53,11 @@ if ( ! class_exists( 'Kenta_Socials_Extension' ) ) {
 					[
 						'visible'  => true,
 						'settings' => [
-							'color' => [ 'official' => '#7acdee' ],
+							'color' => [ 'official' => '#000000' ],
 							'label' => 'Twitter',
 							'url'   => '',
 							'share' => 'https://twitter.com/share?url={url}&text={text}',
-							'icon'  => [ 'value' => 'fab fa-twitter', 'library' => 'fa-brands' ]
+							'icon'  => [ 'value' => 'fab fa-x-twitter', 'library' => 'fa-brands' ]
 						],
 					],
 					[

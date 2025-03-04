@@ -31,12 +31,13 @@ class Bootstrap {
 
 		// init default settings
 		$defaultSettings = require KENTA_BLOCKS_PLUGIN_PATH . 'inc/settings.php';
-		kenta_blocks_setting()->addSettings( $defaultSettings );
+		kenta_blocks_setting()->add_settings( $defaultSettings );
 
 		// Show opt-in notice
-		if ( ! kb_fs()->is_registered() ) {
+		if ( ! kb_fs()->is_registered() && current_user_can( 'manage_options' ) ) {
 			kenta_blocks_notices()->add_notice(
 				sprintf(
+				/* translators: %s is the opt-in link */
 					__( 'We made a few tweaks to the Kenta Blocks, %s', 'kenta-blocks' ),
 					sprintf( '<b><a href="%s">%s</a></b>',
 						add_query_arg( [ 'page' => 'kenta-blocks-optin' ], admin_url( 'admin.php' ) ),
@@ -44,7 +45,7 @@ class Bootstrap {
 					)
 				),
 				'connect_account',
-				'Kenta Blocks'
+				__( 'Kenta Blocks', 'kenta-blocks' )
 			);
 		}
 	}
@@ -59,6 +60,8 @@ class Bootstrap {
 			$this,
 			'blocks_categories'
 		), PHP_INT_MAX );
+
+		add_filter( 'wp_kses_allowed_html', array( $this, 'allow_safe_svg' ) );
 	}
 
 	/**
@@ -98,5 +101,35 @@ class Bootstrap {
 		     'kenta_page_kenta-companion-optin' === $screen->id ) {
 			kenta_blocks_notices()->remove_notice( 'connect_account' );
 		}
+	}
+
+	/**
+	 * Allow safe svg in wp_kses_post
+	 *
+	 * @param $tags
+	 *
+	 * @return mixed
+	 */
+	public function allow_safe_svg( $tags ) {
+		$svg_args = array(
+			'svg'      => array(
+				'class'           => true,
+				'aria-hidden'     => true,
+				'aria-labelledby' => true,
+				'role'            => true,
+				'xmlns'           => true,
+				'width'           => true,
+				'height'          => true,
+				'viewbox'         => true,
+			),
+			'clipPath' => array( 'id' => true ),
+			'rect'     => array( 'width' => true, 'height' => true, 'fill' => true, 'transform' => true ),
+			'defs'     => array(),
+			'g'        => array( 'fill' => true ),
+			'title'    => array( 'title' => true ),
+			'path'     => array( 'd' => true, 'fill' => true, ),
+		);
+
+		return array_merge( $tags, $svg_args );
 	}
 }

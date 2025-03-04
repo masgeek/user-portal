@@ -181,7 +181,7 @@ ul.accordion-section-content.open {
   font-size: 12px;
   line-height: 1.5;
   font-style: italic;
-  opacity: 0.65;
+  opacity: 0.75;
   color: var(--lotta-text-color, #555d66);
   margin: 10px 0 0 0;
   transition: opacity 0.1s ease;
@@ -473,6 +473,12 @@ ul.accordion-section-content.open {
 .lotta-react-color-picker {
   min-width: 314px;
 }
+.lotta-react-color-picker .category-title {
+  margin: 0;
+  padding: 12px 12px 0 12px;
+  text-transform: uppercase;
+  font-size: 11px;
+}
 .lotta-react-color-picker .swatches,
 .lotta-react-color-picker .color-picker {
   padding: 12px;
@@ -483,11 +489,11 @@ ul.accordion-section-content.open {
 }
 .lotta-react-color-picker .swatches {
   display: flex;
+  gap: 6px;
   flex-wrap: wrap;
   border-bottom: 1px solid #dedede;
 }
 .lotta-react-color-picker .swatches .swatch-wrap {
-  padding: 2px;
   line-height: 0;
   font-size: 0;
 }
@@ -1178,10 +1184,7 @@ ul.accordion-section-content.open {
 .lotta-color-picker .colors {
   display: flex;
   flex-wrap: wrap;
-}
-.lotta-color-palettes-control .colors > div,
-.lotta-color-picker .colors > div {
-  margin-left: 6px;
+  gap: 4px;
 }
 .lotta-color-palettes-control .colors > div:first-of-type,
 .lotta-color-picker .colors > div:first-of-type {
@@ -2155,8 +2158,7 @@ ul.accordion-section-content.open {
 .lotta-fonts-list-wrapper .font-item .font-label {
   display: flex;
   justify-content: space-between;
-  font-size: 0.85em;
-  opacity: 0.65;
+  opacity: 0.75;
 }
 .lotta-fonts-list-wrapper .font-item .font-preview {
   margin: 0;
@@ -2936,4 +2938,35 @@ ul.accordion-section-content.open {
 }
 .lotta-css-filter .css-filter-modal .css-filter-section > .lotta-control:last-of-type {
   margin-bottom: 0;
+}
+
+.lotta-file-uploader {
+  --wp-admin-theme-color: var(--lotta-primary-color, #096dd9);
+}
+.lotta-file-uploader .lotta-upload-button {
+  width: 100%;
+  padding: 5px 0;
+  border-radius: var(--lotta-border-radius, 2px);
+  box-shadow: none;
+  background: var(--lotta-background-focus, #f6f7f7);
+  border: 1px dashed var(--lotta-border-color, #ccc);
+  transition: all 0.15s;
+}
+.lotta-file-uploader .lotta-upload-button.active, .lotta-file-uploader .lotta-upload-button:hover {
+  color: var(--lotta-primary-color, #096dd9);
+  border-color: var(--lotta-primary-color, #096dd9);
+  background: var(--lotta-background-focus, #ffffff);
+  box-shadow: none;
+}
+.lotta-file-uploader .lotta-upload-button:active {
+  transform: none;
+}
+.lotta-file-uploader .lotta-file-list {
+  margin: 10px 0 10px 18px;
+  padding: 0;
+  list-style: circle;
+  opacity: 0.85;
+}
+.lotta-file-uploader .lotta-file-list li {
+  margin: 0;
 }

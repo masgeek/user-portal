@@ -1,4 +1,10 @@
 <?php
+/**
+ * Template admin/views/settings/tab-pagination.php
+ *
+ * @package Forminator
+ */
+
 $entries_per_page = get_option( 'forminator_pagination_entries', 10 );
 $module_per_page  = get_option( 'forminator_pagination_listings', 10 );
 ?>

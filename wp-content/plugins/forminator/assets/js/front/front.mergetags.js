@@ -80,8 +80,10 @@
 				});
 			}
 
-			this.replaceAll();
-			this.attachEvents();
+			setTimeout(function () {
+				self.replaceAll();
+				self.attachEvents();
+			}, 100);
 		},
 
 		getFormId: function () {
@@ -100,6 +102,7 @@
 
 			this.$el.find(
 				'.forminator-textarea, input.forminator-input, .forminator-checkbox, .forminator-radio, .forminator-input-file, select.forminator-select2, .forminator-multiselect input'
+				+ ', input.forminator-slider-hidden, input.forminator-slider-hidden-min, input.forminator-slider-hidden-max, select.forminator-rating'
 			).each(function () {
 				$(this).on('change', function () {
 					// Give jquery sometime to apply changes
@@ -169,9 +172,14 @@
 					//find element by its on name[] (for checkbox on multivalue)
 					$element = $form.find('input[name="' + element_id + '[]"]');
 					if ($element.length === 0) {
-						//find element by direct id (for name field mostly)
-						//will work for all field with element_id-[somestring]
-						$element = $form.find('#' + element_id);
+						$element = $form.find(
+							'select[name="' + element_id + '[]"]'
+						);
+						if ($element.length === 0) {
+							//find element by direct id (for name field mostly)
+							//will work for all field with element_id-[somestring]
+							$element = $form.find('#' + element_id);
+						}
 					}
 				}
 			}
@@ -197,6 +205,10 @@
 
 			if ( this.is_hidden( element_id ) && ! this.is_calculation( element_id ) ) {
          	return '';
+			}
+
+			if ( $element.length === 0 ) {
+				return '';
 			}
 
 			if ( this.is_calculation( element_id ) ) {
@@ -246,11 +258,16 @@
 			} else if (this.field_is_select($element)) {
 				checked = $element.find("option").filter(':selected');
 				if (checked.length) {
-					if ( this.settings.print_value ) {
-						value = checked.val();
-					} else {
-						value = checked.text();
-					}
+					checked.each( function () {
+						if ( value !== '' ) {
+							value += ', ';
+						}
+						if ( self.settings.print_value ) {
+							value += $( this ).val();
+						} else {
+							value += $( this ).text();
+						}
+					} );
 				}
 			} else if (this.field_is_upload($element)) {
 				value = $element.val().split('\\').pop();
@@ -262,7 +279,7 @@
 				value = $element.val();
 			}
 
-			return value;
+			return this.sanitize_text_field( value );
 		},
 
 		field_has_inputMask: function ( $element ) {
@@ -333,6 +350,19 @@
 			}
 
 			return false;
+		},
+
+		/**
+		 * Sanitize the user input value.
+		 *
+		 * @param {value} value
+		 */
+		sanitize_text_field: function ( value ) {
+			if ( typeof value === 'string' ) {
+				const sanitizedValue = value.replace( /<\/?[^>]+(>|$)/g, '' );
+				return sanitizedValue.trim();
+			}
+			return value;
 		},
 	});
 

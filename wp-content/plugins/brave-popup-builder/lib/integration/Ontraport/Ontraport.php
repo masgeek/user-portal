@@ -3,6 +3,9 @@ if ( ! class_exists( 'BravePop_Ontraport' ) ) {
    
    class BravePop_Ontraport {
 
+      protected $api_key;
+      protected $api_secret;
+
       function __construct() {
          $braveSettings = get_option('_bravepopup_settings');
          $integrations = $braveSettings && isset($braveSettings['integrations']) ? $braveSettings['integrations'] : array() ;
@@ -37,7 +40,7 @@ if ( ! class_exists( 'BravePop_Ontraport' ) ) {
                $finalLists[] = $listItem;
             }
 
-            return json_encode($finalLists);
+            return wp_json_encode($finalLists);
          }else{
             return false;
          }
@@ -48,7 +51,7 @@ if ( ! class_exists( 'BravePop_Ontraport' ) ) {
       public function add_to_lists($email, $list_id, $fname='', $lname='', $phone='', $customFields=array(), $tags=array(), $userData=array()){
          if(!$email || !$list_id){ return null; }
          if(!$this->api_key || !$this->api_secret){ 
-            error_log('Ontraport API KEY or SECRET Missing!');
+           // error_log('Ontraport API KEY or SECRET Missing!');
             return false;
          }
          
@@ -71,14 +74,14 @@ if ( ! class_exists( 'BravePop_Ontraport' ) ) {
             }
          }
 
-         $args = array( 'method' => 'POST', 'timeout' => 30, 'headers' => array( 'Api-Key' => $this->api_key, 'Api-Appid' => $this->api_secret  ), 'body' => json_encode($contact) );
+         $args = array( 'method' => 'POST', 'timeout' => 30, 'headers' => array( 'Api-Key' => $this->api_key, 'Api-Appid' => $this->api_secret  ), 'body' => wp_json_encode($contact) );
 
          // https://api.ontraport.com/doc/#merge-or-create-a-contact
          $response = wp_remote_post( 'https://api.ontraport.com/1/Contacts/saveorupdate', $args );
          
          $body = wp_remote_retrieve_body( $response );
          $data = json_decode( $body );
-         //error_log(json_encode($response));
+         //error_log(wp_json_encode($response));
 
          if(isset($data->data) && (isset($data->data->id) || (isset($data->data->attrs) && isset($data->data->attrs->id)) )){
             $esp_user_id = isset($data->data->id) ? $data->data->id : false;
@@ -99,12 +102,12 @@ if ( ! class_exists( 'BravePop_Ontraport' ) ) {
             //https://api.ontraport.com/doc/#subscribe-an-object-to-a-campaign-or-sequence
             $subargs = array('method' => 'PUT', 'timeout' => 30,
                'headers' => array( 'Api-Key' => $this->api_key, 'Api-Appid' => $this->api_secret, ),
-               'body' => json_encode(array('objectID'=> 0,'ids'=>$espID, 'sub_type'=> 'Campaign', 'add_list'=> $list_id ))
+               'body' => wp_json_encode(array('objectID'=> 0,'ids'=>$espID, 'sub_type'=> 'Campaign', 'add_list'=> $list_id ))
             );
             $subResponse = wp_remote_post( 'https://api.ontraport.com/1/objects/subscribe', $subargs );
             $body = wp_remote_retrieve_body( $subResponse );
             $data = json_decode( $body );
-            //error_log(json_encode($subResponse));
+            //error_log(wp_json_encode($subResponse));
 
             if(isset($data->account_id)){
                $addedData = array(

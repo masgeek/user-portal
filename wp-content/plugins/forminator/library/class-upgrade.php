@@ -1,4 +1,10 @@
 <?php
+/**
+ * Forminator Upgrade
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -42,7 +48,7 @@ class Forminator_Upgrade {
 
 			add_action(
 				'forminator_loaded',
-				function() use ( $old_version ) {
+				function () use ( $old_version ) {
 					/**
 					 * Triggered when Forminator version is updated
 					 *
@@ -53,29 +59,15 @@ class Forminator_Upgrade {
 				}
 			);
 		}
-
-		// cleanup ip address on views.
-		self::cleanup_views_ip_address();
-	}
-
-	public static function flush_rewrite() {
-		// Flush rewrite rules.
-		flush_rewrite_rules();
 	}
 
 	/**
-	 * Clean up up address on views
+	 * Flush rewrite
 	 *
-	 * @since 1.5.4
-	 * @return bool
+	 * @return void
 	 */
-	public static function cleanup_views_ip_address() {
-		if ( defined( 'FORMINATOR_VIEWS_ENABLE_TRACK_IP' ) && FORMINATOR_VIEWS_ENABLE_TRACK_IP ) {
-			return false;
-		}
-		$views = new Forminator_Form_Views_Model();
-		$views->maybe_cleanup_ip_address();
-
-		return true;
+	public static function flush_rewrite() {
+		// Flush rewrite rules.
+		flush_rewrite_rules();
 	}
 }

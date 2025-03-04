@@ -55,13 +55,16 @@ class Extensions {
 			KCMP_VERSION
 		);
 
+		$assets = array();
+		if ( file_exists( KCMP_ASSETS_PATH . 'js/kenta-companion.asset.php' ) ) {
+			$assets = require KCMP_ASSETS_PATH . 'js/kenta-companion.asset.php';
+		}
+
 		wp_enqueue_script(
 			'kenta-cmp-script',
 			KCMP_ASSETS_URL . 'js/kenta-companion' . $suffix . '.js',
-			[
-				'jquery',
-			],
-			KCMP_VERSION
+			$assets['dependencies'] ?? array(),
+			$assets['version'] ?? KCMP_VERSION
 		);
 
 	}

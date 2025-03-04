@@ -1,4 +1,9 @@
 <?php
+/**
+ * The Forminator_Calculator_Symbol_Constant_Pi class.
+ *
+ * @package Forminator
+ */
 
 /**
  * PHP M_PI constant
@@ -9,13 +14,16 @@
 class Forminator_Calculator_Symbol_Constant_Pi extends Forminator_Calculator_Symbol_Constant_Abstract {
 
 	/**
-	 * @inheritdoc
+	 * Identifiers
+	 *
+	 * @var array
 	 */
 	protected $identifiers = array( 'pi' );
 
 	/**
-	 * @inheritdoc
+	 * Value
+	 *
+	 * @var float
 	 */
 	protected $value = M_PI;
-
 }

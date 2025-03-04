@@ -1,3 +1,11 @@
+<?php
+/**
+ * Template admin/views/integrations/page-content.php
+ *
+ * @package Forminator
+ */
+
+?>
 <p>
 	<?php
 		esc_html_e( 'Forminator integrates with your favorite third party apps. You can connect to the available apps via their API here and activate them to collect data in the Integrations tab of your forms, polls or quizzes.', 'forminator' );

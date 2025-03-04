@@ -5,35 +5,25 @@
  * @package Kenta
  */
 
-use LottaFramework\Facades\CZ;
 use LottaFramework\Utils;
 
-$layout          = 'no-sidebar';
-$container_style = 'boxed';
+$sidebar         = kenta_get_sidebar_layout( 'page' );
+$container_style = kenta_get_container_style( 'page' );
 
-$page_sidebar   = kenta_get_current_post_meta( 'site-sidebar-layout' );
-$page_container = kenta_get_current_post_meta( 'site-container-style' );
-
-if ( $page_sidebar && $page_sidebar !== 'default' ) {
-	$layout = $page_sidebar;
-} else if ( ( ! is_front_page() || is_home() ) && CZ::checked( 'kenta_page_sidebar_section' ) ) {
-	$layout = CZ::get( 'kenta_page_sidebar_layout' );
-}
-
-if ( $page_container && $page_container !== 'default' ) {
-	$container_style = $page_container;
-} else {
-	$container_style = CZ::get( 'kenta_pages_container_style' );
-}
+$container_css = kenta_container_css( array(
+	'sidebar' => $sidebar,
+	'style'   => $container_style,
+	'layout'  => kenta_get_container_layout( 'page' ),
+) );
 
 /**
  * Hook - kenta_action_before_page_container.
  */
-do_action( 'kenta_action_before_page_container', $layout );
+do_action( 'kenta_action_before_page_container', $sidebar );
 ?>
 
-<div class="<?php Utils::the_clsx( kenta_container_css( $layout, $container_style ) ) ?>">
-    <div id="content" class="kenta-article-content-wrap flex-grow max-w-full">
+<main class="<?php Utils::the_clsx( $container_css ) ?>">
+    <div id="content" class="kenta-article-content-wrap relative flex-grow max-w-full">
 		<?php
 		// posts loop
 		while ( have_posts() ) {
@@ -47,7 +37,7 @@ do_action( 'kenta_action_before_page_container', $layout );
 			/**
 			 * Hook - kenta_action_page.
 			 */
-			do_action( 'kenta_action_page', $layout );
+			do_action( 'kenta_action_page', $sidebar );
 
 			/**
 			 * Hook - kenta_action_after_page.
@@ -61,6 +51,6 @@ do_action( 'kenta_action_before_page_container', $layout );
 	/**
 	 * Hook - kenta_action_sidebar.
 	 */
-	do_action( 'kenta_action_sidebar', $layout );
+	do_action( 'kenta_action_sidebar', $sidebar );
 	?>
-</div>
+</main>

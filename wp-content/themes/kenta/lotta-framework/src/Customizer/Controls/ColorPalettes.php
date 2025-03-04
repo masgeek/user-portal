@@ -41,4 +41,19 @@ class ColorPalettes extends Control {
 
 		return $this->setOption( 'palettes', $palettes );
 	}
+
+	/**
+	 * @param $id
+	 * @param $maps
+	 *
+	 * @return ColorPalettes
+	 *
+	 * @since v2.0.15
+	 */
+	public function setColor( $id, $map ) {
+		$maps        = $this->options['maps'] ?? [];
+		$maps[ $id ] = $map;
+
+		return $this->setOption( 'maps', $maps );
+	}
 }

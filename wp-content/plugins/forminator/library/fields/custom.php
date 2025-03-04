@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Custom class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -11,26 +17,43 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Forminator_Custom extends Forminator_Field {
 
 	/**
+	 * Name
+	 *
 	 * @var string
 	 */
 	public $name = '';
 
 	/**
+	 * Slug
+	 *
 	 * @var string
 	 */
 	public $slug = 'custom';
 
 	/**
+	 * Type
+	 *
 	 * @var string
 	 */
 	public $type = 'custom';
 
 	/**
+	 * Options
+	 *
 	 * @var array
 	 */
 	public $options = array();
 
 	/**
+	 * Category
+	 *
+	 * @var string
+	 */
+	public $category = '';
+
+	/**
+	 * Category
+	 *
 	 * @var string
 	 */
 	// public $category = 'posts';.
@@ -44,11 +67,13 @@ class Forminator_Custom extends Forminator_Field {
 	public function __construct() {
 		parent::__construct();
 
-		$this->name = __( 'Custom Field', 'forminator' );
+		$this->name = esc_html__( 'Custom Field', 'forminator' );
 	}
 
 	/**
-	 * @param array $settings
+	 * Load settings
+	 *
+	 * @param array $settings Settings.
 	 *
 	 * @return array
 	 */
@@ -63,7 +88,7 @@ class Forminator_Custom extends Forminator_Field {
 				'values'     => array(
 					array(
 						'value'      => 'true',
-						'label'      => __( 'Required', 'forminator' ),
+						'label'      => esc_html__( 'Required', 'forminator' ),
 						'labelSmall' => 'true',
 					),
 				),
@@ -80,7 +105,7 @@ class Forminator_Custom extends Forminator_Field {
 				'type'       => 'Text',
 				'name'       => 'field_label',
 				'hide_label' => false,
-				'label'      => __( 'Field Label', 'forminator' ),
+				'label'      => esc_html__( 'Field Label', 'forminator' ),
 				'className'  => 'text-field',
 			),
 
@@ -90,39 +115,39 @@ class Forminator_Custom extends Forminator_Field {
 				'name'         => 'field_type',
 				'className'    => 'select-field',
 				'label_hidden' => false,
-				'label'        => __( 'Field type', 'forminator' ),
+				'label'        => esc_html__( 'Field type', 'forminator' ),
 				'values'       => array(
 					array(
 						'value' => 'text',
-						'label' => __( 'Single line text', 'forminator' ),
+						'label' => esc_html__( 'Single line text', 'forminator' ),
 					),
 					array(
 						'value' => 'textarea',
-						'label' => __( 'Multi line text', 'forminator' ),
+						'label' => esc_html__( 'Multi line text', 'forminator' ),
 					),
 					array(
 						'value' => 'dropdown',
-						'label' => __( 'Dropdown', 'forminator' ),
+						'label' => esc_html__( 'Dropdown', 'forminator' ),
 					),
 					array(
 						'value' => 'multiselect',
-						'label' => __( 'Multi Select', 'forminator' ),
+						'label' => esc_html__( 'Multi Select', 'forminator' ),
 					),
 					array(
 						'value' => 'number',
-						'label' => __( 'Number', 'forminator' ),
+						'label' => esc_html__( 'Number', 'forminator' ),
 					),
 					array(
 						'value' => 'checkbox',
-						'label' => __( 'Checkboxes', 'forminator' ),
+						'label' => esc_html__( 'Checkboxes', 'forminator' ),
 					),
 					array(
 						'value' => 'radio',
-						'label' => __( 'Radio Buttons', 'forminator' ),
+						'label' => esc_html__( 'Radio Buttons', 'forminator' ),
 					),
 					array(
 						'value' => 'hidden',
-						'label' => __( 'Hidden', 'forminator' ),
+						'label' => esc_html__( 'Hidden', 'forminator' ),
 					),
 				),
 			),
@@ -133,15 +158,15 @@ class Forminator_Custom extends Forminator_Field {
 				'name'           => 'custom_field_name',
 				'className'      => 'custom-field-name-field',
 				'containerClass' => 'wpmudev-is_gray',
-				'label'          => __( 'Custom field name', 'forminator' ),
+				'label'          => esc_html__( 'Custom field name', 'forminator' ),
 				'values'         => array(
 					array(
 						'value' => 'existing',
-						'label' => __( 'Existing field', 'forminator' ),
+						'label' => esc_html__( 'Existing field', 'forminator' ),
 					),
 					array(
 						'value' => 'new',
-						'label' => __( 'New field', 'forminator' ),
+						'label' => esc_html__( 'New field', 'forminator' ),
 					),
 				),
 				'fields'         => array(
@@ -150,7 +175,7 @@ class Forminator_Custom extends Forminator_Field {
 						'type'      => 'Select',
 						'name'      => 'existing_field',
 						'className' => 'existing-field',
-						'label'     => __( 'Pick existing field', 'forminator' ),
+						'label'     => esc_html__( 'Pick existing field', 'forminator' ),
 						'tab'       => 'existing',
 						'values'    => array(),
 					),
@@ -176,7 +201,7 @@ class Forminator_Custom extends Forminator_Field {
 	 * Field front-end markup
 	 *
 	 * @since 1.0
-	 * @param $field
+	 * @param array                  $field Field.
 	 * @param Forminator_Render_Form $views_obj Forminator_Render_Form object.
 	 *
 	 * @return mixed
@@ -187,7 +212,7 @@ class Forminator_Custom extends Forminator_Field {
 		$name          = $id;
 		$field_type    = self::get_property( 'field_type', $field );
 		$placeholder   = esc_html( self::get_property( 'placeholder', $field ) );
-		$description   = esc_html( self::get_property( 'description', $field ) );
+		$description   = self::get_property( 'description', $field );
 		$label         = esc_html( self::get_property( 'field_label', $field ) );
 		$id            = $id . '-field';
 		$html          = '';
@@ -248,16 +273,16 @@ class Forminator_Custom extends Forminator_Field {
 	 * Field back-end validation
 	 *
 	 * @since 1.0
-	 * @param array        $field
-	 * @param array|string $data
+	 * @param array        $field Field.
+	 * @param array|string $data Data.
 	 */
 	public function validate( $field, $data ) {
 		if ( $this->is_required( $field ) ) {
 			$id   = self::get_property( 'element_id', $field );
-			$name = self::get_property( 'custom_field_name', $field, __( 'field name', 'forminator' ) );
+			$name = self::get_property( 'custom_field_name', $field, esc_html__( 'field name', 'forminator' ) );
 			if ( empty( $data ) ) {
-				/* translators: ... */
-				$this->validation_message[ $id ] = sprintf( __( 'This field is required. Please enter the %s.', 'forminator' ), $name );
+				/* translators: %s: Field name */
+				$this->validation_message[ $id ] = sprintf( esc_html__( 'This field is required. Please enter the %s.', 'forminator' ), $name );
 			}
 		}
 	}
@@ -267,7 +292,7 @@ class Forminator_Custom extends Forminator_Field {
 	 *
 	 * @since 1.0.2
 	 *
-	 * @param array        $field
+	 * @param array        $field Field.
 	 * @param array|string $data - the data to be sanitized.
 	 *
 	 * @return array|string $data - the data after sanitization

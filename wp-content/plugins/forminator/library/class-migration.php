@@ -1,4 +1,10 @@
 <?php
+/**
+ * Forminator Migration
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -11,8 +17,8 @@ class Forminator_Migration {
 	/**
 	 * Static method to combine all settings migrations
 	 *
-	 * @param $settings
-	 * @param $fields
+	 * @param mixed $settings Settings.
+	 * @param array $fields Fields.
 	 *
 	 * @since 1.6
 	 *
@@ -72,12 +78,30 @@ class Forminator_Migration {
 		 */
 		$settings = self::migrate_pagination_form_settings( $settings, $fields );
 
+		if ( version_compare( $version, '1.37', 'lt' ) ) {
+			/**
+			 * Migrate Data Storage settings
+			 *
+			 * @since 1.15.12
+			 */
+			$settings = self::migrate_data_storage_settings( $settings );
+		}
+
 		/**
-		 * Migrate Data Storage settings
+		 * Migrate behaviour settings
 		 *
 		 * @since 1.15.12
 		 */
-		$settings = self::migrate_data_storage_settings( $settings, $fields );
+		$settings = self::migrate_data_behaviour_settings( $settings, $fields );
+
+		if ( version_compare( $version, '1.37', 'lt' ) ) {
+			/**
+			 * Migrate appearance settings.
+			 *
+			 * @since 1.36
+			 */
+			$settings = self::migrate_appearance_settings( $settings );
+		}
 
 		return $settings;
 	}
@@ -85,8 +109,8 @@ class Forminator_Migration {
 	/**
 	 * Static method to combine all field migrations
 	 *
-	 * @param        $field
-	 * @param string $settings
+	 * @param array  $field Field.
+	 * @param string $settings Settings.
 	 *
 	 * @since 1.6
 	 *
@@ -104,7 +128,7 @@ class Forminator_Migration {
 			return $field;
 		}
 
-		// skip alpha/beta ... from migration.
+		// Skip alpha/beta ... from migration.
 		if ( version_compare( $version, '1.6-alpha.1', 'lt' ) ) {
 
 			/**
@@ -210,7 +234,7 @@ class Forminator_Migration {
 	/**
 	 * Static method to combine all settings migrations
 	 *
-	 * @param $settings
+	 * @param array $settings Settings.
 	 *
 	 * @since 1.6.1
 	 *
@@ -239,12 +263,14 @@ class Forminator_Migration {
 			$settings = self::migrate_padding_border_settings_1_6_1( $settings );
 		}
 
-		/**
-		 * Migrate Data Storage settings
-		 *
-		 * @since 1.15.12
-		 */
-		$settings = self::migrate_data_storage_settings( $settings );
+		if ( version_compare( $version, '1.37', 'lt' ) ) {
+			/**
+			 * Migrate Data Storage settings
+			 *
+			 * @since 1.15.12
+			 */
+			$settings = self::migrate_data_storage_settings( $settings );
+		}
 
 		return $settings;
 	}
@@ -252,7 +278,7 @@ class Forminator_Migration {
 	/**
 	 * Static method to combine all settings migrations
 	 *
-	 * @param $settings
+	 * @param array $settings Settings.
 	 *
 	 * @since 1.6.1
 	 *
@@ -274,20 +300,20 @@ class Forminator_Migration {
 			$settings = self::migrate_share_settings_1_6_2( $settings );
 		}
 
-		/**
-		 * Migrate Data Storage settings
-		 *
-		 * @since 1.15.12
-		 */
-		$settings = self::migrate_data_storage_settings( $settings );
+		if ( version_compare( $version, '1.37', 'lt' ) ) {
+			/**
+			 * Migrate Data Storage settings
+			 *
+			 * @since 1.15.12
+			 */
+			$settings = self::migrate_data_storage_settings( $settings );
+		}
 
 		return $settings;
 	}
 
 	/**
 	 * Migrate Leads Forms (change their post_status)
-	 *
-	 * @global object $wpdb
 	 */
 	public static function migrate_leads_forms() {
 		$args = array(
@@ -295,8 +321,8 @@ class Forminator_Migration {
 			'post_status'  => 'any',
 			'fields'       => 'ids',
 			'numberposts'  => -1,
-			'meta_key'     => 'forminator_form_meta',
-			'meta_value'   => 'form-type";s:5:"leads"',
+			'meta_key'     => 'forminator_form_meta', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+			'meta_value'   => 'form-type";s:5:"leads"', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 			'meta_compare' => 'LIKE',
 		);
 
@@ -315,7 +341,7 @@ class Forminator_Migration {
 	/**
 	 * Migrate new field types from 1.6 version
 	 *
-	 * @param $field
+	 * @param array $field Field.
 	 *
 	 * @since 1.6
 	 *
@@ -343,7 +369,7 @@ class Forminator_Migration {
 	/**
 	 * Migrate invisible captcha from 1.6 version
 	 *
-	 * @param $field
+	 * @param array $field Field.
 	 *
 	 * @since 1.6
 	 *
@@ -365,7 +391,7 @@ class Forminator_Migration {
 	/**
 	 * Migrate email validation
 	 *
-	 * @param $field
+	 * @param array $field Field.
 	 *
 	 * @since 1.6
 	 *
@@ -388,8 +414,8 @@ class Forminator_Migration {
 	/**
 	 * Migration section border settings
 	 *
-	 * @param $field
-	 * @param $settings
+	 * @param array $field Field.
+	 * @param array $settings Settings.
 	 *
 	 * @since 1.6
 	 *
@@ -414,7 +440,7 @@ class Forminator_Migration {
 	/**
 	 * Migrate phone field validation
 	 *
-	 * @param $field
+	 * @param array $field Field.
 	 *
 	 * @since 1.6
 	 *
@@ -435,7 +461,7 @@ class Forminator_Migration {
 	/**
 	 * Migrate multiple fields required
 	 *
-	 * @param $field
+	 * @param array $field Field.
 	 *
 	 * @since 1.6
 	 *
@@ -476,7 +502,7 @@ class Forminator_Migration {
 	/**
 	 * Migrate new pagination settings
 	 *
-	 * @param $settings
+	 * @param array $settings Settings.
 	 *
 	 * @since 1.6
 	 *
@@ -503,7 +529,7 @@ class Forminator_Migration {
 	/**
 	 * Migrate new padding settings
 	 *
-	 * @param $settings
+	 * @param array $settings Settings.
 	 *
 	 * @since 1.6
 	 *
@@ -524,7 +550,7 @@ class Forminator_Migration {
 	/**
 	 * Migrate new padding settings
 	 *
-	 * @param $settings
+	 * @param array $settings Settings.
 	 *
 	 * @since 1.6.1
 	 *
@@ -545,7 +571,7 @@ class Forminator_Migration {
 	/**
 	 * Migrate new padding settings
 	 *
-	 * @param $settings
+	 * @param array $settings Settings.
 	 *
 	 * @since 1.6.1
 	 *
@@ -562,7 +588,7 @@ class Forminator_Migration {
 	/**
 	 * Migrate custom font settings
 	 *
-	 * @param $settings
+	 * @param array $settings Settings.
 	 *
 	 * @since 1.6
 	 *
@@ -609,7 +635,7 @@ class Forminator_Migration {
 	/**
 	 * Migrate submit data
 	 *
-	 * @param $settings
+	 * @param array $settings Settings.
 	 *
 	 * @since 1.6
 	 *
@@ -638,7 +664,7 @@ class Forminator_Migration {
 	/**
 	 * Check if migration is needed
 	 *
-	 * @param $version
+	 * @param string $version Version.
 	 *
 	 * @since 1.6
 	 *
@@ -655,7 +681,7 @@ class Forminator_Migration {
 	/**
 	 * Get form version
 	 *
-	 * @param $settings
+	 * @param array $settings Settings.
 	 *
 	 * @since 1.6
 	 *
@@ -674,7 +700,7 @@ class Forminator_Migration {
 	 *
 	 * @since 1.6
 	 *
-	 * @param $field
+	 * @param array $field Field.
 	 *
 	 * @return mixed
 	 */
@@ -693,7 +719,7 @@ class Forminator_Migration {
 	/**
 	 * Migrate `text_limit` to `limit`
 	 *
-	 * @param $field
+	 * @param array $field Field.
 	 *
 	 * @since 1.6
 	 *
@@ -718,7 +744,7 @@ class Forminator_Migration {
 	/**
 	 * Migrate share settings
 	 *
-	 * @param $settings
+	 * @param array $settings Settings.
 	 *
 	 * @since 1.6.2
 	 *
@@ -735,7 +761,7 @@ class Forminator_Migration {
 	/**
 	 * Migrate Pagination settings
 	 *
-	 * @param $field
+	 * @param array $field Field.
 	 *
 	 * @since 1.7.4
 	 *
@@ -761,7 +787,7 @@ class Forminator_Migration {
 	/**
 	 * Migrate Date limit
 	 *
-	 * @param $field
+	 * @param array $field Field.
 	 *
 	 * @since 1.13
 	 *
@@ -776,7 +802,7 @@ class Forminator_Migration {
 				$disable_date            = array();
 				if ( isset( $field['date_multiple'] ) && ! empty( $field['date_multiple'] ) ) {
 					foreach ( $field['date_multiple'] as $key => $date ) {
-						$disable_date[] = date( 'm/d/Y', strtotime( $date['value'] ) );
+						$disable_date[] = gmdate( 'm/d/Y', strtotime( $date['value'] ) );
 					}
 					$field['disabled-dates'] = $disable_date;
 				}
@@ -795,10 +821,10 @@ class Forminator_Migration {
 	}
 
 	/**
-	 *  pagination settings migrations
+	 * Pagination settings migrations
 	 *
-	 * @param $fields
-	 * @param $settings
+	 * @param array $settings Settings.
+	 * @param array $fields Fields.
 	 *
 	 * @since 1.7.4
 	 *
@@ -853,9 +879,9 @@ class Forminator_Migration {
 	/**
 	 * Static method to combine all notification migrations
 	 *
-	 * @param $notifications
-	 * @param $settings
-	 * @param $forms
+	 * @param array $notifications Notifications.
+	 * @param array $settings Settings.
+	 * @param array $forms Forms.
 	 *
 	 * @since 1.6
 	 *
@@ -936,9 +962,9 @@ class Forminator_Migration {
 	/**
 	 * Static method to combine all quizzes notification migrations
 	 *
-	 * @param $notifications
-	 * @param $settings
-	 * @param $forms
+	 * @param array $notifications Notifications.
+	 * @param array $settings Settings.
+	 * @param array $forms Forms.
 	 *
 	 * @since 1.6
 	 *
@@ -985,7 +1011,7 @@ class Forminator_Migration {
 	/**
 	 * Migrate phone validation
 	 *
-	 * @param $field
+	 * @param array $field Field.
 	 *
 	 * @return mixed
 	 */
@@ -1007,14 +1033,14 @@ class Forminator_Migration {
 	/**
 	 * Migrate payment plan
 	 *
-	 * @param $field
+	 * @param array $field Field.
 	 *
 	 * @return mixed
 	 */
 	public static function migrate_payment_plan_field( $field ) {
-		if ( 'stripe' === $field['type'] && empty( $field['payments'] ) ) {
+		if ( ( 'stripe' === $field['type'] || 'stripe-ocs' === $field['type'] ) && empty( $field['payments'] ) ) {
 			$payment_plan = array(
-				'plan_name'                => __( 'Plan 1', 'forminator' ),
+				'plan_name'                => esc_html__( 'Plan 1', 'forminator' ),
 				'payment_method'           => 'single',
 				'amount_type'              => isset( $field['amount_type'] ) ? $field['amount_type'] : 'fixed',
 				'subscription_amount_type' => 'fixed',
@@ -1039,7 +1065,7 @@ class Forminator_Migration {
 	/**
 	 * Migrate captcha field
 	 *
-	 * @param $field
+	 * @param array $field Field.
 	 *
 	 * @return mixed
 	 */
@@ -1056,7 +1082,7 @@ class Forminator_Migration {
 	/**
 	 *  Migrate Data storage setting - Enabled by default
 	 *
-	 * @param $settings
+	 * @param array $settings Settings.
 	 *
 	 * @since 1.15.12
 	 *
@@ -1088,5 +1114,48 @@ class Forminator_Migration {
 
 		return $settings;
 	}
-}
 
+	/**
+	 * Migrate Behaviour data
+	 *
+	 * @param array $settings Settings.
+	 * @param array $fields Fields.
+	 *
+	 * @return mixed
+	 */
+	public static function migrate_data_behaviour_settings( $settings, $fields ) {
+		if ( empty( $fields ) ) {
+			return $settings;
+		}
+
+		foreach ( $fields as $field ) {
+			if ( isset( $field['type'] ) && ( 'stripe' === $field['type'] || 'stripe-ocs' === $field['type'] ) ) {
+				$settings['enable-ajax'] = 'true';
+				break;
+			}
+		}
+		return $settings;
+	}
+
+	/**
+	 * Migrate appearance settings
+	 *
+	 * @param array $settings Settings.
+	 *
+	 * @since 1.36
+	 *
+	 * @return mixed
+	 */
+	public static function migrate_appearance_settings( $settings ) {
+		$form_style = $settings['form-style'] ?? 'default';
+
+		if ( isset( $settings['form-substyle'] ) || in_array( $form_style, array( 'basic', 'none' ), true ) ) {
+			return $settings;
+		}
+
+		$settings['form-substyle'] = $form_style;
+		$settings['form-style']    = 'default';
+
+		return $settings;
+	}
+}

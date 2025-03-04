@@ -23,7 +23,7 @@ if ( post_password_required() ) {
 }
 
 $attrs = [
-	'class' => 'mx-auto kenta-max-w-content',
+	'class' => 'mx-auto kenta-max-w-content has-global-padding',
 ];
 
 if ( is_customize_preview() ) {

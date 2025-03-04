@@ -1,5 +1,10 @@
 <?php
-// Defaults.
+/**
+ * Template setup api
+ *
+ * @package Forminator
+ */
+
 $vars = array(
 	'identifier'      => '',
 	'error_message'   => '',
@@ -10,7 +15,11 @@ $vars = array(
 	'client_name'     => '',
 );
 
-/** @var array $template_vars */
+/**
+ * Template variables.
+ *
+ * @var array $template_vars
+ * */
 foreach ( $template_vars as $key => $val ) {
 	$vars[ $key ] = $val;
 } ?>
@@ -19,57 +28,27 @@ foreach ( $template_vars as $key => $val ) {
 
 	<h3 id="forminator-integration-popup__title" class="sui-box-title sui-lg" style="overflow: initial; white-space: normal; text-overflow: initial;">
 		<?php
-			/* translators: ... */
-			echo esc_html( sprintf( __( 'Configure %1$s API', 'forminator' ), 'Campaign Monitor' ) );
+		/* translators: 1: Add-on name */
+			printf( esc_html__( 'Configure %1$s API', 'forminator' ), 'Campaign Monitor' );
 		?>
 	</h3>
 
 	<p id="forminator-integration-popup__description" class="sui-description"><?php esc_html_e( 'Set Up Campaign Monitor API Access.', 'forminator' ); ?></p>
 
 	<?php if ( ! empty( $vars['client_name'] ) ) : ?>
-		<div
-			role="alert"
-			class="sui-notice sui-notice-green sui-active"
-			style="display: block; text-align: left;"
-			aria-live="assertive"
-		>
-
-			<div class="sui-notice-content">
-
-				<div class="sui-notice-message">
-
-					<span class="sui-notice-icon sui-icon-check-tick" aria-hidden="true"></span>
-
-					<p><?php esc_html_e( 'Campaign Monitor Integrations currently connected to API Client: ', 'forminator' ); ?> <strong><?php echo esc_html( $vars['client_name'] ); ?></strong></p>
-
-				</div>
-
-			</div>
-
-		</div>
+		<?php
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is already escaped.
+		echo Forminator_Admin::get_green_notice(
+			esc_html__( 'Campaign Monitor Integrations currently connected to API Client: ', 'forminator' ) . '<strong>' . esc_html( $vars['client_name'] ) . '</strong>'
+		);
+		?>
 	<?php endif; ?>
 
 	<?php if ( ! empty( $vars['error_message'] ) ) : ?>
-		<div
-			role="alert"
-			class="sui-notice sui-notice-red sui-active"
-			style="display: block; text-align: left;"
-			aria-live="assertive"
-		>
-
-			<div class="sui-notice-content">
-
-				<div class="sui-notice-message">
-
-					<span class="sui-notice-icon sui-icon-info" aria-hidden="true"></span>
-
-					<p><?php echo esc_html( $vars['error_message'] ); ?></p>
-
-				</div>
-
-			</div>
-
-		</div>
+		<?php
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is already escaped.
+			echo Forminator_Admin::get_red_notice( esc_html( $vars['error_message'] ) );
+		?>
 	<?php endif; ?>
 
 </div>
@@ -83,7 +62,7 @@ foreach ( $template_vars as $key => $val ) {
 		<div class="sui-control-with-icon">
 
 			<input name="api_key"
-				placeholder="<?php /* translators: ... */ echo esc_attr( sprintf( __( 'Enter %1$s API Key', 'forminator' ), 'Campaign Monitor' ) ); ?>"
+				placeholder="<?php /* translators: 1: Add-on name */ printf( esc_attr__( 'Enter %1$s API Key', 'forminator' ), 'Campaign Monitor' ); ?>"
 				value="<?php echo esc_attr( $vars['api_key'] ); ?>"
 				class="sui-form-control" />
 
@@ -100,29 +79,32 @@ foreach ( $template_vars as $key => $val ) {
 			<ol class="instructions" id="apikey-instructions">
 				<li>
 					<?php
-					echo sprintf(/* translators: ... */
+					printf(
+					/* Translators: 1. Opening <a> tag with link to the login page, 2. closing <a> tag. */
 						esc_html__( 'Login to your Campaign Monitor account %1$shere%2$s.', 'forminator' ),
 						'<a href="https://login.createsend.com/l" target="_blank">',
 						'</a>'
-					); //phpcs:ignore Standard.Category.SniffName.ErrorCode
+					);
 					?>
 				</li>
 				<li>
 					<?php
-					echo sprintf(/* translators: ... */
+					printf(
+					/* Translators: 1. Opening <strong> tag, 2. closing <strong> tag. */
 						esc_html__( 'Go to Account Settings, then navigate to %1$sAPI Keys%2$s section.', 'forminator' ),
 						'<strong>',
 						'</strong>'
-					); //phpcs:ignore Standard.Category.SniffName.ErrorCode
+					);
 					?>
 				</li>
 				<li>
 					<?php
-					echo sprintf(/* translators: ... */
+					printf(
+					/* Translators: 1. Opening <strong> tag, 2. closing <strong> tag. */
 						esc_html__( 'Click on %1$sShow API Key%2$s, select and copy on the shown up value.', 'forminator' ),
 						'<strong>',
 						'</strong>'
-					); //phpcs:ignore Standard.Category.SniffName.ErrorCode
+					);
 					?>
 				</li>
 			</ol>
@@ -137,7 +119,7 @@ foreach ( $template_vars as $key => $val ) {
 		<div class="sui-control-with-icon">
 
 			<input name="client_id"
-				placeholder="<?php /* translators: ... */ echo esc_attr( sprintf( __( 'Enter %1$s Client ID', 'forminator' ), 'Campaign Monitor' ) ); ?>"
+				placeholder="<?php /* translators: 1: Add-on name */ printf( esc_attr__( 'Enter %1$s Client ID', 'forminator' ), 'Campaign Monitor' ); ?>"
 				value="<?php echo esc_attr( $vars['client_id'] ); ?>"
 				class="sui-form-control" />
 
@@ -151,7 +133,8 @@ foreach ( $template_vars as $key => $val ) {
 
 		<span class="sui-description">
 			<?php
-				echo sprintf(/* translators: ... */
+				printf(
+				/* Translators: 1. Opening <strong> tag, 2. closing <strong> tag, 3. Opening <strong> tag, 4. closing <strong> tag, 5. Opening <strong> tag, 6. closing <strong> tag. */
 					esc_html__( 'Client ID is optional, unless you are on %1$sAgency-Mode%2$s, then you can find your desired Client ID on the %3$sAccount Settings%4$s > %5$sAPI Keys%6$s', 'forminator' ),
 					'<strong>',
 					'</strong>',
@@ -159,7 +142,7 @@ foreach ( $template_vars as $key => $val ) {
 					'</strong>',
 					'<strong>',
 					'</strong>'
-				); //phpcs:ignore Standard.Category.SniffName.ErrorCode
+				);
 				?>
 		</span>
 	</div>

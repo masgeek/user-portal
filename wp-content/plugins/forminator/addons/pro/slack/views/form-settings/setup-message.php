@@ -1,4 +1,10 @@
 <?php
+/**
+ * Template for setup message
+ *
+ * @package Forminator
+ */
+
 // defaults.
 $vars = array(
 	'message'       => '',
@@ -7,7 +13,11 @@ $vars = array(
 	'multi_id'      => '',
 	'fields'        => array(),
 );
-/** @var array $template_vars */
+/**
+ * Template variables.
+ *
+ * @var array $template_vars
+ * */
 foreach ( $template_vars as $key => $val ) {
 	$vars[ $key ] = $val;
 }
@@ -16,32 +26,16 @@ foreach ( $template_vars as $key => $val ) {
 <div class="forminator-integration-popup__header">
 
 	<h3 id="forminator-integration-popup__title" class="sui-box-title sui-lg" style="overflow: initial; white-space: normal; text-overflow: initial;">
-		<?php echo esc_html( __( 'Set Up Message', 'forminator' ) ); ?>
+		<?php esc_html_e( 'Set Up Message', 'forminator' ); ?>
 	</h3>
 
 	<p id="forminator-integration-popup__description" class="sui-description"><?php esc_html_e( 'Configure message to be sent.', 'forminator' ); ?></p>
 
 	<?php if ( ! empty( $vars['error_message'] ) ) : ?>
-		<div
-			role="alert"
-			class="sui-notice sui-notice-red sui-active"
-			style="display: block; text-align: left;"
-			aria-live="assertive"
-		>
-
-			<div class="sui-notice-content">
-
-				<div class="sui-notice-message">
-
-					<span class="sui-notice-icon sui-icon-info" aria-hidden="true"></span>
-
-					<p><?php echo esc_html( $vars['error_message'] ); ?></p>
-
-				</div>
-
-			</div>
-
-		</div>
+		<?php
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is already escaped.
+			echo Forminator_Admin::get_red_notice( esc_html( $vars['error_message'] ) );
+		?>
 	<?php endif; ?>
 
 </div>
@@ -58,12 +52,12 @@ foreach ( $template_vars as $key => $val ) {
 				id="slack_message"
 				class="sui-form-control"
 				name="message"
-				placeholder="<?php echo esc_attr( __( 'Message', 'forminator' ) ); ?>"
+				placeholder="<?php esc_attr_e( 'Message', 'forminator' ); ?>"
 			><?php echo esc_html( $vars['message'] ); ?></textarea>
 
 			<select class="sui-variables" data-textarea-id="slack_message">
 				<?php foreach ( $vars['fields'] as $field ) : ?>
-					<option value="{<?php echo esc_attr( $field['element_id'] ); ?>}" data-content="{<?php echo esc_attr( $field['element_id'] ); ?>}"><?php echo esc_html( strip_tags( $field['field_label'] ) ); ?></option>
+					<option value="{<?php echo esc_attr( $field['element_id'] ); ?>}" data-content="{<?php echo esc_attr( $field['element_id'] ); ?>}"><?php echo esc_html( wp_strip_all_tags( $field['field_label'] ) ); ?></option>
 				<?php endforeach; ?>
 			</select>
 
@@ -75,20 +69,26 @@ foreach ( $template_vars as $key => $val ) {
 
 		<span class="sui-description">
 			<?php
-				/* translators: ... */
 				printf(
-					esc_html__( 'You can format your message using Slack Flavored Markdown, find more information %shere%s.', 'forminator' ),
+				/* Translators: 1. Opening <a> tag with link to slack article link, 2. closing <a> tag. */
+					esc_html__( 'You can format your message using Slack Flavored Markdown. Find more information %1$shere%2$s.', 'forminator' ),
 					'<a href="https://get.slack.help/hc/en-us/articles/202288908-how-can-i-add-formatting-to-my-messages" target="_blank">',
 					'</a>'
 				);
-			?>
+				?>
 		</span>
 
 		<span class="sui-description">
 			<?php
-			/* translators: ... */
 			printf(
-				esc_html__( 'By default sent message will include ALL FIELDS as attachment using Forminator Format to ease you up, more information about attachment can be found %shere%s.', 'forminator' ),
+				/* Translators: 1. All fields text. */
+				esc_html__( 'By default, the message sent will include %s as an attachment using Forminator formatting to make your job easier. ', 'forminator' ),
+				esc_html__( 'ALL FIELDS', 'forminator' )
+			);
+
+			printf(
+				/* Translators: 1. Opening <a> tag with link to the message attach link, 2. closing <a> tag. */
+				esc_html__( 'More information about attachments can be found %1$shere%2$s.', 'forminator' ),
 				'<a href="https://api.slack.com/docs/message-attachments" target="_blank">',
 				'</a>'
 			);

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Forminator Geo
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -16,11 +22,11 @@ class Forminator_Geo {
 	 * Validates that the IP that made the request is from cloudflare
 	 *
 	 * @since 1.0
-	 * @param String $ip - the ip to check.
+	 * @param string $ip - the ip to check.
 	 *
 	 * @return bool
 	 */
-	private static function _validate_cloudflare_ip( $ip ) {
+	private static function validate_cloudflare_ip( $ip ) {
 		$cloudflare_ips = array(
 			'199.27.128.0/21',
 			'173.245.48.0/20',
@@ -38,7 +44,7 @@ class Forminator_Geo {
 		);
 		$is_cf_ip       = false;
 		foreach ( $cloudflare_ips as $cloudflare_ip ) {
-			if ( self::_cloudflare_ip_in_range( $ip, $cloudflare_ip ) ) {
+			if ( self::cloudflare_ip_in_range( $ip, $cloudflare_ip ) ) {
 				$is_cf_ip = true;
 				break;
 			}
@@ -51,12 +57,12 @@ class Forminator_Geo {
 	 * Check if the cloudflare IP is in range
 	 *
 	 * @since 1.0
-	 * @param String $ip - the current IP.
-	 * @param String $range - the allowed range of cloudflare ips.
+	 * @param string $ip - the current IP.
+	 * @param string $range - the allowed range of cloudflare ips.
 	 *
 	 * @return bool
 	 */
-	private static function _cloudflare_ip_in_range( $ip, $range ) {
+	private static function cloudflare_ip_in_range( $ip, $range ) {
 		if ( strpos( $range, '/' ) === false ) {
 			$range .= '/32';
 		}
@@ -77,7 +83,7 @@ class Forminator_Geo {
 	 * @since 1.0
 	 * @return bool
 	 */
-	private static function _cloudflare_requests_check() {
+	private static function cloudflare_requests_check() {
 		$flag = true;
 
 		if ( ! isset( $_SERVER['HTTP_CF_CONNECTING_IP'] ) ) {
@@ -112,12 +118,12 @@ class Forminator_Geo {
 			$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
 		}
 		if ( ! empty( $ip ) ) {
-			$request_check = self::_cloudflare_requests_check();
+			$request_check = self::cloudflare_requests_check();
 			if ( ! $request_check ) {
 				return false;
 			}
 
-			$ip_check = self::_validate_cloudflare_ip( $ip );
+			$ip_check = self::validate_cloudflare_ip( $ip );
 
 			return $ip_check;
 		}

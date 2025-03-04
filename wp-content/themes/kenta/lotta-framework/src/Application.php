@@ -2,11 +2,11 @@
 
 namespace LottaFramework;
 
-use Illuminate\Container\Container;
+use LottaFramework\Container\Container;
 
 class Application extends Container {
 
-	const VERSION = '2.0.6';
+	const VERSION = '2.0.21';
 
 	/**
 	 * Application id
@@ -56,6 +56,22 @@ class Application extends Container {
 	}
 
 	/**
+	 * Get prefixed id
+	 *
+	 * @param string $id
+	 * @param string $sep
+	 *
+	 * @return string
+	 */
+	public function uniqid( string $id, string $sep = '_' ) {
+		if ( empty( $this->_id ) ) {
+			return $id;
+		}
+
+		return $this->_id . $sep . $id;
+	}
+
+	/**
 	 * 'add_action' wrapper that prefixes the hook name with id
 	 *
 	 * @param $hook_name
@@ -86,22 +102,6 @@ class Application extends Container {
 	 */
 	public function add_filter( $hook_name, $callback, ...$args ) {
 		add_filter( $this->uniqid( $hook_name ), $callback, ...$args );
-	}
-
-	/**
-	 * Get prefixed id
-	 *
-	 * @param string $id
-	 * @param string $sep
-	 *
-	 * @return string
-	 */
-	public function uniqid( string $id, string $sep = '_' ) {
-		if ( empty( $this->_id ) ) {
-			return $id;
-		}
-
-		return $this->_id . $sep . $id;
 	}
 
 	/**

@@ -20,8 +20,7 @@
  * @subpackage Popup_Box/public
  * @author     AYS Pro LLC <info@ays-pro.com>
  */
-class Ays_Popup_Box_User_Information_Public
-{
+class Ays_Popup_Box_User_Information_Public {
 
     /**
      * The ID of this plugin.

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Template admin/views/common/entries/content.php
+ *
+ * @package Forminator
+ */
+
 $count = Forminator_Form_Entry_Model::count_all_entries();
 
 if ( $count > 0 ) {
@@ -63,8 +69,8 @@ if ( $count > 0 ) {
 		<div class="sui-box sui-message">
 
 			<?php if ( forminator_is_show_branding() ) : ?>
-				<img src="<?php echo esc_url( forminator_plugin_url() . 'assets/img/forminator-disabled.png' ); ?>"
-					srcset="<?php echo esc_url( forminator_plugin_url() . 'assets/img/forminator-disabled.png' ); ?> 1x, <?php echo esc_url( forminator_plugin_url() . 'assets/img/forminator-disabled@2x.png' ); ?> 2x"
+				<img src="<?php echo esc_url( forminator_plugin_url() . 'assets/images/forminator-no-result.png' ); ?>"
+					srcset="<?php echo esc_url( forminator_plugin_url() . 'assets/images/forminator-no-result.png' ); ?> 1x, <?php echo esc_url( forminator_plugin_url() . 'assets/images/forminator-no-result@2x.png' ); ?> 2x"
 					alt="<?php esc_html_e( 'Forminator', 'forminator' ); ?>"
 					class="sui-image"/>
 			<?php endif; ?>

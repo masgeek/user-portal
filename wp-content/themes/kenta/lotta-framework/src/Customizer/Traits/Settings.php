@@ -15,6 +15,26 @@ trait Settings {
 	protected $_settings = [];
 
 	/**
+	 * Get all settings
+	 *
+	 * @return array
+	 */
+	public function settings() {
+		return $this->_settings;
+	}
+
+	/**
+	 * Restore settings
+	 *
+	 * @param array $settings
+	 *
+	 * @return void
+	 */
+	public function restore($settings) {
+		$this->_settings = $settings;
+	}
+
+	/**
 	 * Register customize setting
 	 *
 	 * @param $args

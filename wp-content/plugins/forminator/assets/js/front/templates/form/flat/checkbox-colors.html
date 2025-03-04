@@ -2,15 +2,17 @@
 
 	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-checkbox,
 	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-checkbox__label,
-	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-checkbox__label p {
+	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-checkbox__label p,
+	.forminator-select-dropdown-container--open .forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-dropdown--<?php echo $theme; ?> .forminator-checkbox {
 		<?php if ( forminator_array_value_exists( $properties, 'radio-label' ) && !empty( $properties['radio-label'] ) ) { ?>
 			color: <?php echo $properties['radio-label'] ?>;
-		<?php } else { ?>
+		<?php } elseif ( forminator_can_apply_default_color( $properties ) ) { ?>
 			color: #000000;
 		<?php } ?>
 	}
 
-	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-checkbox .forminator-checkbox-box {
+	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-checkbox .forminator-checkbox-box,
+	.forminator-select-dropdown-container--open .forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-dropdown--<?php echo $theme; ?> .forminator-checkbox .forminator-checkbox-box {
 		<?php if ( forminator_array_value_exists( $properties, 'radio-background-static' ) && !empty( $properties['radio-background-static'] ) ) { ?>
 			background-color: <?php echo $properties['radio-background-static'] ?>;
 		<?php } else { ?>
@@ -31,7 +33,8 @@
 		<?php } ?>
 	}
 
-	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-checkbox input:checked + .forminator-checkbox-box {
+	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-checkbox input:checked + .forminator-checkbox-box,
+	.forminator-select-dropdown-container--open .forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-dropdown--<?php echo $theme; ?> .forminator-checkbox input:checked + .forminator-checkbox-box {
 		<?php if ( forminator_array_value_exists( $properties, 'radio-background-active' ) && !empty( $properties['radio-background-active'] ) ) { ?>
 			background-color: <?php echo $properties['radio-background-active'] ?>;
 		<?php } else { ?>
@@ -48,7 +51,8 @@
 		<?php } ?>
 	}
 
-	#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-has_error .forminator-checkbox span[aria-hidden] {
+	#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-has_error .forminator-checkbox span[aria-hidden],
+	.forminator-select-dropdown-container--open .forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-dropdown--<?php echo $theme; ?> .forminator-has_error .forminator-checkbox span[aria-hidden] {
 		<?php if ( forminator_array_value_exists( $properties, 'radio-background-error' ) && !empty( $properties['radio-background-error'] ) ) { ?>
 			background-color: <?php echo $properties['radio-background-error'] ?>;
 		<?php } else { ?>
@@ -68,13 +72,17 @@
 
 <?php } else { ?>
 
-	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-checkbox,
-	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-checkbox__label,
-	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-checkbox__label p {
-		color: #000000;
-	}
+	<?php if ( forminator_can_apply_default_color( $properties ) ) { ?>
+		.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-checkbox,
+		.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-checkbox__label,
+		.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-checkbox__label p,
+		.forminator-select-dropdown-container--open .forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-dropdown--<?php echo $theme; ?> .forminator-checkbox {
+			color: #000000;
+		}
+	<?php } ?>
 
-	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-checkbox .forminator-checkbox-box {
+	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-checkbox .forminator-checkbox-box,
+	.forminator-select-dropdown-container--open .forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-dropdown--<?php echo $theme; ?> .forminator-checkbox .forminator-checkbox-box {
 		background-color: #EDEDED;
 		color: #17A8E3;
 	}
@@ -83,7 +91,8 @@
 		background-color: #EDEDED;
 	}
 
-	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-checkbox input:checked + .forminator-checkbox-box {
+	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-checkbox input:checked + .forminator-checkbox-box,
+	.forminator-select-dropdown-container--open .forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-dropdown--<?php echo $theme; ?> .forminator-checkbox input:checked + .forminator-checkbox-box {
 		background-color: #EDEDED;
 	}
 
@@ -92,7 +101,8 @@
 		background-color: #E1F6FF;
 	}
 
-	#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-has_error .forminator-checkbox span[aria-hidden] {
+	#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-has_error .forminator-checkbox span[aria-hidden],
+	.forminator-select-dropdown-container--open .forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-dropdown--<?php echo $theme; ?> .forminator-has_error .forminator-checkbox span[aria-hidden] {
 		background-color: #F9E4E8;
 	}
 

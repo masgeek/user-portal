@@ -1,5 +1,10 @@
 <?php
-// Defaults.
+/**
+ * The Setup API.
+ *
+ * @package Forminator
+ */
+
 $vars = array(
 	'identifier'    => '',
 	'error_message' => '',
@@ -9,7 +14,10 @@ $vars = array(
 	'api_key_error' => '',
 );
 
-/** @var array $template_vars */
+/**
+ * Template variable
+ *
+ * @var array $template_vars */
 foreach ( $template_vars as $key => $val ) {
 	$vars[ $key ] = $val;
 } ?>
@@ -18,34 +26,18 @@ foreach ( $template_vars as $key => $val ) {
 
 	<h3 id="forminator-integration-popup__title" class="sui-box-title sui-lg" style="overflow: initial; white-space: normal; text-overflow: initial;">
 	<?php
-		/* translators: %s: Addon name */
-		echo esc_html( sprintf( __( 'Configure %1$s API', 'forminator' ), 'ActiveCampaign' ) );
+		/* translators: 1: Add-on name */
+		printf( esc_html__( 'Configure %1$s API', 'forminator' ), 'ActiveCampaign' );
 	?>
 	</h3>
 
 	<p id="forminator-integration-popup__description" class="sui-description"><?php esc_html_e( 'Set Up ActiveCampaign API Access.', 'forminator' ); ?></p>
 
 	<?php if ( ! empty( $vars['error_message'] ) ) : ?>
-		<div
-			role="alert"
-			class="sui-notice sui-notice-red sui-active"
-			style="display: block; text-align: left;"
-			aria-live="assertive"
-		>
-
-			<div class="sui-notice-content">
-
-				<div class="sui-notice-message">
-
-					<span class="sui-notice-icon sui-icon-info" aria-hidden="true"></span>
-
-					<p><?php echo esc_html( $vars['error_message'] ); ?></p>
-
-				</div>
-
-			</div>
-
-		</div>
+		<?php
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is already escaped.
+			echo Forminator_Admin::get_red_notice( esc_html( $vars['error_message'] ) );
+		?>
 	<?php endif; ?>
 
 </div>
@@ -59,7 +51,7 @@ foreach ( $template_vars as $key => $val ) {
 		<div class="sui-control-with-icon">
 
 			<input name="api_url"
-				placeholder="<?php /* translators: ... */ echo esc_attr( sprintf( __( 'Enter %1$s API URL', 'forminator' ), 'ActiveCampaign' ) ); ?>"
+				placeholder="<?php /* translators: 1: Add-on name */ printf( esc_attr__( 'Enter %1$s API URL', 'forminator' ), 'ActiveCampaign' ); ?>"
 				value="<?php echo esc_attr( $vars['api_url'] ); ?>"
 				class="sui-form-control" />
 
@@ -80,7 +72,7 @@ foreach ( $template_vars as $key => $val ) {
 		<div class="sui-control-with-icon">
 
 			<input name="api_key"
-				placeholder="<?php /* translators: ... */ echo esc_attr( sprintf( __( 'Enter %1$s API Key', 'forminator' ), 'ActiveCampaign' ) ); ?>"
+				placeholder="<?php /* translators: 1: Add-on name */ printf( esc_attr__( 'Enter %1$s API Key', 'forminator' ), 'ActiveCampaign' ); ?>"
 				value="<?php echo esc_attr( $vars['api_key'] ); ?>"
 				class="sui-form-control" />
 

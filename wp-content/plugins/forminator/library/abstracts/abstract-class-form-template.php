@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator Template.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -12,29 +18,31 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @property array settings
  * @since 1.0
  */
-
 abstract class Forminator_Template {
-
-	/*
+	/**
 	 * Template fields
 	 *
 	 * @var array
 	 */
 	public $fields;
-	/*
+
+	/**
 	 * Template settings
 	 *
 	 * @var array
 	 */
 	public $settings;
 
-	/*
+	/**
 	 * Template options
 	 *
 	 * @var array
 	 */
 	public $options = array();
 
+	/**
+	 * Forminator_Template constructor
+	 */
 	public function __construct() {
 		$this->fields   = $this->fields();
 		$this->settings = $this->settings();
@@ -42,6 +50,8 @@ abstract class Forminator_Template {
 	}
 
 	/**
+	 * Fields
+	 *
 	 * @since 1.0
 	 * @return array
 	 */
@@ -50,6 +60,8 @@ abstract class Forminator_Template {
 	}
 
 	/**
+	 * Settings
+	 *
 	 * @since 1.0
 	 * @return array
 	 */
@@ -58,6 +70,8 @@ abstract class Forminator_Template {
 	}
 
 	/**
+	 * Defaults
+	 *
 	 * @since 1.0
 	 * @return array
 	 */
@@ -69,15 +83,15 @@ abstract class Forminator_Template {
 	 * Get specific option from module options
 	 *
 	 * @since 1.0
-	 * @param $option
-	 * @param string $default
+	 * @param string $option Option key.
+	 * @param string $default_value Default value.
 	 *
 	 * @return mixed|string
 	 */
-	public function get_option( $option, $default = '' ) {
+	public function get_option( $option, $default_value = '' ) {
 		if ( isset( $this->options[ $option ] ) ) {
 			return $this->options[ $option ];
 		}
-		return $default;
+		return $default_value;
 	}
 }

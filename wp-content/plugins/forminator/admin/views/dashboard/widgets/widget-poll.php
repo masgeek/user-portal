@@ -1,12 +1,18 @@
 <?php
+/**
+ * Template admin/views/dashboard/widgets/widget-poll.php
+ *
+ * @package Forminator
+ */
+
 $module_slug        = 'poll';
-$title              = __( 'Polls', 'forminator' );
-$description        = __( 'Create interactive polls to collect users\' opinions, with lots of dynamic options and settings.', 'forminator' );
+$module_title       = esc_html__( 'Polls', 'forminator' );
+$description        = esc_html__( 'Create interactive polls to collect users\' opinions, with lots of dynamic options and settings.', 'forminator' );
 $icon               = 'sui-icon-graph-bar';
-$preview_title      = __( 'Preview Poll', 'forminator' );
-$delete_title       = __( 'Delete Poll', 'forminator' );
-$delete_description = __( 'Are you sure you wish to permanently delete this poll?', 'forminator' );
-$view_all           = __( 'View all polls', 'forminator' );
+$preview_title      = esc_html__( 'Preview Poll', 'forminator' );
+$delete_title       = esc_html__( 'Delete Poll', 'forminator' );
+$delete_description = esc_html__( 'Are you sure you wish to permanently delete this poll?', 'forminator' );
+$view_all           = esc_html__( 'View all polls', 'forminator' );
 $total              = forminator_polls_total();
 
 require forminator_plugin_dir() . 'admin/views/common/dashboard/widget.php';

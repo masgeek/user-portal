@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_CForm_User_Signups class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -10,13 +16,81 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Forminator_CForm_User_Signups {
 
+	/**
+	 * Meta
+	 *
+	 * @var array
+	 */
 	public $meta;
+
+	/**
+	 * Entry
+	 *
+	 * @var Forminator_Form_Entry_Model
+	 */
 	public $entry;
+
+	/**
+	 * Form
+	 *
+	 * @var Forminator_Base_Form_Model
+	 */
 	public $form;
+
+	/**
+	 * Settings
+	 *
+	 * @var array
+	 */
 	public $settings;
+
+	/**
+	 * Submitted data
+	 *
+	 * @var array
+	 */
 	public $submitted_data;
+
+	/**
+	 * User data
+	 *
+	 * @var array
+	 */
 	public $user_data;
 
+	/**
+	 * Dynamic properties.
+	 *
+	 * @var array
+	 */
+	private $properties = array();
+
+	/**
+	 * Magic method to handle setting dynamic properties
+	 *
+	 * @param string $name Property name.
+	 * @param mixed  $value Property value.
+	 */
+	public function __set( $name, $value ) {
+		$this->properties[ $name ] = $value;
+	}
+
+	/**
+	 * Magic method to handle getting dynamic properties
+	 *
+	 * @param string $name Property name.
+	 *
+	 * @return mixed
+	 */
+	public function __get( $name ) {
+		return $this->properties[ $name ] ?? null;
+	}
+
+	/**
+	 * Forminator_CForm_User_Signups constructor
+	 *
+	 * @param array $signup Signup.
+	 */
 	public function __construct( $signup ) {
 		// This is for internal variables (i.e. activation key).
 		foreach ( $signup as $key => $value ) {
@@ -37,24 +111,36 @@ class Forminator_CForm_User_Signups {
 		}
 	}
 
+	/**
+	 * Get
+	 *
+	 * @param mixed $key Key.
+	 *
+	 * @return Forminator_CForm_User_Signups|WP_Error
+	 */
 	public static function get( $key ) {
 		if ( ! is_multisite() ) {
 			self::create_signups_table();
 		}
 		global $wpdb;
 
-		$signup = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE activation_key = %s", $key ) );
+		$signup = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE activation_key = %s", $key ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 
 		if ( empty( $signup ) ) {
-			return new WP_Error( 'invalid_key', __( 'Invalid activation key.' ) );
+			return new WP_Error( 'invalid_key', esc_html__( 'Invalid activation key.', 'forminator' ) );
 		}
 		if ( $signup->active ) {
-			return new WP_Error( 'already_active', __( 'The user is already active.' ), $signup );
+			return new WP_Error( 'already_active', esc_html__( 'The user is already active.', 'forminator' ), $signup );
 		}
 
 		return new Forminator_CForm_User_Signups( $signup );
 	}
 
+	/**
+	 * Get activation method
+	 *
+	 * @return mixed
+	 */
 	public function get_activation_method() {
 
 		return ( isset( $this->settings['activation-method'] ) && ! empty( $this->settings['activation-method'] ) )
@@ -62,6 +148,11 @@ class Forminator_CForm_User_Signups {
 			: '';
 	}
 
+	/**
+	 * Set as activated
+	 *
+	 * @return bool|int
+	 */
 	public function set_as_activated() {
 		global $wpdb;
 
@@ -69,13 +160,14 @@ class Forminator_CForm_User_Signups {
 		$this->meta['user_data']['user_pass'] = '';
 		$this->meta['prepared_data']          = '';
 
-		$now    = current_time( 'mysql', true );
+		$now = current_time( 'mysql', true );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$result = $wpdb->update(
 			$wpdb->signups,
 			array(
 				'active'    => 1,
 				'activated' => $now,
-				'meta'      => serialize( $this->meta ),
+				'meta'      => maybe_serialize( $this->meta ),
 			),
 			array( 'activation_key' => $this->activation_key )
 		);
@@ -83,6 +175,12 @@ class Forminator_CForm_User_Signups {
 		return $result;
 	}
 
+	/**
+	 * Get activation email
+	 *
+	 * @param mixed $key Key.
+	 * @return mixed
+	 */
 	public static function get_activation_email( $key ) {
 		$signup = self::get( $key );
 		return ! empty( $signup->settings['activation-email'] )
@@ -93,14 +191,14 @@ class Forminator_CForm_User_Signups {
 	/**
 	 * Check to exist table
 	 *
-	 * @param string $table_name
+	 * @param string $table_name Table name.
 	 *
 	 * @return bool
 	 */
 	public static function table_exists( $table_name ) {
 		global $wpdb;
 
-		return (bool) $wpdb->get_results( "SHOW TABLES LIKE '{$table_name}'" );
+		return (bool) $wpdb->get_results( "SHOW TABLES LIKE '{$table_name}'" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
 	}
 
 	/**
@@ -113,17 +211,22 @@ class Forminator_CForm_User_Signups {
 
 		$table_name = $wpdb->signups;
 		if ( self::table_exists( $table_name ) ) {
-			$column_exists = $wpdb->query( "SHOW COLUMNS FROM {$table_name} LIKE 'signup_id'" );
+			$column_exists = $wpdb->query( "SHOW COLUMNS FROM {$table_name} LIKE 'signup_id'" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
 			if ( empty( $column_exists ) ) {
 				// New primary key for signups.
-				$wpdb->query( "ALTER TABLE {$table_name} ADD signup_id BIGINT(20) NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST" );
-				$wpdb->query( "ALTER TABLE {$table_name} DROP INDEX domain" );
+				$wpdb->query( "ALTER TABLE {$table_name} ADD signup_id BIGINT(20) NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.DirectDatabaseQuery.DirectQuery
+				$wpdb->query( "ALTER TABLE {$table_name} DROP INDEX domain" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.DirectDatabaseQuery.DirectQuery
 			}
 		}
 
 		self::install_signups();
 	}
 
+	/**
+	 * Install signups
+	 *
+	 * @return void
+	 */
 	private static function install_signups() {
 		global $wpdb;
 
@@ -160,17 +263,22 @@ class Forminator_CForm_User_Signups {
 		$wpdb->signups = $wpdb->base_prefix . 'signups';
 	}
 
+	/**
+	 * Delete
+	 *
+	 * @return bool|int
+	 */
 	public function delete() {
 		global $wpdb;
 
-		return $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->signups WHERE activation_key = %s", $this->activation_key ) );
+		return $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->signups WHERE activation_key = %s", $this->activation_key ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 	}
 
 	/**
 	 * Delete signup entry by user data
 	 *
-	 * @param string $user_key
-	 * @param string $user_value
+	 * @param string $user_key User key.
+	 * @param string $user_value Value.
 	 *
 	 * @return int|bool
 	 */
@@ -182,9 +290,14 @@ class Forminator_CForm_User_Signups {
 		if ( ! self::table_exists( $wpdb->signups ) ) {
 			return true;
 		}
-		return $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->signups WHERE $user_key = %s", $user_value ) );
+		return $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->signups WHERE " . esc_sql( $user_key ) . ' = %s', $user_value ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
 	}
 
+	/**
+	 * Prep signups functionality
+	 *
+	 * @return void
+	 */
 	public static function prep_signups_functionality() {
 		if ( ! is_multisite() ) {
 			// require MS functions.
@@ -208,6 +321,13 @@ class Forminator_CForm_User_Signups {
 		add_filter( 'wpmu_signup_user_notification_subject', array( 'Forminator_CForm_User_Signups', 'remove_site_name_filter' ) );
 	}
 
+	/**
+	 * Get pending activations
+	 *
+	 * @param string $activation_key Activation key.
+	 *
+	 * @return array|object|null
+	 */
 	public static function get_pending_activations( $activation_key ) {
 		// Create table Signups for non-multisite installs.
 		if ( ! is_multisite() ) {
@@ -215,27 +335,61 @@ class Forminator_CForm_User_Signups {
 		}
 		global $wpdb;
 
-		return $wpdb->get_row( $wpdb->prepare( "SELECT signup_id FROM {$wpdb->signups} WHERE activation_key = %s AND active = 0", $activation_key ) );
+		return $wpdb->get_row( $wpdb->prepare( "SELECT signup_id FROM {$wpdb->signups} WHERE activation_key = %s AND active = 0", $activation_key ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 	}
 
+	/**
+	 * May be suppress signup user notification
+	 *
+	 * @param mixed  $user User.
+	 * @param string $user_email Email.
+	 * @param string $key Key.
+	 * @return mixed
+	 */
 	public static function maybe_suppress_signup_user_notification( $user, $user_email, $key ) {
 		return self::is_manual_activation( $key ) ? false : $user;
 	}
 
+	/**
+	 * May be suppress signup blog notification
+	 *
+	 * @param mixed $domain Domain.
+	 * @param mixed $path Path.
+	 * @param mixed $title Title.
+	 * @param mixed $user User.
+	 * @param mixed $user_email User email.
+	 * @param mixed $key Key.
+	 * @return mixed
+	 */
 	public static function maybe_suppress_signup_blog_notification( $domain, $path, $title, $user, $user_email, $key ) {
 		return self::is_manual_activation( $key ) ? false : $user;
 	}
 
+	/**
+	 * Is manual activation
+	 *
+	 * @param string $key Key.
+	 * @return bool
+	 */
 	public static function is_manual_activation( $key ) {
 		$signup = self::get( $key );
 
 		return ! is_wp_error( $signup ) && 'manual' === $signup->get_activation_method();
 	}
 
+	/**
+	 * Modify signup user notification message
+	 *
+	 * @param mixed $message Message.
+	 * @param mixed $user User.
+	 * @param mixed $user_email User email.
+	 * @param mixed $key Key.
+	 * @return string
+	 */
 	public static function modify_signup_user_notification_message( $message, $user, $user_email, $key ) {
 		if ( 'none' === self::get_activation_email( $key ) ) {
 			/* translators: New user notification email. %s: Activation URL. */
-			$message = __( "To activate your user, please click the following link:\n\n%s\n", 'forminator' );
+			$message = esc_html__( "To activate your user, please click the following link:\n\n%s\n", 'forminator' );
 		}
 		$url = add_query_arg(
 			array(
@@ -248,10 +402,22 @@ class Forminator_CForm_User_Signups {
 		return sprintf( $message, esc_url_raw( $url ) );
 	}
 
+	/**
+	 * Modify signup blog notification message
+	 *
+	 * @param mixed $message Message.
+	 * @param mixed $domain Domain.
+	 * @param mixed $path Path.
+	 * @param mixed $title Tittle.
+	 * @param mixed $user User.
+	 * @param mixed $user_email User email.
+	 * @param mixed $key Key.
+	 * @return string
+	 */
 	public static function modify_signup_blog_notification_message( $message, $domain, $path, $title, $user, $user_email, $key ) {
 		if ( 'none' === self::get_activation_email( $key ) ) {
 			/* translators: New site notification email. 1: Activation URL, 2: New site URL. */
-			$message = __( "To activate your site, please click the following link:\n\n%1\$s\n\nAfter you activate, you can visit your site here:\n\n%2\$s", 'forminator' );
+			$message = esc_html__( "To activate your site, please click the following link:\n\n%1\$s\n\nAfter you activate, you can visit your site here:\n\n%2\$s", 'forminator' );
 		}
 
 		$url = add_query_arg(
@@ -265,18 +431,36 @@ class Forminator_CForm_User_Signups {
 		return sprintf( $message, esc_url_raw( $url ), esc_url( "http://{$domain}{$path}" ), $key );
 	}
 
-	public static function add_site_name_filter( $return ) {
-		add_filter( 'site_option_site_name', array( __class__, 'modify_site_name' ) );
+	/**
+	 * Add site name filter
+	 *
+	 * @param mixed $user User.
+	 * @return mixed
+	 */
+	public static function add_site_name_filter( $user ) {
+		add_filter( 'site_option_site_name', array( __CLASS__, 'modify_site_name' ) );
 
-		return $return;
+		return $user;
 	}
 
-	public static function remove_site_name_filter( $return ) {
-		remove_filter( 'site_option_site_name', array( __class__, 'modify_site_name' ) );
+	/**
+	 * Remove site name filter.
+	 *
+	 * @param mixed $user User.
+	 * @return mixed
+	 */
+	public static function remove_site_name_filter( $user ) {
+		remove_filter( 'site_option_site_name', array( __CLASS__, 'modify_site_name' ) );
 
-		return $return;
+		return $user;
 	}
 
+	/**
+	 * Modify site name
+	 *
+	 * @param mixed $site_name Site name.
+	 * @return mixed
+	 */
 	public static function modify_site_name( $site_name ) {
 		if ( ! $site_name ) {
 			$site_name = get_site_option( 'blogname' );
@@ -288,11 +472,9 @@ class Forminator_CForm_User_Signups {
 	/**
 	 * Add meta of a user sign-up
 	 *
-	 * @param Forminator_Form_Entry_Model $entry
-	 * @param string                      $meta_key
-	 * @param string                      $meta_value
-	 *
-	 * @return bool
+	 * @param Forminator_Form_Entry_Model $entry Form entry model.
+	 * @param string                      $meta_key Meta key name.
+	 * @param string                      $meta_value Meta value.
 	 */
 	public static function add_signup_meta( $entry, $meta_key, $meta_value ) {
 		$entry->set_fields(
@@ -308,8 +490,8 @@ class Forminator_CForm_User_Signups {
 	/**
 	 * Activate signup
 	 *
-	 * @param string $key
-	 * @param bool   $is_user_signon
+	 * @param string $key Key.
+	 * @param bool   $is_user_signon Is user sign-on.
 	 *
 	 * @return array|Forminator_CForm_User_Signups|WP_Error
 	 */
@@ -322,17 +504,23 @@ class Forminator_CForm_User_Signups {
 			return $signup;
 		}
 
+		$roles = forminator_get_accessible_user_roles();
+		// Do not allow if it is a backend request and the user lacks access to the specified user role.
+		if ( $is_user_signon && ! empty( $signup->user_data['role'] ) && ! isset( $roles[ $signup->user_data['role'] ] ) ) {
+			return new WP_Error( 'invalid_access', esc_html__( 'Unfortunately, you do not have the required permissions or user role to perform this action.', 'forminator' ), $signup );
+		}
+
 		$user_id = username_exists( $signup->user_data['user_login'] );
 		if ( $user_id ) {
 			// User already exists.
 			$signup->set_as_activated();
 
-			return new WP_Error( 'user_already_exists', __( 'That username is already activated.', 'forminator' ), $signup );
+			return new WP_Error( 'user_already_exists', esc_html__( 'That username is already activated.', 'forminator' ), $signup );
 		}
 
 		if ( email_exists( $signup->user_data['user_email'] ) ) {
 			// Email already exists.
-			return new WP_Error( 'email_already_exists', __( 'Sorry, that email address is already used!', 'forminator' ), $signup );
+			return new WP_Error( 'email_already_exists', esc_html__( 'Sorry, that email address is already used!', 'forminator' ), $signup );
 		}
 
 		if ( forminator_is_main_site() ) {
@@ -354,7 +542,7 @@ class Forminator_CForm_User_Signups {
 
 		$user_id = $forminator_user_registration->create_user( $user_data, $signup->form, $signup->entry, $is_user_signon );
 		if ( ! $user_id ) {
-			return new WP_Error( 'create_user', __( 'Could not create user', 'forminator' ), $signup );
+			return new WP_Error( 'create_user', esc_html__( 'Could not create user', 'forminator' ), $signup );
 		}
 
 		$signup->set_as_activated();
@@ -365,7 +553,7 @@ class Forminator_CForm_User_Signups {
 			&& 'manual' === $signup->settings['activation-method']
 			&& ! current_user_can( 'manage_options' )
 		) {
-			return new WP_Error( 'user_activated', __( 'User account has been activated.', 'forminator' ), $signup );
+			return new WP_Error( 'user_activated', esc_html__( 'User account has been activated.', 'forminator' ), $signup );
 		}
 
 		// Create site only on main site and if option for that is enabled.
@@ -393,7 +581,17 @@ class Forminator_CForm_User_Signups {
 		return $result;
 	}
 
+	/**
+	 * Delete signup
+	 *
+	 * @param mixed $key Key.
+	 *
+	 * @return bool|int|WP_Error
+	 */
 	public static function delete_signup( $key ) {
+		if ( ! current_user_can( 'delete_users' ) ) {
+			return new WP_Error( 'invalid_access', esc_html__( 'Unfortunately, you do not have the required permissions or user role to perform this action.', 'forminator' ) );
+		}
 		$signup = self::get( $key );
 		if ( is_wp_error( $signup ) ) {
 			return $signup;

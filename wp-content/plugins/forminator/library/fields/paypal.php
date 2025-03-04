@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_PayPal class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -11,41 +17,52 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Forminator_PayPal extends Forminator_Field {
 
 	/**
+	 * Name
+	 *
 	 * @var string
 	 */
 	public $name = '';
 
 	/**
+	 * Slug
+	 *
 	 * @var string
 	 */
 	public $slug = 'paypal';
 
 	/**
+	 * Type
+	 *
 	 * @var string
 	 */
 	public $type = 'paypal';
 
 	/**
+	 * Position
+	 *
 	 * @var int
 	 */
 	public $position = 24;
 
 	/**
+	 * Options
+	 *
 	 * @var array
 	 */
 	public $options = array();
 
 	/**
-	 * @var string
-	 */
-	public $category = 'standard';
-
-
-	/**
+	 * Icon
+	 *
 	 * @var string
 	 */
 	public $icon = 'sui-icon forminator-icon-paypal';
 
+	/**
+	 * Is calculable
+	 *
+	 * @var bool
+	 */
 	public $is_connected = false;
 
 	/**
@@ -54,7 +71,7 @@ class Forminator_PayPal extends Forminator_Field {
 	public function __construct() {
 		parent::__construct();
 
-		$this->name = __( 'PayPal', 'forminator' );
+		$this->name = esc_html__( 'PayPal', 'forminator' );
 	}
 
 	/**
@@ -73,25 +90,26 @@ class Forminator_PayPal extends Forminator_Field {
 		}
 
 		return array(
-			'mode'        => 'sandbox',
-			'currency'    => $default_currency,
-			'amount_type' => 'fixed',
-			'label'       => 'checkout',
-			'color'       => 'gold',
-			'shape'       => 'rect',
-			'layout'      => 'vertical',
-			'tagline'     => 'true',
-			'locale'      => 'en_US',
-			'debug_mode'  => 'disable',
-			'height'      => '40',
-			'options'     => array(),
+			'mode'             => 'sandbox',
+			'currency'         => $default_currency,
+			'amount_type'      => 'fixed',
+			'label'            => 'checkout',
+			'color'            => 'gold',
+			'shape'            => 'rect',
+			'layout'           => 'vertical',
+			'tagline'          => 'true',
+			'shipping_address' => 'disable',
+			'locale'           => 'en_US',
+			'debug_mode'       => 'disable',
+			'height'           => '40',
+			'options'          => array(),
 		);
 	}
 
 	/**
 	 * Field front-end markup
 	 *
-	 * @param $field
+	 * @param array                  $field Field.
 	 * @param Forminator_Render_Form $views_obj Forminator_Render_Form object.
 	 *
 	 * @return mixed
@@ -102,9 +120,8 @@ class Forminator_PayPal extends Forminator_Field {
 		$this->field         = $field;
 		$this->form_settings = $settings;
 
-		$id                  = self::get_property( 'element_id', $field );
-		$element_name        = $id;
-		$field_id            = $id . '-field';
+		$element_name        = self::get_property( 'element_id', $field );
+		$field_id            = $element_name . '-field';
 		$mode                = self::get_property( 'mode', $field, 'sandbox' );
 		$currency            = self::get_property( 'currency', $field, $this->get_default_currency() );
 		$amount_type         = self::get_property( 'amount_type', $field, 'fixed' );
@@ -170,8 +187,8 @@ class Forminator_PayPal extends Forminator_Field {
 	/**
 	 * Field back-end validation
 	 *
-	 * @param array        $field
-	 * @param array|string $data
+	 * @param array        $field Field.
+	 * @param array|string $data Data.
 	 */
 	public function validate( $field, $data ) {
 		$id = self::get_property( 'element_id', $field );
@@ -180,7 +197,7 @@ class Forminator_PayPal extends Forminator_Field {
 	/**
 	 * Sanitize data
 	 *
-	 * @param array        $field
+	 * @param array        $field Field.
 	 * @param array|string $data - the data to be sanitized.
 	 *
 	 * @return array|string $data - the data after sanitization
@@ -194,8 +211,11 @@ class Forminator_PayPal extends Forminator_Field {
 	}
 
 	/**
+	 * Is available
+	 *
 	 * @since 1.7
 	 * @inheritdoc
+	 * @param mixed $field Field.
 	 */
 	public function is_available( $field ) {
 		$mode = self::get_property( 'mode', $field, 'sandbox' );
@@ -219,7 +239,7 @@ class Forminator_PayPal extends Forminator_Field {
 	 *
 	 * @since 1.7
 	 *
-	 * @param bool $live
+	 * @param bool $live Is live?.
 	 *
 	 * @return bool|string
 	 */
@@ -235,7 +255,6 @@ class Forminator_PayPal extends Forminator_Field {
 		} catch ( Forminator_Gateway_Exception $e ) {
 			return false;
 		}
-
 	}
 
 	/**
@@ -255,7 +274,9 @@ class Forminator_PayPal extends Forminator_Field {
 	}
 
 	/**
-	 * @param array                 $field
+	 * Process entry data
+	 *
+	 * @param array $field Field.
 	 *
 	 * @return array
 	 */
@@ -283,30 +304,30 @@ class Forminator_PayPal extends Forminator_Field {
 		$order  = $paypal->get_order( $transaction_id, $mode );
 
 		// Validate intent.
-		if ( ! isset( $order->intent ) || $order->intent !== 'CAPTURE' ) {
+		if ( ! isset( $order->intent ) || 'CAPTURE' !== $order->intent ) {
 			return array(
-				'error' => __( 'Error! Something went wrong during checkout and payment couldn\'t be approved.', 'forminator' ),
+				'error' => esc_html__( 'Error! Something went wrong during checkout and payment couldn\'t be approved.', 'forminator' ),
 			);
 		}
 
 		// Validate status.
-		if ( ! isset( $order->status ) || $order->status !== 'APPROVED' ) {
+		if ( ! isset( $order->status ) || 'APPROVED' !== $order->status ) {
 			return array(
-				'error' => __( 'Error! Something went wrong during checkout and payment couldn\'t be approved.', 'forminator' ),
+				'error' => esc_html__( 'Error! Something went wrong during checkout and payment couldn\'t be approved.', 'forminator' ),
 			);
 		}
 
 		// Validate amount.
 		if ( ! isset( $order->purchase_units[0]->amount->value ) || floatval( $order->purchase_units[0]->amount->value ) !== floatval( $charge_amount ) ) {
 			return array(
-				'error' => __( 'Error! Invalid payment amount!', 'forminator' ),
+				'error' => esc_html__( 'Error! Invalid payment amount!', 'forminator' ),
 			);
 		}
 
 		// Validate currency.
 		if ( ! isset( $order->purchase_units[0]->amount->currency_code ) || $order->purchase_units[0]->amount->currency_code !== $currency ) {
 			return array(
-				'error' => __( 'Error! Invalid currency code!', 'forminator' ),
+				'error' => esc_html__( 'Error! Invalid currency code!', 'forminator' ),
 			);
 		}
 
@@ -354,8 +375,8 @@ class Forminator_PayPal extends Forminator_Field {
 	/**
 	 * Make linkify transaction_id
 	 *
-	 * @param $transaction_id
-	 * @param $meta_value
+	 * @param string $transaction_id Transaction Id.
+	 * @param array  $meta_value Meta value.
 	 *
 	 * @return string
 	 */
@@ -387,22 +408,22 @@ class Forminator_PayPal extends Forminator_Field {
 	 *
 	 * @since 1.7
 	 *
-	 * @param array                 $field
+	 * @param array $field Field.
 	 *
 	 * @return double
 	 */
 	public function get_payment_amount( $field ) {
-		$payment_amount  = 0.0;
-		$amount_type     = self::get_property( 'amount_type', $field, 'fixed' );
-		$amount          = self::get_property( 'amount', $field, '0' );
-		$amount_var      = self::get_property( 'variable', $field, '' );
+		$payment_amount = 0.0;
+		$amount_type    = self::get_property( 'amount_type', $field, 'fixed' );
+		$amount         = self::get_property( 'amount', $field, '0' );
+		$amount_var     = self::get_property( 'variable', $field, '' );
 
 		if ( 'fixed' === $amount_type ) {
 			$payment_amount = $amount;
 		} else {
 			$form_field = Forminator_Front_Action::$module_object->get_field( $amount_var, false );
 			if ( $form_field ) {
-				$form_field        = $form_field->to_formatted_array();
+				$form_field = $form_field->to_formatted_array();
 				if ( isset( $form_field['type'] ) ) {
 					$field_id             = $form_field['element_id'];
 					$submitted_field_data = isset( Forminator_CForm_Front_Action::$prepared_data[ $field_id ] )

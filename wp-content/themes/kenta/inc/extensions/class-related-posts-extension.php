@@ -215,7 +215,7 @@ if ( ! class_exists( 'Kenta_Related_Posts_Extension' ) ) {
 			}
 
 			$attrs = [
-				'class' => 'kenta-max-w-content mx-auto',
+				'class' => 'kenta-max-w-content has-global-padding mx-auto',
 			];
 
 			if ( is_customize_preview() ) {

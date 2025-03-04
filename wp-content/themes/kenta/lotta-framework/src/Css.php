@@ -132,6 +132,45 @@ class Css {
 	}
 
 	/**
+	 * Generate css font faces
+	 *
+	 * @param array $font_faces_input
+	 * @param false $beauty
+	 *
+	 * @return string
+	 */
+	public function fontFaces( $font_faces_input = [], $beauty = false ) {
+		$parse_css = '';
+		$eol       = $beauty ? PHP_EOL : '';
+
+		foreach ( $font_faces_input as $args ) {
+			$parse_css .= '@font-face {' . $eol;
+
+			foreach ( $args as $k => $v ) {
+				if ( $k === 'src' ) {
+					foreach ( $v as $src ) {
+						if ( strstr( $src, '.otf' ) ) {
+							$parse_css .= 'src:' . 'url("' . $src . '")' . ' format("opentype");' . $eol;
+						} else if ( strstr( $src, '.ttf' ) ) {
+							$parse_css .= 'src:' . 'url("' . $src . '")' . ' format("truetype");' . $eol;
+						} else if ( strstr( $src, '.woff2' ) ) {
+							$parse_css .= 'src:' . 'url("' . $src . '")' . ' format("woff2");' . $eol;
+						} else if ( strstr( $src, '.woff' ) ) {
+							$parse_css .= 'src:' . 'url("' . $src . '")' . ' format("woff");' . $eol;
+						}
+					}
+				} else {
+					$parse_css .= $k . ':' . $v . ';' . $eol;
+				}
+			}
+
+			$parse_css .= '}' . $eol;
+		}
+
+		return $parse_css;
+	}
+
+	/**
 	 * Generate css keyframes
 	 *
 	 * @param array $keyframes_output
@@ -197,6 +236,28 @@ class Css {
 		}
 
 		return $spacingCss;
+	}
+
+	/**
+	 * Get value for responsive
+	 *
+	 * @param $value
+	 * @param null $device
+	 * @param null $previous
+	 *
+	 * @return array|mixed|null
+	 */
+	protected function getResponsiveValue( $value, $device = null, $previous = null ) {
+
+		if ( ! $device ) {
+			return $value;
+		}
+
+		$value = [
+			$device => $value
+		];
+
+		return is_array( $previous ) ? array_merge( $previous, $value ) : $value;
 	}
 
 	/**
@@ -449,6 +510,7 @@ class Css {
 			return array();
 		}
 
+		$custom = Fonts::custom_fonts();
 		$system = Fonts::system_fonts();
 		$google = Fonts::google_fonts();
 
@@ -468,6 +530,16 @@ class Css {
 			$variants = $google[ $family ]['v'] ?? [];
 			$family   = $google[ $family ]['f'] ?? $family;
 			$variant  = in_array( $variant, $variants ) ? $variant : ( $variants[0] ?? '400' );
+		}
+
+		if ( isset( $custom[ $family ] ) ) {
+			$variant = $custom[ $family ]['v'] ?? '400';
+
+			if ( isset( $custom[ $family ]['s'] ) && ! empty( $custom[ $family ]['s'] ) ) {
+				$family = $custom[ $family ]['f'] . ',' . $custom[ $family ]['s'];
+			} else {
+				$family = $custom[ $family ]['f'];
+			}
 		}
 
 		$variant       = $variant === self::INITIAL_VALUE ? '' : $variant;
@@ -511,27 +583,5 @@ class Css {
 		}
 
 		return $css;
-	}
-
-	/**
-	 * Get value for responsive
-	 *
-	 * @param $value
-	 * @param null $device
-	 * @param null $previous
-	 *
-	 * @return array|mixed|null
-	 */
-	protected function getResponsiveValue( $value, $device = null, $previous = null ) {
-
-		if ( ! $device ) {
-			return $value;
-		}
-
-		$value = [
-			$device => $value
-		];
-
-		return is_array( $previous ) ? array_merge( $previous, $value ) : $value;
 	}
 }

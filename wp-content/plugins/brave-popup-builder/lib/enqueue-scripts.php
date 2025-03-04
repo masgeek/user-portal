@@ -5,6 +5,8 @@ function bravepop_enqueue_front_scripts() {
       wp_register_script( 'bravepop_front_js', BRAVEPOP_PLUGIN_PATH . 'assets/frontend/brave.js' ,'','',true);
       global $bravepop_settings;
       $customFonts = isset($bravepop_settings['fonts']) ? $bravepop_settings['fonts'] : array();
+      $appSettings = isset($bravepop_settings['app_settings']) ? $bravepop_settings['app_settings'] : new stdClass();
+      $disableGoogleFonts = isset($appSettings->disableFonts) ? wp_json_encode($appSettings->disableFonts) : 'false'; 
 
       $verbs = array(
          'loggedin' => is_user_logged_in() ? 'true' : 'false',
@@ -34,7 +36,8 @@ function bravepop_enqueue_front_scripts() {
          'no' => __( 'No', 'bravepop' ),
          'login_error' => __( 'Something Went Wrong. Please contact the Site administrator.', 'bravepop' ),
          'pass_reset_success' => __( 'Please check your Email for the Password reset link.', 'bravepop' ),
-         'customFonts'=>  $customFonts
+         'customFonts'=>  $customFonts,
+         'disableGoogleFonts' => $disableGoogleFonts,
       );
       wp_localize_script( 'bravepop_front_js', 'bravepop_global', $verbs );
       wp_enqueue_script('bravepop_front_js');
@@ -56,7 +59,7 @@ function bravepop_popupjs_vars() {
    global $bravepop_settings;
    $emailValidator = isset($bravepop_settings['emailvalidator']->active) && $bravepop_settings['emailvalidator']->active !== 'disabled' ? true : false;
    print_r('<style type="text/css">.brave_popup{display:none}</style>');
-   print_r('<script data-no-optimize="1"> var brave_popup_data = {}; var bravepop_emailValidation='.json_encode($emailValidator).'; var brave_popup_videos = {};  var brave_popup_formData = {};var brave_popup_adminUser = '.json_encode(is_user_logged_in() &&current_user_can('administrator') ? true : false).'; var brave_popup_pageInfo = '.( function_exists('bravepop_get_current_pageInfo') ? json_encode(bravepop_get_current_pageInfo()) :'{}').';  var bravepop_emailSuggestions={};</script>');
+   print_r('<script data-no-optimize="1"> var brave_popup_data = {}; var bravepop_emailValidation='.wp_json_encode($emailValidator).'; var brave_popup_videos = {};  var brave_popup_formData = {};var brave_popup_adminUser = '.wp_json_encode(is_user_logged_in() &&current_user_can('administrator') ? true : false).'; var brave_popup_pageInfo = '.( function_exists('bravepop_get_current_pageInfo') ? wp_json_encode(bravepop_get_current_pageInfo()) :'{}').';  var bravepop_emailSuggestions={};</script>');
 }
 
 add_action( 'wp_head', 'bravepop_popup_adblock_detecet_js', 10 );

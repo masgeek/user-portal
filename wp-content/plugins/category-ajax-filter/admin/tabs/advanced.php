@@ -25,7 +25,7 @@ if (!defined('ABSPATH')) {
 
     <div class="col-sm-8">
 
-    <input type='text' class="form-control" id="caf-special-post-class" name="caf-special-post-class" value='<?php echo esc_html__($caf_special_post_class, 'category-ajax-filter'); ?>'>
+    <input type='text' class="form-control" id="caf-special-post-class" name="caf-special-post-class" value='<?php echo esc_html($caf_special_post_class, 'category-ajax-filter'); ?>'>
 
 	</div>
 

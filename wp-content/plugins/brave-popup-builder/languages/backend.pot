@@ -3,301 +3,301 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "X-Generator: babel-plugin-makepot\n"
 
-#: src/admin/popups/AllPopups.js:15
+#: src/admin/popups/AllPopups.js:16
 #: src/admin/popups/editor/PopupEditor.js:295
 msgid "Popup"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:15
+#: src/admin/popups/AllPopups.js:16
 msgid "No Popup Found. "
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:16
+#: src/admin/popups/AllPopups.js:17
 #: src/admin/popups/editor/PopupEditor.js:295
 msgid "Landing Page"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:16
+#: src/admin/popups/AllPopups.js:17
 msgid "Landing Pages"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:16
+#: src/admin/popups/AllPopups.js:17
 msgid "No Landing Pages Found. "
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:17
+#: src/admin/popups/AllPopups.js:18
 msgid "Content"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:17
+#: src/admin/popups/AllPopups.js:18
 msgid "No Interactive Content Found. "
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:17
+#: src/admin/popups/AllPopups.js:18
 msgid ""
 "Upgrade to Create Interactive Content like Product Catalog, Magazine, "
 "Video/Photo Gallery & more."
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:256
+#: src/admin/popups/AllPopups.js:262
 msgid "Error Picking the Winner. Please reload the page and Try again."
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:276
+#: src/admin/popups/AllPopups.js:282
 msgid "Could not Duplicate. Please reload the page and try again."
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:366
+#: src/admin/popups/AllPopups.js:372
 msgid "Variations"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:367
+#: src/admin/popups/AllPopups.js:373
 msgid "Create Variation"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:368
+#: src/admin/popups/AllPopups.js:374
 msgid "Random"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:369
+#: src/admin/popups/AllPopups.js:375
 msgid "Start Test"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:370
+#: src/admin/popups/AllPopups.js:376
 msgid "Pause Test"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:398
+#: src/admin/popups/AllPopups.js:404
 msgid "No variations found! Create a"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:398
+#: src/admin/popups/AllPopups.js:404
 msgid "+ New Variation"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:398
+#: src/admin/popups/AllPopups.js:404
 msgid ""
 "of this Item and change the design/text and find out if it performs better "
 "than the Original Popup."
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:407
+#: src/admin/popups/AllPopups.js:413
 #: src/admin/popups/Analytics.js:457
 msgid "All Campaigns"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:408
+#: src/admin/popups/AllPopups.js:414
 msgid "New Campaign"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:412
+#: src/admin/popups/AllPopups.js:418
 msgid "New Popup / Widget"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:413
+#: src/admin/popups/AllPopups.js:419
 msgid "New Embedded Content "
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:423
+#: src/admin/popups/AllPopups.js:429
 msgid "Popups "
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:424
+#: src/admin/popups/AllPopups.js:430
 msgid "Content "
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:434
+#: src/admin/popups/AllPopups.js:440
 #: src/admin/popups/utils/elementlist.js:16
 msgid "Search"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:439
+#: src/admin/popups/AllPopups.js:445
 msgid "Sort By: "
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:443
+#: src/admin/popups/AllPopups.js:449
 msgid "Date Created"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:444
+#: src/admin/popups/AllPopups.js:450
 msgid "Last Updated"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:445
+#: src/admin/popups/AllPopups.js:451
 msgid "Status"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:446
+#: src/admin/popups/AllPopups.js:452
 msgid "Most Viewed"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:447
+#: src/admin/popups/AllPopups.js:453
 #: src/admin/popups/Analytics.js:404
 msgid "Conversions"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:448
+#: src/admin/popups/AllPopups.js:454
 #: src/admin/popups/Analytics.js:372
 msgid "Conversion Rate"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:463
+#: src/admin/popups/AllPopups.js:469
 msgid ""
 "License not Active! Please Activate your license from Brave > License, to "
 "Unlock all Features."
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:471
+#: src/admin/popups/AllPopups.js:477
 msgid "Shortcode"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:471
+#: src/admin/popups/AllPopups.js:477
 #: src/admin/popups/editor/visibility/PlacementSettings.js:58
 msgid "Placement"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:472
+#: src/admin/popups/AllPopups.js:478
 msgid "Devices"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:474
+#: src/admin/popups/AllPopups.js:480
 #: src/admin/popups/Analytics.js:403
 msgid "Views"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:475
+#: src/admin/popups/AllPopups.js:481
 msgid "Conversion"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:476
+#: src/admin/popups/AllPopups.js:482
 msgid "Updated"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:504
+#: src/admin/popups/AllPopups.js:510
 msgid " Please create One by clicking the + icon."
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:512
+#: src/admin/popups/AllPopups.js:518
 #: src/admin/popups/PopupItem.js:49
 msgid "Edit Title"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:513
+#: src/admin/popups/AllPopups.js:519
 #: src/admin/popups/editor/PopupEditor.js:310
 msgid "Goal"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:514
+#: src/admin/popups/AllPopups.js:520
 msgid "Updating Title"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:522
+#: src/admin/popups/AllPopups.js:528
 msgid "Remove Selected "
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:523
-#: src/admin/popups/Submissions/Submissions.js:433
+#: src/admin/popups/AllPopups.js:529
+#: src/admin/popups/Submissions/Submissions.js:443
 msgid ""
 "Are you sure you want to remove these Items? Once Removed, they cannot be "
 "recovered."
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:526
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:970
+#: src/admin/popups/AllPopups.js:532
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:971
 #: src/admin/popups/PopupItem.js:51
 #: src/admin/popups/Presets/UserPresets.js:65
 #: src/admin/popups/Submissions/SubmissionSingle.js:196
-#: src/admin/popups/Submissions/Submissions.js:449
+#: src/admin/popups/Submissions/Submissions.js:459
 #: src/admin/popups/editor/builder/elements/ContextMenu.js:132
 #: src/admin/popups/editor/fields/RepeaterField.js:239
 msgid "Remove"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:527
+#: src/admin/popups/AllPopups.js:533
 #: src/admin/popups/Analytics.js:493
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:971
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:972
 #: src/admin/popups/Presets/OverWritePreset.js:61
 #: src/admin/popups/Submissions/SubmissionSingle.js:197
-#: src/admin/popups/Submissions/Submissions.js:450
+#: src/admin/popups/Submissions/Submissions.js:460
 #: src/admin/popups/editor/Modal.js:22
 #: src/admin/popups/editor/PopupEditor.js:462
 msgid "Cancel"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:539
+#: src/admin/popups/AllPopups.js:545
 #: src/admin/popups/PopupItem.js:52
 msgid "Split Test"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:540
+#: src/admin/popups/AllPopups.js:546
 msgid ""
 "Create a new Variation of this Item and serve them to some of the visitors. "
 "This will create an exact copy of this Item."
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:542
+#: src/admin/popups/AllPopups.js:548
 msgid "New  Variation Title"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:552
+#: src/admin/popups/AllPopups.js:558
 #: src/admin/popups/editor/builder/elements/ContextMenu.js:169
 msgid "Duplicate "
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:553
+#: src/admin/popups/AllPopups.js:559
 msgid "New  Title"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:554
-#: src/admin/popups/Submissions/Submissions.js:355
+#: src/admin/popups/AllPopups.js:560
+#: src/admin/popups/Submissions/Submissions.js:365
 msgid "Title"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:555
+#: src/admin/popups/AllPopups.js:561
 msgid "Duplicating "
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:563
+#: src/admin/popups/AllPopups.js:569
 msgid "Select Split Test Winner"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:564
+#: src/admin/popups/AllPopups.js:570
 msgid ""
 "If you select this  variation as winner, the Parent  will be replaced with "
 "the selected variation and all other variations will be removed."
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:565
+#: src/admin/popups/AllPopups.js:571
 msgid "Picking Winner.."
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:573
+#: src/admin/popups/AllPopups.js:579
 msgid "Schedule Campaign: "
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:582
+#: src/admin/popups/AllPopups.js:588
 #: src/admin/popups/Analytics.js:382
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:306
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:323
 #: src/admin/popups/Integrations/CaptchaIntegration.js:91
 #: src/admin/popups/Integrations/SocialIntegrations.js:119
 #: src/admin/popups/Integrations/ValidationIntegrations.js:165
-#: src/admin/popups/Submissions/Submissions.js:384
+#: src/admin/popups/Submissions/Submissions.js:394
 #: src/admin/popups/UpgradeMessage.js:8
 #: src/admin/popups/editor/PopupEditor.js:321
 msgid "Upgrade"
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:582
+#: src/admin/popups/AllPopups.js:588
 msgid "to Schedule Campaigns to run on selected dates or certain days of the week."
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:593
-#: src/admin/popups/Submissions/Submissions.js:459
+#: src/admin/popups/AllPopups.js:599
+#: src/admin/popups/Submissions/Submissions.js:469
 msgid "Selected "
 msgstr ""
 
-#: src/admin/popups/AllPopups.js:597
-#: src/admin/popups/Submissions/Submissions.js:463
+#: src/admin/popups/AllPopups.js:603
+#: src/admin/popups/Submissions/Submissions.js:473
 msgid "Remove Item(s)"
 msgstr ""
 
@@ -336,7 +336,7 @@ msgid "Time"
 msgstr ""
 
 #: src/admin/popups/Analytics.js:286
-#: src/admin/popups/Submissions/Submissions.js:340
+#: src/admin/popups/Submissions/Submissions.js:350
 #: src/admin/popups/editor/PopupGoal.js:223
 #: src/admin/popups/editor/StepsHeader.js:58
 #: src/admin/popups/editor/builder/Sidebar/Settings/SingleSettings.js:58
@@ -473,6 +473,45 @@ msgstr ""
 msgid "Save Settings"
 msgstr ""
 
+#: src/admin/popups/AppSettings.js:105
+msgid "Allowed user Roles (Beside Administrator)"
+msgstr ""
+
+#: src/admin/popups/AppSettings.js:109
+msgid "Select User Roles.."
+msgstr ""
+
+#: src/admin/popups/AppSettings.js:39
+msgid "Error Saving Data"
+msgstr ""
+
+#: src/admin/popups/AppSettings.js:60
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:959
+#: src/admin/popups/Integrations/CaptchaIntegration.js:59
+#: src/admin/popups/Integrations/ESPIntegrations.js:133
+#: src/admin/popups/Integrations/SocialIntegrations.js:67
+#: src/admin/popups/Integrations/ValidationIntegrations.js:75
+#: src/admin/popups/editor/PopupEditor.js:314
+#: src/admin/popups/editor/builder/Sidebar/Sidebar.js:160
+msgid "Settings"
+msgstr ""
+
+#: src/admin/popups/AppSettings.js:67
+msgid "Disable Google Fonts"
+msgstr ""
+
+#: src/admin/popups/AppSettings.js:74
+msgid "Disable lazy Loading Campaign Images"
+msgstr ""
+
+#: src/admin/popups/AppSettings.js:81
+msgid "Force Hide Popups for Admins"
+msgstr ""
+
+#: src/admin/popups/AppSettings.js:96
+msgid "Allow Other Users Access to the Editor"
+msgstr ""
+
 #: src/admin/popups/CreatePopup.js:210
 #: src/admin/popups/Presets/UserPresets.js:63
 msgid " Steps"
@@ -524,19 +563,19 @@ msgid "Creating ..."
 msgstr ""
 
 #: src/admin/popups/CreatePopup.js:329
-#: src/admin/popups/Presets/Presets.js:199
+#: src/admin/popups/Presets/Presets.js:200
 #: src/admin/popups/editor/PopupEditor.js:424
 msgid "Live Preview"
 msgstr ""
 
 #: src/admin/popups/CreatePopup.js:334
-#: src/admin/popups/Presets/Presets.js:204
+#: src/admin/popups/Presets/Presets.js:205
 msgid "No Preview Found..."
 msgstr ""
 
 #: src/admin/popups/CreatePopup.js:339
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:902
-#: src/admin/popups/Presets/Presets.js:209
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:903
+#: src/admin/popups/Presets/Presets.js:210
 #: src/admin/popups/editor/ImportExport.js:100
 #: src/admin/popups/editor/PopupGoal.js:223
 #: src/admin/popups/editor/StepsHeader.js:58
@@ -545,7 +584,7 @@ msgid "Step"
 msgstr ""
 
 #: src/admin/popups/CreatePopup.js:345
-#: src/admin/popups/Presets/Presets.js:215
+#: src/admin/popups/Presets/Presets.js:216
 msgid "Close Preview"
 msgstr ""
 
@@ -581,7 +620,7 @@ msgstr ""
 msgid "No Fields Added.."
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:1017
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:1018
 msgid "+ Add Field"
 msgstr ""
 
@@ -622,104 +661,104 @@ msgstr ""
 msgid "Placeholder"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:389
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:390
 #: src/admin/popups/FormBuilder/settings/FormActionSettings.js:141
 msgid "Field Value"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:390
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:391
 msgid "Default Field Value"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:400
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:401
 msgid "Hide Field"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:414
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:415
 msgid "Input Field Type"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:419
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:420
 msgid "Last Name Field ID*"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:421
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:422
 msgid "No Space allowed."
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:424
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:425
 msgid "Last Name Label"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:428
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:429
 msgid "Last Name Placeholder"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:440
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:441
 msgid "Field Height"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:458
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:459
 msgid "Default Text"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:459
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:460
 msgid "Default Select Text"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:464
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:465
 msgid "Multi Select"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:474
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:475
 msgid "Display Options Inline"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:478
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:479
 #: src/admin/popups/editor/builder/Sidebar/Settings/ImageSettings.js:403
 msgid "Display Border"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:485
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:486
 msgid "Images Per Row"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:491
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:492
 msgid "Allow Multi Select"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:498
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:499
 msgid "Buttons Style"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:499
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:500
 msgid "Edit Style"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:507
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:508
 msgid "Button Background"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:515
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:516
 #: src/admin/popups/FormBuilder/PopFormSettings.js:380
 #: src/admin/popups/editor/builder/Sidebar/Settings/PostSettings.js:431
 #: src/admin/popups/editor/builder/Sidebar/Settings/ProductSettings.js:447
 msgid "Button Text Color"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:522
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:523
 #: src/admin/popups/editor/builder/Sidebar/Settings/ButtonSettings.js:71
 #: src/admin/popups/editor/builder/Sidebar/Settings/ListSettings.js:72
 #: src/admin/popups/editor/fields/FontControl.js:131
 msgid "Font Size"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:525
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:526
 #: src/admin/popups/editor/builder/Sidebar/Settings/layout/LayoutSize.js:58
 msgid "Height"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:528
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:529
 #: src/admin/popups/editor/builder/Sidebar/Settings/ButtonSettings.js:210
 #: src/admin/popups/editor/builder/Sidebar/Settings/ImageSettings.js:312
 #: src/admin/popups/editor/builder/Sidebar/Settings/SingleSettings.js:170
@@ -727,267 +766,267 @@ msgstr ""
 msgid "Roundness"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:535
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:536
 msgid "On Click Go to Next Step"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:541
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:542
 msgid "Field Options"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:585
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:586
 msgid "Select Field Type"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:595
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:596
 msgid "Select Country"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:611
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:612
 msgid "Rating Type"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:614
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:615
 msgid "Item Size"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:620
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:621
 msgid "Item Color"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:630
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:631
 msgid "Item Font Color"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:639
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:640
 msgid "Item Selected Color"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:649
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:650
 msgid "Allow Rating upto 10 "
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:662
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:663
 msgid "Hide Step Button"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:669
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:670
 msgid "Step Button Label"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:672
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:673
 msgid "Display Arrow"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:678
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:679
 msgid "Auto Resize Popup Height On Click"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:683
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:684
 msgid "New Popup Height"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:687
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:688
 msgid "Make Button Skippable"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:692
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:693
 msgid "Skip Button Label"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:695
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:696
 #: src/admin/popups/editor/PopupDesign.js:77
 msgid "Remove Step"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:702
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:703
 #: src/admin/popups/utils/elementlist.js:6
 msgid "Text"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:707
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:708
 #: src/admin/popups/editor/builder/Sidebar/Settings/ButtonSettings.js:83
 #: src/admin/popups/editor/builder/Sidebar/Settings/ListSettings.js:97
 #: src/admin/popups/editor/fields/FontControl.js:167
 msgid "Text Color"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:714
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:715
 msgid "Bold Text"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:718
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:719
 #: src/admin/popups/editor/builder/Sidebar/Settings/PostSettings.js:340
 #: src/admin/popups/editor/builder/Sidebar/Settings/ProductSettings.js:317
 msgid "Text Size"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:731
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:732
 msgid "Label"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:735
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:736
 msgid "Media Type"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:740
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:741
 #: src/admin/popups/editor/PopupGoal.js:337
 #: src/admin/popups/editor/builder/elements/ElementWrapper.js:207
 msgid "Select"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:741
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:742
 msgid "No File Selected"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:752
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:753
 msgid "Quiz Field"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:758
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:759
 msgid "Input"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:759
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:760
 msgid "TextBox"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:760
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:761
 msgid "Drop Down"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:761
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:762
 msgid "Checkbox"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:762
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:763
 msgid "Radio"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:763
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:764
 msgid "Image Select"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:764
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:765
 msgid "Buttons Group"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:765
-#: src/admin/popups/Submissions/Submissions.js:359
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:766
+#: src/admin/popups/Submissions/Submissions.js:369
 msgid "Date"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:766
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:767
 msgid "Rating"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:767
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:768
 msgid "Custom Label"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:768
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:769
 msgid "Custom Media"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:769
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:770
 #: src/admin/popups/editor/fields/RepeaterField.js:222
 msgid "Hidden"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:771
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:772
 msgid " Add Step"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:788
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:789
 msgid "Form Type"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:790
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:791
 #: src/admin/popups/editor/visibility/FilterSettings.js:129
 msgid "General"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:791
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:792
 msgid "Quiz"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:800
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:801
 msgid "Quiz Scoring"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:802
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:803
 msgid "Points Based"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:803
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:804
 msgid "Answer Based"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:814
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:815
 msgid "Progress Bar"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:817
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:818
 msgid "Hide Step back Button"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:826
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:827
 msgid ""
 "To display the Quiz result in other steps of the Campaign, insert a Text "
 "element, enable \"Display Dynamic Text\" option and select"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:839
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:840
 msgid "Move to Another Step"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:846
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:847
 msgid "Move to Step "
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:883
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:884
 msgid "Upgrade to Add Unlimited Fields"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:883
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:884
 msgid "Max"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:883
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:884
 msgid "Fields"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:887
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:888
 msgid "Add Item"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:902
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:903
 msgid "View Step"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:905
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:906
 msgid "Step Settings"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:917
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:918
 msgid "Dropdown"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:929
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:930
 #: src/admin/popups/FormBuilder/settings/FormActionSettings.js:136
 msgid "Field"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:930
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:931
 msgid "Highest Achievable Points for this Question"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:931
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:932
 msgid "This Field is shown based on conditions"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:952
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:208
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:953
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:210
 #: src/admin/popups/FormBuilder/settings/FormActionRecievemail.js:103
 #: src/admin/popups/FormBuilder/settings/FormActionSendmail.js:206
 #: src/admin/popups/FormBuilder/settings/FormActionSettings.js:347
@@ -997,35 +1036,25 @@ msgstr ""
 msgid "Required"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:958
-#: src/admin/popups/Integrations/CaptchaIntegration.js:59
-#: src/admin/popups/Integrations/ESPIntegrations.js:133
-#: src/admin/popups/Integrations/SocialIntegrations.js:67
-#: src/admin/popups/Integrations/ValidationIntegrations.js:75
-#: src/admin/popups/editor/PopupEditor.js:314
-#: src/admin/popups/editor/builder/Sidebar/Sidebar.js:160
-msgid "Settings"
-msgstr ""
-
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:959
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:960
 #: src/admin/popups/PopupItem.js:50
 #: src/admin/popups/editor/builder/elements/ContextMenu.js:131
 msgid "Duplicate"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:968
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:969
 msgid "Are you sure you want to remove this field?"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:981
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:982
 msgid "Save Field value as Browser Cookie"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:986
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:987
 msgid "Browser Cookie Name (No Space)"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/FormFieldsEditor.js:991
+#: src/admin/popups/FormBuilder/FormFieldsEditor.js:992
 msgid "Only Show based on conditions"
 msgstr ""
 
@@ -1310,104 +1339,112 @@ msgstr ""
 msgid "Other"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:149
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:151
 msgid "Add User to Newsletter"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:159
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:161
 msgid ""
 "You have not Integrated a Newsletter Service Yet. Please do so, from Brave "
 "> Integrations and then refresh this page."
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:164
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:166
 #: src/admin/popups/FormBuilder/settings/FormActionSendmail.js:198
 msgid ""
 "Your Form Does not have an Email Input Field. To activate this Option, "
 "Please add an Input Field and then set the Field type Option to \"Email\"."
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:172
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:174
 msgid "Newsletter Service"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:181
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:183
 msgid "Loading Lists.. "
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:184
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:186
 msgid "Error Loading Lists!"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:191
-msgid "Newsletter List"
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:193
+msgid "Convertkit Form"
 msgstr ""
 
 #: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:193
+msgid "Newsletter List"
+msgstr ""
+
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:195
 msgid "Newsletter Lists"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:202
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:204
 msgid "Sendy List ID"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:208
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:210
 msgid "Get Email From"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:210
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:212
 msgid "Email Fields"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:220
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:222
 msgid "Get Name From"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:232
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:234
 msgid "Get Phone Number From"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:234
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:236
 msgid "All Input Fields"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:246
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:248
 msgid "Only Add if a Checkbox is Checked"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:255
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:257
 msgid "Select Checkbox"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:257
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:259
 msgid "All Checkbox Fields"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:265
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:267
 msgid "No Checkbox Fields Found in your Form!"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:280
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:282
 msgid "Email Template ID*"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:284
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:286
 msgid "Redirect URL After Optin*"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:291
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:293
+msgid "Autoresponder Day"
+msgstr ""
+
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:308
 msgid "Advanced Mode"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:300
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:317
 msgid "Newsletter Signup Settings"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:300
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:317
 msgid "(Locked! Activate License)"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:306
+#: src/admin/popups/FormBuilder/settings/FormActionNewsletter.js:323
 msgid ""
 "to Save Subscribers in Database, Sync More Fields, Tag Subscriber, "
 "Subscribe visitors to different lists based on conditions & Prevent "
@@ -1529,7 +1566,7 @@ msgstr ""
 
 #: src/admin/popups/FormBuilder/settings/FormActionSendmail.js:230
 #: src/admin/popups/Submissions/SubmissionSingle.js:128
-#: src/admin/popups/Submissions/Submissions.js:423
+#: src/admin/popups/Submissions/Submissions.js:433
 #: src/admin/popups/editor/PopupEditor.js:461
 msgid "Update"
 msgstr ""
@@ -1679,34 +1716,38 @@ msgid "Encode Redirect URL"
 msgstr ""
 
 #: src/admin/popups/FormBuilder/settings/FormActionSettings.js:375
+msgid "Add Current URL paramters to the Redirect URL"
+msgstr ""
+
+#: src/admin/popups/FormBuilder/settings/FormActionSettings.js:384
 msgid "Redirect to Different URL based on submitted Form data"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionSettings.js:396
+#: src/admin/popups/FormBuilder/settings/FormActionSettings.js:405
 msgid "When The form is submitted:"
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionSettings.js:398
+#: src/admin/popups/FormBuilder/settings/FormActionSettings.js:407
 msgid "You will Recieve an Email."
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionSettings.js:399
+#: src/admin/popups/FormBuilder/settings/FormActionSettings.js:408
 msgid "User will Recieve an Email."
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionSettings.js:400
+#: src/admin/popups/FormBuilder/settings/FormActionSettings.js:409
 msgid "User will be subscribed to a Newsletter."
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionSettings.js:401
+#: src/admin/popups/FormBuilder/settings/FormActionSettings.js:410
 msgid "Form Data will be sent to "
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionSettings.js:402
+#: src/admin/popups/FormBuilder/settings/FormActionSettings.js:411
 msgid "Form Submission event will be sent to Google Analytics."
 msgstr ""
 
-#: src/admin/popups/FormBuilder/settings/FormActionSettings.js:403
+#: src/admin/popups/FormBuilder/settings/FormActionSettings.js:412
 msgid "Form Submission event will be sent to Facbook Ads"
 msgstr ""
 
@@ -1824,32 +1865,32 @@ msgstr ""
 msgid "Send Sample Data"
 msgstr ""
 
-#: src/admin/popups/Integrations.js:222
+#: src/admin/popups/Integrations.js:224
 msgid "Integrations"
 msgstr ""
 
-#: src/admin/popups/Integrations.js:226
+#: src/admin/popups/Integrations.js:228
 msgid "EMS"
 msgstr ""
 
-#: src/admin/popups/Integrations.js:227
+#: src/admin/popups/Integrations.js:229
 #: src/admin/popups/utils/elementlist.js:22
 msgid "Social"
 msgstr ""
 
-#: src/admin/popups/Integrations.js:228
+#: src/admin/popups/Integrations.js:230
 msgid "reCAPTCHA"
 msgstr ""
 
-#: src/admin/popups/Integrations.js:229
+#: src/admin/popups/Integrations.js:231
 msgid "Email Validation"
 msgstr ""
 
-#: src/admin/popups/Integrations.js:282
+#: src/admin/popups/Integrations.js:284
 msgid "Remove This Integraion"
 msgstr ""
 
-#: src/admin/popups/Integrations.js:283
+#: src/admin/popups/Integrations.js:285
 msgid "Are you sure you want to remove this Integraion?"
 msgstr ""
 
@@ -1894,14 +1935,14 @@ msgid "How do I get the Site key and the Secret Key?"
 msgstr ""
 
 #: src/admin/popups/Integrations/CaptchaIntegration.js:68
-#: src/admin/popups/Integrations/ESPIntegrations.js:174
+#: src/admin/popups/Integrations/ESPIntegrations.js:175
 #: src/admin/popups/Integrations/SocialIntegrations.js:76
 #: src/admin/popups/Integrations/ValidationIntegrations.js:82
 msgid "Integration Successful"
 msgstr ""
 
 #: src/admin/popups/Integrations/CaptchaIntegration.js:70
-#: src/admin/popups/Integrations/ESPIntegrations.js:176
+#: src/admin/popups/Integrations/ESPIntegrations.js:177
 #: src/admin/popups/Integrations/SocialIntegrations.js:78
 #: src/admin/popups/Integrations/ValidationIntegrations.js:84
 msgid "Remove Integration"
@@ -1921,15 +1962,15 @@ msgstr ""
 msgid "Zoho Domain"
 msgstr ""
 
-#: src/admin/popups/Integrations/ESPIntegrations.js:157
+#: src/admin/popups/Integrations/ESPIntegrations.js:158
 msgid "Get Auth Code"
 msgstr ""
 
-#: src/admin/popups/Integrations/ESPIntegrations.js:169
+#: src/admin/popups/Integrations/ESPIntegrations.js:170
 msgid "Get Refresh Token"
 msgstr ""
 
-#: src/admin/popups/Integrations/ESPIntegrations.js:171
+#: src/admin/popups/Integrations/ESPIntegrations.js:172
 #: src/admin/popups/Integrations/SocialIntegrations.js:73
 #: src/admin/popups/Integrations/ValidationIntegrations.js:80
 msgid "How do I get the "
@@ -2231,59 +2272,59 @@ msgstr ""
 msgid "Overwrite"
 msgstr ""
 
-#: src/admin/popups/Presets/Presets.js:104
+#: src/admin/popups/Presets/Presets.js:105
 #: src/admin/popups/Presets/UserPresets.js:64
 #: src/admin/popups/editor/ImportExport.js:118
 msgid "Import"
 msgstr ""
 
-#: src/admin/popups/Presets/Presets.js:128
+#: src/admin/popups/Presets/Presets.js:129
 msgid "All Presets"
 msgstr ""
 
-#: src/admin/popups/Presets/Presets.js:128
+#: src/admin/popups/Presets/Presets.js:129
 #: src/admin/popups/editor/fields/FontPicker.js:150
-#: src/admin/popups/editor/visibility/PlacementSettings.js:99
+#: src/admin/popups/editor/visibility/PlacementSettings.js:116
 msgid "All"
 msgstr ""
 
-#: src/admin/popups/Presets/Presets.js:133
+#: src/admin/popups/Presets/Presets.js:134
 #: src/admin/popups/editor/PopupDesign.js:96
 msgid "Presets"
 msgstr ""
 
-#: src/admin/popups/Presets/Presets.js:138
-#: src/admin/popups/editor/fields/MediaPicker.js:235
+#: src/admin/popups/Presets/Presets.js:139
+#: src/admin/popups/editor/fields/MediaPicker.js:236
 msgid "Library"
 msgstr ""
 
-#: src/admin/popups/Presets/Presets.js:139
+#: src/admin/popups/Presets/Presets.js:140
 #: src/admin/popups/Presets/presetData.js:25
 #: src/admin/popups/editor/fields/FontPicker.js:151
 msgid "Custom"
 msgstr ""
 
-#: src/admin/popups/Presets/Presets.js:184
+#: src/admin/popups/Presets/Presets.js:185
 msgid "Importing Preset..."
 msgstr ""
 
-#: src/admin/popups/Presets/Presets.js:189
+#: src/admin/popups/Presets/Presets.js:190
 msgid "Are you sure you want to Import this Preset?"
 msgstr ""
 
-#: src/admin/popups/Presets/Presets.js:190
+#: src/admin/popups/Presets/Presets.js:191
 msgid "Your Current Popup content will be replaced with this preset."
 msgstr ""
 
-#: src/admin/popups/Presets/Presets.js:190
+#: src/admin/popups/Presets/Presets.js:191
 msgid "This Preset will add"
 msgstr ""
 
-#: src/admin/popups/Presets/Presets.js:190
+#: src/admin/popups/Presets/Presets.js:191
 msgid "Steps to current popup."
 msgstr ""
 
-#: src/admin/popups/Presets/Presets.js:58
+#: src/admin/popups/Presets/Presets.js:59
 msgid "Preset Successfully Imported!"
 msgstr ""
 
@@ -2640,8 +2681,16 @@ msgstr ""
 msgid "Show Announcements, Notifications & Custom Messages"
 msgstr ""
 
+#: src/admin/popups/RateBrave.js:24
+msgid "Enjoying Brave? Help Us Grow"
+msgstr ""
+
+#: src/admin/popups/RateBrave.js:25
+msgid "Help Us Grow by rating Brave on WordPress Plugin Repository"
+msgstr ""
+
 #: src/admin/popups/Submissions/SubmissionSingle.js:108
-#: src/admin/popups/Submissions/Submissions.js:262
+#: src/admin/popups/Submissions/Submissions.js:272
 msgid "Quiz Score"
 msgstr ""
 
@@ -2666,7 +2715,7 @@ msgid " at "
 msgstr ""
 
 #: src/admin/popups/Submissions/SubmissionSingle.js:156
-#: src/admin/popups/Submissions/Submissions.js:259
+#: src/admin/popups/Submissions/Submissions.js:269
 msgid "Visitor's Country"
 msgstr ""
 
@@ -2716,109 +2765,109 @@ msgid ""
 "recovered."
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:258
+#: src/admin/popups/Submissions/Submissions.js:268
 msgid "Visitor's Device"
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:260
+#: src/admin/popups/Submissions/Submissions.js:270
 msgid "Visitor's IP Address"
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:261
+#: src/admin/popups/Submissions/Submissions.js:271
 msgid "Page URL"
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:284
+#: src/admin/popups/Submissions/Submissions.js:294
 msgid "Move Up"
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:285
+#: src/admin/popups/Submissions/Submissions.js:295
 msgid "Move Down"
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:308
+#: src/admin/popups/Submissions/Submissions.js:318
 #: src/admin/popups/editor/PopupVisibility.js:142
 msgid "Form Submissions"
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:316
+#: src/admin/popups/Submissions/Submissions.js:326
 msgid "Loading Campaigns.."
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:316
+#: src/admin/popups/Submissions/Submissions.js:326
 msgid "No Campaigns"
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:321
+#: src/admin/popups/Submissions/Submissions.js:331
 msgid "This Campaign has been Removed"
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:326
+#: src/admin/popups/Submissions/Submissions.js:336
 msgid "Edit Columns"
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:327
+#: src/admin/popups/Submissions/Submissions.js:337
 msgid "Export All Entries as CSV"
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:328
+#: src/admin/popups/Submissions/Submissions.js:338
 msgid "Remove All Submissions"
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:375
+#: src/admin/popups/Submissions/Submissions.js:385
 msgid " No Submissions found for this Campaign"
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:376
+#: src/admin/popups/Submissions/Submissions.js:386
 msgid "Fetching Submissions..."
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:378
+#: src/admin/popups/Submissions/Submissions.js:388
 msgid ""
 " None of your Campaigns have Form Submission enabled. Enable Form "
 "Submission Save Feature from Campaign Settings screen to save form "
 "submissions made by visitors."
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:381
+#: src/admin/popups/Submissions/Submissions.js:391
 msgid "Upgrade to Save & View Form Submissions"
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:382
+#: src/admin/popups/Submissions/Submissions.js:392
 msgid ""
 "Upgrade to Brave PRO to Save Form Submissions made by visitors. You can "
 "save leads, feedback, surveys, quiz results and export them as csv."
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:383
+#: src/admin/popups/Submissions/Submissions.js:393
 msgid ""
 "Note: Brave will only start Saving Form Submissions once you upgrade and "
 "turn on the form submission option in Campaign Settings Page."
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:418
+#: src/admin/popups/Submissions/Submissions.js:428
 msgid "Customize Columns"
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:419
+#: src/admin/popups/Submissions/Submissions.js:429
 msgid "Customize Which fields should appear as Columns and their orders."
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:432
+#: src/admin/popups/Submissions/Submissions.js:442
 msgid "Remove Selected Submissions"
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:445
+#: src/admin/popups/Submissions/Submissions.js:455
 msgid "Remove All Submissions of this Campaign"
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:446
+#: src/admin/popups/Submissions/Submissions.js:456
 msgid ""
 "This Campaign has been already removed. Are you sure you want to remove the "
 "submissions as well?"
 msgstr ""
 
-#: src/admin/popups/Submissions/Submissions.js:469
+#: src/admin/popups/Submissions/Submissions.js:479
 msgid "Exporting All Entries of Campaign "
 msgstr ""
 
@@ -3375,7 +3424,7 @@ msgstr ""
 #: src/admin/popups/editor/builder/Sidebar/Settings/ButtonSettings.js:251
 #: src/admin/popups/editor/builder/Sidebar/Settings/GroupSettings.js:86
 #: src/admin/popups/editor/builder/Sidebar/Settings/ShapeSettings.js:263
-#: src/admin/popups/editor/fields/ClickActionsField.js:345
+#: src/admin/popups/editor/fields/ClickActionsField.js:322
 msgid "Hover Animation"
 msgstr ""
 
@@ -3581,7 +3630,7 @@ msgstr ""
 
 #: src/admin/popups/editor/builder/Sidebar/Settings/PostSettings.js:107
 #: src/admin/popups/editor/builder/Sidebar/Settings/ProductSettings.js:131
-#: src/admin/popups/editor/visibility/PlacementSettings.js:215
+#: src/admin/popups/editor/visibility/PlacementSettings.js:232
 msgid "No Categories Found"
 msgstr ""
 
@@ -3592,7 +3641,7 @@ msgstr ""
 
 #: src/admin/popups/editor/builder/Sidebar/Settings/PostSettings.js:119
 #: src/admin/popups/editor/builder/Sidebar/Settings/ProductSettings.js:143
-#: src/admin/popups/editor/visibility/PlacementSettings.js:146
+#: src/admin/popups/editor/visibility/PlacementSettings.js:163
 msgid "No Tags Found"
 msgstr ""
 
@@ -3601,7 +3650,7 @@ msgid "Select Posts"
 msgstr ""
 
 #: src/admin/popups/editor/builder/Sidebar/Settings/PostSettings.js:131
-#: src/admin/popups/editor/visibility/PlacementSettings.js:140
+#: src/admin/popups/editor/visibility/PlacementSettings.js:157
 #: src/admin/popups/editor/visibility/WooSettings.js:97
 msgid "No Posts Found"
 msgstr ""
@@ -3757,7 +3806,7 @@ msgid "Select Products"
 msgstr ""
 
 #: src/admin/popups/editor/builder/Sidebar/Settings/ProductSettings.js:155
-#: src/admin/popups/editor/visibility/PlacementSettings.js:177
+#: src/admin/popups/editor/visibility/PlacementSettings.js:194
 msgid "No Products Found"
 msgstr ""
 
@@ -3948,36 +3997,44 @@ msgstr ""
 msgid "Upgrade to PRO to unlock Continious Animation."
 msgstr ""
 
-#: src/admin/popups/editor/builder/Sidebar/Settings/layout/LayoutClose.js:113
-msgid "Close Icon/Text Size"
-msgstr ""
-
-#: src/admin/popups/editor/builder/Sidebar/Settings/layout/LayoutClose.js:127
-msgid "Close Icon/Text Color"
-msgstr ""
-
-#: src/admin/popups/editor/builder/Sidebar/Settings/layout/LayoutClose.js:135
-msgid "Auto Close"
-msgstr ""
-
-#: src/admin/popups/editor/builder/Sidebar/Settings/layout/LayoutClose.js:143
-msgid "Auto Close After"
-msgstr ""
-
-#: src/admin/popups/editor/builder/Sidebar/Settings/layout/LayoutClose.js:156
-msgid "On Close also Go to Step"
-msgstr ""
-
-#: src/admin/popups/editor/builder/Sidebar/Settings/layout/LayoutClose.js:159
-msgid "Close Button Position"
-msgstr ""
-
-#: src/admin/popups/editor/builder/Sidebar/Settings/layout/LayoutClose.js:81
+#: src/admin/popups/editor/builder/Sidebar/Settings/layout/LayoutClose.js:105
 msgid "Close Button Style"
 msgstr ""
 
-#: src/admin/popups/editor/builder/Sidebar/Settings/layout/LayoutClose.js:89
+#: src/admin/popups/editor/builder/Sidebar/Settings/layout/LayoutClose.js:113
 msgid "Close Custom Text"
+msgstr ""
+
+#: src/admin/popups/editor/builder/Sidebar/Settings/layout/LayoutClose.js:137
+msgid "Close Icon/Text Size"
+msgstr ""
+
+#: src/admin/popups/editor/builder/Sidebar/Settings/layout/LayoutClose.js:151
+msgid "Close Icon/Text Color"
+msgstr ""
+
+#: src/admin/popups/editor/builder/Sidebar/Settings/layout/LayoutClose.js:159
+msgid "Auto Close"
+msgstr ""
+
+#: src/admin/popups/editor/builder/Sidebar/Settings/layout/LayoutClose.js:167
+msgid "Auto Close After"
+msgstr ""
+
+#: src/admin/popups/editor/builder/Sidebar/Settings/layout/LayoutClose.js:180
+msgid "On Close also Go to Step"
+msgstr ""
+
+#: src/admin/popups/editor/builder/Sidebar/Settings/layout/LayoutClose.js:183
+msgid "Close Button Position"
+msgstr ""
+
+#: src/admin/popups/editor/builder/Sidebar/Settings/layout/LayoutClose.js:191
+msgid "Delay Appearance"
+msgstr ""
+
+#: src/admin/popups/editor/builder/Sidebar/Settings/layout/LayoutClose.js:199
+msgid "Delay Duration"
 msgstr ""
 
 #: src/admin/popups/editor/builder/Sidebar/Settings/layout/LayoutOverlay.js:28
@@ -4239,7 +4296,7 @@ msgstr ""
 msgid "No List Item Added "
 msgstr ""
 
-#: src/admin/popups/editor/builder/elements/Text.js:167
+#: src/admin/popups/editor/builder/elements/Text.js:173
 msgid " Contains HTML, cannot Edit inline. Opening Advanced Text Editor..."
 msgstr ""
 
@@ -4337,7 +4394,7 @@ msgid "Enable"
 msgstr ""
 
 #: src/admin/popups/editor/fields/AnimationField.js:373
-#: src/admin/popups/editor/fields/ClickActionsField.js:387
+#: src/admin/popups/editor/fields/ClickActionsField.js:413
 msgid "Animation Type"
 msgstr ""
 
@@ -4361,71 +4418,79 @@ msgstr ""
 msgid "Image Zoom"
 msgstr ""
 
-#: src/admin/popups/editor/fields/ClickActionsField.js:179
+#: src/admin/popups/editor/fields/ClickActionsField.js:181
 msgid "Select a Step"
 msgstr ""
 
-#: src/admin/popups/editor/fields/ClickActionsField.js:182
+#: src/admin/popups/editor/fields/ClickActionsField.js:184
 msgid "Step "
 msgstr ""
 
-#: src/admin/popups/editor/fields/ClickActionsField.js:187
+#: src/admin/popups/editor/fields/ClickActionsField.js:189
 msgid "Select a Product"
 msgstr ""
 
-#: src/admin/popups/editor/fields/ClickActionsField.js:209
+#: src/admin/popups/editor/fields/ClickActionsField.js:212
 msgid "Click Action"
 msgstr ""
 
-#: src/admin/popups/editor/fields/ClickActionsField.js:219
+#: src/admin/popups/editor/fields/ClickActionsField.js:222
 msgid "Custom URL:"
 msgstr ""
 
-#: src/admin/popups/editor/fields/ClickActionsField.js:229
+#: src/admin/popups/editor/fields/ClickActionsField.js:232
 msgid "Phone Number"
 msgstr ""
 
-#: src/admin/popups/editor/fields/ClickActionsField.js:243
+#: src/admin/popups/editor/fields/ClickActionsField.js:246
 msgid "Link Rel Attribute"
 msgstr ""
 
-#: src/admin/popups/editor/fields/ClickActionsField.js:270
-msgid "Download on Click"
-msgstr ""
-
-#: src/admin/popups/editor/fields/ClickActionsField.js:294
+#: src/admin/popups/editor/fields/ClickActionsField.js:280
 msgid "Select Product"
 msgstr ""
 
-#: src/admin/popups/editor/fields/ClickActionsField.js:303
-msgid "Open in New Window"
-msgstr ""
-
-#: src/admin/popups/editor/fields/ClickActionsField.js:313
+#: src/admin/popups/editor/fields/ClickActionsField.js:290
 msgid "Step:"
 msgstr ""
 
-#: src/admin/popups/editor/fields/ClickActionsField.js:317
-msgid "Select Step"
-msgstr ""
-
-#: src/admin/popups/editor/fields/ClickActionsField.js:326
+#: src/admin/popups/editor/fields/ClickActionsField.js:303
 msgid "You only have One Step. Please add More steps to link to them."
 msgstr ""
 
-#: src/admin/popups/editor/fields/ClickActionsField.js:333
+#: src/admin/popups/editor/fields/ClickActionsField.js:310
 msgid "Javascript Function:"
 msgstr ""
 
-#: src/admin/popups/editor/fields/ClickActionsField.js:356
+#: src/admin/popups/editor/fields/ClickActionsField.js:333
 msgid "Coupon Code:"
 msgstr ""
 
-#: src/admin/popups/editor/fields/ClickActionsField.js:367
+#: src/admin/popups/editor/fields/ClickActionsField.js:344
 msgid "After Applying Coupon: "
 msgstr ""
 
+#: src/admin/popups/editor/fields/ClickActionsField.js:354
+msgid "After Coupon applied, go to Step:"
+msgstr ""
+
+#: src/admin/popups/editor/fields/ClickActionsField.js:358
+msgid "Select Step"
+msgstr ""
+
 #: src/admin/popups/editor/fields/ClickActionsField.js:376
+msgid "Open in New Window"
+msgstr ""
+
+#: src/admin/popups/editor/fields/ClickActionsField.js:385
+msgid "Download on Click"
+msgstr ""
+
+#: src/admin/popups/editor/fields/ClickActionsField.js:394
+msgid "Close After Click"
+msgstr ""
+
+#: src/admin/popups/editor/fields/ClickActionsField.js:402
 msgid "Play Animation on Click"
 msgstr ""
 
@@ -4510,11 +4575,11 @@ msgstr ""
 msgid "Regular"
 msgstr ""
 
-#: src/admin/popups/editor/fields/IconPicker.js:107
+#: src/admin/popups/editor/fields/IconPicker.js:108
 msgid "Upgrade to PRO to Search from 30k Icons"
 msgstr ""
 
-#: src/admin/popups/editor/fields/IconPicker.js:37
+#: src/admin/popups/editor/fields/IconPicker.js:38
 msgid "No Icons Found!"
 msgstr ""
 
@@ -4526,77 +4591,77 @@ msgstr ""
 msgid "Select layout"
 msgstr ""
 
-#: src/admin/popups/editor/fields/MediaPicker.js:109
+#: src/admin/popups/editor/fields/MediaPicker.js:110
 #: src/admin/popups/utils/elementlist.js:12
 msgid "Video"
 msgstr ""
 
-#: src/admin/popups/editor/fields/MediaPicker.js:109
+#: src/admin/popups/editor/fields/MediaPicker.js:110
 #: src/admin/popups/utils/elementlist.js:7
 msgid "Image"
 msgstr ""
 
-#: src/admin/popups/editor/fields/MediaPicker.js:111
+#: src/admin/popups/editor/fields/MediaPicker.js:112
 msgid "Upload "
 msgstr ""
 
-#: src/admin/popups/editor/fields/MediaPicker.js:112
+#: src/admin/popups/editor/fields/MediaPicker.js:113
 msgid "Select "
 msgstr ""
 
-#: src/admin/popups/editor/fields/MediaPicker.js:223
+#: src/admin/popups/editor/fields/MediaPicker.js:224
 msgid "Media Library"
 msgstr ""
 
-#: src/admin/popups/editor/fields/MediaPicker.js:237
+#: src/admin/popups/editor/fields/MediaPicker.js:238
 msgid "Online"
 msgstr ""
 
-#: src/admin/popups/editor/fields/MediaPicker.js:260
+#: src/admin/popups/editor/fields/MediaPicker.js:261
 msgid "Search from Millions of Photos."
 msgstr ""
 
-#: src/admin/popups/editor/fields/MediaPicker.js:261
+#: src/admin/popups/editor/fields/MediaPicker.js:262
 msgid "Please Activate Your License to Search Online Images."
 msgstr ""
 
-#: src/admin/popups/editor/fields/MediaPicker.js:262
+#: src/admin/popups/editor/fields/MediaPicker.js:263
 msgid "Searching..."
 msgstr ""
 
-#: src/admin/popups/editor/fields/MediaPicker.js:290
+#: src/admin/popups/editor/fields/MediaPicker.js:291
 msgid "Photos"
 msgstr ""
 
-#: src/admin/popups/editor/fields/MediaPicker.js:291
+#: src/admin/popups/editor/fields/MediaPicker.js:292
 msgid "Illustrations"
 msgstr ""
 
-#: src/admin/popups/editor/fields/MediaPicker.js:292
+#: src/admin/popups/editor/fields/MediaPicker.js:293
 msgid "Gifs"
 msgstr ""
 
-#: src/admin/popups/editor/fields/MediaPicker.js:297
+#: src/admin/popups/editor/fields/MediaPicker.js:298
 msgid ""
 "Upgrade to PRO to Search and Import from Thousands of Free Videos from "
 "Pixabay"
 msgstr ""
 
-#: src/admin/popups/editor/fields/MediaPicker.js:297
+#: src/admin/popups/editor/fields/MediaPicker.js:298
 msgid ""
 "Upgrade to PRO to Search and Import from Millions of Free Images from "
 "Pixabay/Giphy"
 msgstr ""
 
-#: src/admin/popups/editor/fields/MediaPicker.js:307
+#: src/admin/popups/editor/fields/MediaPicker.js:308
 msgid "No Images Found"
 msgstr ""
 
-#: src/admin/popups/editor/fields/MediaPicker.js:310
+#: src/admin/popups/editor/fields/MediaPicker.js:311
 msgid "Reload"
 msgstr ""
 
-#: src/admin/popups/editor/fields/MediaPicker.js:317
+#: src/admin/popups/editor/fields/MediaPicker.js:318
 msgid "Upload"
 msgstr ""
 
@@ -4691,7 +4756,7 @@ msgid "Only Show if User Profile Field "
 msgstr ""
 
 #: src/admin/popups/editor/visibility/AudienceSettings.js:123
-#: src/admin/popups/editor/visibility/FilterSettings.js:376
+#: src/admin/popups/editor/visibility/FilterSettings.js:382
 msgid "+ Add New Rule"
 msgstr ""
 
@@ -4736,7 +4801,7 @@ msgid "Advanced Filters"
 msgstr ""
 
 #: src/admin/popups/editor/visibility/FilterSettings.js:130
-#: src/admin/popups/editor/visibility/PlacementSettings.js:97
+#: src/admin/popups/editor/visibility/PlacementSettings.js:114
 msgid "Pages"
 msgstr ""
 
@@ -4765,104 +4830,108 @@ msgid "Only show If the URL has specific UTM Keywords"
 msgstr ""
 
 #: src/admin/popups/editor/visibility/FilterSettings.js:149
-msgid "UTM Keywords"
+msgid "Show if these UTM keywords are present in URL"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:154
+#: src/admin/popups/editor/visibility/FilterSettings.js:155
+msgid "Hide if these UTM keywords are present in URL"
+msgstr ""
+
+#: src/admin/popups/editor/visibility/FilterSettings.js:160
 msgid "Only show If the page body element has a certain css class"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:159
+#: src/admin/popups/editor/visibility/FilterSettings.js:165
 msgid "Only show If has these classes"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:164
+#: src/admin/popups/editor/visibility/FilterSettings.js:170
 msgid "Hide If has these classes"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:169
+#: src/admin/popups/editor/visibility/FilterSettings.js:175
 msgid "Only show If Visitor is using an Ad Blocker"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:173
+#: src/admin/popups/editor/visibility/FilterSettings.js:179
 msgid "Only show if Visitors has certain Browser cookies"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:202
+#: src/admin/popups/editor/visibility/FilterSettings.js:208
 msgid "Only Display If Current Site Language is"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:219
+#: src/admin/popups/editor/visibility/FilterSettings.js:225
 msgid "Install Woocommerce to see all Woocommerce related Filters"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:227
+#: src/admin/popups/editor/visibility/FilterSettings.js:233
 msgid "Only show for Visitors from selected Countries"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:231
+#: src/admin/popups/editor/visibility/FilterSettings.js:237
 msgid "Selected Countries "
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:232
+#: src/admin/popups/editor/visibility/FilterSettings.js:238
 msgid "Select All"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:232
+#: src/admin/popups/editor/visibility/FilterSettings.js:238
 msgid "Unselect All"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:242
+#: src/admin/popups/editor/visibility/FilterSettings.js:248
 msgid "Only Show if Visitor Completed Goal/Viewed/Closed another Brave Campaign"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:251
+#: src/admin/popups/editor/visibility/FilterSettings.js:257
 msgid "Only Show if visitor "
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:263
+#: src/admin/popups/editor/visibility/FilterSettings.js:269
 msgid ""
 "You have No other published Campaigns. Publish another Campaign to use this "
 "option."
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:267
+#: src/admin/popups/editor/visibility/FilterSettings.js:273
 msgid "Hide if a selected Brave Campaign is present in current page"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:278
+#: src/admin/popups/editor/visibility/FilterSettings.js:284
 msgid "Only show if Visitors viewed certain number of pages before"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:282
+#: src/admin/popups/editor/visibility/FilterSettings.js:288
 msgid "Number of Pages Viewed Before"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:289
+#: src/admin/popups/editor/visibility/FilterSettings.js:295
 msgid "Only show if Visitors viewed (or not) certain pages/posts before"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:300
+#: src/admin/popups/editor/visibility/FilterSettings.js:306
 msgid "If Visitor "
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:317
+#: src/admin/popups/editor/visibility/FilterSettings.js:323
 msgid "You have No published Pages. Publish Pages to use this option."
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:325
+#: src/admin/popups/editor/visibility/FilterSettings.js:331
 msgid "Show/Hide based on LearnDash Actions"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:332
+#: src/admin/popups/editor/visibility/FilterSettings.js:338
 msgid "Select Item"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:359
+#: src/admin/popups/editor/visibility/FilterSettings.js:365
 msgid "Show/Hide based User's Purchase History"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/FilterSettings.js:368
+#: src/admin/popups/editor/visibility/FilterSettings.js:374
 msgid "Only Show if User has "
 msgstr ""
 
@@ -5127,111 +5196,115 @@ msgid ""
 "these settings, logout first."
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:100
+#: src/admin/popups/editor/visibility/PlacementSettings.js:111
+msgid "Show on Selected Pages:"
+msgstr ""
+
+#: src/admin/popups/editor/visibility/PlacementSettings.js:117
 msgid "Archives"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:101
+#: src/admin/popups/editor/visibility/PlacementSettings.js:118
 msgid "Custom Posts"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:107
+#: src/admin/popups/editor/visibility/PlacementSettings.js:124
 msgid "All Pages"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:111
+#: src/admin/popups/editor/visibility/PlacementSettings.js:128
 msgid "No Pages Found"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:115
+#: src/admin/popups/editor/visibility/PlacementSettings.js:132
 msgid "Display on All Pages Except the below Pages:"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:135
+#: src/admin/popups/editor/visibility/PlacementSettings.js:152
 msgid "All Posts"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:151
+#: src/admin/popups/editor/visibility/PlacementSettings.js:168
 msgid "Display on All Posts Except the below Posts:"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:166
+#: src/admin/popups/editor/visibility/PlacementSettings.js:183
 msgid "Categories"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:167
+#: src/admin/popups/editor/visibility/PlacementSettings.js:184
 msgid "Tags"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:172
+#: src/admin/popups/editor/visibility/PlacementSettings.js:189
 msgid "All Products"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:180
+#: src/admin/popups/editor/visibility/PlacementSettings.js:197
 msgid "No Product Categories Found"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:183
+#: src/admin/popups/editor/visibility/PlacementSettings.js:200
 msgid "No Product Tags Found"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:188
+#: src/admin/popups/editor/visibility/PlacementSettings.js:205
 msgid "Display on All Products Pages Except the below Products:"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:201
+#: src/admin/popups/editor/visibility/PlacementSettings.js:218
 #: src/admin/popups/utils/elementlist.js:21
 msgid "Products"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:205
+#: src/admin/popups/editor/visibility/PlacementSettings.js:222
 msgid "All Category Pages"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:217
+#: src/admin/popups/editor/visibility/PlacementSettings.js:234
 msgid "Popup will be displayed on all Posts Category Pages."
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:218
+#: src/admin/popups/editor/visibility/PlacementSettings.js:235
 msgid "Popup will be displayed on all Product Category Pages."
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:226
+#: src/admin/popups/editor/visibility/PlacementSettings.js:243
 msgid "Post Types"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:227
+#: src/admin/popups/editor/visibility/PlacementSettings.js:244
 #: src/admin/popups/utils/elementlist.js:18
 msgid "Posts"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:228
+#: src/admin/popups/editor/visibility/PlacementSettings.js:245
 msgid "Taxonomies"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:231
+#: src/admin/popups/editor/visibility/PlacementSettings.js:248
 msgid "Select Custom Post Types where the Popup should be visible"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:232
+#: src/admin/popups/editor/visibility/PlacementSettings.js:249
 msgid ""
 "Select Custom Post Taxonomies (category, tags etc) where the Popup should "
 "be visible"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:233
+#: src/admin/popups/editor/visibility/PlacementSettings.js:250
 msgid "No Custom Post Types Found"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:234
+#: src/admin/popups/editor/visibility/PlacementSettings.js:251
 msgid "No Custom Post Taxonomies Found"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:242
+#: src/admin/popups/editor/visibility/PlacementSettings.js:259
 msgid "Custom URLs"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:244
+#: src/admin/popups/editor/visibility/PlacementSettings.js:261
 msgid "Add/Edit Custom URLs"
 msgstr ""
 
@@ -5251,8 +5324,14 @@ msgstr ""
 msgid "URL"
 msgstr ""
 
-#: src/admin/popups/editor/visibility/PlacementSettings.js:94
-msgid "Show on Selected Pages:"
+#: src/admin/popups/editor/visibility/PlacementSettings.js:98
+msgid "Select Custom Post Types where the Popup should NOT be visible"
+msgstr ""
+
+#: src/admin/popups/editor/visibility/PlacementSettings.js:99
+msgid ""
+"Select Custom Post Taxonomies (category, tags etc) where the Popup should "
+"NOT be visible"
 msgstr ""
 
 #: src/admin/popups/editor/visibility/TriggerSettings.js:112
@@ -5379,27 +5458,27 @@ msgstr ""
 msgid "Did not Purchase:  "
 msgstr ""
 
-#: src/admin/popups/helpers.js:259
+#: src/admin/popups/helpers.js:261
 msgid "Display Conditional Message based on Quiz Result"
 msgstr ""
 
-#: src/admin/popups/helpers.js:263
+#: src/admin/popups/helpers.js:265
 msgid "Total Score Achieved by User"
 msgstr ""
 
-#: src/admin/popups/helpers.js:263
+#: src/admin/popups/helpers.js:265
 msgid "Total Available Score"
 msgstr ""
 
-#: src/admin/popups/helpers.js:266
+#: src/admin/popups/helpers.js:268
 msgid "Number of Total Correct Answers by User"
 msgstr ""
 
-#: src/admin/popups/helpers.js:266
+#: src/admin/popups/helpers.js:268
 msgid "Number of Total Questions"
 msgstr ""
 
-#: src/admin/popups/helpers.js:275
+#: src/admin/popups/helpers.js:277
 msgid "Display Conditional Message based on Field Value"
 msgstr ""
 

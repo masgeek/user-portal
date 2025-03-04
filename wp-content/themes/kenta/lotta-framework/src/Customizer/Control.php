@@ -184,6 +184,17 @@ abstract class Control {
 	}
 
 	/**
+	 * Show control as raw control
+	 *
+	 * @return $this
+	 *
+	 * @since v2.0.15
+	 */
+	public function displayRaw() {
+		return $this->setOption( 'design', 'raw' );
+	}
+
+	/**
 	 * Show control label
 	 *
 	 * @return $this

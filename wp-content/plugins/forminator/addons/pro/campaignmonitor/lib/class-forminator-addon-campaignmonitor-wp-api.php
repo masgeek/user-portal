@@ -1,12 +1,14 @@
 <?php
-
-require_once dirname( __FILE__ ) . '/class-forminator-addon-campaignmonitor-wp-api-exception.php';
-require_once dirname( __FILE__ ) . '/class-forminator-addon-campaignmonitor-wp-api-not-found-exception.php';
+/**
+ * The Forminator Campaign Monitor API
+ *
+ * @package Forminator
+ */
 
 /**
- * Class Forminator_Addon_Campaignmonitor_Wp_Api
+ * Class Forminator_Campaignmonitor_Wp_Api
  */
-class Forminator_Addon_Campaignmonitor_Wp_Api {
+class Forminator_Campaignmonitor_Wp_Api {
 
 	/**
 	 * Instances of campaignmonitor api
@@ -25,7 +27,7 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 	/**
 	 * Last data sent to campaignmonitor
 	 *
-	 * @since 1.0 Campaignmonitor Addon
+	 * @since 1.0 Campaignmonitor Integration
 	 * @var array
 	 */
 	private $_last_data_sent = array();
@@ -33,7 +35,7 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 	/**
 	 * Last data received from campaignmonitor
 	 *
-	 * @since 1.0 Campaignmonitor Addon
+	 * @since 1.0 Campaignmonitor Integration
 	 * @var array
 	 */
 	private $_last_data_received = array();
@@ -41,7 +43,7 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 	/**
 	 * Last URL requested
 	 *
-	 * @since 1.0 Campaignmonitor Addon
+	 * @since 1.0 Campaignmonitor Integration
 	 * @var string
 	 */
 	private $_last_url_request = '';
@@ -55,18 +57,18 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 	private $_endpoint = 'https://api.createsend.com/api/v3.2/';
 
 	/**
-	 * Forminator_Addon_Campaignmonitor_Wp_Api constructor.
+	 * Forminator_Campaignmonitor_Wp_Api constructor.
 	 *
-	 * @since 1.0 Campaignmonitor Addon
+	 * @since 1.0 Campaignmonitor Integration
 	 *
-	 * @param $api_key
+	 * @param string $api_key API key.
 	 *
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Exception
+	 * @throws Forminator_Integration_Exception Throws Integration Exception.
 	 */
 	public function __construct( $api_key ) {
-		//prerequisites
+		// prerequisites.
 		if ( ! $api_key ) {
-			throw new Forminator_Addon_Campaignmonitor_Wp_Api_Exception( __( 'Missing required API Key', 'forminator' ) );
+			throw new Forminator_Integration_Exception( esc_html__( 'Missing required API Key', 'forminator' ) );
 		}
 
 		$this->_api_key = $api_key;
@@ -75,12 +77,12 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 	/**
 	 * Get singleton
 	 *
-	 * @since 1.0 Campaignmonitor Addon
+	 * @since 1.0 Campaignmonitor Integration
 	 *
-	 * @param string $api_key
+	 * @param string $api_key API Key.
 	 *
-	 * @return Forminator_Addon_Campaignmonitor_Wp_Api|null
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Exception
+	 * @return Forminator_Campaignmonitor_Wp_Api|null
+	 * @throws Forminator_Integration_Exception Throws Integration Exception.
 	 */
 	public static function get_instance( $api_key ) {
 		if ( ! isset( self::$_instances[ md5( $api_key ) ] ) ) {
@@ -93,9 +95,9 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 	/**
 	 * Add custom user agent on request
 	 *
-	 * @since 1.0 Campaignmonitor Addon
+	 * @since 1.0 Campaignmonitor Integration
 	 *
-	 * @param $user_agent
+	 * @param string $user_agent User agent.
 	 *
 	 * @return string
 	 */
@@ -117,15 +119,14 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 	/**
 	 * HTTP Request
 	 *
-	 * @since 1.0 Campaignmonitor Addon
+	 * @since 1.0 Campaignmonitor Integration
 	 *
-	 * @param string $verb
-	 * @param        $path
-	 * @param array  $args
+	 * @param string $verb `GET` `POST` `PUT` `DELETE` `PATCH`.
+	 * @param string $path Path.
+	 * @param array  $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Exception
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Not_Found_Exception
+	 * @throws Forminator_Integration_Exception Throws Integration Exception.
 	 */
 	private function request( $verb, $path, $args = array() ) {
 		// Adding extra user agent for wp remote request.
@@ -158,7 +159,7 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 		 *
 		 * @since 1.1
 		 *
-		 * @param array  $headers
+		 * @param array  $headers Headers.
 		 * @param string $verb `GET` `POST` `PUT` `DELETE` `PATCH`.
 		 * @param string $path requested path resource.
 		 * @param array  $args argument sent to this function.
@@ -197,8 +198,8 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 
 		if ( is_wp_error( $res ) || ! $res ) {
 			forminator_addon_maybe_log( __METHOD__, $res );
-			throw new Forminator_Addon_Campaignmonitor_Wp_Api_Exception(
-				__( 'Failed to process request, make sure your Webhook URL is correct and your server has internet connection.', 'forminator' )
+			throw new Forminator_Integration_Exception(
+				esc_html__( 'Failed to process request, make sure your Webhook URL is correct and your server has internet connection.', 'forminator' )
 			);
 		}
 
@@ -212,16 +213,26 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 
 				$body_json = wp_remote_retrieve_body( $res );
 				$res_json  = json_decode( $body_json );
-				if ( ! is_null( $res_json ) && is_object( $res_json ) && isset( $res_json->Message ) ) {//phpcs:ignore WordPress.NamingConventions.ValidVariableName.NotSnakeCaseMemberVar
-					$msg = $res_json->Message;//phpcs:ignore WordPress.NamingConventions.ValidVariableName.NotSnakeCaseMemberVar
+				if ( ! is_null( $res_json ) && is_object( $res_json ) && isset( $res_json->Message ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$msg = $res_json->Message; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				}
 
 				if ( 404 === $status_code ) {
-					/* translators: ... */
-					throw new Forminator_Addon_Campaignmonitor_Wp_Api_Not_Found_Exception( sprintf( __( 'Failed to process request : %s', 'forminator' ), esc_html( $msg ) ) );
+					throw new Forminator_Integration_Exception(
+						sprintf(
+						/* translators: %s: Error message */
+							esc_html__( 'Failed to process request : %s', 'forminator' ),
+							esc_html( $msg )
+						)
+					);
 				}
-				/* translators: ... */
-				throw new Forminator_Addon_Campaignmonitor_Wp_Api_Exception( sprintf( __( 'Failed to process request : %s', 'forminator' ), esc_html( $msg ) ) );
+				throw new Forminator_Integration_Exception(
+					sprintf(
+					/* translators: %s: Error message */
+						esc_html__( 'Failed to process request : %s', 'forminator' ),
+						esc_html( $msg )
+					)
+				);
 			}
 		}
 
@@ -234,7 +245,7 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 
 		$response = $res;
 		/**
-		 * Filter campaignmonitor api response returned to addon
+		 * Filter campaignmonitor api response returned to integration
 		 *
 		 * @since 1.1
 		 *
@@ -255,13 +266,12 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 	/**
 	 * Send data to static webhook campaignmonitor URL
 	 *
-	 * @since 1.0 Campaignmonitor Addon
+	 * @since 1.0 Campaignmonitor Integration
 	 *
-	 * @param $args
+	 * @param array $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Exception
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Not_Found_Exception
+	 * @throws Forminator_Integration_Exception Throws Integration Exception.
 	 */
 	public function post_( $args ) {
 
@@ -275,13 +285,12 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 	/**
 	 * Get Primary Contact
 	 *
-	 * @since 1.0 Campaignmonitor Addon
+	 * @since 1.0 Campaignmonitor Integration
 	 *
-	 * @param array $args
+	 * @param array $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Exception
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Not_Found_Exception
+	 * @throws Forminator_Integration_Exception Throws Integration Exception.
 	 */
 	public function get_primary_contact( $args = array() ) {
 		$default_args = array();
@@ -298,13 +307,12 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 	/**
 	 * Get Current Data on Campaign Monitor
 	 *
-	 * @since 1.0 Campaignmonitor Addon
+	 * @since 1.0 Campaignmonitor Integration
 	 *
-	 * @param array $args
+	 * @param array $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Exception
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Not_Found_Exception
+	 * @throws Forminator_Integration_Exception Throws Integration Exception.
 	 */
 	public function get_system_date( $args = array() ) {
 		$default_args = array();
@@ -321,14 +329,13 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 	/**
 	 * Get List Detail
 	 *
-	 * @since 1.0 Campaignmonitor Addon
+	 * @since 1.0 Campaignmonitor Integration
 	 *
-	 * @param       $list_id
-	 * @param array $args
+	 * @param string $list_id List Id.
+	 * @param array  $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Exception
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Not_Found_Exception
+	 * @throws Forminator_Integration_Exception Throws Integration Exception.
 	 */
 	public function get_list( $list_id, $args = array() ) {
 		$default_args = array();
@@ -345,14 +352,13 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 	/**
 	 * Get Lists on a Client
 	 *
-	 * @since 1.0 Campaignmonitor Addon
+	 * @since 1.0 Campaignmonitor Integration
 	 *
-	 * @param       $client_id
-	 * @param array $args
+	 * @param string $client_id Client Id.
+	 * @param array  $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Exception
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Not_Found_Exception
+	 * @throws Forminator_Integration_Exception Throws Integration Exception.
 	 */
 	public function get_client_lists( $client_id, $args = array() ) {
 		$default_args = array();
@@ -369,13 +375,12 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 	/**
 	 * Get Clients
 	 *
-	 * @since 1.0 Campaignmonitor Addon
+	 * @since 1.0 Campaignmonitor Integration
 	 *
-	 * @param array $args
+	 * @param array $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Exception
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Not_Found_Exception
+	 * @throws Forminator_Integration_Exception Throws Integration Exception.
 	 */
 	public function get_clients( $args = array() ) {
 		$default_args = array();
@@ -392,14 +397,13 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 	/**
 	 * Get Client Details
 	 *
-	 * @since 1.0 Campaignmonitor Addon
+	 * @since 1.0 Campaignmonitor Integration
 	 *
-	 * @param       $client_id
-	 * @param array $args
+	 * @param string $client_id Client Id.
+	 * @param array  $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Exception
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Not_Found_Exception
+	 * @throws Forminator_Integration_Exception Throws Integration Exception.
 	 */
 	public function get_client( $client_id, $args = array() ) {
 		$default_args = array();
@@ -416,14 +420,13 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 	/**
 	 * Get Custom Fields on Lists
 	 *
-	 * @since 1.0 Campaignmonitor Addon
+	 * @since 1.0 Campaignmonitor Integration
 	 *
-	 * @param       $list_id
-	 * @param array $args
+	 * @param string $list_id List Id.
+	 * @param array  $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Exception
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Not_Found_Exception
+	 * @throws Forminator_Integration_Exception Throws Integration Exception.
 	 */
 	public function get_list_custom_field( $list_id, $args = array() ) {
 		$default_args = array();
@@ -440,15 +443,14 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 	/**
 	 * Add Subscriber to the list
 	 *
-	 * @since 1.0 Campaignmonitor Addon
+	 * @since 1.0 Campaignmonitor Integration
 	 *
-	 * @param       $list_id
-	 * @param       $email_address
-	 * @param array $args
+	 * @param string $list_id List Id.
+	 * @param string $email_address Email addresses.
+	 * @param array  $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Exception
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Not_Found_Exception
+	 * @throws Forminator_Integration_Exception Throws Integration Exception.
 	 */
 	public function add_subscriber( $list_id, $email_address, $args = array() ) {
 		$default_args = array(
@@ -467,15 +469,14 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 	/**
 	 * Delete Subscriber from the list
 	 *
-	 * @since 1.0 Campaignmonitor Addon
+	 * @since 1.0 Campaignmonitor Integration
 	 *
-	 * @param       $list_id
-	 * @param       $email_address
-	 * @param array $args
+	 * @param string $list_id List Id.
+	 * @param string $email_address Email addresses.
+	 * @param array  $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Exception
-	 * @throws Forminator_Addon_Campaignmonitor_Wp_Api_Not_Found_Exception
+	 * @throws Forminator_Integration_Exception Throws Integration Exception.
 	 */
 	public function delete_subscriber( $list_id, $email_address, $args = array() ) {
 		$default_args = array(
@@ -494,7 +495,7 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 	/**
 	 * Get last data sent
 	 *
-	 * @since 1.0 Campaignmonitor Addon
+	 * @since 1.0 Campaignmonitor Integration
 	 *
 	 * @return array
 	 */
@@ -505,7 +506,7 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 	/**
 	 * Get last data received
 	 *
-	 * @since 1.0 Campaignmonitor Addon
+	 * @since 1.0 Campaignmonitor Integration
 	 *
 	 * @return array
 	 */
@@ -516,7 +517,7 @@ class Forminator_Addon_Campaignmonitor_Wp_Api {
 	/**
 	 * Get last data received
 	 *
-	 * @since 1.0 Campaignmonitor Addon
+	 * @since 1.0 Campaignmonitor Integration
 	 *
 	 * @return string
 	 */

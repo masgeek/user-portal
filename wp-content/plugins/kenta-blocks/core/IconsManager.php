@@ -20,14 +20,22 @@ class IconsManager {
 	protected static $_fa_library = [];
 
 	/**
+	 * Get all libraries
+	 *
 	 * @return array
 	 */
-	public static function fontawesome() {
-		if ( self::$_fontawesome === null ) {
-			self::$_fontawesome = json_decode( file_get_contents( KENTA_BLOCKS_PLUGIN_PATH . 'assets/fontawesome.json' ), true );
-		}
-
-		return self::$_fontawesome;
+	public static function allLibraries() {
+		return [
+			'fa-regular' => [
+				'icons' => self::faLibrary( 'regular' ),
+			],
+			'fa-solid'   => [
+				'icons' => self::faLibrary( 'solid' ),
+			],
+			'fa-brands'  => [
+				'icons' => self::faLibrary( 'brands' ),
+			],
+		];
 	}
 
 	/**
@@ -54,21 +62,13 @@ class IconsManager {
 	}
 
 	/**
-	 * Get all libraries
-	 *
 	 * @return array
 	 */
-	public static function allLibraries() {
-		return [
-			'fa-regular' => [
-				'icons' => self::faLibrary( 'regular' ),
-			],
-			'fa-solid'   => [
-				'icons' => self::faLibrary( 'solid' ),
-			],
-			'fa-brands'  => [
-				'icons' => self::faLibrary( 'brands' ),
-			],
-		];
+	public static function fontawesome() {
+		if ( self::$_fontawesome === null ) {
+			self::$_fontawesome = json_decode( kb_wp_filesystem()->get_contents( KENTA_BLOCKS_PLUGIN_PATH . 'assets/fontawesome.json' ), true );
+		}
+
+		return self::$_fontawesome;
 	}
 }

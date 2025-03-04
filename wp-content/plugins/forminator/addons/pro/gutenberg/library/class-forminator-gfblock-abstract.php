@@ -1,17 +1,22 @@
 <?php
+/**
+ * Forminator GFBlock Abstract.
+ *
+ * @package Forminator
+ */
 
 /**
  * Class Forminator_GFBlock_Abstract
  * Extend this class to create new gutenberg block
  *
- * @since 1.0 Gutenber Addon
+ * @since 1.0 Gutenber Integration
  */
 abstract class Forminator_GFBlock_Abstract {
 
 	/**
 	 * Type will be used as identifier
 	 *
-	 * @since 1.0 Gutenber Addon
+	 * @since 1.0 Gutenber Integration
 	 *
 	 * @var string
 	 */
@@ -20,7 +25,7 @@ abstract class Forminator_GFBlock_Abstract {
 	/**
 	 * Get block type
 	 *
-	 * @since  1.0 Gutenber Addon
+	 * @since  1.0 Gutenber Integration
 	 * @return string
 	 */
 	final public function get_slug() {
@@ -30,11 +35,11 @@ abstract class Forminator_GFBlock_Abstract {
 	/**
 	 * Initialize block
 	 *
-	 * @since 1.0 Gutenberg Addon
+	 * @since 1.0 Gutenberg Integration
 	 */
 	public function init() {
 		// Register block.
-		add_action( 'init', array( $this, 'register_block' ), 5 );
+		add_action( 'init', array( $this, 'register_block' ), 6 );
 
 		// Register preview REST API.
 		add_action( 'rest_api_init', array( $this, 'block_preview_api' ) );
@@ -50,21 +55,36 @@ abstract class Forminator_GFBlock_Abstract {
 	 * Register block type callback
 	 * Shouldn't be overridden on block class
 	 *
-	 * @since 1.0 Gutenberg Addon
+	 * @since 1.0 Gutenberg Integration
 	 */
 	public function register_block() {
-		register_block_type(
-			'forminator/' . $this->get_slug(),
-			array(
-				'render_callback' => array( $this, 'render_block' ),
-			)
-		);
+		global $pagenow;
+		if ( is_admin() && 'site-editor.php' === $pagenow ) {
+			// Load block scripts.
+			$this->load_assets();
+
+			register_block_type(
+				'forminator/' . $this->get_slug(),
+				array(
+					'editor_style'    => array(
+						'forminator-ui-icons',
+						'forminator-ui-utilities',
+						'forminator-ui-grid-open',
+						'forminator-ui-grid-enclosed',
+						'forminator-ui-basic',
+						'forminator-ui',
+					),
+					'script'          => array( 'forminator-front-scripts', 'select2-forminator', 'jquery-ui-slider' ),
+					'render_callback' => array( $this, 'render_block' ),
+				)
+			);
+		}
 	}
 
 	/**
 	 * Register REST API route for block preview.
 	 *
-	 * @since 1.0 Gutenberg Addon
+	 * @since 1.0 Gutenberg Integration
 	 */
 	public function block_preview_api() {
 		register_rest_route(
@@ -72,12 +92,12 @@ abstract class Forminator_GFBlock_Abstract {
 			'/preview/' . $this->get_slug(),
 			array(
 				array(
-					'methods'  				 => WP_REST_Server::READABLE,
-					'callback' 				 => array( $this, 'preview_block_markup' ),
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'preview_block_markup' ),
 					'permission_callback' => '__return_true',
-					'args'     => array(
+					'args'                => array(
 						'module_id' => array(
-							'description' => __( 'Module ID' ),
+							'description' => esc_html__( 'Module ID', 'forminator' ),
 							'type'        => 'integer',
 							'required'    => true,
 						),
@@ -90,8 +110,8 @@ abstract class Forminator_GFBlock_Abstract {
 	/**
 	 * Print block preview markup
 	 *
-	 * @since 1.0 Gutenberg Addon
-	 * @param $data
+	 * @since 1.0 Gutenberg Integration
+	 * @param mixed $data Data.
 	 */
 	public function preview_block_markup( $data ) {
 		// Get properties.
@@ -114,7 +134,7 @@ abstract class Forminator_GFBlock_Abstract {
 	 * Render block on front-end
 	 * Should be overriden in block class
 	 *
-	 * @since 1.0 Gutenberg Addon
+	 * @since 1.0 Gutenberg Integration
 	 * @param array $properties Block properties.
 	 *
 	 * @return string
@@ -127,7 +147,7 @@ abstract class Forminator_GFBlock_Abstract {
 	 * Preview form in the block
 	 * Should be overriden in block class
 	 *
-	 * @since 1.0 Gutenberg Addon
+	 * @since 1.0 Gutenberg Integration
 	 * @param array $properties Block properties.
 	 *
 	 * @return string
@@ -140,7 +160,7 @@ abstract class Forminator_GFBlock_Abstract {
 	 * Enqueue assets ( scritps / styles )
 	 * Should be overriden in block class
 	 *
-	 * @since 1.0 Gutenberg Addon
+	 * @since 1.0 Gutenberg Integration
 	 */
 	public function load_assets() {
 		return true;

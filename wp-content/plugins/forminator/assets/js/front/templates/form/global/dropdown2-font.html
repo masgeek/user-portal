@@ -1,6 +1,7 @@
 <?php if ( forminator_array_value_exists( $properties, 'form-font-family' ) ) { ?>
 
-	.forminator-select-dropdown-container--open .forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-dropdown--<?php echo $theme; ?> .select2-search input {
+	.forminator-select-dropdown-container--open .forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-dropdown--<?php echo $theme; ?> .select2-search input,
+	.forminator-select-dropdown-container--open .forminator-dropdown--multiple.forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-dropdown--<?php echo $theme; ?> .select2-search input {
 		<?php if ( forminator_array_value_exists( $properties, 'cform-input-font-size' ) ) { ?>
 			font-size: <?php echo $properties['cform-input-font-size'] ?>px;
 		<?php } else { ?>
@@ -21,7 +22,8 @@
 		<?php } ?>
 	}
 
-	.forminator-select-dropdown-container--open .forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-dropdown--<?php echo $theme; ?> .select2-results .select2-results__options .select2-results__option {
+	.forminator-select-dropdown-container--open .forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-dropdown--<?php echo $theme; ?> .select2-results .select2-results__options .select2-results__option,
+	.forminator-select-dropdown-container--open .forminator-dropdown--multiple.forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-dropdown--<?php echo $theme; ?> .select2-results .select2-results__options .select2-results__option span {
 		<?php if ( forminator_array_value_exists( $properties, 'cform-dropdown-font-size' ) ) { ?>
 			font-size: <?php echo $properties['cform-dropdown-font-size'] ?>px;
 		<?php } else { ?>
@@ -43,12 +45,14 @@
 
 <?php } else { ?>
 
-	.forminator-select-dropdown-container--open .forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-dropdown--<?php echo $theme; ?> .select2-search input {
+	.forminator-select-dropdown-container--open .forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-dropdown--<?php echo $theme; ?> .select2-search input,
+	.forminator-select-dropdown-container--open .forminator-dropdown--multiple.forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-dropdown--<?php echo $theme; ?> .select2-search input {
 		font-size: 16px;
 		font-weight: 400;
 	}
 
-	.forminator-select-dropdown-container--open .forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-dropdown--<?php echo $theme; ?> .select2-results .select2-results__options .select2-results__option {
+	.forminator-select-dropdown-container--open .forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-dropdown--<?php echo $theme; ?> .select2-results .select2-results__options .select2-results__option,
+	.forminator-select-dropdown-container--open .forminator-dropdown--multiple.forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-dropdown--<?php echo $theme; ?> .select2-results .select2-results__options .select2-results__option span {
 		font-size: 16px;
 		font-weight: 400;
 	}

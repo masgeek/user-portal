@@ -4,7 +4,7 @@ function bravepop_getVisitorIP()
 {
    foreach (array('CF-Connecting-IP', 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR') as $key){
       if (array_key_exists($key, $_SERVER) === true){
-         foreach (explode(',', strip_tags($_SERVER[$key])) as $ip){
+         foreach (explode(',', wp_strip_all_tags($_SERVER[$key])) as $ip){
                $ip = trim($ip); // just to be safe
 
                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false){
@@ -119,11 +119,38 @@ function bravepop_get_curent_lang() {
    if(function_exists('weglot_get_current_language')){
       return weglot_get_current_language();
    }elseif(class_exists( 'SitePress' )){
-      apply_filters( 'wpml_current_language', NULL );
+      return apply_filters( 'wpml_current_language', NULL );
    }else{
       return substr( get_bloginfo ( 'language' ), 0, 2 );
    }
 }
+
+add_action('init', 'bravepop_menu_roles', 11);
+function bravepop_menu_roles(){
+   $allowedRole = apply_filters( 'bravepop_allowed_backend_cap', 'manage_options' );
+   global $wp_roles; 
+   $wp_roles->add_cap( 'administrator', 'access_brave_menus' ); 
+}
+
+function bravepop_updated_menu_roles ($previousRoles=array(), $allowedRoles=array()){
+   global $wp_roles; 
+   //First Disable the previously allowed roles
+   foreach ($previousRoles as $key => $value) {
+      $wp_roles->remove_cap( $value, 'access_brave_menus' );
+   }
+   // // Then allow the new roles
+   foreach ($allowedRoles as $key => $value) {
+      $wp_roles->add_cap( $value, 'access_brave_menus' );
+   }
+}
+
+function bravepop_should_lazyload(){
+   global $bravepop_settings;
+   $appSettings = isset($bravepop_settings['app_settings']) ? $bravepop_settings['app_settings'] : new stdClass();
+   $disableLazy = isset($appSettings->disableLazyLoading) ? wp_json_encode($appSettings->disableLazyLoading) : 'false'; 
+   return $disableLazy === 'true' ? false : true;
+}
+
 
 include __DIR__ . '/login.php';
 include __DIR__ . '/notifications.php';

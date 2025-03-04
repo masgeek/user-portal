@@ -7,15 +7,15 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wpmoose/wp-dismissible-notice.git",
-                "reference": "7f541fc1f45c59ea9894acb9acfe716beb3c09ad"
+                "reference": "77fe015fc4c91588619a82396b622be0409f823f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wpmoose/wp-dismissible-notice/zipball/7f541fc1f45c59ea9894acb9acfe716beb3c09ad",
-                "reference": "7f541fc1f45c59ea9894acb9acfe716beb3c09ad",
+                "url": "https://api.github.com/repos/wpmoose/wp-dismissible-notice/zipball/77fe015fc4c91588619a82396b622be0409f823f",
+                "reference": "77fe015fc4c91588619a82396b622be0409f823f",
                 "shasum": ""
             },
-            "time": "2022-12-15T07:24:43+00:00",
+            "time": "2023-04-27T08:12:07+00:00",
             "default-branch": true,
             "type": "library",
             "installation-source": "dist",

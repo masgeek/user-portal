@@ -1,4 +1,10 @@
 <?php
+/**
+ * Template admin/views/settings/tab-emails.php
+ *
+ * @package Forminator
+ */
+
 $sender_email_address = get_global_sender_email_address();
 $sender_name          = get_global_sender_name();
 ?>

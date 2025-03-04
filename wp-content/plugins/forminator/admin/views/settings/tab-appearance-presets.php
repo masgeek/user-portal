@@ -1,4 +1,10 @@
 <?php
+/**
+ * Template admin/views/settings/tab-appearance-presets.php
+ *
+ * @package Forminator
+ */
+
 $section = Forminator_Core::sanitize_text_field( 'section', 'dashboard' );
 $style   = 'appearance-presets' !== $section ? 'display: none;' : '';
 $presets = Forminator_Settings_Page::get_preset_names();

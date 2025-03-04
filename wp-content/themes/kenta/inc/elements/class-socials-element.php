@@ -35,7 +35,7 @@ if ( ! class_exists( 'Kenta_Socials_Element' ) ) {
 			return $this->getSocialControls( wp_parse_args( $this->defaults, [
 				'render-callback'   => $this->selectiveRefresh(),
 				'selector'          => ".$this->slug",
-				'icons-color-type'  => 'official',
+				'icons-color-type'  => 'custom',
 				'icons-box-spacing' => [
 					'top'    => '0px',
 					'bottom' => '0px',

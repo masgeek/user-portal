@@ -82,7 +82,6 @@
 			this.render_bar_navigation();
 			this.render_footer_navigation( this.form_id );
 			this.init_events();
-			this.update_buttons();
 			this.update_navigation();
 
 			this.$el.find('.forminator-button.forminator-button-back, .forminator-button.forminator-button-next, .forminator-button.forminator-button-submit').on("click", function (e) {
@@ -96,6 +95,7 @@
 				$(this).trigger('forminator.front.pagination.move');
 			});
 
+			this.update_buttons();
 		},
 		init_events: function () {
 			var self = this;
@@ -246,6 +246,12 @@
 
 		},
 
+		encodeHTMLEntities( value ) {
+			const textArea = document.createElement( 'textarea' );
+			textArea.innerText = value;
+			return textArea.innerHTML;
+		},
+
 		render_navigation: function () {
 			var $navigation = this.$el.find('.forminator-pagination-steps');
 
@@ -257,6 +263,8 @@
 
 			var steps = this.$el.find( '.forminator-pagination' ).not( '.forminator-pagination-start' );
 
+			var basicDesign = this.$el.hasClass('forminator-design--basic');
+
 			$navigation.append( '<div class="forminator-break"></div>' );
 
 			var self = this;
@@ -264,13 +272,18 @@
 			steps.each( function() {
 
 				var $step        = $( this ),
-					$stepLabel   = $step.data( 'label' ),
+					$stepLabel   = self.encodeHTMLEntities( $step.data( 'label' ) ),
 					$stepNumb    = $step.data('step') - 1,
 					$stepControl = 'forminator-custom-form-' + self.form_id + '-' + render + '--page-' + $stepNumb,
 					$stepId      = $stepControl + '-label'
 				;
 
-				var $stepMarkup = '<button role="tab" id="' + $stepId + '" class="forminator-step forminator-step-' + $stepNumb + '" aria-selected="false" aria-controls="' + $stepControl + '" data-nav="' + $stepNumb + '">' +
+				var $stepClass = 'forminator-step forminator-step-' + $stepNumb;
+				if ( basicDesign ) {
+					$stepClass += ' has-text-color';
+				}
+
+				var $stepMarkup = '<button role="tab" id="' + $stepId + '" class="' + $stepClass + '" aria-selected="false" aria-controls="' + $stepControl + '" data-nav="' + $stepNumb + '">' +
 					'<span class="forminator-step-label">' + $stepLabel + '</span>' +
 					'<span class="forminator-step-dot" aria-hidden="true"></span>' +
 				'</button>';
@@ -283,13 +296,18 @@
 
 			finalSteps.each(function () {
 				var $step   = $(this),
-					label   = $step.data('label'),
+					label   = self.encodeHTMLEntities( $step.data( 'label' ) ),
 					numb    = steps.length,
 					control = 'forminator-custom-form-' + self.form_id + '--page-' + numb,
 					stepid  = control + '-label'
 				;
 
-				var $stepMarkup = '<button role="tab" id="' + stepid + '" class="forminator-step forminator-step-' + numb + '" data-nav="' + numb + '" aria-selected="false" aria-controls="' + control + '">' +
+				var $stepClass = 'forminator-step forminator-step-' + numb
+				if ( basicDesign ) {
+					$stepClass += ' has-text-color';
+				}
+
+				var $stepMarkup = '<button role="tab" id="' + stepid + '" class="' + $stepClass + '" data-nav="' + numb + '" aria-selected="false" aria-controls="' + control + '">' +
 					'<span class="forminator-step-label">' + label + '</span>' +
 					'<span class="forminator-step-dot" aria-hidden="true"></span>' +
 				'</button>';
@@ -392,9 +410,17 @@
 			//get fields on current page
 			page.find("input, select, textarea")
 				.not(":submit, :reset, :image, :disabled")
-				.not(':hidden:not(.forminator-wp-editor-required, .forminator-input-file-required, input[name$="_data"])')
 				.not('[gramm="true"]')
 				.each(function (key, element) {
+					if (
+						$( element ).is(
+							':hidden:not(.forminator-wp-editor-required, .forminator-input-file-required, input[name$="_data"])'
+						) &&
+						! $( element ).closest( '.forminator-pagination' )
+							.length
+					) {
+						return;
+					}
 					valid = validator.element(element);
 
 					if (!valid) {
@@ -458,7 +484,7 @@
 			if (this.step === this.totalSteps && ! this.finished ) {
 				//keep pagination content on last step before submit
 				this.step--;
-				this.$el.submit();
+				this.$el.trigger( 'submit' );
 			}
 
 			var submitButtonClass = this.settings.submitButtonClass;
@@ -468,30 +494,48 @@
 					loadingText = this.$el.find('.forminator-pagination-submit').data('loading'),
 					last_button_txt = ( this.custom_label[ 'pagination-labels' ] === 'custom'
 						&& this.custom_label['last-previous'] !== '' ) ? this.custom_label['last-previous'] : this.prev_button,
-					forminatorPayment = self.$el.find('.forminator-payment');
+					forminatorPayment = self.$el.find('.forminator-payment'),
+					nextBtn = this.$el.find('.forminator-button-next'),
+					submitButton = this.$el.find( '.forminator-button-submit' );
 
 				if ( this.$el.hasClass('forminator-design--material') ) {
 
 					this.$el.find('.forminator-button-back .forminator-button--text').html( last_button_txt );
-					this.$el.find('.forminator-button-next')
-						.removeClass('forminator-button-next')
-						.attr('id', 'forminator-submit')
-						.addClass('forminator-button-submit ' + submitButtonClass )
-						.find('.forminator-button--text')
-						.html('')
-						.html(submit_button_text).data('loading', loadingText);
+					nextBtn.removeClass('forminator-button-next').attr('id', 'forminator-submit');
+
+					setTimeout(
+						function() {
+							nextBtn
+							.addClass('forminator-button-submit ' + submitButtonClass )
+							.find('.forminator-button--text')
+							.html('')
+							.html(submit_button_text).data('loading', loadingText);
+						},
+						20
+					);
 				} else {
 					this.$el.find('.forminator-button-back').html( last_button_txt );
-					this.$el.find( '.forminator-button-next' )
-						.removeClass( 'forminator-button-next' )
-						.attr( 'id', 'forminator-submit' )
-						.addClass( 'forminator-button-submit ' + submitButtonClass )
-						.html( submit_button_text ).data('loading', loadingText);
+					nextBtn.removeClass( 'forminator-button-next' ).attr( 'id', 'forminator-submit' );
+
+					setTimeout(
+						function() {
+							nextBtn
+							.addClass( 'forminator-button-submit ' + submitButtonClass )
+							.html( submit_button_text ).data('loading', loadingText);
+						},
+						20
+					);
 				}
 
-				var submitButton = this.$el.find( '.forminator-button-submit' );
+				// Redeclare submit button.
+				setTimeout(
+					function() {
+						submitButton = self.$el.find( '.forminator-button-submit' );
+					},
+					30
+				);
 
-				if ( ! submit_button_text ) {
+				if ( this.$el.hasClass('forminator-quiz') && ! submit_button_text ) {
 					submitButton.addClass('forminator-hidden');
 					if ( this.$el.find( '.forminator-submit-rightaway').length ) {
 						submitButton.html( window.ForminatorFront.quiz.view_results );
@@ -508,7 +552,7 @@
 								forminatorPayment.removeClass( 'forminator-hidden' );
 							}
 						},
-						50
+						40
 					);
 				}
 
@@ -517,7 +561,7 @@
 				}
 
 			} else {
-				this.element = this.$el.find('[data-step=' + this.step + ']').data('name');
+				this.element = this.$el.find('.forminator-pagination[data-step=' + this.step + ']').data('name');
 				if ( this.custom_label[this.element] && this.custom_label['pagination-labels'] === 'custom'){
 					this.prev_button_txt = this.custom_label[this.element]['prev-text'] !== '' ? this.custom_label[this.element]['prev-text'] : this.prev_button;
 					this.next_button_txt = this.custom_label[this.element]['next-text'] !== '' ? this.custom_label[this.element]['next-text'] : this.next_button;
@@ -640,10 +684,18 @@
 
 				$element.focus();
 
-				var scrollTop = ($element.offset().top - ($(window).height() - $element.outerHeight(true)) / 2);
+				const minScrollHeight = $( window ).height() / 2;
+				let scrollTop =
+					$element.offset().top -
+					Math.max(
+						minScrollHeight,
+						$( window ).height() - $element.outerHeight( true )
+					) /
+						2;
+
 				if ( this.quiz ) {
 					scrollTop = $element.offset().top;
-					if ( $('#wpadminbar').length ) {
+					if ( $( '#wpadminbar' ).length ) {
 						scrollTop -= 35;
 					}
 				}

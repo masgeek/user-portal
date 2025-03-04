@@ -1,11 +1,16 @@
 <?php
+/**
+ * Payment helper functions.
+ *
+ * @package Forminator
+ */
 
 /**
  * Check if stripe payment lib loaded
  *
  * @since 1.7.0
  *
- * @param string $version
+ * @param string $version Version.
  *
  * @return bool
  */
@@ -43,7 +48,7 @@ function forminator_payment_lib_stripe_get_version() {
  *
  * @since 1.7.1
  *
- * @param string $version
+ * @param string $version Version.
  *
  * @return bool
  */

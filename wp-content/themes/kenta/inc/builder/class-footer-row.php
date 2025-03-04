@@ -9,6 +9,7 @@ use LottaFramework\Customizer\Controls\Background;
 use LottaFramework\Customizer\Controls\Border;
 use LottaFramework\Customizer\Controls\Info;
 use LottaFramework\Customizer\Controls\MultiSelect;
+use LottaFramework\Customizer\Controls\Number;
 use LottaFramework\Customizer\Controls\Separator;
 use LottaFramework\Customizer\Controls\Slider;
 use LottaFramework\Customizer\Controls\Tabs;
@@ -35,6 +36,7 @@ if ( ! class_exists( 'Kenta_Footer_Row' ) ) {
 
 				$css[".kenta-footer-row-{$this->id}"] = array_merge(
 					[
+						'z-index'        => CZ::get( $this->getRowControlKey( 'z_index' ) ),
 						'padding-top'    => CZ::get( $this->getRowControlKey( 'vt_spacing' ) ),
 						'padding-bottom' => CZ::get( $this->getRowControlKey( 'vt_spacing' ) ),
 						'display'        => [
@@ -87,7 +89,7 @@ if ( ! class_exists( 'Kenta_Footer_Row' ) ) {
 			}
 
 			echo '<div ' . Utils::render_attribute_string( $attrs ) . '>';
-			echo '<div class="container mx-auto px-gutter flex flex-wrap">';
+			echo '<div class="kenta-max-w-wide has-global-padding container mx-auto px-gutter flex flex-wrap">';
 		}
 
 		/**
@@ -125,6 +127,13 @@ if ( ! class_exists( 'Kenta_Footer_Row' ) ) {
 							->setMax( 100 )
 							->setDefaultUnit( 'px' )
 							->setDefaultValue( '24px' )
+						,
+						( new Number( $this->getRowControlKey( 'z_index' ) ) )
+							->setLabel( __( 'Z Index', 'kenta' ) )
+							->setMin( - 99999 )
+							->setMax( 99999 )
+							->setDefaultUnit( false )
+							->setDefaultValue( $this->getRowControlDefault( 'z_index', 9 ) )
 						,
 						( new Toggle( $this->getRowControlKey( 'render_empty' ) ) )
 							->setLabel( __( 'Render Empty Row', 'kenta' ) )

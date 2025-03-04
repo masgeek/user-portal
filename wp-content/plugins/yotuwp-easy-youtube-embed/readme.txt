@@ -1,9 +1,9 @@
 === Video Gallery - YouTube Playlist, Channel Gallery by YotuWP ===
 Contributors: yotuwp
-Tags: youtube lightbox, youtube channel, youtube gallery, youtube playlist, youtube videos, video gallery, video gallery responsive, youtube embed, yotu
-Requires at least: 4.3
-Tested up to: 6.1
-Stable tag: 1.3.12
+Tags: youtube channel, youtube gallery, youtube playlist, youtube videos, youtube embed, video gallery responsive, yotu, youtube lightbox, youtube wordpress plugin, channel gallery, playlist gallery
+Requires at least: 4.5
+Tested up to: 6.2
+Stable tag: 1.3.13
 Donate link: https://www.paypal.me/tuongpg
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -111,6 +111,14 @@ Then enter value 0 then press Save Change and try out it.
 = How to remove top and bottom black bar on video thumbnail? =
 Please go to setting tab YotuWP > General > Video Thumbnail Ratio
 Then select value 'HD - 16:9' then press Save Change and try out it.
+
+== Changelog ==
+= 1.3.14 - Jun 25th, 2024 =
+* Fix security issue
+
+
+= 1.3.13 - Aug 20th, 2023 =
+* Fix security issue
 
 == Changelog ==
 = 1.3.12 - Dec 12th, 2022 =

@@ -1,2 +1,9 @@
-<?php // phpcs:ignoreFile this file only html container for wizard which is handled by js. ?>
+<?php
+/**
+ * This file has only html container for wizard which is handled by js.
+ *
+ * @package Forminator
+ */
+
+?>
 <div id="forminator-form-builder"></div>

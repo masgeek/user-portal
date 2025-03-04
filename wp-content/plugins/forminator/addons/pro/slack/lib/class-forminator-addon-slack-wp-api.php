@@ -1,15 +1,22 @@
 <?php
-
-require_once dirname( __FILE__ ) . '/class-forminator-addon-slack-wp-api-exception.php';
-require_once dirname( __FILE__ ) . '/class-forminator-addon-slack-wp-api-not-found-exception.php';
+/**
+ * Forminator Slack API
+ *
+ * @package Forminator
+ */
 
 /**
- * Class Forminator_Addon_Slack_Wp_Api
+ * Class Forminator_Slack_Wp_Api
  */
-class Forminator_Addon_Slack_Wp_Api {
+class Forminator_Slack_Wp_Api {
 
 	const AUTHORIZE_URL = 'https://slack.com/oauth/authorize';
 
+	/**
+	 * OAuth scopes
+	 *
+	 * @var array
+	 */
 	public static $oauth_scopes
 		= array(
 			'channels:read',
@@ -37,7 +44,7 @@ class Forminator_Addon_Slack_Wp_Api {
 	/**
 	 * Last data sent to slack
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 * @var array
 	 */
 	private $_last_data_sent = array();
@@ -45,7 +52,7 @@ class Forminator_Addon_Slack_Wp_Api {
 	/**
 	 * Last data received from slack
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 * @var array
 	 */
 	private $_last_data_received = array();
@@ -53,26 +60,31 @@ class Forminator_Addon_Slack_Wp_Api {
 	/**
 	 * Last URL requested
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 * @var string
 	 */
 	private $_last_url_request = '';
 
+	/**
+	 * Token
+	 *
+	 * @var array
+	 */
 	private $_token = '';
 
 	/**
-	 * Forminator_Addon_Slack_Wp_Api constructor.
+	 * Forminator_Slack_Wp_Api constructor.
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 *
-	 * @param $_token
+	 * @param string $_token Token.
 	 *
-	 * @throws Forminator_Addon_Slack_Wp_Api_Exception
+	 * @throws Forminator_Integration_Exception Throws Integration Exception.
 	 */
 	public function __construct( $_token ) {
-		//prerequisites
+		// prerequisites.
 		if ( ! $_token ) {
-			throw new Forminator_Addon_Slack_Wp_Api_Exception( __( 'Missing required Token', 'forminator' ) );
+			throw new Forminator_Integration_Exception( esc_html__( 'Missing required Token', 'forminator' ) );
 		}
 
 		$this->_token = $_token;
@@ -81,12 +93,11 @@ class Forminator_Addon_Slack_Wp_Api {
 	/**
 	 * Get singleton
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 *
-	 * @param $_token
+	 * @param string $_token Token.
 	 *
-	 * @return Forminator_Addon_Slack_Wp_Api|null
-	 * @throws Forminator_Addon_Slack_Wp_Api_Exception
+	 * @return Forminator_Slack_Wp_Api|null
 	 */
 	public static function get_instance( $_token ) {
 		if ( ! isset( self::$_instances[ md5( $_token ) ] ) ) {
@@ -99,9 +110,9 @@ class Forminator_Addon_Slack_Wp_Api {
 	/**
 	 * Add custom user agent on request
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 *
-	 * @param $user_agent
+	 * @param string $user_agent User agent.
 	 *
 	 * @return string
 	 */
@@ -123,15 +134,14 @@ class Forminator_Addon_Slack_Wp_Api {
 	/**
 	 * HTTP Request
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 *
-	 * @param string $verb
-	 * @param        $path
-	 * @param array  $args
+	 * @param string $verb HTTP Request type.
+	 * @param string $path Path.
+	 * @param array  $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Slack_Wp_Api_Exception
-	 * @throws Forminator_Addon_Slack_Wp_Api_Not_Found_Exception
+	 * @throws Forminator_Integration_Exception Throws Integration Exception.
 	 */
 	private function request( $verb, $path, $args = array() ) {
 		// Adding extra user agent for wp remote request.
@@ -205,8 +215,8 @@ class Forminator_Addon_Slack_Wp_Api {
 		remove_filter( 'http_headers_useragent', array( $this, 'filter_user_agent' ) );
 
 		if ( is_wp_error( $res ) || ! $res ) {
-			throw new Forminator_Addon_Slack_Wp_Api_Exception(
-				__( 'Failed to process request, make sure your API URL is correct and your server has internet connection.', 'forminator' )
+			throw new Forminator_Integration_Exception(
+				esc_html__( 'Failed to process request, make sure your API URL is correct and your server has internet connection.', 'forminator' )
 			);
 		}
 
@@ -219,11 +229,21 @@ class Forminator_Addon_Slack_Wp_Api {
 				}
 
 				if ( 404 === $status_code ) {
-					/* translators: ... */
-					throw new Forminator_Addon_Slack_Wp_Api_Not_Found_Exception( sprintf( __( 'Failed to process request : %s', 'forminator' ), esc_html( $msg ) ) );
+					throw new Forminator_Integration_Exception(
+						sprintf(
+						/* translators: %s: Error message */
+							esc_html__( 'Failed to process request : %s', 'forminator' ),
+							esc_html( $msg )
+						)
+					);
 				}
-				/* translators: ... */
-				throw new Forminator_Addon_Slack_Wp_Api_Exception( sprintf( __( 'Failed to process request : %s', 'forminator' ), esc_html( $msg ) ) );
+				throw new Forminator_Integration_Exception(
+					sprintf(
+					/* translators: %s: Error message */
+						esc_html__( 'Failed to process request : %s', 'forminator' ),
+						esc_html( $msg )
+					)
+				);
 			}
 		}
 
@@ -237,14 +257,19 @@ class Forminator_Addon_Slack_Wp_Api {
 				if ( isset( $res->error ) ) {
 					$msg = $res->error;
 				}
-				/* translators: ... */
-				throw new Forminator_Addon_Slack_Wp_Api_Exception( sprintf( __( 'Failed to process request : %s', 'forminator' ), esc_html( $msg ) ) );
+				throw new Forminator_Integration_Exception(
+					sprintf(
+					/* translators: %s: Error message */
+						esc_html__( 'Failed to process request : %s', 'forminator' ),
+						esc_html( $msg )
+					)
+				);
 			}
 		}
 
 		$response = $res;
 		/**
-		 * Filter slack api response returned to addon
+		 * Filter slack api response returned to integration
 		 *
 		 * @since 1.1
 		 *
@@ -260,13 +285,13 @@ class Forminator_Addon_Slack_Wp_Api {
 	}
 
 	/**
-	 * @param       $code
-	 * @param       $redirect_uri
-	 * @param array $args
+	 * Get access token
+	 *
+	 * @param string $code Request code.
+	 * @param string $redirect_uri Redirect URI.
+	 * @param array  $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Slack_Wp_Api_Exception
-	 * @throws Forminator_Addon_Slack_Wp_Api_Not_Found_Exception
 	 */
 	public function get_access_token( $code, $redirect_uri, $args = array() ) {
 		$default_args = array(
@@ -286,13 +311,11 @@ class Forminator_Addon_Slack_Wp_Api {
 	/**
 	 * Get Users / members List
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 *
-	 * @param array $args
+	 * @param array $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Slack_Wp_Api_Exception
-	 * @throws Forminator_Addon_Slack_Wp_Api_Not_Found_Exception
 	 */
 	public function get_users_list( $args = array() ) {
 		$default_args = array(
@@ -311,13 +334,11 @@ class Forminator_Addon_Slack_Wp_Api {
 	/**
 	 * Get Public Channels List
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 *
-	 * @param array $args
+	 * @param array $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Slack_Wp_Api_Exception
-	 * @throws Forminator_Addon_Slack_Wp_Api_Not_Found_Exception
 	 */
 	public function get_channels_list( $args = array() ) {
 		$default_args = array(
@@ -338,20 +359,18 @@ class Forminator_Addon_Slack_Wp_Api {
 	/**
 	 * Get Private Channels List
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 *
-	 * @param array $args
+	 * @param array $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Slack_Wp_Api_Exception
-	 * @throws Forminator_Addon_Slack_Wp_Api_Not_Found_Exception
 	 */
 	public function get_groups_list( $args = array() ) {
 		$default_args = array(
 			'exclude_archived' => true,
 			'exclude_members'  => true,
 			'limit'            => 100,
-			'types'            => 'private_channel'
+			'types'            => 'private_channel',
 		);
 
 		$args = array_merge( $default_args, $args );
@@ -366,15 +385,13 @@ class Forminator_Addon_Slack_Wp_Api {
 	/**
 	 * Send Message
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 *
-	 * @param       $channel
-	 * @param       $text
-	 * @param array $args
+	 * @param string $channel Post Channel.
+	 * @param string $text Text.
+	 * @param array  $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Slack_Wp_Api_Exception
-	 * @throws Forminator_Addon_Slack_Wp_Api_Not_Found_Exception
 	 */
 	public function chat_post_message( $channel, $text, $args = array() ) {
 		$default_args = array(
@@ -394,15 +411,13 @@ class Forminator_Addon_Slack_Wp_Api {
 	/**
 	 * Delete Message
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 *
-	 * @param       $channel
-	 * @param       $chat_ts
-	 * @param array $args
+	 * @param string $channel Channel.
+	 * @param string $chat_ts Chat ts.
+	 * @param array  $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Slack_Wp_Api_Exception
-	 * @throws Forminator_Addon_Slack_Wp_Api_Not_Found_Exception
 	 */
 	public function chat_delete( $channel, $chat_ts, $args = array() ) {
 		$default_args = array(
@@ -422,7 +437,7 @@ class Forminator_Addon_Slack_Wp_Api {
 	/**
 	 * Get last data sent
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 *
 	 * @return array
 	 */
@@ -433,7 +448,7 @@ class Forminator_Addon_Slack_Wp_Api {
 	/**
 	 * Get last data received
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 *
 	 * @return array
 	 */
@@ -444,7 +459,7 @@ class Forminator_Addon_Slack_Wp_Api {
 	/**
 	 * Get last data received
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 *
 	 * @return string
 	 */

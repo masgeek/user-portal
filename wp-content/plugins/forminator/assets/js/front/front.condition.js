@@ -43,7 +43,7 @@
 		init: function () {
 			var self = this,
 				form = this.$el,
-				$forminatorFields = this.$el.find( ".forminator-field input, .forminator-row input[type=hidden], .forminator-field select, .forminator-field textarea, .forminator-field-signature")
+				$forminatorFields = this.$el.find( ".forminator-field input, .forminator-row input[type=hidden], .forminator-field select, .forminator-field textarea, .forminator-field-signature, .forminator-rating")
 				;
 
 			// Duplicate rules for new repeated Group fields.
@@ -65,8 +65,12 @@
 				var $element = $(this),
 					element_id = $element.closest('.forminator-col').attr('id')
 					;
+				if ( $element.is( 'input[type="radio"]' ) && 'input' === e.type ) {
+					// Skip input events for radio buttons, handle only change events for them.
+					return;
+				}
 
-				if (typeof element_id === 'undefined') {
+				if (typeof element_id === 'undefined' || 0 === element_id.indexOf( 'slider-' ) ) {
                     /*
                      * data-multi attribute was added to Name field - multiple
                      * We had to use name attribute for Name multi-field because we cannot change
@@ -270,7 +274,7 @@
 		get_relations: function (element_id) {
 			if (!this.has_relations(element_id)) return [];
 
-			return this.settings.relations[element_id];
+			return $.unique( this.settings.relations[element_id] );
 		},
 
 		get_field_value: function (element_id) {
@@ -298,12 +302,28 @@
                 if ( 0 === value.length ) {
                     value = null;
                 }
-			} else if ( this.field_is_textarea_wpeditor( $element ) ) {
+			} else if (this.field_is_select($element)) {
+                value = [];
+                var selected = $element.find("option").filter(':selected');
+                if (selected.length > 0) {
+                    selected.each(function () {
+                        value.push($(this).val().toLowerCase());
+                    });
+                } else {
+                    value = null;
+                }
+            } else if ( this.field_is_textarea_wpeditor( $element ) ) {
                 if ( typeof tinyMCE !== 'undefined' && tinyMCE.activeEditor ) {
                     value = tinyMCE.activeEditor.getContent();
                 }
 			} else if ( this.field_has_inputMask( $element ) ) {
 				value = parseFloat( $element.inputmask('unmaskedvalue').replace(',','.') );
+				if ( 0 <= element_id.indexOf( 'calculation-' ) ) {
+					return value;
+				}
+			} else if ( this.field_is_rating( $element ) ) {
+				value = (typeof value === 'string' && value.split("/")[0]) || 0;
+				return value;
 			}
 			if (!value) return "";
 
@@ -343,13 +363,11 @@
 						break;
              	}
 
-            	var formattedDate = new Date();
-
 				if ( '' !== value ) {
-					formattedDate = new Date(value);
+					var formattedDate = new Date(value);
+					value = {'year':formattedDate.getFullYear(), 'month':formattedDate.getMonth(), 'date':formattedDate.getDate(), 'day':formattedDate.getDay()};
 				}
 
-				value = {'year':formattedDate.getFullYear(), 'month':formattedDate.getMonth(), 'date':formattedDate.getDate(), 'day':formattedDate.getDay() };
 
 			} else {
 
@@ -479,6 +497,19 @@
 			return is_upload;
 		},
 
+		field_is_rating: function ($element) {
+			var is_rating = false;
+			$element.each(function () {
+				if ( $(this).hasClass('forminator-rating') ) {
+					is_rating = true;
+					//break
+					return false;
+				}
+			});
+
+			return is_rating;
+		},
+
 		// used in forminatorFrontCalculate
 		get_form_field: function (element_id) {
 			let $form = this.$el;
@@ -503,9 +534,12 @@
 								//find element by select name
 								$element = $form.find('select[name="' + element_id + '"]');
 								if ($element.length === 0) {
-									//find element by direct id (for name field mostly)
-									//will work for all field with element_id-[somestring]
-									$element = $form.find('#' + element_id);
+									$element = $form.find('select[name="' + element_id + '[]"]');
+									if ($element.length === 0) {
+										//find element by direct id (for name field mostly)
+										//will work for all field with element_id-[somestring]
+										$element = $form.find('#' + element_id);
+									}
 								}
 							}
 						}
@@ -537,9 +571,12 @@
 								//find element by select name
 								$element = this.$el.find('select[name="' + element_id + '"]');
 								if ($element.length === 0) {
-									//find element by direct id (for name field mostly)
-									//will work for all field with element_id-[somestring]
-									$element = this.$el.find('#' + element_id);
+									$element = this.$el.find('select[name="' + element_id + '[]"]');
+									if ($element.length === 0) {
+										//find element by direct id (for name field mostly)
+										//will work for all field with element_id-[somestring]
+										$element = this.$el.find('#' + element_id);
+									}
 								}
 							}
 						}
@@ -692,6 +729,10 @@
 					}
 				case "is_not":
 					if (!isArrayValue) {
+						if ( this.is_numeric( value1 ) && this.is_numeric( value2 ) ) {
+							return Number( value1 ) !== Number( value2 );
+						}
+
 						return value1 !== value2;
 					} else {
 						return $.inArray(value2, value1) === -1;
@@ -707,6 +748,8 @@
 					return this.is_numeric(value1) && this.is_numeric(value2) ? value1 < value2 : false;
 				case "contains":
 					return this.contains(value1, value2);
+				case "does_not_contain":
+					return !this.contains(value1, value2);
 				case "starts":
 					return value1.startsWith(value2);
 				case "ends":
@@ -742,10 +785,26 @@
 		},
 
 		date_is_grater: function( date1, date2 ) {
+			date1 = this.set_date_as_utc_time( date1 );
 			return forminatorDateUtil.compare( date1, date2 ) === 1;
 		},
 
+		set_date_as_utc_time( date ) {
+			if (
+				undefined !== date.month &&
+				undefined !== date.date &&
+				undefined !== date.year
+			) {
+				const utcDate = new Date(
+					`${ date.month + 1 }/${ date.date }/${ date.year } UTC`
+				);
+				date = utcDate.getTime();
+			}
+			return date;
+		},
+
 		date_is_smaller: function( date1, date2 ) {
+			date1 = this.set_date_as_utc_time( date1 );
 			return forminatorDateUtil.compare( date1, date2 ) === -1;
 		},
 
@@ -837,6 +896,7 @@
 					}
 					setTimeout(
 						function() {
+							$pagination_field = self.$el.find( submit_selector );
 							if ( 'submit' === element_id ) {
 								$pagination_field.removeClass('forminator-hidden');
 							}
@@ -851,6 +911,7 @@
 					$column_field.addClass('forminator-hidden');
 					setTimeout(
 						function() {
+							$pagination_field = self.$el.find( submit_selector );
 							if ( 'submit' === element_id ) {
 								$pagination_field.addClass('forminator-hidden');
 							}
@@ -895,6 +956,7 @@
 					}
 					setTimeout(
 						function() {
+							$pagination_field = self.$el.find( submit_selector );
 							if ( 'submit' === element_id ) {
 								$pagination_field.addClass('forminator-hidden');
 							}
@@ -920,6 +982,7 @@
 					}
 					setTimeout(
 						function() {
+							$pagination_field = self.$el.find( submit_selector );
 							if ( 'submit' === element_id ) {
 								$pagination_field.removeClass('forminator-hidden');
 							}
@@ -1010,9 +1073,17 @@
 			self.clear_value(relation, e);
 
 			sub_relations.forEach(function (sub_relation) {
-				self.toggle_field(sub_relation, 'hide', "valid");
+				// Do opposite action because condition is definitely not met because dependent field is hidden.
+				let logic = self.get_field_logic(sub_relation),
+					action = 'hide' === logic.action ? 'show' : 'hide';
+				self.toggle_field(sub_relation, action, "valid");
+
 				if (self.has_relations(sub_relation)) {
-					sub_relations = self.hide_element(sub_relation, e);
+					if ( 'hide' === action ) {
+						self.hide_element(sub_relation, e);
+					} else {
+						self.show_element(sub_relation, e);
+					}
 				}
 			});
 		},

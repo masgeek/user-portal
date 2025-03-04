@@ -89,14 +89,14 @@ if ( ! function_exists( 'kenta_woo_dynamic_css' ) ) {
 
 			// products list
 			$css['.kenta-products'] = [
-				'--kenta-initial-color' => 'var(--kenta-primary-color)',
-				'--kenta-hover-color'   => 'var(--kenta-primary-active)',
-				'--card-gap'            => CZ::get( 'kenta_store_catalog_gap' ),
+				'--kenta-link-initial-color' => 'var(--kenta-primary-color)',
+				'--kenta-link-hover-color'   => 'var(--kenta-primary-active)',
+				'--card-gap'                 => CZ::get( 'kenta_store_catalog_gap' ),
 			];
 			// product title
 			$css['.kenta-products .woocommerce-loop-product__title'] = [
 				'font-size'   => '1rem',
-				'font-weight' => 400
+				'font-weight' => 600
 			];
 
 			// product wrapper
@@ -160,21 +160,13 @@ if ( ! function_exists( 'kenta_woo_before_content' ) ) {
 	 * Wrap woocommerce content - start
 	 */
 	function kenta_woo_before_content() {
-		$layout = 'no-sidebar';
-
-		$page_sidebar = kenta_get_current_post_meta( 'site-sidebar-layout' );
-
-		if ( $page_sidebar && $page_sidebar !== 'default' ) {
-			$layout = $page_sidebar;
-		} else if ( CZ::checked( 'kenta_store_sidebar_section' ) ) {
-			$layout = CZ::get( 'kenta_store_sidebar_layout' );
-		}
+		$sidebar = kenta_get_sidebar_layout( 'store' );
 
 		?>
-        <div class="<?php Utils::the_clsx( kenta_container_css( $layout ) ) ?>">
+        <main class="<?php Utils::the_clsx( kenta_container_css( array( 'sidebar' => $sidebar ) ) ) ?>">
         <div id="content" class="flex-grow max-w-full text-accent">
 		<?php if ( ! is_shop() ): ?>
-            <div class="kenta-article-content kenta-entry-content clearfix mx-auto prose prose-kenta">
+            <div class="kenta-article-content kenta-entry-content entry-content clearfix mx-auto">
 		<?php endif; ?>
 		<?php
 	}
@@ -188,13 +180,7 @@ if ( ! function_exists( 'kenta_woo_after_content' ) ) {
 		$layout = 'no-sidebar';
 
 		if ( ! is_product() ) {
-			$page_sidebar = kenta_get_current_post_meta( 'site-sidebar-layout' );
-
-			if ( $page_sidebar && $page_sidebar !== 'default' ) {
-				$layout = $page_sidebar;
-			} else if ( CZ::checked( 'kenta_store_sidebar_section' ) ) {
-				$layout = CZ::get( 'kenta_store_sidebar_layout' );
-			}
+			$layout = kenta_get_sidebar_layout( 'store' );
 		}
 
 		?>
@@ -208,7 +194,7 @@ if ( ! function_exists( 'kenta_woo_after_content' ) ) {
 		 */
 		do_action( 'kenta_action_sidebar', $layout );
 		?>
-        </div>
+        </main>
 		<?php
 	}
 }

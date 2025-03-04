@@ -1,4 +1,10 @@
 <?php
+/**
+ * Form helper functions.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -8,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0
  *
- * @param $timestamp
+ * @param string $timestamp Timestamp.
  *
  * @return mixed
  */
@@ -34,6 +40,8 @@ function forminator_user_ip() {
 /**
  * Return user property
  *
+ * @param mixed $property Property.
+ *
  * @since 1.0
  * @return string
  */
@@ -48,13 +56,13 @@ function forminator_get_user_data( $property ) {
  *
  * @since 1.0
  *
- * @param        $property
- * @param int      $post_id
- * @param string   $default
+ * @param string $property Property.
+ * @param int    $post_id Post Id.
+ * @param string $default_value Default value.
  *
  * @return string
  */
-function forminator_get_post_data( $property, $post_id = null, $default = '' ) {
+function forminator_get_post_data( $property, $post_id = null, $default_value = '' ) {
 	global $post;
 
 	if ( $post_id ) {
@@ -86,19 +94,18 @@ function forminator_get_post_data( $property, $post_id = null, $default = '' ) {
 	if ( isset( $post_data[ $property ] ) ) {
 		return $post_data[ $property ];
 	} else {
-		return $default;
+		return $default_value;
 	}
 }
 
 /**
  * Return total custom form records
  *
- * @param string $status
+ * @param string $status Status.
  * @since 1.0
  *
  * @return int
  */
-
 function forminator_cforms_total( $status = '' ) {
 	return Forminator_Form_Model::model()->count_all( $status );
 }
@@ -116,6 +123,8 @@ function forminator_custom_forms() {
 /**
  * Return conversion rate from module
  *
+ * @param array $module Module.
+ *
  * @since 1.0
  * @return mixed
  */
@@ -132,7 +141,7 @@ function forminator_get_rate( $module ) {
 /**
  * Return total polls form records
  *
- * @param string $status
+ * @param string $status Status.
  * @since 1.0
  *
  * @return int
@@ -147,7 +156,6 @@ function forminator_polls_total( $status = '' ) {
  * @since 1.0
  * @return Forminator_Base_Form_Model[]
  */
-
 function forminator_polls_forms() {
 	return Forminator_Poll_Model::model()->get_all_paged();
 }
@@ -155,7 +163,7 @@ function forminator_polls_forms() {
 /**
  * Return total quizzes records
  *
- * @param string $status
+ * @param string $status Status.
  * @since 1.0
  *
  * @return int
@@ -177,6 +185,8 @@ function forminator_quizzes_forms() {
 /**
  * Check if quiz has leads
  *
+ * @param mixed $model Model.
+ *
  * @since 1.14
  *
  * @return bool
@@ -194,8 +204,8 @@ function forminator_quiz_has_leads( $model ) {
  *
  * @since 1.0
  *
- * @param $module
- * @param $id
+ * @param array $module Module.
+ * @param int   $id Module id.
  *
  * @return mixed
  */
@@ -210,7 +220,7 @@ function forminator_quiz_get_edit_url( $module, $id ) {
 /**
  * Return total forms
  *
- * $param  $status
+ * @param string $status Status.
  *
  * @since 1.0
  *
@@ -231,8 +241,7 @@ function forminator_total_forms( $status = '' ) {
  *
  * @since 1.0
  *
- * @param        $id
- * @param string $type
+ * @param int $id Id.
  *
  * @return mixed
  */
@@ -248,61 +257,9 @@ function forminator_get_form_name( $id ) {
 }
 
 /**
- * Return top converting form name
- *
- * @since 1.0
- * @return string
- */
-function forminator_top_converting_form() {
-	$form_view      = Forminator_Form_Views_Model::get_instance();
-	$top_conversion = $form_view->top_converting_form( 'forminator_forms' );
-
-	// If no forms, break.
-	if ( ! isset( $top_conversion->form_id ) ) {
-		return '-';
-	}
-
-	return forminator_get_form_name( $top_conversion->form_id );
-}
-
-/**
- * Return top quiz
- *
- * @since 1.0
- * @return string
- */
-function forminator_most_shared_quiz() {
-	$form_view    = Forminator_Form_Views_Model::get_instance();
-	$most_popular = $form_view->most_popular_form( 'forminator_quizzes' );
-
-	// If no forms, break.
-	if ( ! isset( $most_popular->form_id ) ) {
-		return '-';
-	}
-
-	return forminator_get_form_name( $most_popular->form_id );
-}
-
-/**
- * Return most popular poll
- *
- * @since 1.0
- * @return string
- */
-function forminator_most_popular_poll() {
-	$form_view    = Forminator_Form_Views_Model::get_instance();
-	$most_popular = $form_view->most_popular_form( 'forminator_polls' );
-
-	// If no forms, break.
-	if ( ! isset( $most_popular->form_id ) ) {
-		return '-';
-	}
-
-	return forminator_get_form_name( $most_popular->form_id );
-}
-
-/**
  * Central per page for form view
+ *
+ * @param string $type View type.
  *
  * @since 1.0
  * @return int
@@ -325,6 +282,8 @@ function forminator_form_view_per_page( $type = 'listings' ) {
 /**
  * Return admin page url by slug
  *
+ * @param string $slug Slug.
+ *
  * @since 1.0
  * @return mixed
  */
@@ -337,7 +296,7 @@ function forminator_get_admin_link( $slug ) {
  *
  * @since 1.0
  *
- * @param $data
+ * @param array $data Data.
  *
  * @return array
  */
@@ -365,7 +324,7 @@ function forminator_data_to_model_form( $data ) {
  *
  * @since 1.0
  *
- * @param $data
+ * @param array $data Data.
  *
  * @return array
  */
@@ -396,7 +355,7 @@ function forminator_data_to_model_poll( $data ) {
  *
  * @since 1.0
  *
- * @param $data
+ * @param array $data Data.
  *
  * @return array
  */
@@ -438,10 +397,11 @@ function forminator_data_to_model_quiz( $data ) {
  *
  * @since 1.0
  *
- * @param            $css_string
- * @param            $prefix
- * @param bool|false $as_array
- * @param bool|true  $separate_prefix
+ * @param string     $css_string CSS string.
+ * @param string     $prefix prefix.
+ * @param bool|false $as_array Prepare css as array.
+ * @param bool|true  $separate_prefix Separate prefix.
+ * @param string     $wildcard string.
  *
  * @return array|string
  */
@@ -462,7 +422,7 @@ function forminator_prepare_css( $css_string, $prefix, $as_array = false, $separ
 		$check_element = trim( $element );
 		if ( empty( $check_element ) ) {
 			// Still increment $index even if empty.
-			$index ++;
+			++$index;
 			continue;
 		}
 
@@ -479,7 +439,7 @@ function forminator_prepare_css( $css_string, $prefix, $as_array = false, $separ
 				'name' => $media_name,
 			);
 			$name                            = $a_name[1];
-			$media_names_key ++;
+			++$media_names_key;
 		}
 
 		if ( $have_media ) {
@@ -515,7 +475,7 @@ function forminator_prepare_css( $css_string, $prefix, $as_array = false, $separ
 		$prepared .= '{';
 		// loop through each style and split apart the key from the value.
 		$count = count( $a_styles );
-		for ( $a = 0; $a < $count; $a ++ ) {
+		for ( $a = 0; $a < $count; $a++ ) {
 			if ( '' !== trim( $a_styles[ $a ] ) ) {
 				$a_key_value = array_map( 'trim', explode( ':', $a_styles[ $a ] ) );
 				// build the master css array.
@@ -525,7 +485,7 @@ function forminator_prepare_css( $css_string, $prefix, $as_array = false, $separ
 					$a_key_value[1] = implode( ':', $a_key_value_to_join );
 
 					$css_array[ $name ][ $a_key_value[0] ] = $a_key_value[1];
-					$prepared                             .= ( $a_key_value[0] . ': ' . $a_key_value[1] );// . strpos($a_key_value[1], "!important") === false ? " !important;": ";";.
+					$prepared                             .= ( $a_key_value[0] . ': ' . $a_key_value[1] );
 					if ( strpos( $a_key_value[1], '!important' ) === false ) {
 						$prepared .= ' !important';
 					}
@@ -557,7 +517,7 @@ function forminator_prepare_css( $css_string, $prefix, $as_array = false, $separ
 			$output .= $prepared;
 		}
 		// Increase index.
-		$index ++;
+		++$index;
 	}
 
 	// if have @media, populate styles using $media_names.
@@ -581,8 +541,6 @@ function forminator_prepare_css( $css_string, $prefix, $as_array = false, $separ
  *
  * @param int    $total - the total records.
  * @param string $type - The type of page (listings or entries).
- *
- * @return string
  */
 function forminator_list_pagination( $total, $type = 'listings' ) {
 	$pagenum     = (int) Forminator_Core::sanitize_text_field( 'paged' );
@@ -594,7 +552,9 @@ function forminator_list_pagination( $total, $type = 'listings' ) {
 	if ( $total > $per_page ) {
 		$removable_query_args = wp_removable_query_args();
 
-		$current_url   = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
+		$http_hosts    = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
+		$request_uri   = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		$current_url   = set_url_scheme( 'http://' . $http_hosts . $request_uri );
 		$current_url   = remove_query_arg( $removable_query_args, $current_url );
 		$current       = $page_number + 1;
 		$total_pages   = ceil( $total / $per_page );
@@ -646,7 +606,7 @@ function forminator_list_pagination( $total, $type = 'listings' ) {
 			<?php endif; ?>
 			<?php
 			$dots = false;
-			for ( $i = 1; $i <= $total_pages; $i ++ ) :
+			for ( $i = 1; $i <= $total_pages; $i++ ) :
 				$class = ( $page_number === $i ) ? 'sui-active' : '';
 				$url   = esc_url( add_query_arg( 'paged', ( $i ), $current_url ) );
 				if ( ( $i <= $end_size || ( $current && $i >= $current - $mid_size && $i <= $current + $mid_size ) || $i > $total_pages - $end_size ) ) {
@@ -656,7 +616,7 @@ function forminator_list_pagination( $total, $type = 'listings' ) {
 					$dots = true;
 				} elseif ( $dots ) {
 					?>
-					<li class="sui-pagination-dots"><span><?php esc_html_e( '&hellip;' ); ?></span></li>
+					<li class="sui-pagination-dots"><span><?php esc_html_e( '&hellip;', 'forminator' ); ?></span></li>
 					<?php
 					$dots = false;
 				}
@@ -691,7 +651,7 @@ function forminator_list_pagination( $total, $type = 'listings' ) {
  *
  * @since 1.0.5
  *
- * @param $id
+ * @param int $id Form Id.
  *
  * @return bool|Forminator_Base_Form_Model|null
  */
@@ -728,7 +688,7 @@ function forminator_get_model_from_id( $id ) {
  * [custom-forms, quizzes, poll]
  * will return null if there is no entry
  *
- * @param $entry_type
+ * @param string $entry_type Entry Type.
  *
  * @return Forminator_Form_Entry_Model|null
  */
@@ -742,7 +702,7 @@ function forminator_get_latest_entry( $entry_type ) {
  * Get Time of latest entry created based on $entry_type
  * [custom-forms, quizzes, poll]
  *
- * @param $entry_type
+ * @param string $entry_type Entry Type.
  *
  * @return string
  */
@@ -750,12 +710,12 @@ function forminator_get_latest_entry_time( $entry_type ) {
 	$latest_entry = forminator_get_latest_entry( $entry_type );
 	if ( $latest_entry instanceof Forminator_Form_Entry_Model ) {
 		$last_entry_time = mysql2date( 'U', $latest_entry->date_created_sql );
-		$time_diff       = human_time_diff( current_time( 'timestamp' ), $last_entry_time );
-		$last_entry_time = sprintf( /* translators: ... */ __( '%s ago', 'forminator' ), $time_diff );
+		$time_diff       = human_time_diff( current_time( 'timestamp' ), $last_entry_time ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested -- We are using the current timestamp based on the site's timezone.
+		$last_entry_time = sprintf( /* translators: %s: Time difference */ esc_html__( '%s ago', 'forminator' ), $time_diff );
 
 		return $last_entry_time;
 	} else {
-		return __( 'Never', 'forminator' );
+		return esc_html__( 'Never', 'forminator' );
 	}
 }
 
@@ -763,8 +723,8 @@ function forminator_get_latest_entry_time( $entry_type ) {
  * Get Latest entry based on $form_id
  * will return null if there is no entry
  *
- * @param $form_id
- * @param string $order
+ * @param int    $form_id Form id.
+ * @param string $order Order by.
  *
  * @return Forminator_Form_Entry_Model|null
  */
@@ -777,8 +737,8 @@ function forminator_get_latest_entry_by_form_id( $form_id, $order = 'DESC' ) {
 /**
  * Get Time of latest entry created based on $form_id
  *
- * @param $form_id
- * @param string $order
+ * @param int    $form_id Form Id.
+ * @param string $order Order by.
  *
  * @return string
  */
@@ -794,8 +754,8 @@ function forminator_get_latest_entry_time_by_form_id( $form_id, $order = 'DESC' 
 /**
  * Get Time of view created based on $form_id
  *
- * @param $form_id
- * @param string $order
+ * @param int    $form_id Form Id.
+ * @param string $order Order by.
  *
  * @return string
  */
@@ -813,9 +773,10 @@ function forminator_get_latest_view_time_by_form_id( $form_id, $order = 'DESC' )
  *
  * @since 1.0.6
  *
- * @param $form_id
- * @param $retention_number
- * @param $retention_unit
+ * @param int  $form_id Form Id.
+ * @param int  $retention_number Retention number.
+ * @param int  $retention_unit Retention unit.
+ * @param bool $draft Draft.
  */
 function forminator_update_form_submissions_retention( $form_id, $retention_number, $retention_unit, $draft = false ) {
 	$opt = get_option( 'forminator_form_privacy_settings', array() );
@@ -842,8 +803,8 @@ function forminator_update_form_submissions_retention( $form_id, $retention_numb
  *
  * @since 1.0.6
  *
- * @param $old_id
- * @param $new_id
+ * @param int $old_id Old Id.
+ * @param int $new_id New Id.
  */
 function forminator_clone_form_submissions_retention( $old_id, $new_id ) {
 	$opt = get_option( 'forminator_form_privacy_settings', array() );
@@ -858,9 +819,9 @@ function forminator_clone_form_submissions_retention( $old_id, $new_id ) {
  *
  * @since 1.0.6
  *
- * @param $poll_id
- * @param $retention_number
- * @param $retention_unit
+ * @param int $poll_id Poll Id.
+ * @param int $retention_number Retention number.
+ * @param int $retention_unit Retention unit.
  */
 function forminator_update_poll_submissions_retention( $poll_id, $retention_number, $retention_unit ) {
 	$opt = get_option( 'forminator_poll_privacy_settings', array() );
@@ -882,8 +843,8 @@ function forminator_update_poll_submissions_retention( $poll_id, $retention_numb
  *
  * @since 1.0.6
  *
- * @param $old_id
- * @param $new_id
+ * @param int $old_id Old Id.
+ * @param int $new_id New id.
  */
 function forminator_clone_poll_submissions_retention( $old_id, $new_id ) {
 	$opt = get_option( 'forminator_poll_privacy_settings', array() );
@@ -898,7 +859,7 @@ function forminator_clone_poll_submissions_retention( $old_id, $new_id ) {
  *
  * @since 1.6.1
  *
- * @param Forminator_Base_Form_Model $model
+ * @param Forminator_Base_Form_Model $model Base form model.
  *
  * @return string
  */
@@ -916,14 +877,14 @@ function forminator_get_name_from_model( $model ) {
  *
  * @since 1.10
  *
- * @param $model
- * @param $title
- * @param $result
+ * @param mixed  $model Model.
+ * @param string $title Title.
+ * @param string $result Result.
  * @return mixed|string
  */
 function forminator_get_social_message( $model, $title, $result ) {
 	$settings = $model->settings;
-	$message  = __( 'I got {quiz_result} on {quiz_name} quiz!', 'forminator' );
+	$message  = esc_html__( 'I got {quiz_result} on {quiz_name} quiz!', 'forminator' );
 	if ( isset( $settings['social-share-message'] ) && ! empty( $settings['social-share-message'] ) ) {
 		$message = $settings['social-share-message'];
 	}
@@ -940,16 +901,16 @@ function forminator_get_social_message( $model, $title, $result ) {
 /**
  * Get Chart data of Poll
  *
- * @param Forminator_Poll_Model $poll
+ * @param Forminator_Poll_Model $poll Poll model.
  *
  * @return array
  */
 function forminator_get_chart_data( Forminator_Poll_Model $poll ) {
 
 	$accessibility_enabled = get_option( 'forminator_enable_accessibility', false );
-	$chart_colors         = forminator_get_poll_chart_colors( $poll->id, $accessibility_enabled );
-	$default_chart_colors = $chart_colors;
-	$chart_datas          = array();
+	$chart_colors          = forminator_get_poll_chart_colors( $poll->id, $accessibility_enabled );
+	$default_chart_colors  = $chart_colors;
+	$chart_datas           = array();
 
 	$form_settings        = $poll->settings;
 	$number_votes_enabled = false; // TO-DO: Remove later. This will be handled through ChartJS function.
@@ -975,7 +936,7 @@ function forminator_get_chart_data( Forminator_Poll_Model $poll ) {
 
 			$color = $field->color;
 
-			if ( empty( $color ) || empty($form_settings['poll-colors']) ) {
+			if ( empty( $color ) || empty( $form_settings['poll-colors'] ) ) {
 				// Colors.
 				if ( empty( $chart_colors ) ) {
 					$chart_colors = $default_chart_colors;
@@ -1006,21 +967,21 @@ function forminator_get_chart_data( Forminator_Poll_Model $poll ) {
  *
  * @since  1.11
  *
- * @param array  $array   Array from which the property's value should be retrieved.
+ * @param array  $array_values   Array from which the property's value should be retrieved.
  * @param string $prop    Name of the property to be retrieved.
- * @param string $default Optional. Value that should be returned if the property is not set or empty. Defaults to null.
+ * @param string $default_value Optional. Value that should be returned if the property is not set or empty. Defaults to null.
  *
  * @return null|string|mixed The value
  */
-function forminator_get_property( $array, $prop, $default = null ) {
+function forminator_get_property( $array_values, $prop, $default_value = null ) {
 
-	if ( ! is_array( $array ) && ! ( is_object( $array ) && $array instanceof ArrayAccess ) ) {
-		return $default;
+	if ( ! is_array( $array_values ) && ! ( is_object( $array_values ) && $array_values instanceof ArrayAccess ) ) {
+		return $default_value;
 	}
 
-	$value = isset( $array[ $prop ] ) ? $array[ $prop ] : '';
+	$value = isset( $array_values[ $prop ] ) ? $array_values[ $prop ] : '';
 
-	return empty( $value ) && $default !== null ? $default : $value;
+	return empty( $value ) && null !== $default_value ? $default_value : $value;
 }
 
 /**
@@ -1050,7 +1011,7 @@ function forminator_is_subdomain_network() {
  *
  * @since 1.14
  *
- * @param $id int.
+ * @param int $id Id.
  *
  * @return string
  */
@@ -1060,6 +1021,11 @@ function forminator_get_quiz_name( $id ) {
 	return ! empty( $model->settings['quiz_name'] ) ? $model->settings['quiz_name'] : '';
 }
 
+/**
+ * Defender compatibility
+ *
+ * @return array
+ */
 function forminator_defender_compatibility() {
 	$defender_data = array(
 		'is_activated'    => false,
@@ -1073,7 +1039,7 @@ function forminator_defender_compatibility() {
 	// Todo: Def version >= 2.4.
 	if ( defined( 'DEFENDER_VERSION' ) && function_exists( 'defender_backward_compatibility' ) ) {
 		/**
-		 * defender_backward_compatibility() return array of values:
+		 * Defender_backward_compatibility() return array of values:
 		 * bool 'is_free'
 		 * string 'plugin_url'
 		 * object 'two_fa_settings'
@@ -1114,7 +1080,7 @@ function forminator_defender_compatibility() {
 /**
  * Get schedule time
  *
- * @param $schedule
+ * @param array $schedule Schedule.
  *
  * @return string
  */

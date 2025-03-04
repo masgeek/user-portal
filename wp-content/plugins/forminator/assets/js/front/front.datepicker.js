@@ -85,6 +85,8 @@
 				add_class = "forminator-calendar--flat";
 			} else if ( parent.hasClass('forminator-design--bold') ) {
 				add_class = "forminator-calendar--bold";
+			} else if ( parent.hasClass('forminator-design--basic') ) {
+				add_class = "forminator-calendar--basic";
 			}
 
 
@@ -141,6 +143,8 @@
 								left: rect.left
 							});
 						}, 0);
+					} else {
+						$('body').append($('#ui-datepicker-div'));
 					}
 				},
 				"beforeShowDay": disabledWeekDays,

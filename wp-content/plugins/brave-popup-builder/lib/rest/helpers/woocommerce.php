@@ -31,7 +31,7 @@ function bravepop_get_wooProducts($type='', $filterType='', $count=3, $categorie
 
        $args = array( 'include' => $most_sold_IDS );
 
-       //error_log(json_encode( $most_sold_IDS ));
+       //error_log(wp_json_encode( $most_sold_IDS ));
    }
 
    if($type === 'multiple'){
@@ -49,7 +49,7 @@ function bravepop_get_wooProducts($type='', $filterType='', $count=3, $categorie
        $args = array( 'include' => $postID );
    }
 
-   //error_log(json_encode( $args ));
+   //error_log(wp_json_encode( $args ));
    if(class_exists( 'SitePress' )){
       $args['suppress_filters'] = true;
    }
@@ -136,7 +136,7 @@ function bravepop_get_wooProducts($type='', $filterType='', $count=3, $categorie
       }
    }
 
-   //error_log(json_encode($allProducts));
+   //error_log(wp_json_encode($allProducts));
 
    $wpData->posts = $allProducts;
    return new WP_REST_Response($wpData);
@@ -233,7 +233,7 @@ function bravepop_woo_latest_and_bestsellers( $type='latest', $count=3, $autoFil
    }
 
 
-   //error_log('finalProducts: '. json_encode($finalProducts));
+   //error_log('finalProducts: '. wp_json_encode($finalProducts));
 
    return $finalProducts;
 }

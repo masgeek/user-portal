@@ -67,7 +67,7 @@ class Ays_Pb {
 	 * @since    1.0.0
 	 */
 	public function __construct() {
-		if ( defined( 'AYS_PB_NAME_VERSION' ) ) {
+		if ( defined('AYS_PB_NAME_VERSION') ) {
 			$this->version = AYS_PB_NAME_VERSION;
 		} else {
 			$this->version = '1.0.1';
@@ -79,7 +79,6 @@ class Ays_Pb {
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
 		$this->define_integrations_hooks();
-
 	}
 
 	/**
@@ -99,18 +98,17 @@ class Ays_Pb {
 	 * @access   private
 	 */
 	private function load_dependencies() {
-
-        if ( ! class_exists( 'WP_List_Table' ) ) {
+        if ( !class_exists('WP_List_Table') ) {
             require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
         }
 
 		/**
-		 * The class responsible for all plugin data
+		 * The class responsible for defining all functions for using anywhere.
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-ays-pb-data.php';
 
 		/**
-		 * The class responsible for defining all functions for getting all survey integrations
+		 * The class responsible for defining all functions for getting all popup integrations
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-ays-pb-integrations.php';
 
@@ -161,9 +159,8 @@ class Ays_Pb {
 		 * The class is responsible for showing PB Categories Shortdodes
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/partials/class-pb-category-shortcode.php';
-		
-		$this->loader = new Ays_Pb_Loader();
 
+		$this->loader = new Ays_Pb_Loader();
 	}
 
 	/**
@@ -191,17 +188,16 @@ class Ays_Pb {
 	 * @access   private
 	 */
 	private function define_admin_hooks() {
-
 		$plugin_admin = new Ays_Pb_Admin( $this->get_plugin_name(), $this->get_version() );
-		$data_admin   = new Ays_Pb_Data( $this->get_plugin_name(), $this->get_version() );
+		$data_admin = new Ays_Pb_Data( $this->get_plugin_name(), $this->get_version() );
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'disable_scripts', 100 );
 
         // Add menu item
         $this->loader->add_action( 'admin_menu', $plugin_admin, 'add_plugin_admin_menu' );
-		$this->loader->add_action( 'admin_head', $plugin_admin, 'admin_menu_styles' );
-		
+
 		// Add Popups submenu
         $this->loader->add_action( 'admin_menu', $plugin_admin, 'add_plugin_popups_submenu', 75 );
 
@@ -215,46 +211,68 @@ class Ays_Pb {
         $this->loader->add_action( 'admin_menu', $plugin_admin, 'add_plugin_reports_submenu', 90 );
 
         // Add Subscribes submenu
-        $this->loader->add_action( 'admin_menu', $plugin_admin, 'add_plugin_subscribes_submenu', 95 );
-		
-		//Add Export/Import submenu
+        $this->loader->add_action( 'admin_menu', $plugin_admin, 'add_plugin_submissions_submenu', 95 );
+
+		// Add Export/Import submenu
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_plugin_export_import_submenu', 100 );
 
-        //Add Settings submenu
+        // Add Settings submenu
         $this->loader->add_action( 'admin_menu', $plugin_admin, 'add_plugin_settings_submenu', 105 );
 
-        //Add How to use submenu
+        // Add How to use submenu
         $this->loader->add_action( 'admin_menu', $plugin_admin, 'add_plugin_how_to_use_submenu', 110 );
 
-        //Add Our Products submenu
+        // Add Our Products submenu
         $this->loader->add_action( 'admin_menu', $plugin_admin, 'add_plugin_featured_plugins_submenu', 115 );
 
-        //Add Pro Features submenu
+        // Add Pro Features submenu
         $this->loader->add_action( 'admin_menu', $plugin_admin, 'add_plugin_pro_features_submenu', 120 );
 
-        // Add Settings link to the plugin
+        // Add settings link to the plugin
         $plugin_basename = plugin_basename( plugin_dir_path( __DIR__ ) . $this->plugin_name . '.php' );
         $this->loader->add_filter( 'plugin_action_links_' . $plugin_basename, $plugin_admin, 'add_action_links' );
 
         // Add row meta link to the plugin
-        $this->loader->add_filter( 'plugin_row_meta', $plugin_admin, 'add_plugin_row_meta',10 ,2 );
+        $this->loader->add_filter( 'plugin_row_meta', $plugin_admin, 'add_plugin_row_meta', 10,2 );
 
-        $this->loader->add_action( 'wp_ajax_deactivate_plugin_option_pb', $plugin_admin, 'deactivate_plugin_option');
-        $this->loader->add_action( 'wp_ajax_nopriv_deactivate_plugin_option_pb', $plugin_admin , 'deactivate_plugin_option');
-        $this->loader->add_action( 'wp_ajax_get_selected_options_pb', $plugin_admin, 'get_selected_options_pb');
+		// Plugin deactivation funtionality
+        $this->loader->add_action( 'wp_ajax_deactivate_plugin_option_pb', $plugin_admin, 'deactivate_plugin_option' );
+        $this->loader->add_action( 'wp_ajax_nopriv_deactivate_plugin_option_pb', $plugin_admin , 'deactivate_plugin_option' );
 
-        //Code Mirror
-        $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'codemirror_enqueue_scripts');
+		// Functionality for display option's post types suboption
+        $this->loader->add_action( 'wp_ajax_get_selected_options_pb', $plugin_admin, 'get_selected_options_pb' );
 
+        // Code Mirror
+        $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'codemirror_enqueue_scripts' );
+
+		// Add plugin footer
         $this->loader->add_action( 'in_admin_footer', $plugin_admin, 'popup_box_admin_footer', 1 );
 
+		// Sale banner
 		$this->loader->add_action( 'admin_notices', $data_admin, 'ays_pb_sale_baner', 1 );
 
+		// Sale banner dismiss button
+		$this->loader->add_action( 'wp_ajax_ays_pb_dismiss_button', $plugin_admin, 'ays_pb_dismiss_button' );
+        $this->loader->add_action( 'wp_ajax_nopriv_ays_pb_dismiss_button', $plugin_admin, 'ays_pb_dismiss_button' );
+
+		// Change the popup author option functionality
 		$this->loader->add_action( 'wp_ajax_ays_pb_create_author', $plugin_admin, 'ays_pb_create_author' );
         $this->loader->add_action( 'wp_ajax_nopriv_ays_pb_create_author', $plugin_admin, 'ays_pb_create_author' );
+
+		// Close popup and caches plugins conflict warning note for 1 month
+		$this->loader->add_action( 'wp_ajax_close_warning_note_permanently', $plugin_admin, 'close_warning_note_permanently' );
+        $this->loader->add_action( 'wp_ajax_nopriv_close_warning_note_permanently', $plugin_admin, 'close_warning_note_permanently' );
+
+		// Our Products | Install plugin
+		$this->loader->add_action( 'wp_ajax_ays_pb_install_plugin', $plugin_admin, 'ays_pb_install_plugin' );
+        $this->loader->add_action( 'wp_ajax_nopriv_ays_pb_install_plugin', $plugin_admin, 'ays_pb_install_plugin' );
+
+		// Our Products | Activate plugin
+        $this->loader->add_action( 'wp_ajax_ays_pb_activate_plugin', $plugin_admin, 'ays_pb_activate_plugin' );
+        $this->loader->add_action( 'wp_ajax_nopriv_ays_pb_activate_plugin', $plugin_admin, 'ays_pb_activate_plugin' );
     }
 
-		/**
+	/**
 	 * Register all of the hooks related to the integrations functionality
 	 * of the plugin.
 	 *
@@ -267,7 +285,7 @@ class Ays_Pb {
 
 		// Popup Box Integrations / popup page
 		$this->loader->add_action( 'ays_pb_popup_page_integrations', $plugin_integrations, 'ays_popup_page_integrations_content' );		
-		
+
 		// Popup Box Integrations / settings page
 		$this->loader->add_action( 'ays_pb_settings_page_integrations', $plugin_integrations, 'ays_settings_page_integrations_content' );
 
@@ -294,7 +312,7 @@ class Ays_Pb {
 			// Active Campaign integration / settings page
 			$this->loader->add_filter( 'ays_pb_settings_page_integrations_contents', $plugin_integrations, 'ays_settings_page_active_camp_content', 30, 2 );
 		// ===== Active Campaign integration =====
-		
+
 		// ===== GetResponse integration ====
 			// GetResponse integration / settings page
 			$this->loader->add_filter( 'ays_pb_settings_page_integrations_contents', $plugin_integrations, 'ays_settings_page_get_response_content', 100, 2 );
@@ -340,19 +358,29 @@ class Ays_Pb {
 		$plugin_public = new Ays_Pb_Public( $this->get_plugin_name(), $this->get_version() );
 		$plugin_public_user_information = new Ays_Popup_Box_User_Information_Public( $this->get_plugin_name(), $this->get_version() );
 		$plugin_public_category = new Popup_Box_Popup_Category( $this->get_plugin_name(), $this->get_version() );
+
 		/*
 		 * Generating shortcode on init action
 		 */
-		$this->loader->add_action( 'init', $plugin_public, 'ays_generate_shortcode');
-		$this->loader->add_action( 'wp_footer', $plugin_public, 'ays_shortcodes_show_all');        
-        $this->loader->add_action( 'ays_pb_template_mac', $plugin_public, 'ays_pb_template_macos');
+		$this->loader->add_action( 'init', $plugin_public, 'ays_generate_shortcode' );
+
+		// Display popups
+		$this->loader->add_action( 'wp_footer', $plugin_public, 'ays_shortcodes_show_all' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 		$this->loader->add_action( 'wp_footer', $plugin_public, 'enqueue_styles_footer' );
 
-        $this->loader->add_action( 'wp_ajax_ays_pb_set_cookie_only_once', $plugin_public, 'ays_pb_set_cookie_only_once');
-        $this->loader->add_action( 'wp_ajax_nopriv_ays_pb_set_cookie_only_once', $plugin_public , 'ays_pb_set_cookie_only_once');
+		// Set cookie for display popup once per user option
+        $this->loader->add_action( 'wp_ajax_ays_pb_set_cookie_only_once', $plugin_public, 'ays_pb_set_cookie_only_once' );
+        $this->loader->add_action( 'wp_ajax_nopriv_ays_pb_set_cookie_only_once', $plugin_public , 'ays_pb_set_cookie_only_once' );
 
+		// Increment popup views on each popup displaying
+		$this->loader->add_action( 'wp_ajax_ays_increment_pb_views', $plugin_public, 'ays_increment_pb_views' );
+        $this->loader->add_action( 'wp_ajax_nopriv_ays_increment_pb_views', $plugin_public , 'ays_increment_pb_views' );
+
+		// Increment popup conversions
+		$this->loader->add_action( 'wp_ajax_ays_increment_pb_conversions', $plugin_public, 'ays_increment_pb_conversions' );
+        $this->loader->add_action( 'wp_ajax_nopriv_ays_increment_pb_conversions', $plugin_public , 'ays_increment_pb_conversions' );
 
 	}
 

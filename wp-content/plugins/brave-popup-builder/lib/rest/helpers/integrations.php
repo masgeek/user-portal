@@ -131,6 +131,11 @@ function bravepop_get_integration_lists($service='', $apiKey='', $secretKey='', 
       $lists = $omnisend->get_lists($apiKey);
       return $lists;
    }
+   if($service === 'sender')   { 
+      $sendgrid =   new BravePop_Sender();
+      $lists = $sendgrid->get_lists($apiKey);
+      return $lists;
+   }
    if(function_exists('bravepop_external_integration_get_list')){
       return bravepop_get_external_integration_list($service, $apiKey, $secretKey, $accessToken, $apiURL);
    }
@@ -177,7 +182,7 @@ function bravepop_update_newsletter_integrations( $integrations ){
             $settings = array( 'integrations' => $updatedIntegrations );
             BravePopup_Settings::save_settings( $settings );
          }else{
-            error_log('NO LISTSS FOUND!!!!!!');
+            // error_log('NO LISTSS FOUND!!!!!!');
             $updatedIntegrations[$decodedIntegration->service]->enabled = false;
             $settings = array( 'integrations' => $updatedIntegrations );
             BravePopup_Settings::save_settings( $settings );
@@ -275,7 +280,7 @@ function bravepop_remove_integration( $service ){
    if(isset($currentIntegrations[$service])){
       unset($currentIntegrations[$service]);
    }
-   //error_log(json_encode($currentIntegrations));
+   //error_log(wp_json_encode($currentIntegrations));
 
    $settings = array( 'integrations' => $currentIntegrations );
    BravePopup_Settings::save_settings( $settings );
@@ -287,8 +292,18 @@ function bravepop_remove_integration( $service ){
 add_action('wp_ajax_bravepop_ajax_zoho_init_token', 'bravepop_ajax_zoho_init_token', 0);
 add_action('wp_ajax_nopriv_bravepop_ajax_zoho_init_token', 'bravepop_ajax_zoho_init_token');
 function bravepop_ajax_zoho_init_token(){
-   if(empty($_POST['client_id']) || empty($_POST['client_secret']) || empty($_POST['code']) || empty($_POST['domain'])){ wp_die(); }
+   $securityPassed = check_ajax_referer('esp_nonce', 'security', false);
+   if($securityPassed === false) {
+      wp_die();
+   }
+
+   if(!current_user_can('manage_options') && empty($_POST['client_id']) || empty($_POST['client_secret']) || empty($_POST['code']) || empty($_POST['domain'])){ wp_die(); }
    $zohoDomain = isset($_POST['domain']) ? $_POST['domain'] : 'com';
+   $availableTlds = ['com', 'eu', 'in', 'com.au', 'com.cn', 'jp'];
+   if(!in_array($zohoDomain, $availableTlds)){
+      $zohoDomain = 'com';
+   }
+
    $args = array( 
       'method' => 'POST',
       'headers' => array( 
@@ -302,7 +317,7 @@ function bravepop_ajax_zoho_init_token(){
    
    if(isset($data->refresh_token)){
       //error_log($data->refresh_token);
-      echo $data->refresh_token;
+      echo esc_html($data->refresh_token);
    }else{
       echo 'FALSE';
    }
@@ -336,13 +351,14 @@ function bravepop_add_to_newsletter($actionType='form', $type='', $emailValue=''
       if($type === 'fluentcrm'){      $service = new BravePop_FluentCRM();   }
       if($type === 'sendy'){      $service = new BravePop_Sendy();   }
       if($type === 'omnisend'){      $service = new BravePop_Omnisend();   }
+      if($type === 'sender'){      $service = new BravePop_Sender();   }
+
 
       if(function_exists('bravepop_external_integration_add_contact')){
          $service =  bravepop_external_integration_add_contact($type);
       }
-
       if(isset($service)){
-         error_log('bravepop_add_to_newsletter!!!');
+         // error_log('bravepop_add_to_newsletter!!!');
          $userSync = array('enabled' => false);
          if(($actionType === 'sync_add' || $actionType === 'sync_update') ){
             $userSync['sync'] = true; $userSync['action'] = $actionType;  $userSync['userData'] = $userData;
@@ -357,7 +373,7 @@ function bravepop_add_to_newsletter($actionType='form', $type='', $emailValue=''
 function bravepop_newsletter_misc_settings($service, $newsletterSettings, $formFields){
 
    $miscSettings = array();
-
+   // SendInBlue template settings
    if($service==='sendinblue' && !empty($newsletterSettings->double_optin) && !empty($newsletterSettings->sendinblue_template) && !empty($newsletterSettings->sendinblue_redirect)){
       $miscSettings['sendinblue_template'] = $newsletterSettings->sendinblue_template;
       $miscSettings['sendinblue_redirect'] = $newsletterSettings->sendinblue_redirect;
@@ -369,7 +385,12 @@ function bravepop_newsletter_misc_settings($service, $newsletterSettings, $formF
       $groups = bravepop_map_mailchimp_groups($newsletterSettings->advancedSettings->groupType, isset($newsletterSettings->advancedSettings->groups) ? $newsletterSettings->advancedSettings->groups: array(), $formFields);
       $miscSettings['mailchimp_groups'] = $groups;
    }
-   //error_log('bravepop_newsletter_misc_settings: '.json_encode($miscSettings));
+
+   //GetResponse Double Optin Settings
+   if($service==='getresponse' && isset($newsletterSettings->dayOfCycle)){
+      $miscSettings['dayOfCycle'] = $newsletterSettings->dayOfCycle;
+   }
+   //error_log('bravepop_newsletter_misc_settings: '.wp_json_encode($miscSettings));
    return $miscSettings;
 
 }

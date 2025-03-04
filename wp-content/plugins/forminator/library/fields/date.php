@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Date class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -11,36 +17,43 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Forminator_Date extends Forminator_Field {
 
 	/**
+	 * Name
+	 *
 	 * @var string
 	 */
 	public $name = '';
 
 	/**
+	 * Slug
+	 *
 	 * @var string
 	 */
 	public $slug = 'date';
 
 	/**
+	 * Position
+	 *
 	 * @var int
 	 */
 	public $position = 12;
 
 	/**
+	 * Type
+	 *
 	 * @var string
 	 */
 	public $type = 'date';
 
 	/**
+	 * Options
+	 *
 	 * @var string
 	 */
 	public $options = array();
 
 	/**
-	 * @var string
-	 */
-	public $category = 'standard';
-
-	/**
+	 * Icon
+	 *
 	 * @var string
 	 */
 	public $icon = 'sui-icon-calendar';
@@ -53,7 +66,7 @@ class Forminator_Date extends Forminator_Field {
 	public function __construct() {
 		parent::__construct();
 
-		$this->name = __( 'Datepicker', 'forminator' );
+		$this->name = esc_html__( 'Datepicker', 'forminator' );
 	}
 
 	/**
@@ -67,16 +80,16 @@ class Forminator_Date extends Forminator_Field {
 			'field_type'        => 'picker',
 			'date_format'       => 'mm/dd/yy',
 			'default_date'      => 'none',
-			'field_label'       => __( 'Date', 'forminator' ),
-			'placeholder'       => __( 'Choose Date', 'forminator' ),
+			'field_label'       => esc_html__( 'Date', 'forminator' ),
+			'placeholder'       => esc_html__( 'Choose Date', 'forminator' ),
 			'icon'              => 'true',
-			'day_label'         => __( 'Day', 'forminator' ),
-			'day_placeholder'   => __( 'E.g. 01', 'forminator' ),
-			'month_label'       => __( 'Month', 'forminator' ),
-			'month_placeholder' => __( 'E.g. 01', 'forminator' ),
-			'year_label'        => __( 'Year', 'forminator' ),
-			'year_placeholder'  => __( 'E.g. 2000', 'forminator' ),
-			'restrict_message'  => __( 'Please select one of the available dates.', 'forminator' ),
+			'day_label'         => esc_html__( 'Day', 'forminator' ),
+			'day_placeholder'   => esc_html__( 'E.g. 01', 'forminator' ),
+			'month_label'       => esc_html__( 'Month', 'forminator' ),
+			'month_placeholder' => esc_html__( 'E.g. 01', 'forminator' ),
+			'year_label'        => esc_html__( 'Year', 'forminator' ),
+			'year_placeholder'  => esc_html__( 'E.g. 2000', 'forminator' ),
+			'restrict_message'  => esc_html__( 'Please select one of the available dates.', 'forminator' ),
 		);
 	}
 
@@ -85,7 +98,7 @@ class Forminator_Date extends Forminator_Field {
 	 *
 	 * @since 1.0.5
 	 *
-	 * @param array $settings
+	 * @param array $settings Settings.
 	 *
 	 * @return array
 	 */
@@ -107,8 +120,9 @@ class Forminator_Date extends Forminator_Field {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $field
+	 * @param array                  $field Field.
 	 * @param Forminator_Render_Form $views_obj Forminator_Render_Form object.
+	 * @param array                  $draft_value Draft value.
 	 *
 	 * @return mixed
 	 */
@@ -119,12 +133,11 @@ class Forminator_Date extends Forminator_Field {
 
 		$html            = '';
 		$design          = $this->get_form_style( $settings );
-		$id              = self::get_property( 'element_id', $field );
-		$name            = $id;
+		$name            = self::get_property( 'element_id', $field );
 		$required        = self::get_property( 'required', $field, false );
 		$placeholder     = $this->sanitize_value( self::get_property( 'placeholder', $field ) );
 		$label           = $this->sanitize_value( self::get_property( 'field_label', $field ) );
-		$description     = $this->sanitize_value( self::get_property( 'description', $field ) );
+		$description     = self::get_property( 'description', $field );
 		$type            = trim( self::get_property( 'field_type', $field ) );
 		$has_icon        = self::get_property( 'icon', $field, false, 'bool' );
 		$has_icon        = filter_var( $has_icon, FILTER_VALIDATE_BOOLEAN );
@@ -134,8 +147,9 @@ class Forminator_Date extends Forminator_Field {
 		$start_of_week   = self::get_property( 'start_of_week', $field, get_option( 'start_of_week' ) );
 		$disabled_dates  = self::get_property( 'disabled-dates', $field, array() );
 		$disabled_range  = self::get_property( 'disable-date-range', $field, array() );
-		$uniq_id         = '_' . Forminator_CForm_Front::$uid;
-		$describedby     = 'forminator-field-' . $id . $uniq_id . '-description';
+		$id              = self::get_field_id( $name );
+		$describedby     = esc_attr( $id . '-description' );
+		$is_basic        = 'basic' === $design;
 
 		if ( false !== strpos( $date_format, '-' ) ) {
 			$sep = '-';
@@ -146,8 +160,8 @@ class Forminator_Date extends Forminator_Field {
 		}
 		$formats = explode( $sep, $date_format );
 
-		$min_year = esc_html( self::get_property( 'min_year', $field, date( 'Y' ) - 100 ) );
-		$max_year = esc_html( self::get_property( 'max_year', $field, date( 'Y' ) + 100 ) );
+		$min_year = esc_html( self::get_property( 'min_year', $field, gmdate( 'Y' ) - 100 ) );
+		$max_year = esc_html( self::get_property( 'max_year', $field, gmdate( 'Y' ) + 100 ) );
 
 		$prefill         = false;
 		$is_prefil_valid = false;
@@ -183,7 +197,7 @@ class Forminator_Date extends Forminator_Field {
 						$restrict[] = $i;
 					}
 
-					$i ++;
+					++$i;
 				}
 			} elseif ( 'custom' === $restrict_type ) {
 				$dates         = self::get_property( 'date_multiple', $field );
@@ -236,7 +250,7 @@ class Forminator_Date extends Forminator_Field {
 					$start_offset_value    = self::get_property( 'start-offset-value', $field, '0' );
 					$start_offset_duration = self::get_property( 'start-offset-duration', $field, 'days' );
 					if ( 'today' === $start_date_type ) {
-						$start_date = date_i18n( 'Y-m-d', strtotime( $start_offset_operator . $start_offset_value . ' ' . $start_offset_duration, current_time( 'U' ) ) );
+						$start_date = date_i18n( 'Y-m-d', strtotime( $start_offset_operator . $start_offset_value . ' ' . $start_offset_duration, current_time( 'U' ) ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested -- We are using the current timestamp based on the site's timezone.
 					} else {
 						$start_date_field = $start_date_type;
 						$start_offset     = $start_offset_operator . '_' . $start_offset_value . '_' . $start_offset_duration;
@@ -251,7 +265,7 @@ class Forminator_Date extends Forminator_Field {
 					$end_offset_value    = self::get_property( 'end-offset-value', $field, '0' );
 					$end_offset_duration = self::get_property( 'end-offset-duration', $field, 'days' );
 					if ( 'today' === $end_date_type ) {
-						$end_date = date_i18n( 'Y-m-d', strtotime( $end_offset_operator . $end_offset_value . ' ' . $end_offset_duration, current_time( 'U' ) ) );
+						$end_date = date_i18n( 'Y-m-d', strtotime( $end_offset_operator . $end_offset_value . ' ' . $end_offset_duration, current_time( 'U' ) ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested -- We are using the current timestamp based on the site's timezone.
 					} else {
 						$end_date_field = $end_date_type;
 						$end_offset     = $end_offset_operator . '_' . $end_offset_value . '_' . $end_offset_duration;
@@ -266,11 +280,11 @@ class Forminator_Date extends Forminator_Field {
 			);
 
 			if ( ! empty( $start_date ) ) {
-				$min_year = date( 'Y', strtotime( $start_date ) );
+				$min_year = gmdate( 'Y', strtotime( $start_date ) );
 			}
 
 			if ( ! empty( $end_date ) ) {
-				$max_year = date( 'Y', strtotime( $end_date ) );
+				$max_year = gmdate( 'Y', strtotime( $end_date ) );
 			}
 
 			if ( isset( $draft_value['value'] ) ) {
@@ -285,7 +299,7 @@ class Forminator_Date extends Forminator_Field {
 					'name'               => $name,
 					'value'              => $default_value,
 					'placeholder'        => $placeholder,
-					'id'                 => 'forminator-field-' . $id . '-picker' . $uniq_id,
+					'id'                 => self::get_field_id( $name . '-picker' ),
 					'class'              => 'forminator-input forminator-datepicker',
 					'data-required'      => $required,
 					'data-format'        => $date_format,
@@ -314,29 +328,10 @@ class Forminator_Date extends Forminator_Field {
 		} elseif ( 'select' === $type ) {
 
 			if ( ! empty( $label ) ) {
-
-				if ( $required ) {
-
-					$html .= sprintf(
-						'<label for="%s" class="forminator-label">%s %s</label>',
-						'forminator-field-' . $id,
-						$label,
-						forminator_get_required_icon()
-					);
-
-				} else {
-
-					$html .= sprintf(
-						'<label for="%s" class="forminator-label">%s</label>',
-						'forminator-field-' . $id,
-						$label
-					);
-
-				}
+				$html .= self::get_field_label( $label, 'forminator-field-' . $name, $required );
 
 				// Mark day, month and year required markup as false.
 				$required = false;
-
 			}
 
 			$default_date       = esc_html( self::get_property( 'default_date', $field, false ) );
@@ -365,9 +360,9 @@ class Forminator_Date extends Forminator_Field {
 						$default_date_value = str_replace( '/', '-', $default_date_value );
 					}
 				}
-				$day   = date( 'j', strtotime( $default_date_value ) );
-				$month = date( 'n', strtotime( $default_date_value ) );
-				$year  = date( 'Y', strtotime( $default_date_value ) );
+				$day   = gmdate( 'j', strtotime( $default_date_value ) );
+				$month = gmdate( 'n', strtotime( $default_date_value ) );
+				$year  = gmdate( 'Y', strtotime( $default_date_value ) );
 			} else {
 				$day               = '';
 				$month             = '';
@@ -375,7 +370,7 @@ class Forminator_Date extends Forminator_Field {
 				if ( $max_selected_year ) {
 					$year = '';
 				} else {
-					$year = date( 'Y' );
+					$year = gmdate( 'Y' );
 				}
 			}
 
@@ -389,19 +384,22 @@ class Forminator_Date extends Forminator_Field {
 				switch ( $format ) {
 
 					case 'dd':
-						$day_id = $id . '-day';
+						$day_id = self::get_subfield_id( $name, '-day' );
 						$html  .= '<div id="' . $day_id . '" class="forminator-col">';
 
 						$html .= '<div class="forminator-field">';
 
 						$day_data = array(
-							'name'             => $id . '-day',
-							'id'               => 'forminator-form-' . $settings['form_id'] . '__field--' . $id . '-day' . $uniq_id,
-							'class'            => 'forminator-select2',
-							'data-format'      => $date_format,
-							'data-parent'      => $id,
-							'aria-describedby' => $describedby,
+							'name'        => $day_id,
+							'id'          => self::get_field_id( $settings['form_id'] . '__field--' . $day_id ),
+							'class'       => $is_basic ? '' : 'forminator-select2',
+							'data-format' => $date_format,
+							'data-parent' => $name,
 						);
+
+						if ( ! empty( $description ) ) {
+							$day_data['aria-describedby'] = $describedby;
+						}
 
 						if ( $required ) {
 
@@ -440,19 +438,22 @@ class Forminator_Date extends Forminator_Field {
 						break;
 
 					case 'mm':
-						$month_id = $id . '-month';
+						$month_id = self::get_subfield_id( $name, '-month' );
 						$html    .= '<div id="' . $month_id . '" class="forminator-col">';
 
 						$html .= '<div class="forminator-field">';
 
 						$month_data = array(
-							'name'             => $id . '-month',
-							'id'               => 'forminator-form-' . $settings['form_id'] . '__field--' . $id . '-month' . $uniq_id,
-							'class'            => 'forminator-select2',
-							'data-format'      => $date_format,
-							'data-parent'      => $id,
-							'aria-describedby' => $describedby,
+							'name'        => $month_id,
+							'id'          => self::get_field_id( $settings['form_id'] . '__field--' . $month_id ),
+							'class'       => $is_basic ? '' : 'forminator-select2',
+							'data-format' => $date_format,
+							'data-parent' => $name,
 						);
+
+						if ( ! empty( $description ) ) {
+							$month_data['aria-describedby'] = $describedby;
+						}
 
 						if ( $required ) {
 
@@ -491,19 +492,22 @@ class Forminator_Date extends Forminator_Field {
 						break;
 
 					case 'yy':
-						$year_id = $id . '-year';
+						$year_id = self::get_subfield_id( $name, '-year' );
 						$html   .= '<div id="' . $year_id . '" class="forminator-col">';
 
 						$html .= '<div class="forminator-field">';
 
 						$year_data = array(
-							'name'             => $id . '-year',
-							'id'               => 'forminator-form-' . $settings['form_id'] . '__field--' . $id . '-year' . $uniq_id,
-							'class'            => 'forminator-select2',
-							'data-format'      => $date_format,
-							'data-parent'      => $id,
-							'aria-describedby' => $describedby,
+							'name'        => $year_id,
+							'id'          => self::get_field_id( $settings['form_id'] . '__field--' . $year_id ),
+							'class'       => $is_basic ? '' : 'forminator-select2',
+							'data-format' => $date_format,
+							'data-parent' => $name,
 						);
+
+						if ( ! empty( $description ) ) {
+							$year_data['aria-describedby'] = $describedby;
+						}
 
 						if ( $required ) {
 
@@ -551,10 +555,12 @@ class Forminator_Date extends Forminator_Field {
 			// END: Row.
 			$html .= '</div>';
 
-			$html .= self::get_description( $description, 'forminator-field-' . $id . $uniq_id );
+			$html .= self::get_description( $description, $id );
 
 		} elseif ( 'input' === $type ) {
-			$day_value = $month_value = $year_value = '';
+			$day_value   = '';
+			$month_value = '';
+			$year_value  = '';
 
 			if ( isset( $draft_value['value'] ) ) {
 				$parsed_date = $draft_value['value'];
@@ -567,26 +573,7 @@ class Forminator_Date extends Forminator_Field {
 				$year_value  = $parsed_date['year'];
 			}
 
-			if ( ! empty( $label ) ) {
-
-				if ( $required ) {
-
-					$html .= sprintf(
-						'<label for="%s" class="forminator-label">%s %s</label>',
-						'forminator-field-' . $id,
-						esc_html( $label ),
-						forminator_get_required_icon()
-					);
-
-				} else {
-
-					$html .= sprintf(
-						'<label for="%s" class="forminator-label">%s</label>',
-						'forminator-field-' . $id,
-						esc_html( $label )
-					);
-				}
-			}
+			$html .= self::get_field_label( $label, 'forminator-field-' . $name, $required );
 
 			// START: Row.
 			$html .= '<div class="forminator-date-input">';
@@ -598,7 +585,7 @@ class Forminator_Date extends Forminator_Field {
 				switch ( $format ) {
 
 					case 'dd':
-						$day   = $id . '-day';
+						$day   = self::get_subfield_id( $name, '-day' );
 						$html .= '<div id="' . $day . '" class="forminator-col">';
 
 						$html .= '<div class="forminator-field">';
@@ -607,16 +594,19 @@ class Forminator_Date extends Forminator_Field {
 							'type'        => 'number',
 							'min'         => 1,
 							'max'         => 31,
-							'name'        => $id . '-day',
+							'name'        => $day,
 							'value'       => esc_attr( $day_value ),
 							'placeholder' => $this->sanitize_value( self::get_property( 'day_placeholder', $field ) ),
-							'id'          => 'forminator-field-' . $id . '-day' . $uniq_id,
+							'id'          => self::get_field_id( $day ),
 							'class'       => 'forminator-input',
 							'data-field'  => 'day',
 							'data-format' => $date_format,
-							'data-parent' => $id,
-							'aria-describedby' => $describedby,
+							'data-parent' => $name,
 						);
+
+						if ( ! empty( $description ) ) {
+							$day_data['aria-describedby'] = $describedby;
+						}
 
 						if ( $required ) {
 
@@ -658,7 +648,7 @@ class Forminator_Date extends Forminator_Field {
 						break;
 
 					case 'mm':
-						$month = $id . '-month';
+						$month = self::get_subfield_id( $name, '-month' );
 						$html .= '<div id="' . $month . '" class="forminator-col">';
 
 						$html .= '<div class="forminator-field">';
@@ -667,16 +657,19 @@ class Forminator_Date extends Forminator_Field {
 							'type'        => 'number',
 							'min'         => 1,
 							'max'         => 12,
-							'name'        => $id . '-month',
+							'name'        => $month,
 							'value'       => esc_attr( $month_value ),
 							'placeholder' => $this->sanitize_value( self::get_property( 'month_placeholder', $field ) ),
-							'id'          => 'forminator-field-' . $id . '-month' . $uniq_id,
+							'id'          => self::get_field_id( $month ),
 							'class'       => 'forminator-input',
 							'data-field'  => 'month',
 							'data-format' => $date_format,
-							'data-parent' => $id,
-							'aria-describedby' => $describedby,
+							'data-parent' => $name,
 						);
+
+						if ( ! empty( $description ) ) {
+							$month_data['aria-describedby'] = $describedby;
+						}
 
 						if ( $required ) {
 
@@ -716,7 +709,7 @@ class Forminator_Date extends Forminator_Field {
 						break;
 
 					case 'yy':
-						$year  = $id . '-year';
+						$year  = self::get_subfield_id( $name, '-year' );
 						$html .= '<div id="' . $year . '" class="forminator-col">';
 
 						$html .= '<div class="forminator-field">';
@@ -724,16 +717,19 @@ class Forminator_Date extends Forminator_Field {
 						$year_data = array(
 							'type'        => 'number',
 							'min'         => 1,
-							'name'        => $id . '-year',
+							'name'        => $year,
 							'placeholder' => $this->sanitize_value( self::get_property( 'year_placeholder', $field ) ),
-							'id'          => 'forminator-field-' . $id . '-year' . $uniq_id,
+							'id'          => self::get_field_id( $year ),
 							'class'       => 'forminator-input',
 							'data-field'  => 'year',
 							'value'       => esc_attr( $year_value ),
 							'data-format' => $date_format,
-							'data-parent' => $id,
-							'aria-describedby' => $describedby,
+							'data-parent' => $name,
 						);
+
+						if ( ! empty( $description ) ) {
+							$year_data['aria-describedby'] = $describedby;
+						}
 
 						if ( $required ) {
 
@@ -782,7 +778,7 @@ class Forminator_Date extends Forminator_Field {
 			// END: Row.
 			$html .= '</div>';
 
-			$html .= self::get_description( $description, 'forminator-field-' . $id . $uniq_id );
+			$html .= self::get_description( $description, $id );
 		}
 
 		if ( 'picker' === $type ) {
@@ -797,7 +793,7 @@ class Forminator_Date extends Forminator_Field {
 	 *
 	 * @since 1.7.0.1
 	 *
-	 * @param string $date_format
+	 * @param string $date_format Date format.
 	 *
 	 * @return string
 	 */
@@ -814,17 +810,17 @@ class Forminator_Date extends Forminator_Field {
 	 *
 	 * @since 1.0
 	 *
-	 * @param string $min_year
-	 * @param string $max_year
+	 * @param string $min_year Minimum year.
+	 * @param string $max_year Maximum year.
 	 *
 	 * @return array
 	 */
 	public function get_years( $min_year = '', $max_year = '' ) {
 		$array = array();
-		$year  = intval( date( 'Y' ) );
+		$year  = intval( gmdate( 'Y' ) );
 		$end   = empty( $min_year ) ? $year - 100 : intval( $min_year ) - 1;
 		$start = empty( $max_year ) ? $year + 100 : intval( $max_year );
-		for ( $i = $start; $i > $end; $i -- ) {
+		for ( $i = $start; $i > $end; $i-- ) {
 			$array[] = array(
 				'label' => $i,
 				'value' => $i,
@@ -850,7 +846,7 @@ class Forminator_Date extends Forminator_Field {
 	 */
 	public function get_months() {
 		$array = array();
-		for ( $i = 1; $i < 13; $i ++ ) {
+		for ( $i = 1; $i < 13; $i++ ) {
 			$array[] = array(
 				'label' => $i,
 				'value' => $i,
@@ -876,7 +872,7 @@ class Forminator_Date extends Forminator_Field {
 	 */
 	public function get_day() {
 		$array = array();
-		for ( $i = 1; $i < 32; $i ++ ) {
+		for ( $i = 1; $i < 32; $i++ ) {
 			$array[] = array(
 				'label' => $i,
 				'value' => $i,
@@ -981,9 +977,9 @@ class Forminator_Date extends Forminator_Field {
 	 */
 	public function check_date( $month, $day, $year ) {
 		if ( empty( $month ) || ! is_numeric( $month ) || empty( $day ) || ! is_numeric( $day )
-			 || empty( $year )
-			 || ! is_numeric( $year )
-			 || 4 !== strlen( $year ) ) {
+			|| empty( $year )
+			|| ! is_numeric( $year )
+			|| 4 !== strlen( $year ) ) {
 			return false;
 		}
 
@@ -1011,12 +1007,10 @@ class Forminator_Date extends Forminator_Field {
 
 			$rules .= '"dateformat": "' . $date_format . '",';
 			$rules .= '},' . "\n";
-		} else {
-			if ( $this->is_required( $field ) ) {
+		} elseif ( $this->is_required( $field ) ) {
 				$rules .= '"' . $this->get_id( $field ) . '-day": "required",';
 				$rules .= '"' . $this->get_id( $field ) . '-month": "required",';
 				$rules .= '"' . $this->get_id( $field ) . '-year": "required",';
-			}
 		}
 
 		return apply_filters( 'forminator_field_date_validation_rules', $rules, $id, $field );
@@ -1039,9 +1033,9 @@ class Forminator_Date extends Forminator_Field {
 
 		if ( empty( $required_validation_message ) ) {
 			if ( 'picker' === $type ) {
-				$required_validation_message = __( 'This field is required.', 'forminator' );
+				$required_validation_message = esc_html__( 'This field is required.', 'forminator' );
 			} else {
-				$required_validation_message = ' ' . __( 'field is required.', 'forminator' );
+				$required_validation_message = ' ' . esc_html__( 'field is required.', 'forminator' );
 			}
 		}
 
@@ -1062,7 +1056,7 @@ class Forminator_Date extends Forminator_Field {
 
 			$format_validation_message = apply_filters(
 				'forminator_field_date_format_validation_message',
-				__( 'Not valid date', 'forminator' ),
+				esc_html__( 'Not valid date', 'forminator' ),
 				$field,
 				$type,
 				$date_format,
@@ -1071,8 +1065,7 @@ class Forminator_Date extends Forminator_Field {
 
 			$messages .= '"dateformat": "' . forminator_addcslashes( $format_validation_message ) . '",' . "\n";
 			$messages .= '},' . "\n";
-		} else {
-			if ( $this->is_required( $field ) ) {
+		} elseif ( $this->is_required( $field ) ) {
 				$day_validation_message = apply_filters(
 					'forminator_field_date_day_validation_message',
 					$required_validation_message,
@@ -1102,7 +1095,6 @@ class Forminator_Date extends Forminator_Field {
 					$this
 				);
 				$messages               .= '"' . $this->get_id( $field ) . '-year": "<strong>' . $year_label . '</strong> ' . forminator_addcslashes( $year_validation_message ) . '",' . "\n";
-			}
 		}
 
 		return apply_filters( 'forminator_field_date_validation_message', $messages, $field, $type, $date_format, $this );
@@ -1113,8 +1105,8 @@ class Forminator_Date extends Forminator_Field {
 	 *
 	 * @since 1.0
 	 *
-	 * @param array        $field
-	 * @param array|string $data
+	 * @param array        $field Field.
+	 * @param array|string $data Data.
 	 */
 	public function validate( $field, $data ) {
 		$id              = self::get_property( 'element_id', $field );
@@ -1126,7 +1118,7 @@ class Forminator_Date extends Forminator_Field {
 		$restrict_type   = self::get_property( 'howto-restrict', $field );
 
 		if ( $this->is_required( $field ) ) {
-			$required_validation_message = self::get_property( 'required_message', $field, __( 'This field is required. Please enter a valid date.', 'forminator' ) );
+			$required_validation_message = self::get_property( 'required_message', $field, esc_html__( 'This field is required. Please enter a valid date.', 'forminator' ) );
 			if ( empty( $data ) ) {
 				$this->validation_message[ $id ] = apply_filters(
 					'forminator_field_date_required_field_validation_message',
@@ -1147,7 +1139,7 @@ class Forminator_Date extends Forminator_Field {
 
 					$this->validation_message[ $month_id ] = apply_filters(
 						'forminator_field_date_required_field_validation_message',
-						__( 'Month field is required.', 'forminator' ),
+						esc_html__( 'Month field is required.', 'forminator' ),
 						$month_id,
 						$data,
 						$this
@@ -1159,7 +1151,7 @@ class Forminator_Date extends Forminator_Field {
 
 					$this->validation_message[ $day_id ] = apply_filters(
 						'forminator_field_date_required_field_validation_message',
-						__( 'Day field is required.', 'forminator' ),
+						esc_html__( 'Day field is required.', 'forminator' ),
 						$day_id,
 						$data,
 						$this
@@ -1171,7 +1163,7 @@ class Forminator_Date extends Forminator_Field {
 
 					$this->validation_message[ $year_id ] = apply_filters(
 						'forminator_field_date_required_field_validation_message',
-						__( 'Year field is required.', 'forminator' ),
+						esc_html__( 'Year field is required.', 'forminator' ),
 						$year_id,
 						$data,
 						$this
@@ -1204,7 +1196,7 @@ class Forminator_Date extends Forminator_Field {
 			} else {
 				$this->validation_message[ $id ] = apply_filters(
 					'forminator_field_date_valid_date_validation_message',
-					__( 'Please enter a valid date.', 'forminator' ),
+					esc_html__( 'Please enter a valid date.', 'forminator' ),
 					$id,
 					$data,
 					$date_format,
@@ -1224,7 +1216,7 @@ class Forminator_Date extends Forminator_Field {
 
 				$this->validation_message[ $year_id ] = apply_filters(
 					'forminator_field_date_valid_year_validation_message',
-					__( 'Year field is invalid.', 'forminator' ),
+					esc_html__( 'Year field is invalid.', 'forminator' ),
 					$year_id,
 					$data,
 					$date_format,
@@ -1235,7 +1227,7 @@ class Forminator_Date extends Forminator_Field {
 
 				$this->validation_message[ $id ] = apply_filters(
 					'forminator_field_date_valid_date_validation_message',
-					__( 'Please enter a valid date.', 'forminator' ),
+					esc_html__( 'Please enter a valid date.', 'forminator' ),
 					$id,
 					$data,
 					$date_format,
@@ -1248,14 +1240,14 @@ class Forminator_Date extends Forminator_Field {
 			if ( 'select' === $date_type ) {
 
 				// For year limits.
-				$min_year = self::get_property( 'min_year', $field, date( 'Y' ) - 100 );
-				$max_year = self::get_property( 'max_year', $field, date( 'Y' ) + 100 );
+				$min_year = self::get_property( 'min_year', $field, gmdate( 'Y' ) - 100 );
+				$max_year = self::get_property( 'max_year', $field, gmdate( 'Y' ) + 100 );
 				$year     = intval( $date['year'] );
 				if ( ! empty( $min_year ) && ! empty( $max_year ) ) {
 					if ( $year < $min_year || $year > $max_year ) {
 						$this->validation_message[ $id ] = apply_filters(
 							'forminator_field_date_valid_maxmin_year_validation_message',
-							__( 'Please select a valid year.', 'forminator' )
+							esc_html__( 'Please select a valid year.', 'forminator' )
 						);
 					}
 				} else {
@@ -1263,7 +1255,7 @@ class Forminator_Date extends Forminator_Field {
 						if ( $year < $min_year ) {
 							$this->validation_message[ $id ] = apply_filters(
 								'forminator_field_date_valid_maxmin_year_validation_message',
-								__( 'Please select a valid year.', 'forminator' )
+								esc_html__( 'Please select a valid year.', 'forminator' )
 							);
 						}
 					}
@@ -1271,7 +1263,7 @@ class Forminator_Date extends Forminator_Field {
 						if ( $year > $max_year ) {
 							$this->validation_message[ $id ] = apply_filters(
 								'forminator_field_date_valid_maxmin_year_validation_message',
-								__( 'Please select a valid year.', 'forminator' )
+								esc_html__( 'Please select a valid year.', 'forminator' )
 							);
 						}
 					}
@@ -1292,7 +1284,7 @@ class Forminator_Date extends Forminator_Field {
 
 						$this->validation_message[ $month_id ] = apply_filters(
 							'forminator_field_date_required_field_validation_message',
-							__( 'Month field is invalid.', 'forminator' ),
+							esc_html__( 'Month field is invalid.', 'forminator' ),
 							$month_id,
 							$data,
 							$this
@@ -1304,7 +1296,7 @@ class Forminator_Date extends Forminator_Field {
 
 						$this->validation_message[ $day_id ] = apply_filters(
 							'forminator_field_date_required_field_validation_message',
-							__( 'Day field is invalid.', 'forminator' ),
+							esc_html__( 'Day field is invalid.', 'forminator' ),
 							$day_id,
 							$data,
 							$this
@@ -1316,7 +1308,7 @@ class Forminator_Date extends Forminator_Field {
 
 						$this->validation_message[ $year_id ] = apply_filters(
 							'forminator_field_date_required_field_validation_message',
-							__( 'Year field is invalid.', 'forminator' ),
+							esc_html__( 'Year field is invalid.', 'forminator' ),
 							$year_id,
 							$data,
 							$this
@@ -1341,11 +1333,11 @@ class Forminator_Date extends Forminator_Field {
 						}
 					}
 					if ( ! empty( $restrict ) ) {
-						$current_day = date( 'l', strtotime( $selected_date ) );
+						$current_day = gmdate( 'l', strtotime( $selected_date ) );
 						if ( in_array( strtolower( $current_day ), $restrict, true ) ) {
 							$this->validation_message[ $id ] = apply_filters(
 								'forminator_field_date_valid_between_date_validation_message',
-								self::get_property( 'restrict_message', $field, __( 'Please select one of the available dates.', 'forminator' ) )
+								self::get_property( 'restrict_message', $field, esc_html__( 'Please select one of the available dates.', 'forminator' ) )
 							);
 						}
 					}
@@ -1358,7 +1350,7 @@ class Forminator_Date extends Forminator_Field {
 						$start_offset_value    = self::get_property( 'start-offset-value', $field, '0' );
 						$start_offset_duration = self::get_property( 'start-offset-duration', $field, 'days' );
 						if ( 'today' === $start_date_type ) {
-							$start_date = date_i18n( 'Y-m-d', strtotime( $start_offset_operator . $start_offset_value . ' ' . $start_offset_duration, current_time( 'U' ) ) );
+							$start_date = date_i18n( 'Y-m-d', strtotime( $start_offset_operator . $start_offset_value . ' ' . $start_offset_duration, current_time( 'U' ) ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested -- We are using the current timestamp based on the site's timezone.
 						} else {
 							$start_date_value = isset( Forminator_CForm_Front_Action::$prepared_data[ $start_date_type ] )
 								? Forminator_CForm_Front_Action::$prepared_data[ $start_date_type ] : '';
@@ -1375,7 +1367,7 @@ class Forminator_Date extends Forminator_Field {
 					if ( ! empty( $start_date ) && strtotime( $selected_date ) < strtotime( $start_date ) ) {
 						$this->validation_message[ $id ] = apply_filters(
 							'forminator_field_date_valid_between_date_validation_message',
-							self::get_property( 'restrict_message', $field, __( 'Please select one of the available dates.', 'forminator' ) )
+							self::get_property( 'restrict_message', $field, esc_html__( 'Please select one of the available dates.', 'forminator' ) )
 						);
 					}
 				}
@@ -1387,7 +1379,7 @@ class Forminator_Date extends Forminator_Field {
 						$end_offset_value    = self::get_property( 'end-offset-value', $field, '0' );
 						$end_offset_duration = self::get_property( 'end-offset-duration', $field, 'days' );
 						if ( 'today' === $end_date_type ) {
-							$end_date = date_i18n( 'Y-m-d', strtotime( $end_offset_operator . $end_offset_value . ' ' . $end_offset_duration, current_time( 'U' ) ) );
+							$end_date = date_i18n( 'Y-m-d', strtotime( $end_offset_operator . $end_offset_value . ' ' . $end_offset_duration, current_time( 'U' ) ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested -- We are using the current timestamp based on the site's timezone.
 						} else {
 							$end_date_value = isset( Forminator_CForm_Front_Action::$prepared_data[ $end_date_type ] )
 								? Forminator_CForm_Front_Action::$prepared_data[ $end_date_type ] : '';
@@ -1404,18 +1396,18 @@ class Forminator_Date extends Forminator_Field {
 					if ( ! empty( $end_date ) && strtotime( $selected_date ) > strtotime( $end_date ) ) {
 						$this->validation_message[ $id ] = apply_filters(
 							'forminator_field_date_valid_between_date_validation_message',
-							self::get_property( 'restrict_message', $field, __( 'Please select one of the available dates.', 'forminator' ) )
+							self::get_property( 'restrict_message', $field, esc_html__( 'Please select one of the available dates.', 'forminator' ) )
 						);
 					}
 				}
 
-				// Change selected date format to the disabled-date format which is m/d/Y
+				// Change selected date format to the disabled-date format which is m/d/Y.
 				$selected_date_format    = date_create_from_format( 'Y/m/d', $selected_date );
 				$formatted_selected_date = date_format( $selected_date_format, 'm/d/Y' );
 				if ( ! empty( $disabled_dates ) && in_array( $formatted_selected_date, $disabled_dates, true ) ) {
 					$this->validation_message[ $id ] = apply_filters(
 						'forminator_field_date_valid_disabled_validation_message',
-						self::get_property( 'restrict_message', $field, __( 'Please select one of the available dates.', 'forminator' ) )
+						self::get_property( 'restrict_message', $field, esc_html__( 'Please select one of the available dates.', 'forminator' ) )
 					);
 				}
 
@@ -1435,7 +1427,7 @@ class Forminator_Date extends Forminator_Field {
 					if ( ! $has_range ) {
 						$this->validation_message[ $id ] = apply_filters(
 							'forminator_field_date_valid_disabled_validation_message',
-							self::get_property( 'restrict_message', $field, __( 'Please select one of the available dates.', 'forminator' ) )
+							self::get_property( 'restrict_message', $field, esc_html__( 'Please select one of the available dates.', 'forminator' ) )
 						);
 					}
 				}
@@ -1449,7 +1441,7 @@ class Forminator_Date extends Forminator_Field {
 	 *
 	 * @since 1.0.2
 	 *
-	 * @param array        $field
+	 * @param array        $field Field.
 	 * @param array|string $data - the data to be sanitized.
 	 *
 	 * @return array|string $data - the data after sanitization
@@ -1464,5 +1456,23 @@ class Forminator_Date extends Forminator_Field {
 		}
 
 		return apply_filters( 'forminator_field_date_sanitize', $data, $field, $original_data );
+	}
+
+	/**
+	 * Convert condition date to timestamp
+	 *
+	 * @param string $conditions_date Date from conditions.
+	 * @return string|false Timestamp
+	 */
+	public static function prepare_condition_date( $conditions_date ) {
+		if ( is_numeric( $conditions_date ) ) {
+			// Timestamp is in milliseconds.
+			$compare_to = $conditions_date / 1000;
+		} else {
+			// Backward compatibility.
+			$compare_to = strtotime( $conditions_date );
+		}
+
+		return $compare_to;
 	}
 }

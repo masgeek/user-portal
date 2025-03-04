@@ -1,4 +1,9 @@
 <?php
+/**
+ * The Forminator_Calculator_Symbol_Function_Abstract class.
+ *
+ * @package Forminator
+ */
 
 /**
  * This class is the base class for all symbols that are of the type "function".
@@ -18,10 +23,9 @@ abstract class Forminator_Calculator_Symbol_Function_Abstract extends Forminator
 	 * If this class does NOT return a value of type int or float,
 	 * an exception will be thrown.
 	 *
-	 * @param  (int|float)[] $arguments
+	 * @param  (int|float)[] $arguments Arguments.
 	 *
 	 * @return int|float
 	 */
 	abstract public function execute( $arguments );
-
 }

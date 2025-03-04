@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Text class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -11,46 +17,57 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Forminator_Text extends Forminator_Field {
 
 	/**
+	 * Name
+	 *
 	 * @var string
 	 */
 	public $name = '';
 
 	/**
+	 * Slug
+	 *
 	 * @var string
 	 */
 	public $slug = 'text';
 
 	/**
+	 * Type
+	 *
 	 * @var string
 	 */
 	public $type = 'text';
 
 	/**
+	 * Position
+	 *
 	 * @var int
 	 */
 	public $position = 6;
 
 	/**
+	 * Options
+	 *
 	 * @var array
 	 */
 	public $options = array();
 
 	/**
-	 * @var string
-	 */
-	public $category = 'standard';
-
-	/**
+	 * Is input
+	 *
 	 * @var bool
 	 */
 	public $is_input = true;
 
 	/**
+	 * Has counter
+	 *
 	 * @var bool
 	 */
 	public $has_counter = true;
 
 	/**
+	 * Icon
+	 *
 	 * @var string
 	 */
 	public $icon = 'sui-icon-style-type';
@@ -63,7 +80,7 @@ class Forminator_Text extends Forminator_Field {
 	public function __construct() {
 		parent::__construct();
 
-		$this->name = __( 'Input', 'forminator' );
+		$this->name = esc_html__( 'Input', 'forminator' );
 	}
 
 	/**
@@ -76,8 +93,8 @@ class Forminator_Text extends Forminator_Field {
 		return array(
 			'input_type'  => 'line',
 			'limit_type'  => 'characters',
-			'field_label' => __( 'Text', 'forminator' ),
-			'placeholder' => __( 'E.g. text placeholder', 'forminator' ),
+			'field_label' => esc_html__( 'Text', 'forminator' ),
+			'placeholder' => esc_html__( 'E.g. text placeholder', 'forminator' ),
 		);
 	}
 
@@ -86,7 +103,7 @@ class Forminator_Text extends Forminator_Field {
 	 *
 	 * @since 1.0.5
 	 *
-	 * @param array $settings
+	 * @param array $settings Settings.
 	 *
 	 * @return array
 	 */
@@ -107,8 +124,9 @@ class Forminator_Text extends Forminator_Field {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $field
+	 * @param array                  $field Field.
 	 * @param Forminator_Render_Form $views_obj Forminator_Render_Form object.
+	 * @param array                  $draft_value Draft value.
 	 *
 	 * @return mixed
 	 */
@@ -119,10 +137,8 @@ class Forminator_Text extends Forminator_Field {
 		$this->form_settings = $settings;
 
 		$html        = '';
-		$id          = self::get_property( 'element_id', $field );
-		$name        = $id;
-		$ariaid      = $id;
-		$id          = 'forminator-field-' . $id . '_' . Forminator_CForm_Front::$uid;
+		$name        = self::get_property( 'element_id', $field );
+		$id          = self::get_field_id( $name );
 		$required    = self::get_property( 'required', $field, false );
 		$ariareq     = 'false';
 		$default     = esc_html( self::get_property( 'default', $field, false ) );
@@ -171,7 +187,7 @@ class Forminator_Text extends Forminator_Field {
 				unset( $autofill_markup['value'] );
 			}
 
-			if ( ! empty( $description ) || '' !== $description ) {
+			if ( ! empty( $description ) ) {
 				$textarea['aria-describedby'] = $id . '-description';
 			}
 
@@ -194,7 +210,7 @@ class Forminator_Text extends Forminator_Field {
 				$html .= sprintf( '<span id="%s" class="forminator-description">', esc_attr( $id . '-description' ) );
 
 				if ( ! empty( $description ) ) {
-					$html .= $description;
+					$html .= self::esc_description( $description, $name );
 				}
 
 				if ( ( ! empty( $limit ) && ! empty( $limit_type ) ) ) {
@@ -233,7 +249,7 @@ class Forminator_Text extends Forminator_Field {
 				$input_text['value'] = $default;
 			}
 
-			if ( ! empty( $description ) || '' !== $description ) {
+			if ( ! empty( $description ) ) {
 				$input_text['aria-describedby'] = $id . '-description';
 			}
 
@@ -255,7 +271,7 @@ class Forminator_Text extends Forminator_Field {
 				$html .= sprintf( '<span id="%s" class="forminator-description">', esc_attr( $id . '-description' ) );
 
 				if ( ! empty( $description ) ) {
-					$html .= wp_kses_post( $description );
+					$html .= self::esc_description( $description, $name );
 				}
 
 				if ( ( ! empty( $limit ) && ! empty( $limit_type ) ) ) {
@@ -328,7 +344,7 @@ class Forminator_Text extends Forminator_Field {
 			if ( $is_required ) {
 				$required_error = apply_filters(
 					'forminator_text_field_required_validation_message',
-					( ! empty( $required_message ) ? $required_message : __( 'This field is required. Please enter text.', 'forminator' ) ),
+					( ! empty( $required_message ) ? $required_message : esc_html__( 'This field is required. Please enter text.', 'forminator' ) ),
 					$id,
 					$field
 				);
@@ -339,7 +355,7 @@ class Forminator_Text extends Forminator_Field {
 				if ( isset( $field['limit_type'] ) && 'characters' === trim( $field['limit_type'] ) ) {
 					$max_length_error = apply_filters(
 						'forminator_text_field_characters_validation_message',
-						__( 'You exceeded the allowed amount of characters. Please check again.', 'forminator' ),
+						esc_html__( 'You exceeded the allowed amount of characters. Please check again.', 'forminator' ),
 						$id,
 						$field
 					);
@@ -347,7 +363,7 @@ class Forminator_Text extends Forminator_Field {
 				} else {
 					$max_words_error = apply_filters(
 						'forminator_text_field_words_validation_message',
-						__( 'You exceeded the allowed amount of words. Please check again.', 'forminator' ),
+						esc_html__( 'You exceeded the allowed amount of words. Please check again.', 'forminator' ),
 						$id,
 						$field
 					);
@@ -366,8 +382,8 @@ class Forminator_Text extends Forminator_Field {
 	 *
 	 * @since 1.0
 	 *
-	 * @param array        $field
-	 * @param array|string $data
+	 * @param array        $field Field.
+	 * @param array|string $data Data.
 	 */
 	public function validate( $field, $data ) {
 		$id = self::get_property( 'element_id', $field );
@@ -381,17 +397,18 @@ class Forminator_Text extends Forminator_Field {
 
 			$this->validation_message[ $id ] = apply_filters(
 				'forminator_text_field_required_validation_message',
-				( ! empty( $required_message ) ? $required_message : __( 'This field is required. Please enter text.', 'forminator' ) ),
+				( ! empty( $required_message ) ? $required_message : esc_html__( 'This field is required. Please enter text.', 'forminator' ) ),
 				$id,
 				$field
 			);
 		}
 
 		if ( $this->has_limit( $field ) ) {
+			$data = html_entity_decode( $data );
 			if ( ( isset( $field['limit_type'] ) && 'characters' === trim( $field['limit_type'] ) ) && ( mb_strlen( $data ) > $field['limit'] ) ) {
 				$this->validation_message[ $id ] = apply_filters(
 					'forminator_text_field_characters_validation_message',
-					__( 'You exceeded the allowed amount of characters. Please check again.', 'forminator' ),
+					esc_html__( 'You exceeded the allowed amount of characters. Please check again.', 'forminator' ),
 					$id,
 					$field
 				);
@@ -400,7 +417,7 @@ class Forminator_Text extends Forminator_Field {
 				if ( is_array( $words ) && count( $words ) > $field['limit'] ) {
 					$this->validation_message[ $id ] = apply_filters(
 						'forminator_text_field_words_validation_message',
-						__( 'You exceeded the allowed amount of words. Please check again.', 'forminator' ),
+						esc_html__( 'You exceeded the allowed amount of words. Please check again.', 'forminator' ),
 						$id,
 						$field
 					);
@@ -414,7 +431,7 @@ class Forminator_Text extends Forminator_Field {
 	 *
 	 * @since 1.0.2
 	 *
-	 * @param array        $field
+	 * @param array        $field Field.
 	 * @param array|string $data - the data to be sanitized.
 	 *
 	 * @return array|string $data - the data after sanitization

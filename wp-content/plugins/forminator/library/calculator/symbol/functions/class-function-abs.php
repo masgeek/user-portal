@@ -1,4 +1,9 @@
 <?php
+/**
+ * The Forminator_Calculator_Symbol_Function_Abs class.
+ *
+ * @package Forminator
+ */
 
 /**
  * PHP abs() function. Expects one parameter.
@@ -9,13 +14,18 @@
 class Forminator_Calculator_Symbol_Function_Abs extends Forminator_Calculator_Symbol_Function_Abstract {
 
 	/**
-	 * @inheritdoc
+	 * Identifiers
+	 *
+	 * @var array
 	 */
 	protected $identifiers = array( 'abs' );
 
 	/**
+	 * Execute
+	 *
 	 * @inheritdoc
-	 * @throws Forminator_Calculator_Exception
+	 * @param mixed $arguments Arguments.
+	 * @throws Forminator_Calculator_Exception When there is an Calculator error.
 	 */
 	public function execute( $arguments ) {
 		if ( count( $arguments ) !== 1 ) {
@@ -26,5 +36,4 @@ class Forminator_Calculator_Symbol_Function_Abs extends Forminator_Calculator_Sy
 
 		return abs( $number );
 	}
-
 }

@@ -1,4 +1,9 @@
 <?php
+/**
+ * The Forminator_Poll_Front_Mail class.
+ *
+ * @package Forminator
+ */
 
 /**
  * Forminator_Poll_Front_Mail
@@ -38,8 +43,8 @@ class Forminator_Poll_Front_Mail extends Forminator_Mail {
 	 *
 	 * @since 1.6.1
 	 *
-	 * @param Forminator_Poll_Model       $poll
-	 * @param Forminator_Form_Entry_Model $entry
+	 * @param Forminator_Poll_Model       $poll Poll Model.
+	 * @param Forminator_Form_Entry_Model $entry Form entry model.
 	 */
 	public function process_mail( $poll, Forminator_Form_Entry_Model $entry ) {
 		$setting = $poll->settings;
@@ -306,8 +311,9 @@ class Forminator_Poll_Front_Mail extends Forminator_Mail {
 	 * @since 1.6.2 add $poll model, $entry
 	 *
 	 * @param array                       $setting backward compat param.
-	 * @param Forminator_Poll_Model       $poll
-	 * @param Forminator_Form_Entry_Model $entry
+	 * @param Forminator_Poll_Model       $poll Poll Model.
+	 * @param Forminator_Form_Entry_Model $entry Form entry model.
+	 * @param array                       $lead_model Lead model.
 	 *
 	 * @return array
 	 */
@@ -326,5 +332,4 @@ class Forminator_Poll_Front_Mail extends Forminator_Mail {
 
 		return apply_filters( 'forminator_poll_get_admin_email_recipients', $email, $setting, Forminator_Front_Action::$prepared_data, $poll, $entry );
 	}
-
 }

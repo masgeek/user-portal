@@ -13,6 +13,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var js_cookie__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! js-cookie */ "./node_modules/js-cookie/dist/js.cookie.mjs");
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -22,55 +28,88 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 
 var CookiesConsent = /*#__PURE__*/function () {
-  function CookiesConsent($) {
+  function CookiesConsent() {
     var _this = this;
 
-    var timeout = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 800;
+    var timeout = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 800;
 
     _classCallCheck(this, CookiesConsent);
 
-    var $cookiesConsentModal = $('.kenta-cookies-consent-container');
+    var cookiesConsentModal = document.getElementsByClassName('kenta-cookies-consent-container')[0];
 
-    if ($cookiesConsentModal.length <= 0) {
+    if (!cookiesConsentModal) {
       return;
     }
 
-    if (js_cookie__WEBPACK_IMPORTED_MODULE_0__["default"].get('kenta_cookies_consent_accepted')) {
-      $cookiesConsentModal.remove();
+    if (js_cookie__WEBPACK_IMPORTED_MODULE_0__["default"].get('kenta_cookies_consent_accepted') === 'true') {
+      cookiesConsentModal.parentElement.removeChild(cookiesConsentModal);
       return;
     }
 
     setTimeout(function () {
-      $cookiesConsentModal.addClass('active');
+      cookiesConsentModal.classList.add('active');
     }, timeout);
-    $cookiesConsentModal.find('.accept-button').on('click', function (ev) {
-      ev.preventDefault();
+    var acceptBtns = cookiesConsentModal.getElementsByClassName('accept-button');
 
-      var period = _this.getPeriod($cookiesConsentModal.data('period'));
+    var _iterator = _createForOfIteratorHelper(acceptBtns),
+        _step;
 
-      js_cookie__WEBPACK_IMPORTED_MODULE_0__["default"].set('kenta_cookies_consent_accepted', 'true', {
-        expires: new Date(new Date() * 1 + period),
-        sameSite: 'lax'
-      });
-      $cookiesConsentModal.removeClass('active');
-      setTimeout(function () {
-        $cookiesConsentModal.remove();
-      }, 500);
-    });
-    $cookiesConsentModal.find('.decline-button').on('click', function (ev) {
-      ev.preventDefault();
+    try {
+      for (_iterator.s(); !(_step = _iterator.n()).done;) {
+        var acceptBtn = _step.value;
+        acceptBtn.addEventListener('click', function (ev) {
+          var _cookiesConsentModal$;
 
-      var period = _this.getPeriod($cookiesConsentModal.data('period'));
+          ev.preventDefault();
 
-      js_cookie__WEBPACK_IMPORTED_MODULE_0__["default"].set('kenta_cookies_consent_accepted', 'no', {
-        expires: new Date(new Date() * 1 + period),
-        sameSite: 'lax'
-      });
-      $cookiesConsentModal.removeClass('active');
-      setTimeout(function () {
-        $cookiesConsentModal.remove();
-      }, 500);
-    });
+          var period = _this.getPeriod((_cookiesConsentModal$ = cookiesConsentModal.dataset) === null || _cookiesConsentModal$ === void 0 ? void 0 : _cookiesConsentModal$.period);
+
+          js_cookie__WEBPACK_IMPORTED_MODULE_0__["default"].set('kenta_cookies_consent_accepted', 'true', {
+            expires: new Date(new Date() * 1 + period),
+            sameSite: 'lax'
+          });
+          cookiesConsentModal.classList.remove('active');
+          setTimeout(function () {
+            cookiesConsentModal.parentElement.removeChild(cookiesConsentModal);
+          }, 500);
+        });
+      }
+    } catch (err) {
+      _iterator.e(err);
+    } finally {
+      _iterator.f();
+    }
+
+    var declineBtns = cookiesConsentModal.getElementsByClassName('decline-button');
+
+    var _iterator2 = _createForOfIteratorHelper(declineBtns),
+        _step2;
+
+    try {
+      for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+        var declineBtn = _step2.value;
+        declineBtn.addEventListener('click', function (ev) {
+          var _cookiesConsentModal$2;
+
+          ev.preventDefault();
+
+          var period = _this.getPeriod((_cookiesConsentModal$2 = cookiesConsentModal.dataset) === null || _cookiesConsentModal$2 === void 0 ? void 0 : _cookiesConsentModal$2.period);
+
+          js_cookie__WEBPACK_IMPORTED_MODULE_0__["default"].set('kenta_cookies_consent_accepted', 'no', {
+            expires: new Date(new Date() * 1 + period),
+            sameSite: 'lax'
+          });
+          cookiesConsentModal.classList.remove('active');
+          setTimeout(function () {
+            cookiesConsentModal.parentElement.removeChild(cookiesConsentModal);
+          }, 500);
+        });
+      }
+    } catch (err) {
+      _iterator2.e(err);
+    } finally {
+      _iterator2.f();
+    }
   }
 
   _createClass(CookiesConsent, [{
@@ -107,19 +146,39 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Datetime = /*#__PURE__*/_createClass(function Datetime($) {
+var Datetime = /*#__PURE__*/_createClass(function Datetime() {
   _classCallCheck(this, Datetime);
 
-  $('.kenta-local-time').each(function () {
-    var format = $(this).data('time-format');
-    $(this).text(new Date().format(format));
-  });
+  var els = document.getElementsByClassName('kenta-local-time');
+
+  var _iterator = _createForOfIteratorHelper(els),
+      _step;
+
+  try {
+    for (_iterator.s(); !(_step = _iterator.n()).done;) {
+      var _el$dataset;
+
+      var el = _step.value;
+      var format = (_el$dataset = el.dataset) === null || _el$dataset === void 0 ? void 0 : _el$dataset.timeFormat;
+      el.textContent = new Date().format(format);
+    }
+  } catch (err) {
+    _iterator.e(err);
+  } finally {
+    _iterator.f();
+  }
 });
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Datetime);
@@ -142,18 +201,24 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var InfiniteScroll = /*#__PURE__*/_createClass(function InfiniteScroll($) {
+var InfiniteScroll = /*#__PURE__*/_createClass(function InfiniteScroll() {
+  var _pagination$dataset, _pagination$dataset2;
+
   _classCallCheck(this, InfiniteScroll);
 
-  var $pagination = $('.kenta-infinite-scroll');
-  var $posts = $('.kenta-posts .card-list');
-
-  if (!window.InfiniteScroll || $posts.length <= 0 || $pagination.length <= 0) {
+  if (!window.InfiniteScroll) {
     return;
   }
 
-  var pagination_type = $pagination.data('pagination-type');
-  var pagination_max_pages = $pagination.data('pagination-max-pages');
+  var pagination = document.getElementsByClassName('kenta-infinite-scroll')[0];
+  var container = document.querySelector('.kenta-posts .card-list');
+
+  if (!container || !pagination) {
+    return;
+  }
+
+  var pagination_type = (_pagination$dataset = pagination.dataset) === null || _pagination$dataset === void 0 ? void 0 : _pagination$dataset.paginationType;
+  var pagination_max_pages = (_pagination$dataset2 = pagination.dataset) === null || _pagination$dataset2 === void 0 ? void 0 : _pagination$dataset2.paginationMaxPages;
   var threshold = false;
   var navClass = false;
   var scopeClass = '.kenta-posts';
@@ -163,7 +228,7 @@ var InfiniteScroll = /*#__PURE__*/_createClass(function InfiniteScroll($) {
     navClass = scopeClass + ' .kenta-load-more-btn';
   }
 
-  $posts.infiniteScroll({
+  var infScroll = new window.InfiniteScroll(container, {
     path: scopeClass + ' .kenta-pagination a',
     hideNav: navClass,
     append: false,
@@ -171,42 +236,70 @@ var InfiniteScroll = /*#__PURE__*/_createClass(function InfiniteScroll($) {
     scrollThreshold: threshold,
     status: scopeClass + ' .page-load-status'
   });
-  var pagesLoaded = 0; // Request
+  var pagesLoaded = 0;
+  var loadMoreBtn = pagination.getElementsByClassName('kenta-load-more-btn')[0];
+  var loader = pagination.getElementsByClassName('kenta-pagination-loader')[0];
 
-  $posts.on('request.infiniteScroll', function (event, path) {
-    $pagination.find('.kenta-load-more-btn').hide();
+  if (loadMoreBtn) {
+    // load more button click
+    loadMoreBtn.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      infScroll.loadNextPage();
+      return false;
+    }); // Request
 
-    if (pagination_max_pages - 1 !== pagesLoaded) {
-      $pagination.find('.kenta-pagination-loader').show();
-    }
-  }); // Load
+    infScroll.on('request', function (path) {
+      loadMoreBtn.style.display = 'none';
 
-  $posts.on('load.infiniteScroll', function (event, response) {
+      if (pagination_max_pages - 1 !== pagesLoaded) {
+        loader.style.display = 'inline-block';
+      }
+    });
+  } // Load
+
+
+  infScroll.on('load', function (response) {
+    var _window;
+
     pagesLoaded++; // get posts from response
 
-    var items = $(response).find(scopeClass).find('.card-wrapper');
-    $posts.infiniteScroll('appendItems', items);
+    var items = response.querySelectorAll(scopeClass + ' .card-wrapper');
+    infScroll.appendItems(items);
 
-    if ($posts.masonry) {
-      $posts.masonry('appended', items);
+    if ((_window = window) !== null && _window !== void 0 && _window.KentaMasonryInstance) {
+      var _window2;
+
+      var masonry = (_window2 = window) === null || _window2 === void 0 ? void 0 : _window2.KentaMasonryInstance.find(function (_ref) {
+        var el = _ref.el;
+        return container.isSameNode(el);
+      });
+
+      if (masonry) {
+        masonry.instance.appended(items);
+        masonry.instance.layout();
+      }
     }
 
-    if (window.ScrollReveal) ScrollReveal().sync();
+    if (window.ScrollReveal) {
+      ScrollReveal().sync();
+    }
 
     if (pagination_max_pages - 1 !== pagesLoaded) {
-      if ('load-more' === pagination_type) {
-        $pagination.find('.kenta-load-more-btn').fadeIn();
+      if ('load-more' === pagination_type && loadMoreBtn) {
+        loadMoreBtn.style.display = 'block';
       }
     } else {
-      $pagination.find('.kenta-pagination-finish').fadeIn(1000); // $pagination.delay(2000).fadeOut(1000);
+      var finished = pagination.getElementsByClassName('kenta-pagination-finish')[0];
+
+      if (finished) {
+        finished.style.opacity = 1;
+        finished.style.visibility = 'visible';
+      }
     }
 
-    $pagination.find('.kenta-pagination-loader').hide();
-  }); // Load more click
-
-  $pagination.find('.kenta-load-more-btn').on('click', function () {
-    $posts.infiniteScroll('loadNextPage');
-    return false;
+    if (loader) {
+      loader.style.display = 'none';
+    }
   });
 });
 
@@ -278,21 +371,50 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Masonry = /*#__PURE__*/_createClass(function Masonry($) {
+var Masonry = /*#__PURE__*/_createClass(function Masonry() {
   _classCallCheck(this, Masonry);
 
-  var $cardList = $('.card-list');
+  if (!window.Masonry) {
+    return;
+  }
 
-  if ($cardList.data('card-layout') === 'archive-masonry' && $cardList.masonry) {
-    $cardList.masonry({
-      itemSelector: '.card-wrapper'
-    });
+  window.KentaMasonryInstance = [];
+  var cards = document.getElementsByClassName('card-list');
+
+  var _iterator = _createForOfIteratorHelper(cards),
+      _step;
+
+  try {
+    for (_iterator.s(); !(_step = _iterator.n()).done;) {
+      var _card$dataset;
+
+      var card = _step.value;
+
+      if (((_card$dataset = card.dataset) === null || _card$dataset === void 0 ? void 0 : _card$dataset.cardLayout) === 'archive-masonry') {
+        window.KentaMasonryInstance.push({
+          el: card,
+          instance: new window.Masonry(card, {
+            itemSelector: '.card-wrapper'
+          })
+        });
+      }
+    }
+  } catch (err) {
+    _iterator.e(err);
+  } finally {
+    _iterator.f();
   }
 });
 

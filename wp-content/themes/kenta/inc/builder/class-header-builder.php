@@ -61,7 +61,8 @@ if ( ! class_exists( 'Kenta_Header_Builder' ) ) {
 				->addElement( new Kenta_Trigger_Element( 'trigger', 'kenta_header_el_trigger', __( 'Trigger', 'kenta' ) ) )
 				// Breadcrumbs
 				->addElement( new Kenta_Breadcrumbs_Element( 'breadcrumbs', 'kenta_header_el_breadcrumbs', __( 'Breadcrumbs', 'kenta' ) ) )
-				->addElement( new Kenta_Socials_Element( 'socials', 'kenta_header_el_socials', __( 'Socials', 'kenta' ) ) );
+				->addElement( new Kenta_Socials_Element( 'socials', 'kenta_header_el_socials', __( 'Socials', 'kenta' ) ) )
+				->addElement( new Kenta_Theme_Switch_Element( 'theme-switch', 'kenta_header_el_theme_switch', __( 'Theme Switch', 'kenta' ) ) );
 
 			// WooCommerce Elements
 			if ( KENTA_WOOCOMMERCE_ACTIVE ) {
@@ -137,6 +138,7 @@ if ( ! class_exists( 'Kenta_Header_Builder' ) ) {
 
 			$row = ( new Kenta_Header_Row( 'top_bar', __( 'Top Bar', 'kenta' ), [
 				'min_height' => '40px',
+				'z_index'    => 100,
 				'background' => [
 					'type'  => 'color',
 					'color' => 'var(--kenta-base-color)'
@@ -164,7 +166,7 @@ if ( ! class_exists( 'Kenta_Header_Builder' ) ) {
 						'settings' => [ 'width' => '30%' ]
 					],
 					[
-						'elements' => [ 'menu-1', 'search' ],
+						'elements' => [ 'menu-1', 'socials', 'theme-switch', 'search' ],
 						'settings' => [ 'width' => '70%', 'justify-content' => 'flex-end' ]
 					],
 				],
@@ -174,7 +176,7 @@ if ( ! class_exists( 'Kenta_Header_Builder' ) ) {
 						'settings' => [ 'width' => '70%', ]
 					],
 					[
-						'elements' => [ 'search', 'trigger' ],
+						'elements' => [ 'socials', 'theme-switch', 'search', 'trigger' ],
 						'settings' => [ 'width' => '30%', 'justify-content' => 'flex-end' ]
 					],
 				],
@@ -182,6 +184,7 @@ if ( ! class_exists( 'Kenta_Header_Builder' ) ) {
 
 			$row = ( new Kenta_Header_Row( 'primary_navbar', __( 'Primary Navbar', 'kenta' ), [
 				'min_height' => '80px',
+				'z_index'    => 99,
 				'background' => [
 					'type'  => 'color',
 					'color' => 'var(--kenta-base-color)'
@@ -226,7 +229,9 @@ if ( ! class_exists( 'Kenta_Header_Builder' ) ) {
 				],
 			] );
 
-			$row = ( new Kenta_Header_Row( 'bottom_row', __( 'Bottom Row', 'kenta' ) ) );
+			$row = ( new Kenta_Header_Row( 'bottom_row', __( 'Bottom Row', 'kenta' ), [
+				'z_index' => 98,
+			] ) );
 
 			$row->setMaxColumns( apply_filters( 'kenta_header_bottom_row_max_columns', 3 ) );
 

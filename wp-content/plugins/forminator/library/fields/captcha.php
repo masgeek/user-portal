@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Captcha class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -11,41 +17,50 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Forminator_Captcha extends Forminator_Field {
 
 	/**
+	 * Name
+	 *
 	 * @var string
 	 */
 	public $name = '';
 
 	/**
+	 * Slug
+	 *
 	 * @var string
 	 */
 	public $slug = 'captcha';
 
 	/**
+	 * Type
+	 *
 	 * @var string
 	 */
 	public $type = 'captcha';
 
 	/**
+	 * Position
+	 *
 	 * @var int
 	 */
 	public $position = 16;
 
 	/**
+	 * Options
+	 *
 	 * @var array
 	 */
 	public $options = array();
 
 	/**
-	 * @var string
-	 */
-	public $category = 'standard';
-
-	/**
+	 * Hide advanced
+	 *
 	 * @var string
 	 */
 	public $hide_advanced = 'true';
 
 	/**
+	 * Icon
+	 *
 	 * @var string
 	 */
 	public $icon = 'sui-icon-recaptcha';
@@ -58,7 +73,7 @@ class Forminator_Captcha extends Forminator_Field {
 	public function __construct() {
 		parent::__construct();
 
-		$this->name = __( 'Captcha', 'forminator' );
+		$this->name = esc_html__( 'Captcha', 'forminator' );
 	}
 
 	/**
@@ -70,20 +85,23 @@ class Forminator_Captcha extends Forminator_Field {
 	public function defaults() {
 
 		return array(
-			'captcha_provider'		  => 'recaptcha',
+			'captcha_provider'        => 'recaptcha',
+			'captcha_alignment'       => 'left',
 			'captcha_type'            => 'v2_checkbox',
 			'hcaptcha_type'           => 'hc_checkbox',
 			'score_threshold'         => '0.5',
 			'captcha_badge'           => 'bottomright',
-			'hc_invisible_notice'	  => sprintf(
-											__(
-												'This site is protected by hCaptcha and its %1$sPrivacy Policy%3$s and %2$sTerms of Service%3$s apply.',
-												'forminator'
-											),
-											'<a href="https://hcaptcha.com/privacy">',
-											'<a href="https://hcaptcha.com/terms">',
-											'</a>'
-										),
+			'hc_invisible_notice'     => sprintf(
+				/* translators: 1. Open <a> tag for Privacy policy, 2. Close </a>, 3. Open <a> tag for Terms of Service, 4. Close </a>. */
+				esc_html__(
+					'This site is protected by hCaptcha and its %1$sPrivacy Policy%2$s and %3$sTerms of Service%4$s apply.',
+					'forminator'
+				),
+				'<a href="https://hcaptcha.com/privacy">',
+				'</a>',
+				'<a href="https://hcaptcha.com/terms">',
+				'</a>'
+			),
 			'recaptcha_error_message' => esc_html__( 'reCAPTCHA verification failed. Please try again.', 'forminator' ),
 			'hcaptcha_error_message'  => esc_html__( 'hCaptcha verification failed. Please try again.', 'forminator' ),
 		);
@@ -94,19 +112,25 @@ class Forminator_Captcha extends Forminator_Field {
 	 *
 	 * @since 1.0.5
 	 *
-	 * @param array $settings
+	 * @param array $settings Settings.
 	 *
 	 * @return array
 	 */
 	public function autofill_settings( $settings = array() ) {
-		//Unsupported Autofill
+		// Unsupported Autofill.
 		$autofill_settings = array();
 
 		return $autofill_settings;
 	}
 
+	/**
+	 * Invisible recaptcha
+	 *
+	 * @param mixed $field Field.
+	 * @return mixed
+	 */
 	public function is_invisible_recaptcha( $field ) {
-		// backward
+		// backward.
 		$is_invisible = self::get_property( 'invisible_captcha', $field );
 		$is_invisible = filter_var( $is_invisible, FILTER_VALIDATE_BOOLEAN );
 		if ( ! $is_invisible ) {
@@ -124,22 +148,23 @@ class Forminator_Captcha extends Forminator_Field {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $field
+	 * @param array                  $field Field.
 	 * @param Forminator_Render_Form $views_obj Forminator_Render_Form object.
 	 *
 	 * @return mixed
 	 */
 	public function markup( $field, $views_obj ) {
 
-		$captcha_badge	 = '';
+		$captcha_badge   = '';
 		$hcaptcha_notice = '';
-		$provider		 = self::get_property( 'captcha_provider', $field, 'recaptcha' );
+		$provider        = self::get_property( 'captcha_provider', $field, 'recaptcha' );
+		$alignment       = self::get_property( 'captcha_alignment', $field, 'left' );
 
 		if ( 'recaptcha' === $provider ) {
 			$captcha_type  = self::get_property( 'captcha_type', $field, 'v3_recaptcha' );
 			$captcha_theme = self::get_property( 'captcha_theme', $field, 'light' );
 			$captcha_size  = self::get_property( 'captcha_size', $field, 'normal' );
-			$captcha_class = 'forminator-g-recaptcha';
+			$captcha_class = 'forminator-captcha-' . $alignment . ' forminator-g-recaptcha';
 
 			if ( $this->is_invisible_recaptcha( $field ) ) {
 				$captcha_badge  = 'data-badge="' . esc_attr( self::get_property( 'captcha_badge', $field, 'inline' ) ) . '"';
@@ -158,21 +183,20 @@ class Forminator_Captcha extends Forminator_Field {
 					$key = get_option( 'forminator_v3_captcha_key', '' );
 					break;
 			}
-
 		} else {
-			$key 		   = get_option( 'forminator_hcaptcha_key', '' );
+			$key           = get_option( 'forminator_hcaptcha_key', '' );
 			$captcha_type  = self::get_property( 'hcaptcha_type', $field, 'hc_checkbox' );
 			$captcha_theme = self::get_property( 'hcaptcha_theme', $field, 'light' );
 			$captcha_size  = self::get_property( 'hcaptcha_size', $field, 'normal' );
-			$captcha_class = 'forminator-hcaptcha';
+			$captcha_class = 'forminator-captcha-' . $alignment . ' forminator-hcaptcha';
 
 			if ( 'hc_invisible' === $captcha_type ) {
-				$captcha_size 	  = 'invisible';
-				$hcaptcha_notice  = self::get_property( 'hc_invisible_notice', $field, '' );
-				$hcaptcha_notice  = sprintf( '<div class="forminator-checkbox__label">%s</div>', wp_kses_post( $hcaptcha_notice ) );
+				$captcha_size    = 'invisible';
+				$hcaptcha_notice = self::get_property( 'hc_invisible_notice', $field, '' );
+				$hcaptcha_notice = sprintf( '<div class="forminator-checkbox__label">%s</div>', wp_kses_post( $hcaptcha_notice ) );
 			}
 		}
-		// dont use .g-recaptcha class as it will rendered automatically when other plugin load recaptcha with default render
+		// don't use .g-recaptcha class as it will render automatically when other plugin load recaptcha with default render.
 		return sprintf(
 			'<div class="%s" data-theme="%s" %s data-sitekey="%s" data-size="%s"></div> %s',
 			esc_attr( $captcha_class ),
@@ -190,12 +214,12 @@ class Forminator_Captcha extends Forminator_Field {
 	 *
 	 * @since 1.0.3
 	 *
-	 * @param $field
+	 * @param array $field Field.
 	 *
 	 * @return bool
 	 */
 	public function is_available( $field ) {
-		$provider	  = self::get_property( 'captcha_provider', $field, 'recaptcha' );
+		$provider     = self::get_property( 'captcha_provider', $field, 'recaptcha' );
 		$captcha_type = self::get_property( 'captcha_type', $field, '' );
 
 		if ( 'recaptcha' === $provider ) {
@@ -226,16 +250,14 @@ class Forminator_Captcha extends Forminator_Field {
 	 *
 	 * @since 1.5.3
 	 *
-	 * @param array        $field
-	 * @param array|string $data
-	 *
-	 * @return bool
+	 * @param array        $field Field.
+	 * @param array|string $data Data.
 	 */
 	public function validate( $field, $data ) {
-		$element_id    = self::get_property( 'element_id', $field );
-		$provider  	   = self::get_property( 'captcha_provider', $field, 'recaptcha' );
-		$captcha_type  = self::get_property( 'captcha_type', $field, '' );
-		$score = '';
+		$element_id   = self::get_property( 'element_id', $field );
+		$provider     = self::get_property( 'captcha_provider', $field, 'recaptcha' );
+		$captcha_type = self::get_property( 'captcha_type', $field, '' );
+		$score        = '';
 
 		if ( 'recaptcha' === $provider ) {
 
@@ -248,20 +270,20 @@ class Forminator_Captcha extends Forminator_Field {
 				$score  = self::get_property( 'score_threshold', $field, '' );
 			}
 
-			$error_message	= self::get_property( 'recaptcha_error_message', $field, '' );
+			$error_message = self::get_property( 'recaptcha_error_message', $field, '' );
 
 		} else {
 
-			// hcaptcha
-			$secret			= get_option( 'forminator_hcaptcha_secret', '' );
-			$error_message	= self::get_property( 'hcaptcha_error_message', $field, '' );
+			// hcaptcha.
+			$secret        = get_option( 'forminator_hcaptcha_secret', '' );
+			$error_message = self::get_property( 'hcaptcha_error_message', $field, '' );
 		}
 
 		$captcha = new Forminator_Captcha_Verification( $secret, $provider );
-		$verify	 = $captcha->verify( $data, null, $score );
+		$verify  = $captcha->verify( $data, null, $score );
 
 		if ( is_wp_error( $verify ) ) {
-			$invalid_captcha_message = ( ! empty( $error_message ) ? $error_message : __( 'Captcha verification failed. Please try again.', 'forminator' ) );
+			$invalid_captcha_message = ( ! empty( $error_message ) ? $error_message : esc_html__( 'Captcha verification failed. Please try again.', 'forminator' ) );
 
 			/**
 			 * Filter message displayed for invalid captcha

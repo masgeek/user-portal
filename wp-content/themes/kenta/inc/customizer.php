@@ -21,6 +21,7 @@ require get_template_directory() . '/inc/elements/class-cart-element.php';
 require get_template_directory() . '/inc/elements/class-widgets-element.php';
 require get_template_directory() . '/inc/elements/class-socials-element.php';
 require get_template_directory() . '/inc/elements/class-breadcrumbs-element.php';
+require get_template_directory() . '/inc/elements/class-theme-switch-element.php';
 
 // customizer builder
 require get_template_directory() . '/inc/builder/class-builder-column.php';
@@ -37,6 +38,7 @@ require get_template_directory() . '/inc/customizer/class-homepage-section.php';
 require get_template_directory() . '/inc/customizer/class-header-section.php';
 require get_template_directory() . '/inc/customizer/class-footer-section.php';
 require get_template_directory() . '/inc/customizer/class-colors-section.php';
+require get_template_directory() . '/inc/customizer/class-background-section.php';
 require get_template_directory() . '/inc/customizer/class-global-section.php';
 require get_template_directory() . '/inc/customizer/class-archive-section.php';
 require get_template_directory() . '/inc/customizer/class-content-section.php';
@@ -47,15 +49,53 @@ require get_template_directory() . '/inc/customizer/class-store-notice-section.p
 require get_template_directory() . '/inc/customizer/class-placeholders.php';
 
 /**
+ * @param $settings
+ *
+ * @return void
+ * @since v1.2.8
+ */
+function kenta_update_customizer_default_settings( $settings = [] ) {
+	kenta_update_option( 'customizer_queued_typography', \LottaFramework\Customizer\Controls\Typography::getQueued() );
+	kenta_update_option( 'customizer_default_settings', $settings );
+	kenta_update_option( 'customizer_default_settings_version', esc_html(
+			kenta_apply_filters( 'customizer_default_settings_version', kenta_get_theme_version() ) )
+	);
+}
+
+/**
+ * Get all registered customizer settings.
+ *
+ * @return array
+ *
+ * @since 1.3.2
+ */
+function kenta_cz_settings() {
+	$settings = [];
+	foreach ( CZ::settings() as $id => $args ) {
+		if ( ! \LottaFramework\Utils::str_starts_with( $id, 'lotta_rand' ) ) {
+			if ( isset( $args['default'] ) ) {
+				$settings[ $id ] = [
+					'default' => $args['default']
+				];
+			}
+		}
+	}
+
+	return $settings;
+}
+
+/**
  * Theme customizer register
  *
  * @param WP_Customize_Manager|null $wp_customize Theme Customizer object.
  */
 function kenta_customize_register( $wp_customize ) {
+
 	if ( ! $wp_customize instanceof WP_Customize_Manager ) {
 		$wp_customize = null;
-	} else {
+	}
 
+	if ( $wp_customize ) {
 		$wp_customize->get_setting( 'blogname' )->transport        = 'postMessage';
 		$wp_customize->get_setting( 'blogdescription' )->transport = 'postMessage';
 
@@ -79,17 +119,16 @@ function kenta_customize_register( $wp_customize ) {
 				)
 			);
 		}
-	}
 
-	Kenta_Placeholders::instance();
-
-	if ( $wp_customize ) {
 		if ( ! KENTA_CMP_ACTIVE ) {
 			$wp_customize->add_section( new CallToActionSection( $wp_customize, 'kenta_install_companion', array(
 				'priority' => 0,
 				'title'    => __( 'Install Companion Plugin', 'kenta' ),
 				'link'     => array(
-					'url' => esc_url( add_query_arg( array( 'action' => 'kenta_install_companion' ), admin_url( 'admin.php' ) ) ),
+					'url' => esc_url_raw( add_query_arg( array(
+						'action'   => 'kenta_install_companion',
+						'_wpnonce' => wp_create_nonce( 'kenta_install_companion' )
+					), admin_url( 'admin.php' ) ) ),
 				),
 				'desc'     => kenta_why_companion_link()
 			) ) );
@@ -120,21 +159,15 @@ function kenta_customize_register( $wp_customize ) {
 			'title'    => __( 'Update Customizer Cache', 'kenta' ),
 			'desc'     => __( 'If the final style is not the same as the preview, please try to update the cache', 'kenta' ),
 			'link'     => array(
-				'url' => esc_url( add_query_arg( array( 'action' => 'kenta_update_dynamic_css_cache' ), admin_url( 'admin.php' ) ) ),
+				'url' => esc_url_raw( add_query_arg( array(
+					'action'   => 'kenta_update_dynamic_css_cache',
+					'_wpnonce' => wp_create_nonce( 'kenta_update_dynamic_css_cache' )
+				), admin_url( 'admin.php' ) ) ),
 			)
 		) ) );
 	}
 
-	CZ::addSection( $wp_customize, new Kenta_Header_Section( 'kenta_header', __( 'Header Builder', 'kenta' ) ) );
-	CZ::addSection( $wp_customize, new Kenta_Footer_Section( 'kenta_footer', __( 'Footer Builder', 'kenta' ) ) );
-	CZ::addSection( $wp_customize, new Kenta_Homepage_Section( 'static_front_page', __( 'Homepage Settings', 'kenta' ) ) );
-	CZ::addSection( $wp_customize, new Kenta_Colors_Section( 'kenta_colors', __( 'Colors', 'kenta' ) ) );
-	CZ::addSection( $wp_customize, new Kenta_Global_Section( 'kenta_global', __( 'Global', 'kenta' ) ) );
-	CZ::addSection( $wp_customize, new Kenta_Archive_Section( 'kenta_archive', __( 'Archive Settings', 'kenta' ) ) );
-	CZ::addSection( $wp_customize, new Kenta_Content_Section( 'kenta_content', __( 'Content Settings', 'kenta' ) ) );
-	CZ::addSection( $wp_customize, new Kenta_Single_Post_Section( 'kenta_single_post', __( 'Single Post Settings', 'kenta' ) ) );
-	CZ::addSection( $wp_customize, new Kenta_Pages_Section( 'kenta_pages', __( 'Pages Settings', 'kenta' ) ) );
-
+	// Don't cache woocommerce controls
 	if ( KENTA_WOOCOMMERCE_ACTIVE ) {
 		if ( $wp_customize ) {
 			CZ::changeObject( $wp_customize, 'panel', 'woocommerce', 'priority', 20 );
@@ -146,6 +179,44 @@ function kenta_customize_register( $wp_customize ) {
 		CZ::addSection( $wp_customize, new Kenta_Store_Catalog_Section( 'woocommerce_product_catalog', __( 'Product Catalog', 'kenta' ), 0, 'woocommerce' ) );
 	}
 
+	$settings_version        = kenta_get_option( 'customizer_default_settings_version' );
+	$enable_customizer_cache = get_option( 'kenta_enable_customizer_cache', apply_filters( 'kenta_enable_customizer_cache_default_value', 'yes' ) );
+	// load cached cz settings
+	if ( ! kenta_apply_filters( 'should_reload_customizer_settings', ( $wp_customize || $enable_customizer_cache === 'no' || kenta_get_theme_version() !== $settings_version ) ) ) {
+		$default_options = kenta_get_option( 'customizer_default_settings', [] );
+		if ( ! empty( $default_options ) ) {
+			CZ::restore( array_merge( $default_options, kenta_cz_settings() ) );
+			\LottaFramework\Customizer\Controls\Typography::setQueued(
+				kenta_get_option( 'customizer_queued_typography', [] )
+			);
+
+			// Manually trigger after register action for builders
+			Kenta_Header_Builder::instance()->builder()->do( 'after_register' );
+			Kenta_Footer_Builder::instance()->builder()->do( 'after_register' );
+
+			return;
+		}
+	}
+
+	Kenta_Placeholders::instance();
+
+	CZ::addSection( $wp_customize, new Kenta_Header_Section( 'kenta_header', __( 'Header Builder', 'kenta' ) ) );
+	CZ::addSection( $wp_customize, new Kenta_Footer_Section( 'kenta_footer', __( 'Footer Builder', 'kenta' ) ) );
+	CZ::addSection( $wp_customize, new Kenta_Homepage_Section( 'static_front_page', __( 'Homepage Settings', 'kenta' ) ) );
+	CZ::addSection( $wp_customize, new Kenta_Colors_Section( 'kenta_colors', __( 'Colors', 'kenta' ) ) );
+	CZ::addSection( $wp_customize, new Kenta_Background_Section( 'kenta_background', __( 'Background', 'kenta' ) ) );
+	CZ::addSection( $wp_customize, new Kenta_Global_Section( 'kenta_global', __( 'Global', 'kenta' ) ) );
+	CZ::addSection( $wp_customize, new Kenta_Archive_Section( 'kenta_archive', __( 'Archive Settings', 'kenta' ) ) );
+	CZ::addSection( $wp_customize, new Kenta_Content_Section( 'kenta_content', __( 'Content Settings', 'kenta' ) ) );
+	CZ::addSection( $wp_customize, new Kenta_Single_Post_Section( 'kenta_single_post', __( 'Single Post Settings', 'kenta' ) ) );
+	CZ::addSection( $wp_customize, new Kenta_Pages_Section( 'kenta_pages', __( 'Pages Settings', 'kenta' ) ) );
+
+	/**
+	 * Cache customizer settings
+	 */
+	$settings = kenta_cz_settings();
+	kenta_update_customizer_default_settings( $settings );
+	kenta_do_action( 'customizer_default_settings_saved', $settings );
 }
 
 add_action( 'customize_register', 'kenta_customize_register' );

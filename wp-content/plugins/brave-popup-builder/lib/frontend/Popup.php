@@ -8,7 +8,48 @@
 if ( ! class_exists( 'BravePop_Popup' ) ) {
     class BravePop_Popup {
 
-         public $elementStyles; public $elementScripts;
+         public $elementStyles = array(); 
+         public $elementScripts = array();
+         public $popupID;
+         public $popupType;
+         public $forceLoad;
+         public $forceStep;
+         public $popupData;
+         public $animationData;
+         public $advancedAnimation;
+         public $hasAnimation;
+         public $hasContAnim;
+         public $hasDesktopEmbed;
+         public $hasMobileEmbed;
+         public $dynamicData;
+         public $popupOrder;
+         public $ajaxLoad;
+         public $popupfonts = array();
+         public $closeData = array();
+         public $videoData = array();
+         public $hasVideo = false;
+         public $hasVimeo = false;
+         public $hasYoutube = false;
+         public $hasLoginElement = false;
+         public $hasWpPosts = false;
+         public $hasWpProducts = false;
+         public $userTypeMatch = true;
+         public $refererMatch = true;
+         public $languageMatch = true;
+         public $hasCartItems = true;
+         public $countryMatch  = true;
+         public $learnDashMatch = true;
+         public $EDDMatch = true;
+         public $cartFilterMatch = array(true,true,true,true,true);
+         public $purchaseMatch = true;
+         public $notpurchaseMatch = true;
+         public $madePurchaseBeforeMatch = true;
+         public $bodyClassMatch = true;
+         public $utmMatch = true;
+         public $utmNegativeMatch = true;
+         public $timers = array();
+
+         
 
         function __construct($popupID=null, $popupType='popup', $forceLoad=false, $forceStep=false, $customContent=false ) {
                $this->popupID = $popupID;
@@ -16,35 +57,12 @@ if ( ! class_exists( 'BravePop_Popup' ) ) {
                if($customContent === false && !get_post_meta($popupID, 'popup_data', true)) { return; }
                $this->forceLoad = $forceLoad;
                $this->forceStep = $forceStep;
-               $this->elementStyles = array();
-               $this->elementScripts = array();
                $this->popupData = $customContent ? json_decode($customContent) : json_decode(get_post_meta($popupID, 'popup_data', true));
-               $this->popupfonts = array();
-               $this->closeData = array();
                $preparedAnimation = bravepop_prepare_animation($this->popupData);
                $this->animationData = $preparedAnimation['animationData'];
                $this->advancedAnimation = $preparedAnimation['advancedAnimation'];
                $this->hasAnimation = $preparedAnimation['hasAnimation'];
                $this->hasContAnim = $preparedAnimation['hasContAnim'];
-               $this->videoData = array();
-               $this->hasVideo = false;
-               $this->hasVimeo = false;
-               $this->hasYoutube = false;
-               $this->hasLoginElement = false;
-               $this->hasWpPosts = false;
-               $this->hasWpProducts = false;
-               $this->userTypeMatch = true;
-               $this->refererMatch = true;
-               $this->languageMatch = true;
-               $this->hasCartItems = true;
-               $this->countryMatch  = true;
-               $this->learnDashMatch = true;
-               $this->EDDMatch = true;
-               $this->cartFilterMatch = array(true,true,true,true,true);
-               $this->purchaseMatch = true;
-               $this->notpurchaseMatch = true;
-               $this->madePurchaseBeforeMatch = true;
-               $this->bodyClassMatch = true;
                $this->hasDesktopEmbed = $popupType === 'content' ? true : false;
                $this->hasMobileEmbed = $popupType === 'content' ? true : false;
                $this->dynamicData = $this->popup_get_dynamicData();
@@ -52,6 +70,7 @@ if ( ! class_exists( 'BravePop_Popup' ) ) {
                $this->popupData->settings = isset($this->popupData->settings) ? $this->popupData->settings : new stdClass();
                $this->popupOrder = !empty($this->popupData->settings->advanced->orderOverride) && isset($this->popupData->settings->advanced->order) ? $this->popupData->settings->advanced->order : null;
                $this->ajaxLoad = !empty($this->popupData->settings->advanced->ajaxLoad) ? $this->popupData->settings->advanced->ajaxLoad : false;
+               $this->timers = [];
 
                //If its a Child Popup, use the parent popups' settings except trigger and frequency settings
                $parentPopupID = json_decode(get_post_meta($popupID, 'popup_parentID', true));
@@ -67,7 +86,7 @@ if ( ! class_exists( 'BravePop_Popup' ) ) {
 
                //error_log('$popupType: '.$this->popupID. ' - '. $popupType); 
                if($this->popupID && $this->popupData && $popupType === 'popup') {
-                  if($this->userTypeMatch && $this->refererMatch && $this->languageMatch && $this->countryMatch && $this->hasCartItems && !in_array(false, $this->cartFilterMatch) && $this->purchaseMatch && $this->notpurchaseMatch && $this->madePurchaseBeforeMatch && $this->learnDashMatch && $this->EDDMatch && $this->bodyClassMatch) {
+                  if($this->userTypeMatch && $this->refererMatch && $this->languageMatch && $this->countryMatch && $this->hasCartItems && $this->utmMatch && $this->utmNegativeMatch && !in_array(false, $this->cartFilterMatch) && $this->purchaseMatch && $this->notpurchaseMatch && $this->madePurchaseBeforeMatch && $this->learnDashMatch && $this->EDDMatch && $this->bodyClassMatch) {
                      add_action('wp_footer', array( $this, 'popup_render' ), 5 );
                      add_action('wp_footer', array( $this, 'popup_inline_script' ), 16); //must render after popup_render
                      add_action('wp_footer', array( $this, 'popup_external_scripts' ) );
@@ -164,7 +183,7 @@ if ( ! class_exists( 'BravePop_Popup' ) ) {
          //Referer match
          if(isset($this->popupData->settings->audience->referrals) && count($this->popupData->settings->audience->referrals) > 0){
             foreach ($this->popupData->settings->audience->referrals as $key => $referal) {
-               //error_log('$refererMatch: '.wp_get_referer().'----'.$referal->link.'----'.json_encode(strpos(wp_get_referer(), $referal->link)));
+               //error_log('$refererMatch: '.wp_get_referer().'----'.$referal->link.'----'.wp_json_encode(strpos(wp_get_referer(), $referal->link)));
                $refered_site = wp_get_referer(); 
                $defined_site = !empty($referal->link) ? $referal->link : '';
                $conditionMatch = !empty($referal->disabled) ? true : false;
@@ -226,6 +245,14 @@ if ( ! class_exists( 'BravePop_Popup' ) ) {
                $this->languageMatch  = false;
             }
          }
+         if(!empty($this->popupData->settings->filters->language) && function_exists('weglot_get_current_language')){
+            if($this->popupData->settings->filters->language === weglot_get_current_language()){
+               $this->languageMatch  = true;
+            }else{
+               $this->languageMatch  = false;
+            }
+         }
+         
 
          //Country Filter
          global $bravepop_global;
@@ -259,9 +286,83 @@ if ( ! class_exists( 'BravePop_Popup' ) ) {
             $this->EDDMatch = bravepop_EDD_filter_match($this->popupData->settings->filters->EDD);
          }
 
+         // UTM Keywords Filter
+         if(!empty($this->popupData->settings->placement->utm) && !empty($this->popupData->settings->placement->utmKeywords)){
+            $utm_keywords_positive = explode(",",$this->popupData->settings->placement->utmKeywords); 
+            $containsKeyword = false;
+
+            foreach ($utm_keywords_positive as $key => $keyword) { 
+               $ukeyword =  trim($keyword);
+               $kMatchesArr  = explode("=",$ukeyword);
+               $kMatcher = str_replace('*', '([^=]*)', $kMatchesArr[0]);
+               $matchValue = strpos($ukeyword, '=') !== false;
+
+               foreach ($_GET as $currentKey => $currentVal) { 
+                  $kMatches  = preg_match ('/'.$kMatcher.'/i', $currentKey);
+                  if($kMatches){
+                     if($matchValue && isset($kMatchesArr[1])){
+                        $valueToMatch = $kMatchesArr[1];
+                        $vMatcher = str_replace('*', '([^=]*)', $valueToMatch);
+                        $vMatches  = preg_match ('/'.$vMatcher.'/i', $currentVal);
+                        if($vMatches){
+                           $containsKeyword = true;
+                        }
+                     }else{
+                        $containsKeyword = true;
+                     }
+                  }
+               }
+            };
+
+            if(!$containsKeyword){
+               $this->utmMatch = false;
+            }
+         }
+
+         // UTM Keywords Negative Filter
+         if(!empty($this->popupData->settings->placement->utm) && !empty($this->popupData->settings->placement->utmKeywordsNegative)){
+            $utm_keywords_negative = explode(",",$this->popupData->settings->placement->utmKeywordsNegative); 
+            $containsNegKeyword = false;
+
+            foreach ($utm_keywords_negative as $key => $keyword) { 
+               $ukeyword =  trim($keyword);
+               $kMatchesArr  = explode("=",$ukeyword);
+               $kMatcher = str_replace('*', '[a-zA-Z0-9]', $kMatchesArr[0]);
+               $matchValue = strpos($ukeyword, '=') !== false;
+
+               foreach ($_GET as $currentKey => $currentVal) { 
+                  $kMatches  = preg_match ('/'.$kMatcher.'/i', $currentKey);
+                  if($kMatches){
+                     if($matchValue && isset($kMatchesArr[1])){
+                        $valueToMatch = $kMatchesArr[1];
+                        $vMatcher = str_replace('*', '[a-zA-Z0-9]', $valueToMatch);
+                        $vMatches  = preg_match ('/'.$vMatcher.'/i', $currentVal);
+                        if($vMatches){
+                           $containsNegKeyword = true;
+                        }
+                     }else{
+                        $containsNegKeyword = true;
+                     }
+                     
+                  }
+               }
+              
+            };
+
+            if($containsNegKeyword){
+               $this->utmNegativeMatch = false;
+            }
+         }
+
          //If is Previewing, skip all Filtering
          if(!empty($brave_preview)){
-            $this->userTypeMatch  = true; $this->refererMatch = true; $this->countryMatch  = true; $this->languageMatch  = true;
+            $this->userTypeMatch  = true; 
+            $this->refererMatch = true; 
+            $this->countryMatch  = true; 
+            $this->languageMatch  = true;
+            $this->utmMatch = true;
+            $this->utmNegativeMatch = true;
+            $this->bodyClassMatch = true;
          }
 
       }
@@ -269,11 +370,11 @@ if ( ! class_exists( 'BravePop_Popup' ) ) {
       
       public function popup_external_scripts() {
          if($this->advancedAnimation && $this->hasAnimation) {
-            wp_enqueue_script( 'bravepop_animejs', BRAVEPOP_PLUGIN_PATH . 'assets/frontend/anime.min.js' ,'','',true);
-            wp_enqueue_script( 'bravepop_animation', BRAVEPOP_PLUGIN_PATH . 'assets/frontend/animate.js' ,'','',true);
+            wp_enqueue_script( 'bravepop_animejs', BRAVEPOP_PLUGIN_PATH . 'assets/frontend/anime.min.js' ,array(),'3.1.0',true);
+            wp_enqueue_script( 'bravepop_animation', BRAVEPOP_PLUGIN_PATH . 'assets/frontend/animate.js' ,array(),'1.1.0',true);
          }
          if($this->hasLoginElement){
-            wp_enqueue_script( 'bravepop_loginjs', BRAVEPOP_PLUGIN_PATH . 'assets/frontend/login.js' ,'','',true);
+            wp_enqueue_script( 'bravepop_loginjs', BRAVEPOP_PLUGIN_PATH . 'assets/frontend/login.js' ,array(),'1.1.0',true);
             wp_enqueue_style('bravepop_login_element',  BRAVEPOP_PLUGIN_PATH . 'assets/css/wp_login.min.css' );
          }
          if($this->hasWpPosts){
@@ -285,7 +386,7 @@ if ( ! class_exists( 'BravePop_Popup' ) ) {
       }
 
       public function popup_content_lock_script(){
-         wp_enqueue_script( 'bravepop_embedlock', BRAVEPOP_PLUGIN_PATH . 'assets/frontend/embedlock.js' ,'','',false);
+         wp_enqueue_script( 'bravepop_embedlock', BRAVEPOP_PLUGIN_PATH . 'assets/frontend/embedlock.js' ,array(),'1.1.0',false);
       }
 
       public function popup_embedlock_script() { ?>
@@ -325,33 +426,33 @@ if ( ! class_exists( 'BravePop_Popup' ) ) {
                   }
                ?>
 
-               brave_popup_data[<?php print_r(absint($this->popupID));?>] = {
+               document.addEventListener("DOMContentLoaded", function(event) {
+                  brave_popup_data[<?php print_r(absint($this->popupID));?>] = {
                   title: '<?php print_r(esc_attr(get_the_title(absint($this->popupID)))); ?>',
                   type: '<?php print_r(esc_attr($this->popupType));?>',
-                  fonts: <?php print_r(apply_filters( 'bravepop_google_fonts', json_encode($this->popupfonts) )); ?>,
-                  advancedAnimation:<?php print_r(json_encode($this->advancedAnimation));?>,
-                  hasAnimation: <?php print_r(json_encode($this->hasAnimation)); ?>,
-                  hasContAnim:  <?php print_r(json_encode($this->hasContAnim)); ?>,
-                  animationData: <?php print_r(json_encode($this->animationData)); ?>,
-                  videoData: <?php print_r(json_encode($this->videoData)); ?>,
-                  hasYoutube: <?php print_r(json_encode($this->hasYoutube)); ?>,
-                  hasVimeo: <?php print_r(json_encode($this->hasVimeo)); ?>,
-                  settings: <?php print_r(json_encode($settingsData)); ?>,
-                  close: <?php print_r(json_encode($this->closeData)); ?>,
-                  forceLoad: <?php print_r(json_encode($this->forceLoad)); ?>,
-                  forceStep: <?php print_r(json_encode($this->forceStep)); ?>,
-                  hasDesktopEmbed: <?php print_r(json_encode($this->hasDesktopEmbed)); ?>,
-                  hasMobileEmbed: <?php print_r(json_encode($this->hasMobileEmbed)); ?>,
-                  hasLoginElement: <?php print_r(json_encode($this->hasLoginElement)); ?>,
+                  fonts: <?php print_r(apply_filters( 'bravepop_google_fonts', wp_json_encode($this->popupfonts) )); ?>,
+                  advancedAnimation:<?php print_r(wp_json_encode($this->advancedAnimation));?>,
+                  hasAnimation: <?php print_r(wp_json_encode($this->hasAnimation)); ?>,
+                  hasContAnim:  <?php print_r(wp_json_encode($this->hasContAnim)); ?>,
+                  animationData: <?php print_r(wp_json_encode($this->animationData)); ?>,
+                  videoData: <?php print_r(wp_json_encode($this->videoData)); ?>,
+                  hasYoutube: <?php print_r(wp_json_encode($this->hasYoutube)); ?>,
+                  hasVimeo: <?php print_r(wp_json_encode($this->hasVimeo)); ?>,
+                  settings: <?php print_r(wp_json_encode($settingsData)); ?>,
+                  close: <?php print_r(wp_json_encode($this->closeData)); ?>,
+                  forceLoad: <?php print_r(wp_json_encode($this->forceLoad)); ?>,
+                  forceStep: <?php print_r(wp_json_encode($this->forceStep)); ?>,
+                  hasDesktopEmbed: <?php print_r(wp_json_encode($this->hasDesktopEmbed)); ?>,
+                  hasMobileEmbed: <?php print_r(wp_json_encode($this->hasMobileEmbed)); ?>,
+                  hasLoginElement: <?php print_r(wp_json_encode($this->hasLoginElement)); ?>,
                   schedule:<?php $popup_schedule = get_post_meta( $this->popupID, 'popup_schedule', true ); print_r($popup_schedule ? $popup_schedule : '{}');?>,
                   parentID:<?php print_r($popup_parentID ? $popup_parentID : 'false');?>,
-                  variants: <?php print_r(json_encode($allVariants)); ?>,
+                  variants: <?php print_r(wp_json_encode($allVariants)); ?>,
                   embedLock: false,
-                  ajaxLoad: <?php print_r(json_encode($this->ajaxLoad)); ?>,
+                  ajaxLoad: <?php print_r(wp_json_encode($this->ajaxLoad)); ?>,
                   ajaxLoaded: false,
-                  timers: [],
+                  timers: <?php print_r(wp_json_encode($this->timers)); ?>,
                }
-               document.addEventListener("DOMContentLoaded", function(event) {
                   brave_init_popup(<?php print_r(absint($this->popupID));?>, brave_popup_data[<?php print_r(absint($this->popupID));?>]);
                });
 
@@ -470,17 +571,23 @@ if ( ! class_exists( 'BravePop_Popup' ) ) {
          if(isset($stepSettings->autoClose) && $stepSettings->autoClose === true){ $classes[] = 'has_autoClose'; }
          if((isset($stepSettings->scrollbar) && $stepSettings->scrollbar === true) && $layout !== 'float') {  $classes[] = 'brave_popup_show_scrollbar';  }
          
-         //return json_encode($stepSettings);
+         //return wp_json_encode($stepSettings);
          return implode(" ",$classes);
       } 
 
       public function popup_renderCloseButton($stepSettings, $stepIndex, $position='above') { 
          if(!$stepSettings || (isset($stepSettings->closeButton) && ($stepSettings->closeButton === 'none'))){ return ''; }
-         $closeStep = isset($stepSettings->closeStep) && $stepSettings->closeStep !== 'none' ? $stepSettings->closeStep : json_encode(false);
+         $closeStep = isset($stepSettings->closeStep) && $stepSettings->closeStep !== 'none' ? $stepSettings->closeStep : wp_json_encode(false);
          $closeButtonPosition = isset($stepSettings->closeButtonPosition) ? $stepSettings->closeButtonPosition : 'inside_right';
          $closeButtonType = isset($stepSettings->closeButton) && $stepSettings->closeButton === 'text' ? 'brave_popup__close--text' :'brave_popup__close--icon';
          $closeposition = 'brave_popup__close--'.$closeButtonPosition.'';
          $closeButtonText = isset($stepSettings->closeButtonText) ? $stepSettings->closeButtonText : 'Yes, Hide this Popup.';
+         $closeColorRGB = isset($stepSettings->closeColor) && isset($stepSettings->closeColor->rgb) ? $stepSettings->closeColor->rgb :'0,0,0';
+         $closeColorOpacity = isset($stepSettings->closeColor) && isset($stepSettings->closeColor->opacity) ? $stepSettings->closeColor->opacity :'1';
+         $closeColor = isset($stepSettings->closeColor) && isset($stepSettings->closeColor->rgb) ? 'rgba('.$stepSettings->closeColor->rgb.', '.$closeColorOpacity.')' : 'rgba(0,0,0, 1)';
+         $closeDelay = !empty($stepSettings->closeButtonDelay) && !empty($stepSettings->closeButtonDelayDuration) ? $stepSettings->closeButtonDelayDuration * 1000 : false;
+         $closeDelayHide = $closeDelay ? 'style="display:none;"' : '';
+
          $closeIconSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><rect x="0" fill="none" width="20" height="20"/><g><path d="M14.95 6.46L11.41 10l3.54 3.54-1.41 1.41L10 11.42l-3.53 3.53-1.42-1.42L8.58 10 5.05 6.47l1.42-1.42L10 8.58l3.54-3.53z"/></g></svg>';
          if(isset($stepSettings->closeButton) && $stepSettings->closeButton === 'back_icon'){
             $closeIconSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M18 9v2H6l4 4l-1 2l-7-7l7-7l1 2l-4 4h12z" width="20" height="20" /></svg>';
@@ -490,7 +597,17 @@ if ( ! class_exists( 'BravePop_Popup' ) ) {
          }
          $closeText = isset($stepSettings->closeButton)  &&  $stepSettings->closeButton === 'text' ? '<span class="brave_popup__close__customtext">'.$closeButtonText.'</span>' : $closeIconSVG;
          $closeFunction = 'brave_close_popup(\''.$this->popupID.'\', '.$stepIndex.', '.$closeStep.')';
-         return '<div class="brave_popup__close '.$closeposition.' '.$closeButtonType.'" onclick="'.$closeFunction.'" onkeypress="if(event.key == \'Enter\') { '.$closeFunction.' }">'.$closeText.'</div>';
+
+         $closeProgress = $closeDelay ? '<div class="brave_popup__close__progress-circle" data-duration="'.($closeDelay).'">
+                              <span class="brave_popup__close__progress-text">'.($closeDelay/1000).'s</span>
+                              <svg class="brave_popup__close__progress-ring" width="40" height="40">
+                              <circle class="brave_popup__close__progress-ring-circle" stroke="'.$closeColor.'" stroke-width="3" fill="transparent" r="16" cx="20" cy="20"></circle>
+                              </svg>
+                           </div>' : '';
+         return '<div class="brave_popup__close '.$closeposition.' '.$closeButtonType.'">
+                  <div class="brave_popup__close__button" '.$closeDelayHide.' onclick="'.$closeFunction.'" onkeypress="if(event.key == \'Enter\') { '.$closeFunction.' }">'.$closeText.'</div>
+                  '.$closeProgress.
+               '</div>';
          
       } 
 
@@ -594,6 +711,7 @@ if ( ! class_exists( 'BravePop_Popup' ) ) {
                   $elements .= $elmCalss->render();
                   $elmStyle = $elmCalss->render_css();
                   $elmJavascript = $elmCalss->render_js();
+                  $this->timers[] = $elmCalss->generate_timer_stats();
                   $this->elementStyles[$element->id] = $elmStyle;
                   $this->elementScripts[$element->id] = $elmJavascript;
                   $this->popup_get_element_fonts($element);
@@ -795,12 +913,12 @@ if ( ! class_exists( 'BravePop_Popup' ) ) {
                if(isset($step->desktop)){
                   $stepWidth = isset($step->desktop->width) ? absint($step->desktop->width) : 700; $stepHeight = isset($step->desktop->height) ? absint($step->desktop->height) : 500;
                   $dekstopPopupPosition = $dekstopPopupPosition;
-                  $popupContentHTML .= '<div class="brave_popup__step brave_popup__step__desktop '.$this->popup_renderCSSClasses($step->desktop).'" '.$noMobileContentData.' data-scrollock="'.esc_attr($scrollockDesktop).'" data-width="'.esc_attr($stepWidth).'" data-height="'.esc_attr($stepHeight).'" data-open="false" style="z-index:'.(99999 - $key).'" '.$desktopExitAnimType.' '.$desktopExitAnimDuration.' '.$dekstopPopupLayout.' '.$dekstopPopupPosition.'>'.$this->popup_renderPopup($step->desktop, $key, 'desktop', $ajaxRender, $currentURL).''.$this->popup_renderOverlay($step->desktop, $key).'</div>';
+                  $popupContentHTML .= '<div class="brave_popup__step brave_popup__step__desktop '.$this->popup_renderCSSClasses($step->desktop).'" '.$noMobileContentData.' data-scrollock="'.esc_attr($scrollockDesktop).'" data-width="'.esc_attr($stepWidth).'" data-height="'.esc_attr($stepHeight).'" data-popopen="false" style="z-index:'.(99999 - $key).'" '.$desktopExitAnimType.' '.$desktopExitAnimDuration.' '.$dekstopPopupLayout.' '.$dekstopPopupPosition.'>'.$this->popup_renderPopup($step->desktop, $key, 'desktop', $ajaxRender, $currentURL).''.$this->popup_renderOverlay($step->desktop, $key).'</div>';
                } 
                if(isset($step->mobile)){
                   $mobileStepWidth = isset($step->mobile->width) ? absint($step->mobile->width) : 320; $mobileStepHeight = isset($step->mobile->height) ? absint($step->mobile->height) : 480;
                   $mobilePopupPosition = $mobilePopupPosition;
-                  $popupContentHTML .= '<div class="brave_popup__step brave_popup__step__mobile '.$this->popup_renderCSSClasses($step->mobile).'" data-width="'.esc_attr($mobileStepWidth).'" data-scrollock="'.esc_attr($scrollockMobile).'" data-height="'.esc_attr($mobileStepHeight).'" data-open="false" style="z-index:'.(99999 - $key).'" '.$noMobileContentData.' '.$mobileExitAnimType.' '.$mobileExitAnimDuration.' '.$mobilePopupLayout.' '.$mobilePopupPosition.'>'.$this->popup_renderPopup($step->mobile, $key, 'mobile', $ajaxRender, $currentURL).''.$this->popup_renderOverlay($step->mobile, $key).'</div>';
+                  $popupContentHTML .= '<div class="brave_popup__step brave_popup__step__mobile '.$this->popup_renderCSSClasses($step->mobile).'" data-width="'.esc_attr($mobileStepWidth).'" data-scrollock="'.esc_attr($scrollockMobile).'" data-height="'.esc_attr($mobileStepHeight).'" data-popopen="false" style="z-index:'.(99999 - $key).'" '.$noMobileContentData.' '.$mobileExitAnimType.' '.$mobileExitAnimDuration.' '.$mobilePopupLayout.' '.$mobilePopupPosition.'>'.$this->popup_renderPopup($step->mobile, $key, 'mobile', $ajaxRender, $currentURL).''.$this->popup_renderOverlay($step->mobile, $key).'</div>';
                } 
                $popupContentHTML .= '</div>';
             }
@@ -1026,7 +1144,7 @@ if ( ! class_exists( 'BravePop_Popup' ) ) {
          $calculatedInerStyles = count($calculatedInerSize) > 0 ? implode(' ', $calculatedInerSize) : '';
          // error_log($calculatedInerStyles);
          //error_log($this->popupID.'__step__'.$index.$popupPosition.$popupLayout.$popupHeight);
-         //error_log(json_encode($stepSettings));
+         //error_log(wp_json_encode($stepSettings));
          return $bodyStyle . $popupStyle .$popupMarginStyle . $popupInnerStyle . $popupBackground . $popupBackgroundOverlay . $overlayStyle . $overlayImageStyle . $closeStyle. $popupAnimation. $popupAnimationHover. $popupExitAnimation. $popupOpenAnimation. $elementStyles. $calculatedInerStyles.$noStickyPopupStyle;
 
       }

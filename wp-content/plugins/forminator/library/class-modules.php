@@ -1,4 +1,10 @@
 <?php
+/**
+ * Forminator Modules
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -50,17 +56,17 @@ class Forminator_Modules {
 				'custom_forms' => array(
 					'class' => 'Custom_Forms',
 					'slug'  => 'custom-forms',
-					'label' => __( 'Custom Forms', 'forminator' ),
+					'label' => esc_html__( 'Custom Forms', 'forminator' ),
 				),
 				'polls'        => array(
 					'class' => 'Polls',
 					'slug'  => 'polls',
-					'label' => __( 'Polls', 'forminator' ),
+					'label' => esc_html__( 'Polls', 'forminator' ),
 				),
 				'quizzes'      => array(
 					'class' => 'Quizzes',
 					'slug'  => 'quizzes',
-					'label' => __( 'Quizzes', 'forminator' ),
+					'label' => esc_html__( 'Quizzes', 'forminator' ),
 				),
 			)
 		);
@@ -72,8 +78,8 @@ class Forminator_Modules {
 	 * Load module
 	 *
 	 * @since 1.0
-	 * @param $data
-	 * @param $id
+	 * @param array $data Data.
+	 * @param int   $id Id.
 	 */
 	public function load_module( $data, $id ) {
 		$module_class = 'Forminator_' . $data['class'];

@@ -90,7 +90,7 @@ if ( ! class_exists( 'Kenta_Search_Element' ) ) {
 				( new Text( $this->getSlug( 'placeholder' ) ) )
 					->setLabel( __( 'Search Placeholder Text', 'kenta' ) )
 					->selectiveRefresh( ...$this->selectiveRefresh() )
-					->setDefaultValue( __( 'Type & Hint Enter', 'kenta' ) )
+					->setDefaultValue( __( 'Type & Hit Enter', 'kenta' ) )
 				,
 				( new Condition() )
 					->setCondition( [ $this->getSlug( 'style' ) => 'modal' ] )
@@ -300,8 +300,7 @@ if ( ! class_exists( 'Kenta_Search_Element' ) ) {
 			}
 
 			if ( $search_style === 'popup' ) {
-				$this->add_render_attribute( 'search-wrap', 'data-popup-target', ".{$this->slug} .kenta-search-popup" );
-				$this->add_render_attribute( 'search-wrap', 'data-popup-on-hover', true );
+				$this->add_render_attribute( 'search-wrap', 'data-popup-target', "kenta-search-popup" );
 			}
 
 			?>
@@ -312,7 +311,7 @@ if ( ! class_exists( 'Kenta_Search_Element' ) ) {
 				<?php
 				if ( CZ::get( $this->getSlug( 'style' ) ) === 'popup' ) {
 					?>
-                    <div class="kenta-search-popup kenta-popup kenta-form hidden absolute right-0 p-half-gutter border border-base-300 bg-base-color z-[9]">
+                    <div class="kenta-search-popup kenta-popup kenta-form absolute right-0 p-half-gutter border border-base-300 bg-base-color z-[9]">
 						<?php $this->render_search_form() ?>
                     </div>
 					<?php

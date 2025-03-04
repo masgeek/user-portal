@@ -8,16 +8,13 @@
   clear: both;
 }
 
-.link {
-  transition-property: color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 300ms;
-  color: var(--kenta-initial-color, var(--kenta-accent-color));
+.kenta-is-sticky {
+  z-index: 9999;
 }
-.link:hover {
-  color: var(--kenta-hover-color, var(--kenta-primary-color));
+
+.no-underline,
+.no-underline a {
+  text-decoration: none;
 }
 
 .screen-reader-text {
@@ -231,7 +228,7 @@
   font-size: 0.85em;
   width: 5.26em;
   font-family: "star";
-  color: var(--kenta-accent-color);
+  color: #ffdc00;
 }
 .woocommerce .star-rating::before {
   content: "sssss";
@@ -385,12 +382,11 @@
   margin-top: 0;
 }
 .woocommerce .kenta-products li.product .woocommerce-loop-product__title:hover {
-  color: var(--kenta-hover-color);
+  color: var(--kenta-link-hover-color);
 }
 .woocommerce .kenta-products li.product .price {
   display: block;
   font-weight: 500;
-  font-size: 0.75em;
 }
 .woocommerce .kenta-products li.product .price del {
   opacity: 0.5;
@@ -402,12 +398,11 @@
 .woocommerce .kenta-products li.product .added_to_cart {
   font-size: 0.85rem;
   text-decoration: underline;
-  color: var(--kenta-initial-color);
   padding-left: 12px;
   padding-right: 12px;
 }
 .woocommerce .kenta-products li.product .added_to_cart:hover {
-  color: var(--kenta-hover-color);
+  color: var(--kenta-link-hover-color);
 }
 
 .woocommerce div.product {
@@ -931,6 +926,10 @@
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 200ms;
 }
+.woocommerce .woocommerce-MyAccount-navigation ul li a, 
+.woocommerce .woocommerce-MyAccount-navigation ul li a a {
+  text-decoration: none;
+}
 .woocommerce .woocommerce-MyAccount-navigation ul li a:hover {
   color: var(--kenta-primary-color);
 }
@@ -1106,7 +1105,7 @@
 }
 .wc-block-grid__product-rating .star-rating:before,
 .wc-block-grid__product-rating .wc-block-grid__product-rating__stars:before {
-  color: var(--kenta-accent-color);
+  color: #ffdc00;
 }
 
 .wc-block-grid__product-rating {

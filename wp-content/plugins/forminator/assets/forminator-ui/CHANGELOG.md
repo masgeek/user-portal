@@ -1,5 +1,175 @@
 # Change Log
 
+## [1.12.21](https://github.com/wpmudev/forminator-ui/compare/v1.12.20...v1.12.21) (2025-01-07)
+####  🐛 Bug
+- `phone`
+  - fix(phone): phone field material design spacing fix. [#86](https://github.com/wpmudev/forminator-ui/pull/86) ([FOR-5082](https://incsub.atlassian.net/browse/FOR-5082)) ([@creador-dev](https://github.com/creador-dev))
+
+## [1.12.20](https://github.com/wpmudev/forminator-ui/compare/v1.12.19...v1.12.20) (2024-12-16)
+####  ✨ Improvement
+- `stripe`
+  - new(stripe): avoiding styling new stripe payment element. [#85](https://github.com/wpmudev/forminator-ui/pull/85) ([FOR-5054](https://incsub.atlassian.net/browse/FOR-5054)) ([@creador-dev](https://github.com/creador-dev))
+
+## [1.12.19](https://github.com/wpmudev/forminator-ui/compare/v1.12.18...v1.12.19) (2024-11-18)
+####  🐛 Bug Fix
+- `slider`
+  - fix(slider): slider height issues. [#84](https://github.com/wpmudev/forminator-ui/pull/84) ([FOR-4998](https://incsub.atlassian.net/browse/FOR-4998)) ([@creador-dev](https://github.com/creador-dev))
+
+## [1.12.18](https://github.com/wpmudev/forminator-ui/compare/v1.12.16...v1.12.17) (2024-09-14)
+####  🐛 Bug Fix
+- `calendar`
+  - fix(calendar): calendar bg issue with Colibri WP theme. [#81](https://github.com/wpmudev/forminator-ui/pull/81) ([FOR-4913](https://incsub.atlassian.net/browse/FOR-4913)) ([@creador-dev](https://github.com/creador-dev))
+- `calculation`
+  - fix(calendar): calculation field border design issue. [#82](https://github.com/wpmudev/forminator-ui/pull/82) ([FOR-4742](https://incsub.atlassian.net/browse/FOR-4742)) ([@creador-dev](https://github.com/creador-dev))
+- `basic styles`
+  - fix(fields): Improved styles of fields for basic appearance styles. [#83](https://github.com/wpmudev/forminator-ui/pull/83) ([FOR-4812](https://incsub.atlassian.net/browse/FOR-4812)) ([@creador-dev](https://github.com/creador-dev))
+
+## [1.12.17](https://github.com/wpmudev/forminator-ui/compare/v1.12.16...v1.12.17) (2024-09-19)
+####  ✨ Improvement
+- `styles`
+  - new(builder): separated styles for divi theme builder. [#77](https://github.com/wpmudev/forminator-ui/pull/77) ([FOR-4711](https://incsub.atlassian.net/browse/FOR-1282)) ([@creador-dev](https://github.com/creador-dev))
+  - new(theme): new basic theme introduced. [#79](https://github.com/wpmudev/forminator-ui/pull/79) ([FOR-4711](https://incsub.atlassian.net/browse/FOR-511)) ([@creador-dev](https://github.com/creador-dev))
+
+## [1.12.16](https://github.com/wpmudev/forminator-ui/compare/v1.12.15...v1.12.16) (2024-08-20)
+####  ✨ Improvement
+- `phone field`
+  - new(phone): phone library styles updated. [#76](https://github.com/wpmudev/forminator-ui/pull/76) ([FOR-4711](https://incsub.atlassian.net/browse/FOR-4711)) ([@creador-dev](https://github.com/creador-dev))
+
+## [1.12.15](https://github.com/wpmudev/forminator-ui/compare/v1.12.14...v1.12.15) (2024-07-11)
+####  🐛 Bug Fix
+- `rating`
+  - fix(rating): rating field type issue for values. [#74](https://github.com/wpmudev/forminator-ui/pull/74) ([FOR-4566](https://incsub.atlassian.net/browse/FOR-4566)) ([@creador-dev](https://github.com/creador-dev))
+
+- `captcha`
+  - fix(captcha): captcha field hide when it overflow. [#75](https://github.com/wpmudev/forminator-ui/pull/74) ([FOR-4514](https://incsub.atlassian.net/browse/FOR-4514)) ([@creador-dev](https://github.com/creador-dev))
+
+## [1.12.14](https://github.com/wpmudev/forminator-ui/compare/v1.12.13...v1.12.14) (2024-03-22)
+####  🐛 Bug Fix
+- `rating`
+  - fix(rating): rating field design improvements. [#73](https://github.com/wpmudev/forminator-ui/pull/73) ([FOR-4494](https://incsub.atlassian.net/browse/FOR-4494)) ([@creador-dev](https://github.com/creador-dev))
+
+## [1.12.13](https://github.com/wpmudev/forminator-ui/compare/v1.12.12...v1.12.13) (2024-03-22)
+####  🐛 Bug Fix
+- `rating`
+  - fix(rating): wrap rating field items. [#69](https://github.com/wpmudev/forminator-ui/pull/69) ([FOR-4494](https://incsub.atlassian.net/browse/FOR-4494)) ([@creador-dev](https://github.com/creador-dev))
+  - fix(rating): rating field init and onChange fix. [#70](https://github.com/wpmudev/forminator-ui/pull/70) ([FOR-4496](https://incsub.atlassian.net/browse/FOR-4496)) ([@creador-dev](https://github.com/creador-dev))
+  - fix(rating): rating field data-total-value added. [#72](https://github.com/wpmudev/forminator-ui/pull/72) ([@creador-dev](https://github.com/creador-dev))
+- `multiselect`
+  - fix(multiselect): multiselect design fix. [#71](https://github.com/wpmudev/forminator-ui/pull/71) ([@creador-dev](https://github.com/creador-dev))
+
+## [1.12.12](https://github.com/wpmudev/forminator-ui/compare/v1.12.11...v1.12.12) (2024-03-22)
+
+#### ✨ New Features
+- `multiselect`
+  - new(multiselect): multi-select new variation. [#67](https://github.com/wpmudev/forminator-ui/pull/67) ([FOR-4423](https://incsub.atlassian.net/browse/FOR-4423)) ([@creador-dev](https://github.com/creador-dev))
+
+- `rating`
+  - new(rating): new rating field. [#68](https://github.com/wpmudev/forminator-ui/pull/68) ([FOR-4470](https://incsub.atlassian.net/browse/FOR-4470)) ([@creador-dev](https://github.com/creador-dev))
+
+#### 📖 Docs
+- `checkbox`
+  - fix(checkbox): checkbox docs updated. [#65](https://github.com/wpmudev/forminator-ui/pull/65) ([@creador-dev](https://github.com/creador-dev))
+
+- `select`
+  - fix(select): select field docs updated. [#66](https://github.com/wpmudev/forminator-ui/pull/66) ([@creador-dev](https://github.com/creador-dev))
+
+## [1.12.11](https://github.com/wpmudev/forminator-ui/compare/v1.12.10...v1.12.11) (2024-03-22)
+
+#### ✨ New Features
+- `icon`
+  - new(icon): updated twitter icon. [#64](https://github.com/wpmudev/forminator-ui/pull/64) ([FOR-4263](https://incsub.atlassian.net/browse/FOR-4263)) ([@creador-dev](https://github.com/creador-dev))
+
+#### ✨ New Features
+- `captcha`
+  - new(captcha): captcha alignment styling. [#63](https://github.com/wpmudev/forminator-ui/pull/56) ([FOR-85](https://incsub.atlassian.net/browse/FOR-85)) ([@creador-dev](https://github.com/creador-dev))
+
+#### 🐛 Bug Fix
+- `textarea`
+  - fix(textarea): textarea label overlaps with default text. [#51](https://github.com/wpmudev/forminator-ui/pull/51) ([FOR-2920](https://incsub.atlassian.net/browse/FOR-2920)) ([@creador-dev](https://github.com/creador-dev))
+
+## [1.12.10](https://github.com/wpmudev/forminator-ui/compare/v1.12.9...v1.12.10) (2024-01-12)
+
+#### 🚀 Improvement
+- `slider`
+  - new(slider): slider material design changed. [#63](https://github.com/wpmudev/forminator-ui/pull/63) ([FOR-4200](https://incsub.atlassian.net/browse/FOR-4200)) ([@creador-dev](https://github.com/creador-dev))
+
+#### Committers: 1
+- Pawan Kumar ([@creador-dev](https://github.com/creador-dev))
+
+## [1.12.9](https://github.com/wpmudev/forminator-ui/compare/v1.12.8...v1.12.9) (2024-01-05)
+
+#### 🐛 Bug Fix
+- `slider`
+  - new(slider): slider field init issue fix. [#62](https://github.com/wpmudev/forminator-ui/pull/62) ([FOR-4155](https://incsub.atlassian.net/browse/FOR-4155)) ([@creador-dev](https://github.com/creador-dev))
+
+#### Committers: 1
+- Pawan Kumar ([@creador-dev](https://github.com/creador-dev))
+
+## [1.12.8](https://github.com/wpmudev/forminator-ui/compare/v1.12.7...v1.12.8) (2023-12-22)
+
+#### ✨ New Features
+- `slider`
+  - Add slider component for forminator. [#61](https://github.com/wpmudev/forminator-ui/pull/61) ([FOR-4002](https://incsub.atlassian.net/browse/FOR-4002)) ([@creador-dev](https://github.com/creador-dev))
+
+#### Committers: 1
+- Pawan Kumar ([@creador-dev](https://github.com/creador-dev))
+
+## [1.12.7](https://github.com/wpmudev/forminator-ui/compare/v1.12.6...v1.12.7) (2023-07-20)
+
+#### 🚀 Improvement
+- `global`
+  - new(global): updated forminator ui from lib sass to dart sass. [#59](https://github.com/wpmudev/forminator-ui/pull/59) ([FOR-3553](https://incsub.atlassian.net/browse/FOR-3553)) ([@creador-dev](https://github.com/creador-dev))
+
+#### 🐛 Bug Fix
+- `global`
+  - fix(global): building FUI we have unnecessary repeated code. [#60](https://github.com/wpmudev/forminator-ui/pull/60) ([FOR-3707](https://incsub.atlassian.net/browse/FOR-3707)) ([@creador-dev](https://github.com/creador-dev))
+
+#### Committers: 1
+- Pawan Kumar ([@creador-dev](https://github.com/creador-dev))
+
+## [1.12.6](https://github.com/wpmudev/forminator-ui/compare/v1.12.5...v1.12.6) (2023-05-17)
+
+#### 🐛 Bug Fix
+- `forms`
+  - fix(captcha): Invisible reCAPTCHA unwanted width. [#58](https://github.com/wpmudev/forminator-ui/pull/58) ([FOR-3519](https://incsub.atlassian.net/browse/FOR-3519)) ([@creador-dev](https://github.com/creador-dev))
+
+#### Committers: 1
+- Pawan Kumar ([@creador-dev](https://github.com/creador-dev))
+
+## [1.12.5](https://github.com/wpmudev/forminator-ui/compare/v1.12.4...v1.12.5) (2023-04-25)
+
+#### 🐛 Bug Fix
+- `forms`
+  - fix(multiselect): UI issue when submission limit reached. [#53](https://github.com/wpmudev/forminator-ui/pull/53) ([FOR-3096](https://incsub.atlassian.net/browse/FOR-3096)) ([@creador-dev](https://github.com/creador-dev))
+
+#### Committers: 2
+- Leighton Sapir ([@iamleigh](https://github.com/iamleigh))
+- Pawan Kumar ([@creador-dev](https://github.com/creador-dev))
+
+## [1.12.4](https://github.com/wpmudev/forminator-ui/compare/v1.12.3...v1.12.4) (2023-04-13)
+
+#### ✨ New Features
+- `polls`
+  - Add images alt text. [#55](https://github.com/wpmudev/forminator-ui/pull/55) ([FOR-1999](https://incsub.atlassian.net/browse/FOR-1999)) ([@creador-dev](https://github.com/creador-dev))
+
+#### 🚀 Improvement
+- `forms`
+  - reCAPTCHA is not responsive and breaks the design. [#49](https://github.com/wpmudev/forminator-ui/pull/49) ([FOR-2849](https://incsub.atlassian.net/browse/FOR-2849)) ([@creador-dev](https://github.com/creador-dev))
+
+#### Committers: 2
+- Leighton Sapir ([@iamleigh](https://github.com/iamleigh))
+- Pawan Kumar ([@creador-dev](https://github.com/creador-dev))
+
+## [1.12.3](https://github.com/wpmudev/forminator-ui/compare/v1.12.2...v1.12.3) (2023-02-03)
+
+#### 🐛 Bug Fix
+- `forms`
+  - fix(select2): Select voiceover not working in Safari. [#54](https://github.com/wpmudev/forminator-ui/pull/54) ([FOR-1704](https://incsub.atlassian.net/browse/FOR-1704)) ([@creador-dev](https://github.com/creador-dev))
+
+#### Committers: 2
+- Leighton Sapir ([@iamleigh](https://github.com/iamleigh))
+- Pawan Kumar ([@creador-dev](https://github.com/creador-dev))
+
 ## [1.12.2](https://github.com/wpmudev/forminator-ui/compare/v1.12.1...v1.12.2) (2023-01-26)
 
 #### 🐛 Bug Fix

@@ -1,6 +1,10 @@
 <?php
 /**
+ * The Forminator_Form_Field_Model class.
+ *
  * Author: Hoang Ngo
+ *
+ * @package Forminator
  */
 
 /**
@@ -22,7 +26,7 @@ class Forminator_Form_Field_Model {
 	/**
 	 * This is parent form ID, optional
 	 *
-	 * @int
+	 * @var int
 	 */
 	public $form_id;
 
@@ -50,7 +54,7 @@ class Forminator_Form_Field_Model {
 	/**
 	 * Forminator_Form_Field_Model constructor.
 	 *
-	 * @param $version
+	 * @param null|array $settings Settings.
 	 */
 	public function __construct( $settings = null ) {
 		if ( ! empty( $settings ) ) {
@@ -59,9 +63,11 @@ class Forminator_Form_Field_Model {
 	}
 
 	/**
+	 * Get
+	 *
 	 * @since 1.0
 	 *
-	 * @param $name
+	 * @param string $name Field name.
 	 *
 	 * @return mixed|null
 	 */
@@ -77,10 +83,12 @@ class Forminator_Form_Field_Model {
 	}
 
 	/**
+	 * Set
+	 *
 	 * @since 1.0
 	 *
-	 * @param $name
-	 * @param $value
+	 * @param string $name Field name.
+	 * @param mixed  $value Field value.
 	 */
 	public function __set( $name, $value ) {
 		if ( property_exists( $this, $name ) ) {
@@ -120,18 +128,25 @@ class Forminator_Form_Field_Model {
 	}
 
 	/**
+	 * Format to array
+	 *
 	 * @since 1.0
 	 * @return array
 	 */
 	public function to_formatted_array() {
-		return Forminator_Migration::migrate_field( $this->raw, $this->form_settings );
+		$field_settings = $this->raw;
+
+		$field_settings['parent_group'] = $this->parent_group;
+		return Forminator_Migration::migrate_field( $field_settings, $this->form_settings );
 	}
 
 	/**
+	 * Import
+	 *
 	 * @since 1.0
 	 * @since 1.5 add `wrapper_id` on the attribute
 	 *
-	 * @param $data
+	 * @param array $data Data.
 	 */
 	public function import( $data ) {
 		if ( empty( $data ) ) {
@@ -148,11 +163,11 @@ class Forminator_Form_Field_Model {
 			$wrapper_id = '';
 			if ( isset( $this->form_id ) && ! empty( $this->form_id ) && false !== stripos( $this->form_id, 'wrapper-' ) ) {
 				$wrapper_id = $this->form_id;
-			} elseif ( isset( $this->formID ) && ! empty( $this->formID )  // phpcs:ignore WordPress.NamingConventions.ValidVariableName.NotSnakeCaseMemberVar
-					&& false !== stripos( $this->formID, 'wrapper-' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.NotSnakeCaseMemberVar
+			} elseif ( isset( $this->formID ) && ! empty( $this->formID )  // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					&& false !== stripos( $this->formID, 'wrapper-' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 				// Backward compat formID.
-				$wrapper_id = $this->formID; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.NotSnakeCaseMemberVar
+				$wrapper_id = $this->formID; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			}
 
 			if ( ! empty( $wrapper_id ) ) {
@@ -175,6 +190,8 @@ class Forminator_Form_Field_Model {
 			'year'           => 'element_id',
 			'day'            => 'element_id',
 			'month'          => 'element_id',
+			'min'            => 'element_id',
+			'max'            => 'element_id',
 			'street_address' => 'street_address',
 			'address_line'   => 'address_line',
 			'city'           => 'address_city',

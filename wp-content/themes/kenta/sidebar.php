@@ -18,8 +18,8 @@ if ( kenta_is_woo_shop() ) {
 
 $attrs = [
 	'class' => Utils::clsx( [
-		'kenta-sidebar sidebar-primary prose prose-kenta shrink-0',
-		'prose-no-underline' => ! CZ::checked( 'kenta_global_sidebar_link-underline' ),
+		'kenta-sidebar sidebar-primary shrink-0',
+		'no-underline' => ! CZ::checked( 'kenta_global_sidebar_link-underline' ),
 		'kenta-heading kenta-heading-' . CZ::get( 'kenta_global_sidebar_title-style' ),
 	] ),
 	'role'  => 'complementary',

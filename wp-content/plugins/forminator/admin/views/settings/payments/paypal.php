@@ -1,4 +1,10 @@
 <?php
+/**
+ * Template admin/views/settings/payments/paypal.php
+ *
+ * @package Forminator
+ */
+
 // defaults.
 $vars = array(
 	'error_message'        => '',
@@ -12,38 +18,32 @@ $vars = array(
 	'live_secret_error'    => '',
 
 );
-/** @var array $template_vars */
+/**
+ * Template variables
+ *
+ * @var array $template_vars */
 foreach ( $template_vars as $key => $val ) {
 	$vars[ $key ] = $val;
 }
 ?>
 
-<span class="sui-description"><?php /* translators: ... */ printf( esc_html__( 'Enter your PayPal REST API keys to connect your account. You can create a REST API app %1$shere%2$s to grab the credentials.' ), '<a href="https://developer.paypal.com/developer/applications/" target="_blank">', '</a>' ); ?></span>
+<span class="sui-description">
+	<?php
+	printf(
+	/* Translators: 1. Opening <a> tag with link to the PayPal account, 2. closing <a> tag. */
+		esc_html__( 'Enter your PayPal REST API keys to connect your account. You can create a REST API app %1$shere%2$s to grab the credentials.', 'forminator' ),
+		'<a href="https://developer.paypal.com/developer/applications/" target="_blank">',
+		'</a>'
+	);
+	?>
+</span>
 
-<?php if ( ! empty( $vars['error_message'] ) ) : ?>
-
-	<div
-		role="alert"
-		class="sui-notice sui-notice-red sui-active"
-		style="display: block; text-align: left;"
-		aria-live="assertive"
-	>
-
-		<div class="sui-notice-content">
-
-			<div class="sui-notice-message">
-
-				<span class="sui-notice-icon sui-icon-info" aria-hidden="true"></span>
-
-				<p><?php echo esc_html( $vars['error_message'] ); ?></p>
-
-			</div>
-
-		</div>
-
-	</div>
-
-<?php endif; ?>
+<?php
+if ( ! empty( $vars['error_message'] ) ) {
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is already escaped.
+	echo Forminator_Admin::get_red_notice( esc_html( $vars['error_message'] ) );
+}
+?>
 
 <form class="sui-form-field">
 
@@ -53,7 +53,7 @@ foreach ( $template_vars as $key => $val ) {
 
 		<input
 			class="sui-form-control"
-			name="sandbox_id" placeholder="<?php echo esc_attr( __( 'Enter your sandbox client id', 'forminator' ) ); ?>"
+			name="sandbox_id" placeholder="<?php echo esc_attr__( 'Enter your sandbox client id', 'forminator' ); ?>"
 			value="<?php echo esc_attr( $vars['sandbox_id'] ); ?>"
 		/>
 		<?php if ( ! empty( $vars['sandbox_id_error'] ) ) : ?>
@@ -68,7 +68,7 @@ foreach ( $template_vars as $key => $val ) {
 
 		<input
 			class="sui-form-control"
-			name="sandbox_secret" placeholder="<?php echo esc_attr( __( 'Enter your sandbox secret', 'forminator' ) ); ?>"
+			name="sandbox_secret" placeholder="<?php echo esc_attr__( 'Enter your sandbox secret', 'forminator' ); ?>"
 			value="<?php echo esc_attr( $vars['sandbox_secret'] ); ?>"
 		/>
 
@@ -84,7 +84,7 @@ foreach ( $template_vars as $key => $val ) {
 
 		<input
 			class="sui-form-control"
-			name="live_id" placeholder="<?php echo esc_attr( __( 'Enter your live client id', 'forminator' ) ); ?>"
+			name="live_id" placeholder="<?php echo esc_attr__( 'Enter your live client id', 'forminator' ); ?>"
 			value="<?php echo esc_attr( $vars['live_id'] ); ?>"
 		/>
 
@@ -100,7 +100,7 @@ foreach ( $template_vars as $key => $val ) {
 
 		<input
 			class="sui-form-control"
-			name="live_secret" placeholder="<?php echo esc_attr( __( 'Enter your live secret id', 'forminator' ) ); ?>"
+			name="live_secret" placeholder="<?php echo esc_attr__( 'Enter your live secret id', 'forminator' ); ?>"
 			value="<?php echo esc_attr( $vars['live_secret'] ); ?>"
 		/>
 

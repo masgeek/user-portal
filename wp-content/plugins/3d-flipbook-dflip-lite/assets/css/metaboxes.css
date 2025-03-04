@@ -78,6 +78,7 @@ form.dflip-settings {
   position: relative;
   line-height: 1.5;
   color: #eee;
+  font-size: 14px;
 }
 
 .dflip-tabs-list li a:after, .dflip-tabs-list .nav-tab:after {
@@ -802,4 +803,302 @@ body.wp-admin.post-type-dflip #wpbody-content #postdivrich {
 body.wp-admin.post-type-dflip .misc-pub-revisions,
 body.wp-admin.post-type-dflip #revisionsdiv {
   display: none;
+}
+
+
+.df-box {
+  clear: both;
+  position: relative;
+  border-top: 1px solid #ddd;
+  padding: 20px 0;
+  margin: 0 10px;
+}
+
+.df-box::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.df-box:last-child {
+  border: 0;
+}
+
+.df-label {
+  width: 200px;
+  margin: 0;
+  float: left;
+  color: #33373a !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  padding: 0px 30px 0px 0px;
+  box-sizing: border-box;
+}
+
+.df-label label {
+  vertical-align: top;
+}
+
+.df-label i {
+  font-weight: normal;
+}
+
+.df-desc {
+  font-size: 13px;
+  margin: 4px 0 0px;
+  color: #777;
+  display: inline-block;
+  vertical-align: top;
+  box-sizing: border-box;
+  padding-right: 15px;
+}
+
+.df-box:hover .df-desc {
+  color: #777;
+}
+
+.df-upload-media + .df-global-value {
+  margin-top: 15px;
+}
+
+.df-option {
+  padding: 0;
+  box-sizing: border-box;
+  position: relative;
+  float: right;
+  /*padding: 5px 0;*/
+  display: inline-block;
+  vertical-align: top;
+  width: calc(100% - 200px);
+}
+
+.df-option select, .df-option input {
+  min-width: 160px;
+}
+
+.df-select select {
+  /* height: 28px; */
+}
+
+.df-option > textarea, .df-option > input {
+  width: 100%;
+}
+
+.df-option.df-page-list {
+  width: 100%;
+  padding: 0;
+  margin-top: 0;
+}
+
+.df-upload-input {
+  height: 29px;
+}
+
+.df-upload-input ~ .df-button {
+  /* position: absolute; */
+  /* width: 80px; */
+  /* height: 28px; */
+  /* top: 0; */
+  /* right: 0; */
+  text-align: center;
+  margin: 10px 10px 0 0;
+}
+
+.df-upload {
+  padding-right: 0;
+  max-width: 600px;
+}
+
+.df-upload .df-global-value {
+  /* padding-left: 0; */
+}
+
+.df-js-code {
+  font-family: monospace;
+  font-size: 12px;
+}
+
+input.df-global-settings-submit {
+  float: right;
+  margin-right: -12px;
+  z-index: 100;
+  margin-top: -45px !important;
+}
+
+.df-global-value {
+  color: #999;
+  font-size: 11px;
+  display: inline-block;
+  padding-left: 10px;
+}
+
+.df-global-active {
+}
+
+.df-global-active ~ .df-global-value {
+}
+
+.df-global-inactive ~ .df-global-value {
+  text-decoration: line-through;
+  opacity: 0.4;
+}
+
+.df-global-active ~ .df-global-value:after {
+  content: " Active";
+}
+
+.df-global-inactive ~ .df-global-value:after {
+  content: " Inactive";
+}
+
+.df-settings.premium .df-box,
+.df-box.premium {
+  background-color: rgba(231, 231, 231, 0.37);
+  margin: 0 -10px;
+  padding: 10px 20px;
+}
+
+.df-settings.premium .df-box .df-option,
+.df-box.premium .df-option {
+  color: red !important;
+}
+
+.df-settings.premium .df-box .df-label:after,
+.df-box.premium .df-label:after {
+  content: 'Premium!';
+  color: red;
+  font-size: 12px;
+}
+
+
+body.rtl form#df-settings {
+  margin: 0 0 0 20px;
+}
+
+body.rtl .df-option {
+  float: left;
+}
+
+body.rtl .df-label {
+  float: right;
+}
+
+body.rtl .df-desc {
+  padding: 0 0 0 15px;
+}
+
+body.rtl .df-upload input {
+  padding-right: 100px;
+}
+
+body.rtl input.df-global-settings-submit {
+  float: left;
+  margin: -45px 0 0 -12px !important;
+}
+
+.df-box .df-help-link {
+  opacity: 0;
+  display: inline-block;
+  pointer-events: none;
+  /*margin-top: 10px;*/
+}
+
+.df-box:hover .df-help-link {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.df-notice {
+  background: #ffecec;
+  padding: 5px;
+  display: block;
+}
+
+.df-input-info {
+  color: #777;
+}
+
+.condition-fail {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.condition-fail.hide-on-fail {
+  display: none;
+}
+
+.df-notice.df-disabled {
+  display: none;
+}
+
+.df-metabox .df-disabled {
+  pointer-events: all;
+  opacity: 1;
+}
+
+.df-support-box {
+  background: #eee;
+  margin-top: 20px;
+  padding: 20px;
+  line-height: 1.7em;
+}
+
+div#thumb_preview {
+  width: fit-content;
+  margin: 10px 0;
+}
+
+div#thumb_preview.df-empty-thumb {
+  width: 120px;
+  height: 160px;
+  border: 2px dashed #aaa;
+  text-align: center;
+}
+
+div#thumb_preview.df-empty-thumb:before {
+  content: "Select a PDF to auto generate thumb";
+  margin-top: 50px;
+  display: block;
+  text-transform: uppercase;
+}
+
+div#thumb_preview img {
+  max-width: 180px;
+  display: block;
+}
+
+.df-box-separator {
+  color: #33373a !important;
+  font-size: 18px !important;
+  text-transform: uppercase;
+  border-bottom: 2px solid #3296cd;
+  background-color: #eee;
+  padding: 20px 20px 15px;
+  margin: 0 -12px;
+}
+
+.df-box:first-child, .df-box-separator + .df-box {
+  border-top: 0;
+}
+
+.df-upload-preview-thumb {
+  width: 70px;
+  height: 70px;
+  background-size: cover;
+  border-radius: 4px;
+  background-repeat: no-repeat;
+  background-position: center;
+  overflow: hidden;
+  margin-top: 5px;
+  margin-bottom: -15px;
+  box-sizing: border-box;
+}
+
+a.df-upgrade-menu {
+  color: white !important;
+  background-color: #009688 !important;
+}
+
+a.df-upgrade-menu:hover {
+  background-color: #4CAF50 !important;
 }

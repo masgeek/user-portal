@@ -116,7 +116,7 @@ if ( ! class_exists( 'Kenta_Global_Section' ) ) {
 				( new Toggle( 'kenta_enable_customizer_cache' ) )
 					->setLabel( __( 'Enable Customizer Cache', 'kenta' ) )
 					->setDescription( __( 'Enable Customizer caching can improve page load speed.', 'kenta' ) )
-					->closeByDefault()
+					->openByDefault()
 				,
 				( new Toggle( 'kenta_use_local_fonts' ) )
 					->setLabel( __( 'Load Google Fonts Locally', 'kenta' ) )

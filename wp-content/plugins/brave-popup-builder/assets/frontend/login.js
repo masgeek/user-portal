@@ -44,9 +44,10 @@ function brave_loginUser(event, elementID, popupID){
    var security = document.getElementById('brave_login_security'+elementID).value;
    var redirectURL = document.getElementById('brave_login_redirect_'+elementID).value ? document.getElementById('brave_login_redirect_'+elementID).value :  window.location.href;
    var mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+   var isLogginWithEmail = document.getElementById('brave_login_email_'+elementID) && document.getElementById('brave_login_email_'+elementID).getAttribute('type') === 'email';
    
    if(!userEmail){ return brave_show_loginError(elementID, bravepop_global.email_required);  }
-   if(userEmail && !userEmail.match(mailformat)){ return brave_show_loginError(elementID, bravepop_global.email_invalid);   }
+   if(userEmail && isLogginWithEmail && !userEmail.match(mailformat)){ return brave_show_loginError(elementID, bravepop_global.email_invalid);   }
    if(!userPassword){ return brave_show_loginError(elementID, bravepop_global.pass_required);  }
    if(userPassword && userPassword.length < 5){ return brave_show_loginError(elementID, bravepop_global.pass_short);   }
    if(!ajaxurl || !security){ return brave_show_loginError(elementID, bravepop_global.login_error);  }

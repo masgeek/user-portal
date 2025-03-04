@@ -1,19 +1,23 @@
 <?php
 /**
  * Plugin Name: Forminator
- * Version: 1.23.3
+ * Version: 1.39.2
  * Plugin URI:  https://wpmudev.com/project/forminator/
  * Description: Capture user information (as detailed as you like), engage users with interactive polls that show real-time results and graphs, “no wrong answer” Facebook-style quizzes and knowledge tests.
  * Author: WPMU DEV
  * Author URI: https://wpmudev.com
+ * Requires at least: 6.4
+ * Tested up to: 6.7
+ * Requires PHP: 7.4
  * Text Domain: forminator
  * Domain Path: /languages/
  *
+ * @package    Forminator
  */
+
 /*
-Copyright 2009-2018 Incsub (http://incsub.com)
-Author – Cvetan Cvetanov (cvetanov), Dixita Dusara (dency)
-Contributors –
+Copyright 2009-2024 Incsub (http://incsub.com)
+Author – WPMU DEV
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License (Version 2 – GPLv2) as published by
@@ -32,60 +36,29 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
+// Constants.
+require_once plugin_dir_path( __FILE__ ) . 'constants.php';
 
-if ( ! defined( 'FORMINATOR_VERSION' ) ) {
-	define( 'FORMINATOR_VERSION', '1.23.3' );
-}
+// Include API.
+require_once plugin_dir_path( __FILE__ ) . 'library/class-api.php';
 
-if ( ! defined( 'FORMINATOR_SUI_VERSION' ) ) {
-	define( 'FORMINATOR_SUI_VERSION', '2.12.13' );
-}
-
-if ( ! defined( 'FORMINATOR_STRIPE_LIB_VERSION' ) ) {
-	define( 'FORMINATOR_STRIPE_LIB_VERSION', '7.67.0' );
-}
-
-if ( ! defined( 'FORMINATOR_STRIPE_LIB_DATE' ) ) {
-	define( 'FORMINATOR_STRIPE_LIB_DATE', '2019-12-03' );
-}
-
-if ( ! defined( 'FORMINATOR_STRIPE_PARTNER_ID' ) ) {
-	define( 'FORMINATOR_STRIPE_PARTNER_ID', 'pp_partner_GeDaq2odDgGkDJ' );
-}
-
-if ( ! defined( 'FORMINATOR_PAYPAL_LIB_VERSION' ) ) {
-	define( 'FORMINATOR_PAYPAL_LIB_VERSION', '1.14.0' );
-}
-
-if ( ! defined( 'FORMINATOR_PRO' ) ) {
-	define( 'FORMINATOR_PRO', false );
-}
+// Register activation hook.
+register_activation_hook( __FILE__, array( 'Forminator', 'activation_hook' ) );
+// Register deactivation hook.
+register_deactivation_hook( __FILE__, array( 'Forminator', 'deactivation_hook' ) );
 
 if ( ! defined( 'FORMINATOR_PLUGIN_BASENAME' ) ) {
 	define( 'FORMINATOR_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
-
 }
 
-if ( ! defined( 'FORMINATOR_PRO_URL' ) ) {
-	define( 'FORMINATOR_PRO_URL', 'https://wpmudev.com/project/forminator-pro/' );
-}
-
-// Include API
-require_once plugin_dir_path( __FILE__ ) . 'library/class-api.php';
-
-// Register activation hook
-register_activation_hook( __FILE__, array( 'Forminator', 'activation_hook' ) );
-// Register deactivation hook
-register_deactivation_hook( __FILE__, array( 'Forminator', 'deactivation_hook' ) );
-
-/**
- * Class Forminator
- *
- * Main class. Initialize plugin
- *
- * @since 1.0
- */
 if ( ! class_exists( 'Forminator' ) ) {
+	/**
+	 * Class Forminator
+	 *
+	 * Main class. Initialize plugin
+	 *
+	 * @since 1.0
+	 */
 	class Forminator {
 
 		/**
@@ -96,12 +69,16 @@ if ( ! class_exists( 'Forminator' ) ) {
 		private static $instance = null;
 
 		/**
+		 * Forminator_Core instance
+		 *
 		 * @var Forminator_Core
 		 */
 		public $forminator;
 
 		/**
-		 * @var Forminator_Addon_Loader
+		 * Forminator_Integration_Loader instance
+		 *
+		 * @var Forminator_Integration_Loader
 		 */
 		private $forminator_addon_loader;
 
@@ -156,7 +133,11 @@ if ( ! class_exists( 'Forminator' ) ) {
 		 * @since 1.11
 		 */
 		public static function deactivation_hook() {
-			wp_clear_scheduled_hook( 'forminator_general_data_protection_cleanup' );
+			as_unschedule_action( 'forminator_action_scheduler_cleanup', array(), 'forminator' );
+			as_unschedule_action( 'forminator_send_export', array(), 'forminator' );
+			as_unschedule_action( 'forminator_daily_cron', array(), 'forminator' );
+			as_unschedule_action( 'forminator_process_report', array(), 'forminator' );
+			as_unschedule_action( 'forminator_general_data_protection_cleanup', array(), 'forminator' );
 		}
 
 		/**
@@ -195,15 +176,15 @@ if ( ! class_exists( 'Forminator' ) ) {
 		 * @return bool
 		 */
 		public static function is_addons_feature_enabled() {
-			// force enable addon on entire planet
+			// force enable addon on entire planet.
 			$enabled = true;
 
 			/**
-			 * Filter the status of addons feature
+			 * Filter the status of addons feature.
 			 *
 			 * @since 1.1
 			 *
-			 * @param bool $enabled current status of addons feature
+			 * @param bool $enabled current status of addons feature.
 			 */
 			$enabled = apply_filters( 'forminator_is_addons_feature_enabled', $enabled );
 
@@ -221,7 +202,7 @@ if ( ! class_exists( 'Forminator' ) ) {
 		 * @return bool
 		 */
 		public static function is_import_export_feature_enabled() {
-			// enable import export feature for entire planet by default
+			// enable import export feature for entire planet by default.
 			$enabled = true;
 
 			/**
@@ -248,7 +229,7 @@ if ( ! class_exists( 'Forminator' ) ) {
 		public static function is_import_integrations_feature_enabled() {
 			// default is disabled unless `FORMINATOR_ENABLE_IMPORT_INTEGRATIONS` = true,
 			// integrations data probably contains sensitive content
-			// not 100% will worked if current addon not enabled / not setup properly
+			// not 100% will worked if current addon not enabled / not setup properly.
 			$enabled = ( defined( 'FORMINATOR_ENABLE_IMPORT_INTEGRATIONS' ) && FORMINATOR_ENABLE_IMPORT_INTEGRATIONS );
 
 			/**
@@ -275,7 +256,7 @@ if ( ! class_exists( 'Forminator' ) ) {
 		public static function is_export_integrations_feature_enabled() {
 			// default is disabled unless `FORMINATOR_ENABLE_EXPORT_INTEGRATIONS` = true,
 			// integrations data probably contains sensitive content
-			// not 100% will worked if current addon not enabled / not setup properly
+			// not 100% will worked if current addon not enabled / not setup properly.
 			$enabled = ( defined( 'FORMINATOR_ENABLE_EXPORT_INTEGRATIONS' ) && FORMINATOR_ENABLE_EXPORT_INTEGRATIONS );
 
 			/**
@@ -297,7 +278,7 @@ if ( ! class_exists( 'Forminator' ) ) {
 		 * @return bool
 		 */
 		public static function is_internal_page_cache_support_enabled() {
-			// default is enabled unless `FORMINATOR_ENABLE_INTERNAL_PAGE_CACHE_SUPPORT` = false,
+			// default is enabled unless `FORMINATOR_ENABLE_INTERNAL_PAGE_CACHE_SUPPORT` = false.
 			$enabled = true;
 			if ( defined( 'FORMINATOR_ENABLE_INTERNAL_PAGE_CACHE_SUPPORT' ) && ! FORMINATOR_ENABLE_INTERNAL_PAGE_CACHE_SUPPORT ) {
 				$enabled = false;
@@ -327,21 +308,21 @@ if ( ! class_exists( 'Forminator' ) ) {
 			 * Triggered before load and registering internal addons
 			 *
 			 * Only triggered when addons feature is enabled @see Forminator::is_addons_feature_enabled()
-			 * Keep in mind that @see Forminator_Addon_Loader not yet instantiated
+			 * Keep in mind that @see Forminator_Integration_Loader not yet instantiated
 			 *
 			 * @since 1.1
 			 */
 			do_action( 'forminator_before_load_addons' );
 
 			include_once forminator_plugin_dir() . 'library/helpers/helper-addon.php';
-			$this->forminator_addon_loader = Forminator_Addon_Loader::get_instance();
+			$this->forminator_addon_loader = Forminator_Integration_Loader::get_instance();
 			$this->load_forminator_addons();
 
 			/**
 			 * Triggered after internal addons of forminator loaded
 			 *
 			 * This action will be used by external addon to register
-			 * Registering addon will use @see Forminator_Addon_Loader::register()
+			 * Registering addon will use @see Forminator_Integration_Loader::register()
 			 *
 			 * @since 1.1
 			 */
@@ -373,7 +354,7 @@ if ( ! class_exists( 'Forminator' ) ) {
 			// Core files.
 			/* @noinspection PhpIncludeInspection */
 			include_once forminator_plugin_dir() . 'library/class-core.php';
-			include_once forminator_plugin_dir() . 'library/class-addon-loader.php';
+			include_once forminator_plugin_dir() . 'library/class-integration-loader.php';
 			include_once forminator_plugin_dir() . 'library/calculator/class-calculator.php';
 		}
 
@@ -383,7 +364,7 @@ if ( ! class_exists( 'Forminator' ) ) {
 		 * @since 1.10
 		 */
 		public static function set_free_installation_timestamp() {
-			// We need the install date only on free version
+			// We need the install date only on free version.
 			if ( FORMINATOR_PRO ) {
 				return;
 			}
@@ -391,7 +372,7 @@ if ( ! class_exists( 'Forminator' ) ) {
 			$install_date = get_site_option( 'forminator_free_install_date' );
 
 			if ( empty( $install_date ) ) {
-				update_site_option( 'forminator_free_install_date', current_time( 'timestamp' ) );
+				update_site_option( 'forminator_free_install_date', current_time( 'timestamp' ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested -- We are using the current timestamp based on the site's timezone.
 			}
 		}
 
@@ -401,9 +382,8 @@ if ( ! class_exists( 'Forminator' ) ) {
 		 * @since 1.0
 		 */
 		private function init() {
-			// Initialize plugin core
+			// Initialize plugin core.
 			$this->forminator = Forminator_Core::get_instance();
-
 			/**
 			 * Triggered when plugin is loaded
 			 */
@@ -417,7 +397,7 @@ if ( ! class_exists( 'Forminator' ) ) {
 		 */
 		private function include_vendors() {
 			if ( file_exists( forminator_plugin_dir() . 'library/lib/dash-notice/wpmudev-dash-notification.php' ) ) {
-				// load dashboard notice
+				// load dashboard notice.
 				global $wpmudev_notices;
 				$wpmudev_notices[] = array(
 					'id'      => 2097296,
@@ -449,20 +429,14 @@ if ( ! class_exists( 'Forminator' ) ) {
 						'forminator_page_forminator-quiz-view-network',
 					),
 				);
-				/** @noinspection PhpIncludeInspection */
+				// @noinspection PhpIncludeInspection.
 				include_once forminator_plugin_dir() . 'library/lib/dash-notice/wpmudev-dash-notification.php';
 			}
 
-			// un-change-able 5.6.0 requirement, based on lowest version needed on vendors list
-			if ( version_compare( PHP_VERSION, '5.6.0', 'ge' ) ) {
-				/**
-				 * Vendors list
-				 * - Stripe PHP - Min PHP req 5.6.0 (managed internally)
-				 * - Paypal PHP - Min PHP req 5.6.0 (managed internally)
-				 */
-				/** @noinspection PhpIncludeInspection */
-				include_once forminator_plugin_dir() . 'library/external/autoload_psr4.php';
-			}
+			// Prefixed vendor autoload.
+			include_once forminator_plugin_dir() . 'library/external/vendor/autoload.php';
+
+			include_once forminator_plugin_dir() . 'library/lib/analytics/autoload.php';
 
 			if ( ! FORMINATOR_PRO ) {
 
@@ -472,8 +446,8 @@ if ( ! class_exists( 'Forminator' ) ) {
 
 					do_action(
 						'wpmudev-recommended-plugins-register-notice',
-						plugin_basename( __FILE__ ), // Plugin basename
-						'Forminator', // Plugin Name
+						plugin_basename( __FILE__ ), // Plugin basename.
+						'Forminator', // Plugin Name.
 						array(
 							'toplevel_page_forminator',
 							'toplevel_page_forminator-network',
@@ -504,12 +478,11 @@ if ( ! class_exists( 'Forminator' ) ) {
 							'forminator_page_forminator-integrations',
 							'forminator_page_forminator-integrations-network',
 						),
-						array( 'after', '.sui-wrap .sui-header' ) // selector
+						array( 'after', '.sui-wrap .sui-header' ) // selector.
 					);
 
 				}
 			}
-
 		}
 
 		/**
@@ -537,51 +510,53 @@ if ( ! class_exists( 'Forminator' ) ) {
 	}
 }
 
-if ( ! function_exists( 'forminator' ) ) {
-	function forminator() {
-		return Forminator::get_instance();
-	}
+// Functions.
+require_once plugin_dir_path( __FILE__ ) . 'functions.php';
 
-	/**
-	 * Init the plugin and load the plugin instance
-	 *
-	 * @since 1.0
-	 */
-	add_action( 'plugins_loaded', 'forminator' );
-}
+if ( file_exists( forminator_plugin_dir() . 'library/external/src/Forminator/woocommerce/action-scheduler/action-scheduler.php' ) ) {
+	add_action(
+		'plugins_loaded',
+		function () {
+			require_once forminator_plugin_dir() . 'library/external/src/Forminator/woocommerce/action-scheduler/action-scheduler.php';
+		},
+		-10 // Don't change.
+	);
 
-if ( ! function_exists( 'forminator_plugin_url' ) ) {
-	/**
-	 * Return plugin URL
-	 *
-	 * @since 1.0
-	 * @return string
-	 */
-	function forminator_plugin_url() {
-		return trailingslashit( plugin_dir_url( __FILE__ ) );
-	}
-}
+	// Re-register Action Scheduler tables if `priority` column is missing in actionscheduler_actions table.
+	add_action(
+		'action_scheduler_pre_init',
+		function () {
+			$key = 'forminator_action_scheduler_db_updated';
+			if ( ! get_option( $key ) && class_exists( 'ActionScheduler_StoreSchema' ) ) {
+				global $wpdb;
+				$table = $wpdb->prefix . ActionScheduler_StoreSchema::ACTIONS_TABLE;
 
-if ( ! function_exists( 'forminator_plugin_dir' ) ) {
-	/**
-	 * Return plugin path
-	 *
-	 * @since 1.0
-	 * @return string
-	 */
-	function forminator_plugin_dir() {
-		return trailingslashit( plugin_dir_path( __FILE__ ) );
-	}
-}
+				// Check if table exists first.
+				$table_exists = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+					$wpdb->prepare(
+						'SELECT EXISTS (
+							SELECT 1
+							FROM information_schema.tables
+							WHERE table_schema = %s
+							AND table_name = %s
+						)',
+						$wpdb->dbname,
+						$table,
+					)
+				);
+				if ( ! $table_exists ) {
+					return;
+				}
 
-if ( ! function_exists( 'forminator_addons_dir' ) ) {
-	/**
-	 * Return plugin path
-	 *
-	 * @since 1.0.5
-	 * @return string
-	 */
-	function forminator_addons_dir() {
-		return trailingslashit( forminator_plugin_dir() . 'addons' );
-	}
+				// It doesn't required cache as it run only once.
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$res = $wpdb->get_var( "SHOW COLUMNS FROM {$table} LIKE 'priority'" );
+				if ( ! $res ) {
+					$store_schema = new ActionScheduler_StoreSchema();
+					$store_schema->register_tables( true );
+				}
+				update_option( $key, '1' );
+			}
+		}
+	);
 }

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Modules helper functions.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -9,7 +15,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 1.0
  * @return mixed
  */
-
 function forminator_get_modules() {
 	$forminator = Forminator_Core::get_instance();
 
@@ -20,7 +25,7 @@ function forminator_get_modules() {
  * Return specific module by ID
  *
  * @since 1.0
- * @param $id
+ * @param int $id Module Id.
  *
  * @return bool
  */

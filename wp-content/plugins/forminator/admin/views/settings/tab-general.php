@@ -1,4 +1,10 @@
 <?php
+/**
+ * Template admin/views/settings/tab-general.php
+ *
+ * @package Forminator
+ */
+
 $section = Forminator_Core::sanitize_text_field( 'section', 'dashboard' );
 $nonce   = wp_create_nonce( 'forminator_save_dashboard_settings' );
 ?>
@@ -20,6 +26,12 @@ $nonce   = wp_create_nonce( 'forminator_save_dashboard_settings' );
 			<?php $this->template( 'settings/tab-pagination' ); ?>
 
 			<?php $this->template( 'settings/tab-editor' ); ?>
+
+			<?php
+			if ( is_wpmu_dev_admin() || ! forminator_can_whitelabel() ) {
+				$this->template( 'settings/tab-tracking' );
+			}
+			?>
 
 		</div>
 

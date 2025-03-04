@@ -1,7 +1,7 @@
 (() => {
     "use strict";
     var __webpack_modules__ = {
-        58: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+        59: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
             __webpack_require__.r(__webpack_exports__);
             __webpack_require__.d(__webpack_exports__, {
                 default: () => __WEBPACK_DEFAULT_EXPORT__
@@ -9,7 +9,7 @@
             var NoticeDismiss = {
                 init: function init($) {
                     $(".kenta-theme-notice .kenta-notice-dismiss").click((function() {
-                        var $notice = $(this).parents(".notice.is-dismissible");
+                        var $notice = $(this).parents(".is-dismissible");
                         var dismiss_url = $notice.attr("data-dismiss-url");
                         if (dismiss_url) {
                             $.ajax({
@@ -24,7 +24,7 @@
             };
             const __WEBPACK_DEFAULT_EXPORT__ = NoticeDismiss;
         },
-        59: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+        60: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
             __webpack_require__.r(__webpack_exports__);
             __webpack_require__.d(__webpack_exports__, {
                 default: () => __WEBPACK_DEFAULT_EXPORT__
@@ -56,6 +56,9 @@
                 }
             };
             const __WEBPACK_DEFAULT_EXPORT__ = StarterSites;
+        },
+        58: module => {
+            module.exports = window["jQuery"];
         }
     };
     var __webpack_module_cache__ = {};
@@ -70,6 +73,15 @@
         __webpack_modules__[moduleId](module, module.exports, __webpack_require__);
         return module.exports;
     }
+    (() => {
+        __webpack_require__.n = module => {
+            var getter = module && module.__esModule ? () => module["default"] : () => module;
+            __webpack_require__.d(getter, {
+                a: getter
+            });
+            return getter;
+        };
+    })();
     (() => {
         __webpack_require__.d = (exports, definition) => {
             for (var key in definition) {
@@ -100,11 +112,13 @@
     var __webpack_exports__ = {};
     (() => {
         __webpack_require__.r(__webpack_exports__);
-        var _admin_dismiss_notices__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(58);
-        var _admin_starter_sites__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(59);
-        jQuery((function($) {
-            _admin_dismiss_notices__WEBPACK_IMPORTED_MODULE_0__["default"].init($);
-            _admin_starter_sites__WEBPACK_IMPORTED_MODULE_1__["default"].init($);
+        var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(58);
+        var jquery__WEBPACK_IMPORTED_MODULE_0___default = __webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
+        var _admin_dismiss_notices__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(59);
+        var _admin_starter_sites__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(60);
+        jquery__WEBPACK_IMPORTED_MODULE_0___default()((function($) {
+            _admin_dismiss_notices__WEBPACK_IMPORTED_MODULE_1__["default"].init($);
+            _admin_starter_sites__WEBPACK_IMPORTED_MODULE_2__["default"].init($);
         }));
     })();
 })();

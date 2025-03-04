@@ -3,6 +3,9 @@ if ( ! class_exists( 'BravePop_ConstantContact' ) ) {
    
    class BravePop_ConstantContact {
 
+      protected $api_key;
+      protected $access_key;
+
       function __construct() {
          $braveSettings = get_option('_bravepopup_settings');
          $integrations = $braveSettings && isset($braveSettings['integrations']) ? $braveSettings['integrations'] : array() ;
@@ -39,7 +42,7 @@ if ( ! class_exists( 'BravePop_ConstantContact' ) ) {
                $listItem->count = isset($list->contact_count)  ? $list->contact_count : 0;
                $finalLists[] = $listItem;
             }
-            return json_encode($finalLists);
+            return wp_json_encode($finalLists);
          }else{
             return false;
          }
@@ -108,7 +111,7 @@ if ( ! class_exists( 'BravePop_ConstantContact' ) ) {
                "created_date"=> isset($exitingContact->created_date) ? $exitingContact->created_date : '',
             );
 
-            $putArgs = array('method' => 'PUT','timeout' => 30, 'headers' => array( 'content-type' => 'application/json', 'Authorization' => 'Bearer ' . $this->access_key), 'body' => json_encode($updatedContact)  );
+            $putArgs = array('method' => 'PUT','timeout' => 30, 'headers' => array( 'content-type' => 'application/json', 'Authorization' => 'Bearer ' . $this->access_key), 'body' => wp_json_encode($updatedContact)  );
             $putResponse = wp_remote_post( 'https://api.constantcontact.com/v2/contacts/'.$exitingContactID.'?action_by=ACTION_BY_VISITOR&api_key='.$this->api_key, $putArgs );
             $putBody = wp_remote_retrieve_body( $putResponse );
             //$putData = json_decode( $putBody );
@@ -125,7 +128,7 @@ if ( ! class_exists( 'BravePop_ConstantContact' ) ) {
                   'content-type' => 'application/json',
                   'Authorization' => 'Bearer ' . $this->access_key
                ),
-               'body' => json_encode(array(
+               'body' => wp_json_encode(array(
                   'email_addresses' => $emails,
                   'first_name'      => $firstname,
                   'last_name'       => $lastname,

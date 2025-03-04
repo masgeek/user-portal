@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_CForm_New_Page class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -19,9 +25,9 @@ class Forminator_CForm_New_Page extends Forminator_Admin_Page {
 	public function getWizardTitle() {
 		$id = filter_input( INPUT_GET, 'id', FILTER_VALIDATE_INT );
 		if ( $id ) {
-			return __( 'Edit Form', 'forminator' );
+			return esc_html__( 'Edit Form', 'forminator' );
 		} else {
-			return __( 'New Form', 'forminator' );
+			return esc_html__( 'New Form', 'forminator' );
 		}
 	}
 
@@ -29,7 +35,7 @@ class Forminator_CForm_New_Page extends Forminator_Admin_Page {
 	 * Add page screen hooks
 	 *
 	 * @since 1.0
-	 * @param $hook
+	 * @param string $hook Hook.
 	 */
 	public function enqueue_scripts( $hook ) {
 		// Load admin scripts.
@@ -41,6 +47,7 @@ class Forminator_CForm_New_Page extends Forminator_Admin_Page {
 				'wp-color-picker',
 				'react',
 				'react-dom',
+				'wp-element',
 			),
 			FORMINATOR_VERSION,
 			true
@@ -53,6 +60,7 @@ class Forminator_CForm_New_Page extends Forminator_Admin_Page {
 
 		$script_src     = forminator_plugin_url() . 'assets/js/library/intlTelInput.min.js';
 		$script_version = FORMINATOR_VERSION;
+
 		wp_enqueue_style( 'intlTelInput-forminator-css', $style_src, array(), $style_version ); // intlTelInput.
 		wp_enqueue_script( 'forminator-intlTelInput', $script_src, array( 'jquery' ), $script_version, false ); // intlTelInput.
 

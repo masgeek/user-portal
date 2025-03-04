@@ -1,6 +1,6 @@
 <?php if ( forminator_array_value_exists( $properties, 'cform-color-settings' ) ) { ?>
 
-	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-input--stripe .StripeElement {
+	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-input--stripe .StripeElement:not(.forminator-stripe-payment-element) {
 		<?php if ( forminator_array_value_exists( $properties, 'input-color' ) && !empty( $properties['input-color'] ) ) { ?>
 			color: <?php echo $properties['input-color'] ?>;
 		<?php } else { ?>
@@ -8,7 +8,7 @@
 		<?php } ?>
 	}
 
-	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-input--stripe .StripeElement:after {
+	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-input--stripe .StripeElement:not(.forminator-stripe-payment-element):after {
 		<?php if ( forminator_array_value_exists( $properties, 'input-border' ) && !empty( $properties['input-border'] ) ) { ?>
 			background-color: <?php echo $properties['input-border'] ?>;
 		<?php } else { ?>
@@ -40,13 +40,17 @@
 		<?php } ?>
 	}
 
+	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-field-stripe-ocs .forminator-input--stripe:after {
+		content: unset;
+	}
+
 <?php } else { ?>
 
-	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-input--stripe .StripeElement {
+	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-input--stripe .StripeElement:not(.forminator-stripe-payment-element) {
 		color: #000000;
 	}
 
-	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-input--stripe .StripeElement:after {
+	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-input--stripe .StripeElement:not(.forminator-stripe-payment-element):after {
 		background-color: #777771;
 	}
 
@@ -60,6 +64,10 @@
 
 	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-has_error .forminator-input--stripe:after {
 		background-color: #E04562;
+	}
+
+	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-field-stripe-ocs .forminator-input--stripe:after {
+		content: unset;
 	}
 
 <?php } ?>

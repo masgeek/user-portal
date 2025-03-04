@@ -1,4 +1,10 @@
 <?php
+/**
+ * Forminator Admin View Page
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -80,6 +86,13 @@ abstract class Forminator_Admin_View_Page extends Forminator_Admin_Page {
 	protected $page_number = 1;
 
 	/**
+	 * Page num
+	 *
+	 * @var int
+	 */
+	protected $pagenum = 1;
+
+	/**
 	 * Filters to be used
 	 *
 	 * [key=>value]
@@ -125,22 +138,29 @@ abstract class Forminator_Admin_View_Page extends Forminator_Admin_Page {
 	public $fields_is_filtered = false;
 
 	/**
-	 * @var Forminator_Addon_Abstract[]
+	 * Connected addons
+	 *
+	 * @var Forminator_Integration[]
 	 */
 	protected static $connected_addons = null;
 
 	/**
-	 * @var Forminator_Addon_Abstract[]
+	 * Registered addons
+	 *
+	 * @var Forminator_Integration[]
 	 */
 	protected static $registered_addons = null;
 
-	/** @noinspection PhpMissingParentConstructorInspection
+	/**
+	 * Construct entries
+	 *
+	 * @noinspection PhpMissingParentConstructorInspection
 	 *
 	 * Construct Entries Renderer
 	 *
 	 * @since 1.0.5
 	 *
-	 * @param string $folder
+	 * @param string $folder Folder.
 	 */
 	protected function entries_construct( $folder ) {
 		$this->folder = $folder;
@@ -210,7 +230,12 @@ abstract class Forminator_Admin_View_Page extends Forminator_Admin_Page {
 	 * @since 1.0
 	 */
 	public function fields_header() {
-		echo esc_html( sprintf( __( 'Showing %$1s of %$2s fields', 'forminator' ), $this->checked_fields, $this->total_fields ) );
+		printf(
+		/* Translators: 1. checked field, 2. total field. */
+			esc_html__( 'Showing %$1s of %$2s fields', 'forminator' ),
+			esc_html( $this->checked_fields ),
+			esc_html( $this->total_fields )
+		);
 	}
 
 	/**
@@ -264,22 +289,6 @@ abstract class Forminator_Admin_View_Page extends Forminator_Admin_Page {
 	}
 
 	/**
-	 * Get fields table
-	 *
-	 * @since 1.0
-	 * @return Forminator_Entries_List_Table
-	 * todo looks like it's Unused method (if so Forminator_Entries_List_Table is unused class)
-	 */
-	public function get_table() {
-		return new Forminator_Entries_List_Table(
-			array(
-				'model'          => $this->model,
-				'visible_fields' => $this->visible_fields,
-			)
-		);
-	}
-
-	/**
 	 * Pagination
 	 *
 	 * @since 1.0
@@ -287,7 +296,7 @@ abstract class Forminator_Admin_View_Page extends Forminator_Admin_Page {
 	public function paginate() {
 		$count = $this->filtered_total_entries;
 		echo '<span class="sui-pagination-results">'
-				. esc_html( sprintf( _n( '%s result', '%s results', $count, 'forminator' ), $count ) )
+				. /* translators: %s is count. */ esc_html( sprintf( _n( '%s result', '%s results', $count, 'forminator' ), $count ) )
 			. '</span>';
 		forminator_list_pagination( $count, 'entries' );
 	}
@@ -297,9 +306,11 @@ abstract class Forminator_Admin_View_Page extends Forminator_Admin_Page {
 	 *
 	 * @since 1.0
 	 *
-	 * @param string $position
+	 * @param string $position Position.
+	 * @param bool   $is_registration For registration?.
 	 */
-	public function bulk_actions( $position = 'top', $is_registration = false ) { ?>
+	public function bulk_actions( $position = 'top', $is_registration = false ) {
+		?>
 
 		<select
 			name="<?php echo ( 'top' === $position ) ? 'entries-action' : 'entries-action-bottom'; ?>"
@@ -333,12 +344,12 @@ abstract class Forminator_Admin_View_Page extends Forminator_Admin_Page {
 			$this->total_entries = Forminator_Form_Entry_Model::count_entries( $this->model->id, false, true );
 
 			$args = array(
-				'form_id'  		=> $this->model->id,
-				'is_spam'  		=> 0,
-				'per_page' 		=> $per_page,
-				'offset'   		=> $offset,
-				'order_by' 		=> 'entries.date_created',
-				'order'    		=> 'DESC',
+				'form_id'  => $this->model->id,
+				'is_spam'  => 0,
+				'per_page' => $per_page,
+				'offset'   => $offset,
+				'order_by' => 'entries.date_created',
+				'order'    => 'DESC',
 			);
 
 			$args = wp_parse_args( $this->filters, $args );
@@ -395,8 +406,8 @@ abstract class Forminator_Admin_View_Page extends Forminator_Admin_Page {
 		if ( ! empty( $data_range ) ) {
 			$date_ranges = explode( ' - ', $data_range );
 			if ( is_array( $date_ranges ) && isset( $date_ranges[0] ) && isset( $date_ranges[1] ) ) {
-				$date_ranges[0] = date( 'Y-m-d', strtotime( $date_ranges[0] ) );
-				$date_ranges[1] = date( 'Y-m-d', strtotime( $date_ranges[1] ) );
+				$date_ranges[0] = gmdate( 'Y-m-d', strtotime( $date_ranges[0] ) );
+				$date_ranges[1] = gmdate( 'Y-m-d', strtotime( $date_ranges[1] ) );
 
 				forminator_maybe_log( __METHOD__, $date_ranges );
 				$filters['date_created'] = array( $date_ranges[0], $date_ranges[1] );
@@ -467,7 +478,7 @@ abstract class Forminator_Admin_View_Page extends Forminator_Admin_Page {
 	 * @see   self::on_render_entry()
 	 * @since 1.1
 	 *
-	 * @param Forminator_Form_Entry_Model $entry_model
+	 * @param Forminator_Form_Entry_Model $entry_model Form entry model.
 	 *
 	 * @return array
 	 */
@@ -476,10 +487,9 @@ abstract class Forminator_Admin_View_Page extends Forminator_Admin_Page {
 		// find all registered addons, so history can be shown even for deactivated addons.
 		$registered_addons = $this->get_registered_addons();
 
-		$method = 'get_addon_' . static::$module_slug . '_hooks';
 		foreach ( $registered_addons as $registered_addon ) {
 			try {
-				$hooks     = $registered_addon->{$method}( $this->form_id );
+				$hooks     = $registered_addon->get_addon_hooks( $this->form_id, static::$module_slug );
 				$meta_data = forminator_find_addon_meta_data_from_entry_model( $registered_addon, $entry_model );
 
 				$addon_additional_items = $hooks->on_render_entry( $entry_model, $meta_data );// run and forget.
@@ -500,7 +510,10 @@ abstract class Forminator_Admin_View_Page extends Forminator_Admin_Page {
 	 * @return bool
 	 */
 	protected function is_filter_box_enabled() {
-		return ( ! empty( $this->filters ) && ! empty( $this->order ) );
+		$order    = Forminator_Core::sanitize_text_field( 'order' );
+		$order_by = Forminator_Core::sanitize_text_field( 'order_by' );
+
+		return ( ! empty( $this->filters ) || ( ! empty( $order ) && ! empty( $order_by ) ) );
 	}
 
 	/**
@@ -517,23 +530,22 @@ abstract class Forminator_Admin_View_Page extends Forminator_Admin_Page {
 	/**
 	 * Get Globally registered Addons, avoid overhead for checking registered addons many times
 	 *
-	 * @return array|Forminator_Addon_Abstract[]
+	 * @return array|Forminator_Integration[]
 	 */
 	public function get_registered_addons() {
 		if ( empty( self::$registered_addons ) ) {
 			self::$registered_addons = array();
 
 			$registered_addons = forminator_get_registered_addons();
-			$method            = 'get_addon_' . static::$module_slug . '_hooks';
-			$class_name        = 'Forminator_Addon_' . static::$module_slug . '_Hooks_Abstract';
+			$class_name        = 'Forminator_Integration_' . static::$module_slug . '_Hooks';
 			foreach ( $registered_addons as $registered_addon ) {
 				try {
-					$hooks = $registered_addon->{$method}( $this->form_id );
+					$hooks = $registered_addon->get_addon_hooks( $this->form_id, static::$module_slug );
 					if ( $hooks instanceof $class_name ) {
 						self::$registered_addons[] = $registered_addon;
 					}
 				} catch ( Exception $e ) {
-					forminator_addon_maybe_log( $registered_addon->get_slug(), 'failed to ' . $method, $e->getMessage() );
+					forminator_addon_maybe_log( $registered_addon->get_slug(), 'failed to get_addon_hooks', $e->getMessage() );
 				}
 			}
 		}
@@ -548,11 +560,12 @@ abstract class Forminator_Admin_View_Page extends Forminator_Admin_Page {
 	 */
 	public function process_request() {
 		if ( isset( $_GET['err_msg'] ) ) {
-			$this->error_message = wp_kses_post( $_GET['err_msg'] );
+			$this->error_message = wp_kses_post( wp_unslash( $_GET['err_msg'] ) );
 		}
 
 		// it should be before nonce check cus we use filter on Submissions page without nonce :facepalm:.
 		if ( isset( $_GET['field'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput -- Sanitized in Forminator_Core::sanitize_array.
 			$this->visible_fields     = Forminator_Core::sanitize_array( $_GET['field'] );
 			$this->checked_fields     = count( $this->visible_fields );
 			$this->fields_is_filtered = true;

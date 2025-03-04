@@ -159,8 +159,8 @@ class Notices {
 	 * For ajax dismiss notice
 	 */
 	public function _ajax_dismiss_notice() {
-		$notice_id = filter_input( INPUT_GET, 'wpmoose_notice_id', FILTER_SANITIZE_STRING );
-		$scope_id  = filter_input( INPUT_GET, 'wpmoose_scope_id', FILTER_SANITIZE_STRING );
+		$notice_id = esc_html( $_GET['wpmoose_notice_id'] ?? '' );
+		$scope_id  = esc_html( $_GET['wpmoose_scope_id'] ?? '' );
 
 		// Don't handle another notice
 		if ( $scope_id !== $this->id ) {

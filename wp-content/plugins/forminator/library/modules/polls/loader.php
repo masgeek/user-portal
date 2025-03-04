@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Polls class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -39,7 +45,7 @@ class Forminator_Polls extends Forminator_Module {
 		if ( ! class_exists( 'Forminator_General_Data_Protection' ) ) {
 			include_once forminator_plugin_dir() . 'library/abstracts/abstract-class-general-data-protection.php';
 		}
-		include_once dirname( __FILE__ ) . '/protection/general-data-protection.php';
+		include_once __DIR__ . '/protection/general-data-protection.php';
 		if ( class_exists( 'Forminator_Polls_General_Data_Protection' ) ) {
 			new Forminator_Polls_General_Data_Protection();
 		}
@@ -52,7 +58,7 @@ class Forminator_Polls extends Forminator_Module {
 	 */
 	public function load_admin() {
 		if ( is_admin() ) {
-			include_once dirname( __FILE__ ) . '/admin/admin-loader.php';
+			include_once __DIR__ . '/admin/admin-loader.php';
 
 			new Forminator_Poll_Admin();
 		}
@@ -65,10 +71,10 @@ class Forminator_Polls extends Forminator_Module {
 	 * @since 1.0
 	 */
 	public function load_front() {
-		include_once dirname( __FILE__ ) . '/front/front-action.php';
-		include_once dirname( __FILE__ ) . '/front/front-render.php';
-		include_once dirname( __FILE__ ) . '/front/front-mail.php';
-		include_once dirname( __FILE__ ) . '/front/front-assets.php';
+		include_once __DIR__ . '/front/front-action.php';
+		include_once __DIR__ . '/front/front-render.php';
+		include_once __DIR__ . '/front/front-mail.php';
+		include_once __DIR__ . '/front/front-assets.php';
 
 		new Forminator_Poll_Front_Action();
 		new Forminator_Poll_Front();
@@ -113,10 +119,10 @@ class Forminator_Polls extends Forminator_Module {
 	 */
 	public function options() {
 		return array(
-			'name'          => __( 'Polls', 'forminator' ),
-			'singular_name' => __( 'Poll', 'forminator' ),
-			'description'   => __( 'Create polls, and collect user data. Choose a visualization style that best suits your needs.', 'forminator' ),
-			'button_label'  => __( 'New Poll', 'forminator' ),
+			'name'          => esc_html__( 'Polls', 'forminator' ),
+			'singular_name' => esc_html__( 'Poll', 'forminator' ),
+			'description'   => esc_html__( 'Create polls, and collect user data. Choose a visualization style that best suits your needs.', 'forminator' ),
+			'button_label'  => esc_html__( 'New Poll', 'forminator' ),
 			'icon'          => '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="17" viewBox="0 0 18 17" preserveAspectRatio="none" class="wpmudev-icon wpmudev-i_polls"><path fill-rule="evenodd" d="M8.156 10.746H5.098c-.094 0-.17.032-.23.097-.057.064-.087.137-.087.22v4.728c0 .095.03.174.09.238.058.065.134.097.228.097h3.058c.082 0 .156-.032.22-.097.064-.064.097-.143.097-.237v-4.727c0-.083-.033-.156-.097-.22-.064-.065-.138-.097-.22-.097zM12.902.973H9.844c-.082 0-.156.032-.22.096s-.097.143-.097.237V15.79c0 .095.033.174.097.238.064.065.138.097.22.097h3.058c.094 0 .17-.032.23-.097.057-.064.087-.143.087-.237V1.308c0-.094-.03-.173-.09-.238-.058-.065-.134-.097-.228-.097zm4.764 4.412h-3.04c-.095 0-.17.032-.23.096-.058.066-.087.14-.087.22v10.09c0 .095.028.174.086.238.06.065.135.097.23.097h3.04c.094 0 .173-.032.237-.097.065-.064.097-.143.097-.237V5.7c0-.08-.032-.154-.097-.22-.064-.063-.143-.095-.237-.095zm-14.29 0H.333c-.094 0-.173.032-.237.096C.032 5.547 0 5.62 0 5.7v10.09c0 .095.032.174.097.238.064.065.143.097.237.097h3.04c.095 0 .17-.032.23-.097.058-.064.087-.143.087-.237V5.7c0-.08-.028-.154-.086-.22-.06-.063-.135-.095-.23-.095z"/></svg>',
 		);
 	}

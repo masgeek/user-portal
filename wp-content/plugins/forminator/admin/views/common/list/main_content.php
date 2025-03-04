@@ -1,3 +1,11 @@
+<?php
+/**
+ * Template admin/views/common/list/main_content.php
+ *
+ * @package Forminator
+ */
+
+?>
 <!-- START: Bulk actions and pagination -->
 <div class="fui-listings-pagination">
 
@@ -40,7 +48,7 @@
 
 				<button class="sui-button"><?php esc_html_e( 'Apply', 'forminator' ); ?></button>
 
-				<?php if ( 'forminator_forms' === $post_type ) { ?>
+				<?php if ( 'forminator_forms' === $forminator_post_type ) { ?>
 				<button id="forminator_bulk_apply_preset" data-modal="apply_preset" class="sui-hidden wpmudev-open-modal"></button>
 				<?php } ?>
 
@@ -70,7 +78,7 @@
 <div class="sui-accordion sui-accordion-block" id="forminator-modules-list">
 	<?php
 	if ( empty( $search_keyword ) ) {
-		Forminator_Admin_Module_Edit_Page::show_modules( $modules, static::$module_slug, $preview_dialog, $preview_title, $export_dialog, $post_type, $soon, $sql_month_start_date, $wizard_page );
+		Forminator_Admin_Module_Edit_Page::show_modules( $modules, static::$module_slug, $preview_dialog, $preview_title, $export_dialog, $forminator_post_type, $soon, $sql_month_start_date, $wizard_page );
 	}
 	?>
 </div>

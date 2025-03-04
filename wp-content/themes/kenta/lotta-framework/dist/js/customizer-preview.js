@@ -1,6 +1,6 @@
 (() => {
     var __webpack_modules__ = {
-        333: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+        334: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
             "use strict";
             __webpack_require__.r(__webpack_exports__);
             var webfontloader__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(308);
@@ -248,6 +248,7 @@
                     return shadowCss;
                 },
                 typography: function typography(_typography) {
+                    var custom = Lotta.customizer.settings.custom_fonts;
                     var system = Lotta.customizer.settings.system_fonts;
                     var google = Lotta.customizer.settings.google_fonts;
                     var family = _typography["family"] || "inherit";
@@ -267,6 +268,17 @@
                             }
                         });
                     }
+                    if (custom[family]) {
+                        var _custom$family$v;
+                        var font = custom[family];
+                        variant = (_custom$family$v = custom[family]["v"]) !== null && _custom$family$v !== void 0 ? _custom$family$v : "400";
+                        if (custom[family]["s"]) {
+                            family = custom[family]["f"] + "," + custom[family]["s"];
+                        } else {
+                            family = custom[family]["f"];
+                        }
+                        this.addDynamicStyle("lotta-preview-dynamic-custom-fonts-loader", this.fontFacesCss([ font ]));
+                    }
                     return {
                         "font-family": family,
                         "font-weight": variant,
@@ -278,21 +290,56 @@
                     };
                 },
                 colors: function colors(_colors, maps) {
+                    var _this6 = this;
                     var css = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
                     Object.keys(maps).forEach((function(color) {
                         if (_colors[color]) {
-                            if (_colors[color] !== "__INITIAL_VALUE__" && _colors[color] !== "") {
+                            if (_colors[color] !== CSS_INITIAL_VALUE && _colors[color] !== "") {
                                 var selectors = maps[color];
                                 if (!Array.isArray(selectors)) {
                                     selectors = [ selectors ];
                                 }
                                 selectors.forEach((function(selector) {
-                                    css[maps[color]] = _colors[color];
+                                    css[maps[color]] = _this6.getColorValue(_colors[color]);
                                 }));
                             }
                         }
                     }));
                     return css;
+                },
+                getColorValue: function getColorValue(color) {
+                    if (!color || color === CSS_INITIAL_VALUE) {
+                        return "";
+                    }
+                    if (color.indexOf("var") > -1) {
+                        var value = getComputedStyle(document.documentElement).getPropertyValue(color.replace(/var\(/, "").replace(/\)/, "")).trim().replace(/\s/g, "");
+                        if (value.indexOf("#") === -1 && value.indexOf("rgb") === -1) {
+                            return "rgb(".concat(value, ")");
+                        }
+                        return value;
+                    }
+                    return color;
+                },
+                fontFacesCss: function fontFacesCss(fonts) {
+                    var parse_css = "";
+                    fonts.forEach((function(font) {
+                        parse_css += "@font-face {";
+                        parse_css += "font-family: '".concat(font["f"], "';");
+                        parse_css += "font-weight: '".concat(font["v"], "';");
+                        font["u"].forEach((function(src) {
+                            if (src.indexOf(".otf") !== -1) {
+                                parse_css += "src: url('".concat(src, '\') format("opentype");');
+                            } else if (src.indexOf(".ttf") !== -1) {
+                                parse_css += "src: url('".concat(src, '\') format("truetype");');
+                            } else if (src.indexOf(".woff2") !== -1) {
+                                parse_css += "src: url('".concat(src, '\') format("woff2");');
+                            } else if (src.indexOf(".woff") !== -1) {
+                                parse_css += "src: url('".concat(src, '\') format("woff");');
+                            }
+                        }));
+                        parse_css += "}";
+                    }));
+                    return parse_css;
                 },
                 addDynamicStyle: function addDynamicStyle(id, style) {
                     jQuery("style#" + id).remove();
@@ -968,7 +1015,7 @@
     (() => {
         "use strict";
         __webpack_require__.r(__webpack_exports__);
-        var _preview_async_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(333);
+        var _preview_async_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(334);
         function _toConsumableArray(arr) {
             return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
         }

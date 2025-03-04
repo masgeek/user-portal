@@ -10,7 +10,7 @@ function bravepop_form_submission(){
    // First check the nonce, if it fails the function will break
    $securityPassed = check_ajax_referer('brave-ajax-form-nonce', 'security', false);
    if($securityPassed === false) {
-      print_r(json_encode(array('sent'=>false, 'message'=>__('Error Sending! Please reload the page and try again.', 'bravepop'))));
+      print_r(wp_json_encode(array('sent'=>false, 'message'=>__('Error Sending! Please reload the page and try again.', 'bravepop'))));
       wp_die();
    }
 
@@ -25,7 +25,7 @@ function bravepop_form_submission(){
    $newsletterCookieConditions = isset($_POST['cookieConditions']) ? json_decode(stripslashes($_POST['cookieConditions'])) : false;
    $formData = json_decode(stripslashes($_POST['formData']));
    $userQuizData = isset($_POST['quizData']) ? json_decode(stripslashes($_POST['quizData'])) : new stdClass();
-   //error_log('popupDevice: '. json_encode($userDevice));
+   //error_log('popupDevice: '. wp_json_encode($userDevice));
    //Fetch Form Settings
    $popupData = json_decode(get_post_meta($popupID, 'popup_data', true));
    $formSubmission = !empty($popupData->settings->form_submission->enabled) ? true : false;
@@ -63,7 +63,7 @@ function bravepop_form_submission(){
                      if($fID === $fieldID){
 
                         if(is_string($fVal)){
-                           $fieldSettings->$fieldID->value = strip_tags($fVal);
+                           $fieldSettings->$fieldID->value = wp_strip_all_tags($fVal);
                         }else{
                            $fieldSettings->$fieldID->value = $fVal;
                         }
@@ -78,18 +78,18 @@ function bravepop_form_submission(){
                         //Assign shortcode Values
                         if($fieldKey){
                            if(isset($fVal) && is_string($fVal)){
-                              $fieldSettings->$fieldID->$fieldKey = strip_tags($fVal);
+                              $fieldSettings->$fieldID->$fieldKey = wp_strip_all_tags($fVal);
                            }  
       
                            if(isset($fVal) && is_array($fVal)){
                               $arrayVal = implode(", ", $fVal);
-                              $fieldSettings->$fieldID->$fieldKey = strip_tags($arrayVal);
+                              $fieldSettings->$fieldID->$fieldKey = wp_strip_all_tags($arrayVal);
                            }
       
                            if(isset($fVal) && $field->type === 'input' && $field->validation === 'name' && (strpos($fVal, ',') !== false)){
                               $fullName = explode(',', $fVal);
-                              $firstname = isset($fullName[0]) ? strip_tags($fullName[0]) : '';
-                              $lastname = isset($fullName[1]) ? strip_tags($fullName[1]) : '';
+                              $firstname = isset($fullName[0]) ? wp_strip_all_tags($fullName[0]) : '';
+                              $lastname = isset($fullName[1]) ? wp_strip_all_tags($fullName[1]) : '';
                               $fieldSettings->$fieldID->$fieldKey = $firstname;
                               if($fieldKey2){
                                  $fieldSettings->$fieldID->$fieldKey2 = $lastname;
@@ -110,7 +110,7 @@ function bravepop_form_submission(){
       }
    }
 
-   //error_log(json_encode($fieldSettings));
+   //error_log(wp_json_encode($fieldSettings));
 
    $fieldSettings = apply_filters( 'bravepop_form_element_field_data', $fieldSettings );
 
@@ -118,19 +118,19 @@ function bravepop_form_submission(){
    foreach ((array)$fieldSettings as $key => $field) {
       $ignoreRequired = isset($field->conditions) && is_array($field->conditions) && count($field->conditions) > 0 && !empty($field->required) ? bravepop_form_ignore_required($fieldSettings, $field) : false;
       if(isset($field->required) && ($field->required === true && $ignoreRequired === false)){
-         //error_log(json_encode($field));
+         //error_log(wp_json_encode($field));
          if(isset($field->type) && $field->type !== 'step'){ 
             if((!isset($field->value) || !$field->value) ){
-               print_r(json_encode(array('sent'=>false, 'id' => $key, 'type'=> 'required', 'message' => __('Required.', 'bravepop'))));
+               print_r(wp_json_encode(array('sent'=>false, 'id' => $key, 'type'=> 'required', 'message' => __('Required.', 'bravepop'))));
                wp_die();
             }
             if(isset($field->value) && $field->type ==='select'  && $field->value === 'none'){
-               print_r(json_encode(array('sent'=>false, 'id' => $key, 'type'=> 'required', 'message' => __('Required.', 'bravepop'))));
+               print_r(wp_json_encode(array('sent'=>false, 'id' => $key, 'type'=> 'required', 'message' => __('Required.', 'bravepop'))));
                wp_die();
             }
             if((!isset($field->value) || !$field->value)  && isset($field->validation) && $field->validation === 'name'){
                if(!$field->value[0] || !$field->value[1]){
-                  print_r(json_encode(array('sent'=>false, 'id' => $key, 'type'=> 'required', 'message' => __('Required.', 'bravepop'), 'firstname'=> !$field->value[0] ? true : false, 'lastname'=>  !$field->value[1] ? true : false)));
+                  print_r(wp_json_encode(array('sent'=>false, 'id' => $key, 'type'=> 'required', 'message' => __('Required.', 'bravepop'), 'firstname'=> !$field->value[0] ? true : false, 'lastname'=>  !$field->value[1] ? true : false)));
                   wp_die();
                }
             }
@@ -171,7 +171,7 @@ function bravepop_form_submission(){
          if($custom && isset($actionSettings->recieveEmail->message) ){
             //User Template Message
             $message = bravepop_replace_emailShortcodes($actionSettings->recieveEmail->message, $fieldSettings, $userQuizData);
-            $formattedMsg = json_encode($message);
+            $formattedMsg = wp_json_encode($message);
             $theMessage =  str_replace('\n', '\r\n',  $formattedMsg);
             $theMessage = json_decode($theMessage);
          }else{
@@ -182,8 +182,8 @@ function bravepop_form_submission(){
                $defaultKey = !$defaultKey && isset($field->placeholder) ? $field->placeholder : $defaultKey;
 
                $fieldKey = isset($field->uid) ? $field->uid : $defaultKey;
-               $fieldValue = isset($field->value) && is_string($field->value) && $field->value ? strip_tags($field->value) : '';
-               $fieldValue = isset($field->value) && is_array($field->value) && $field->value ? strip_tags(implode(", ", $field->value)) : $fieldValue;
+               $fieldValue = isset($field->value) && is_string($field->value) && $field->value ? wp_strip_all_tags($field->value) : '';
+               $fieldValue = isset($field->value) && is_array($field->value) && $field->value ? wp_strip_all_tags(implode(", ", $field->value)) : $fieldValue;
                
                if(isset($field->value) && is_array($field->value) && $field->type === 'input' && $field->validation === 'name'){
                   $defaultKey2 = isset($field->secondLabel) ? $field->secondLabel : ''; 
@@ -268,7 +268,7 @@ function bravepop_form_submission(){
          if($contentType === 'html'){
             $theMessage = html_entity_decode($message); 
          }else{
-            $formattedMsg = json_encode($message);
+            $formattedMsg = wp_json_encode($message);
             $theMessage =  str_replace('\n', '\r\n',  $formattedMsg);
             $theMessage = json_decode($theMessage);
          }
@@ -296,7 +296,7 @@ function bravepop_form_submission(){
          $tags = !empty($actionSettings->newsletter->advancedSettings->defaultTags) ? $actionSettings->newsletter->advancedSettings->defaultTags : array();   
       }
 
-      //error_log(json_encode($actionSettings->newsletter));
+      //error_log(wp_json_encode($actionSettings->newsletter));
       if($type && ($type==='zohocrm' || $listID || !empty($actionSettings->newsletter->advanced)) && $emailField){
          $emailValue = '';
          $nameValue = '';
@@ -332,7 +332,7 @@ function bravepop_form_submission(){
                if(!empty($matchedLisTags)){
                   $listID = isset($matchedLisTags['list']) ? $matchedLisTags['list'] : $listID;
                   $tags = isset($matchedLisTags['tags']) ? $matchedLisTags['tags'] : $tags;
-                  $miscSettings['mailchimp_groups'] = isset($matchedLisTags['groups']) ? $matchedLisTags['groups'] : $groups;
+                  $miscSettings['mailchimp_groups'] = isset($matchedLisTags['groups']) ? $matchedLisTags['groups'] : [];
                }
             }
          }
@@ -413,14 +413,22 @@ function bravepop_form_submission(){
       if($actionSettings && isset($actionSettings->primaryAction) && $actionSettings->primaryAction === 'redirect' && isset($actionSettings->primaryActionData->redirect)){
          $response['primaryAction'] = 'redirect';
          $response['redirectURL'] = bravepop_replace_emailShortcodes($actionSettings->primaryActionData->redirect, $fieldSettings, $userQuizData, !empty($actionSettings->primaryActionData->encodeRedirectURL) ? true : false);
+         if(isset($actionSettings->primaryActionData->redirectURLParams) && !empty($actionSettings->primaryActionData->redirectURLParams)){
+            $currentURLParamsRaw = html_entity_decode($pageURL);
+            $currentURLParams  = explode("?",$currentURLParamsRaw);
+            if(isset($currentURLParams[1])){
+               $urlConnector = strpos($response['redirectURL'], '?') !== false ? '&' : '?';
+               $response['redirectURL'] = $response['redirectURL'] . $urlConnector . $currentURLParams[1];
+            }
+         }
          $response['redirectAfter'] = isset($actionSettings->primaryActionData->redirectAfter) ? $actionSettings->primaryActionData->redirectAfter : '';
          $response['redirectMessage'] = isset($actionSettings->primaryActionData->redirectMessage) ? nl2br(bravepop_replace_emailShortcodes(html_entity_decode($actionSettings->primaryActionData->redirectMessage), $fieldSettings, $userQuizData)) : '';
          if(!empty($actionSettings->primaryActionData->conditionalRedirect) && isset($actionSettings->primaryActionData->redirectConditions) && function_exists('bravepop_get_conditional_redirection_data')){
-            $response['redirectURL'] = bravepop_replace_emailShortcodes(bravepop_get_conditional_redirection_data('redirect',$actionSettings->primaryActionData->redirect, $actionSettings->primaryActionData->redirectConditions, $fieldSettings, $userQuizData));
+            $response['redirectURL'] = bravepop_replace_emailShortcodes(bravepop_get_conditional_redirection_data('redirect',$actionSettings->primaryActionData->redirect, $actionSettings->primaryActionData->redirectConditions, $fieldSettings, $userQuizData), $fieldSettings, $userQuizData);
          }
       }
 
-      print_r(json_encode($response));
+      print_r(wp_json_encode($response));
 
       wp_die();
 }
@@ -435,7 +443,7 @@ function bravepopup_validate_recaptcha(){
    $securityPassed = check_ajax_referer('brave-ajax-form-nonce', 'security', false);
 
    if($securityPassed === false) {
-      print_r(json_encode(false));
+      print_r(wp_json_encode(false));
       wp_die();
    }else{
       $currentSettings = get_option('_bravepopup_settings');
@@ -454,14 +462,14 @@ function bravepopup_validate_recaptcha(){
          $response_body = json_decode( $fieldsResponse['body'] );
 
          if ( !empty( $response_body->success ) && $response_body->score > 0.4 ) {
-            print_r(json_encode(true));
+            print_r(wp_json_encode(true));
             wp_die();
          }else{
-            print_r(json_encode(false));
+            print_r(wp_json_encode(false));
             wp_die();
          }
       }else{
-         print_r(json_encode(false));
+         print_r(wp_json_encode(false));
          wp_die();
       }
    }
@@ -469,13 +477,13 @@ function bravepopup_validate_recaptcha(){
 }
 
 
-function bravepop_replace_emailShortcodes($message, $fieldValues, $userQuizData=false, $encode=false){
+function bravepop_replace_emailShortcodes($message, $fieldValues, $userQuizData=null, $encode=false){
    $finalMessage = $message;
    $formFieldKeyVals = '';
 
    foreach ($fieldValues as $key => $field) {
       if(isset($field->uid) && !empty($field->value)){
-         $fieldVal = is_array($field->value) ? rawurlencode(json_encode($field->value)) : urlencode($field->value);
+         $fieldVal = is_array($field->value) ? rawurlencode(wp_json_encode($field->value)) : urlencode($field->value);
          $formFieldKeyVals .= $field->uid.'='.$fieldVal.'&';
       }
    }

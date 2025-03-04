@@ -1,0 +1,19 @@
+<wpml-config>    
+    <admin-texts>
+        <key name="ayg_gallery_settings">
+            <key name="more_button_label"/>
+            <key name="previous_button_label"/>
+            <key name="next_button_label"/>
+        </key>
+        <key name="ayg_livestream_settings">
+            <key name="fallback_message"/>
+        </key>        
+        <key name="ayg_privacy_settings">
+            <key name="consent_message"/>
+            <key name="button_label"/>
+        </key>
+        <key name="ayg_seo_settings">
+            <key name="deeplinking_prefix"/>
+        </key>
+    </admin-texts>
+</wpml-config>

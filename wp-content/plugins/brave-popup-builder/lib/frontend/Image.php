@@ -5,6 +5,13 @@ if ( ! class_exists( 'BravePop_Element_Image' ) ) {
 
    class BravePop_Element_Image {
 
+      protected $data;
+      protected $popupID;
+      protected $stepIndex;
+      protected $elementIndex;
+      protected $goalItem;
+      protected $dynamicData;
+
       function __construct($data=null, $popupID=null, $stepIndex=0, $elementIndex=0, $device='desktop', $goalItem=false, $dynamicData=null) {
          $this->data = $data;
          $this->popupID = $popupID;
@@ -77,8 +84,10 @@ if ( ! class_exists( 'BravePop_Element_Image' ) ) {
          $actionTrack = ($actionType !== 'step' || $actionType !== 'close') && $track && $clickable ? ' onclick="brave_send_ga_event(\''.$eventCategory.'\', \''.$eventAction.'\', \''.$eventLabel.'\');'.$customAnim.'"':'';
          $actionInlineTrack = ($actionType === 'step' || $actionType === 'close') && $track && $clickable ? ' brave_send_ga_event(\''.$eventCategory.'\', \''.$eventAction.'\', \''.$eventLabel.'\');'.$customAnim.'':'';
          $goalAction = $this->goalItem ? 'brave_complete_goal('.$this->popupID.', \'click\');"':'';
+         $closeAfterClick = ($actionType === 'dynamic' ||$actionType === 'url' || $actionType === 'call'|| $actionType === 'javascript') && !empty($this->data->action->actionData->closeAfter) ? true : false;
+         $closeAfter = $closeAfterClick ? 'brave_close_popup(\''.$this->popupID.'\', \''.$this->stepIndex.'\'); ':'';
 
-         $actionJS = $actionType === 'javascript' && isset($this->data->action->actionData->javascript) ? 'onclick="'.$this->data->action->actionData->javascript.' '.$actionInlineTrack.' '.$goalAction.''.$customAnim.'"': '';
+         $actionJS = $actionType === 'javascript' && isset($this->data->action->actionData->javascript) ? 'onclick="'.$this->data->action->actionData->javascript.' '.$actionInlineTrack.' '.$goalAction.''.$customAnim.$closeAfter.'"': '';
          $actionURL  = isset($this->data->action->actionData->url) ? $this->data->action->actionData->url : '';
          $actionPhone  = !empty($this->data->action->actionData->phone) ? $this->data->action->actionData->phone : '';
          $actionDownload = !empty($this->data->action->actionData->download) ? 'download': '';
@@ -92,8 +101,8 @@ if ( ! class_exists( 'BravePop_Element_Image' ) ) {
          $relType = isset($this->data->action->actionData->rel_type) ? $this->data->action->actionData->rel_type : $actionNoFollow;
          $actionStepNum  = isset($this->data->action->actionData->step) ? (Int)$this->data->action->actionData->step  - 1 : '';
 
-         $actionLink = $clickable && ($actionType === 'url' || $actionType === 'dynamic') && $actionURL ? 'onclick="'.$goalAction.''.$customAnim.'" href="'.$actionURL.'" '.($actionNewWindow ? 'target="_blank"' : '').' '.($relType ? 'rel="'.$relType.'"' : '').'':'';
-         $actionCall = ($actionType === 'call') && $actionPhone ? 'onclick="'.$goalAction.'" href="tel:'.$actionPhone.'"':'';
+         $actionLink = $clickable && ($actionType === 'url' || $actionType === 'dynamic') && $actionURL ? 'onclick="'.$goalAction.''.$customAnim.$closeAfter.'" href="'.$actionURL.'" '.($actionNewWindow ? 'target="_blank"' : '').' '.($relType ? 'rel="'.$relType.'"' : '').'':'';
+         $actionCall = ($actionType === 'call') && $actionPhone ? 'onclick="'.$goalAction.$closeAfter.'" href="tel:'.$actionPhone.'"':'';
          $actionStep = $clickable && $actionType === 'step' && $actionStepNum >=0 ? 'onclick="brave_action_step('.$this->popupID.', '.$this->stepIndex.', '.$actionStepNum.'); '.$actionInlineTrack.' '.$goalAction.'"':'';
          $actionClose = $clickable && $actionType === 'close' ? 'onclick="brave_close_popup(\''.$this->popupID.'\', \''.$this->stepIndex.'\'); '.$actionInlineTrack.' '.$goalAction.'"':'';
          $noActionAnim = $clickable && $customAnim && $actionType === 'none' ? 'onclick="'.$customAnim.'"' :'';
@@ -145,6 +154,10 @@ if ( ! class_exists( 'BravePop_Element_Image' ) ) {
             $imageURL = $this->dynamicImage();
          }
 
+         $lazyLoad = bravepop_should_lazyload();
+         $imgSrc = $lazyLoad ? 'data-lazy="'.$imageURL.'" src="'.bravepop_get_preloader().'"' : 'src="'.$imageURL.'"';
+         $hoverImgSrc = $lazyLoad ? 'src="'.bravepop_get_preloader().'" data-lazy="'.$hoverIMG.'"' : 'src="'.$hoverIMG.'"' ;
+         
          return '<div id="brave_element-'.$this->data->id.'" class="brave_element brave_element--image '.$hoverClass.' '.$customClass.' '.($clickable ? 'brave_element--has-click-action' : '').'">
                   <div class="brave_element__wrap">
                      <div class="brave_element__styler">
@@ -152,8 +165,8 @@ if ( ! class_exists( 'BravePop_Element_Image' ) ) {
                            <div class="brave_element__image_inner">
                               '.$clickStart.'
                                  '.$overlay.'
-                                 <img class="brave_element__image '.$zoomedImg.' brave_element_img_item skip-lazy no-lazyload" data-lazy="'.$imageURL.'" src="'.bravepop_get_preloader().'" alt="'.$altText.'" />
-                                 '.($hoverIMG ? '<img class="brave_element__image brave_element_img_item brave_element__image__hoverIMG skip-lazy no-lazyload" src="'.bravepop_get_preloader().'" data-lazy="'.$hoverIMG.'" />' :'').'
+                                 <img class="brave_element__image '.$zoomedImg.' brave_element_img_item skip-lazy no-lazyload" '.$imgSrc.' alt="'.$altText.'" />
+                                 '.($hoverIMG ? '<img class="brave_element__image brave_element_img_item brave_element__image__hoverIMG skip-lazy no-lazyload" '.$hoverImgSrc.'  />' :'').'
                               '.$clickEnd.'
                            </div>
                            '.$frameSVG.'

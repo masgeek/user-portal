@@ -554,9 +554,45 @@
 		}
 	<?php } ?>
 
+	<?php if ( forminator_array_value_exists( $properties, 'cform-multiselect-tag-font-size' ) ) { ?>
+		.forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-select2-selections > li {
+			font-size: <?php echo $properties['cform-multiselect-tag-font-size'] ?>px;
+		}
+	<?php } else { ?>
+		.forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-select2-selections > li {
+			font-size: 12px;
+		}
+	<?php } ?>
+
+	<?php if ( forminator_array_value_exists( $properties, 'cform-multiselect-tag-font-family' ) ) { ?>
+		.forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-select2-selections > li {
+			<?php if ( $properties['cform-multiselect-tag-font-family'] != 'custom' && !empty( $properties['cform-multiselect-tag-font-family'] ) ) { ?>
+				font-family: <?php echo $properties['cform-multiselect-tag-font-family'] ?>;
+			<?php } ?>
+			<?php if ( $properties['cform-multiselect-tag-font-family'] == 'custom' && !empty( $properties['cform-multiselect-tag-custom-family'] ) ) { ?>
+				font-family: <?php echo $properties['cform-multiselect-tag-custom-family'] ?>;
+			<?php } ?>
+		}
+	<?php } else { ?>
+		.forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-select2-selections > li {
+			font-family: inherit;
+		}
+	<?php } ?>
+
+	<?php if ( forminator_array_value_exists( $properties, 'cform-multiselect-tag-font-weight' ) ) { ?>
+		.forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-select2-selections > li {
+			<?php forminator_echo_font_weight( $properties, 'cform-multiselect-tag-font-weight' ); ?>
+		}
+	<?php } else { ?>
+		.forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-select2-selections > li {
+			font-weight: 500;
+		}
+	<?php } ?>
+
 <?php } else { ?>
 
-	.forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-multiselect li label {
+	.forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-multiselect li label,
+	.forminator-custom-form-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-select2-selections > li {
 		font-size: 16px;
 		font-family: inherit;
 		font-weight: normal;

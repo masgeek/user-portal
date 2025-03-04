@@ -93,12 +93,15 @@ if ( ! class_exists( 'Kenta_Scroll_Top_Extension' ) ) {
 					'initial' => '--kenta-to-top-background-initial',
 					'hover'   => '--kenta-to-top-background-hover',
 				] ),
+				Css::border( CZ::get( 'kenta_to_top_border' ) ),
 				[
 					'--kenta-to-top-icon-size'     => CZ::get( 'kenta_to_top_icon_size' ),
 					'--kenta-to-top-bottom-offset' => CZ::get( 'kenta_to_top_bottom_offset' ),
 					'--kenta-to-top-side-offset'   => CZ::get( 'kenta_to_top_side_offset' ),
 				]
 			);
+
+			$css['.kenta-to-top:hover'] = Css::shadow( CZ::get( 'kenta_to_top_shadow_active' ) );
 
 			return $css;
 		}
@@ -122,7 +125,7 @@ if ( ! class_exists( 'Kenta_Scroll_Top_Extension' ) ) {
 						( new Separator() ),
 						( new Slider( 'kenta_to_top_icon_size' ) )
 							->setLabel( __( 'Icon Size', 'kenta' ) )
-							->bindSelectiveRefresh( 'kenta-global-selective-css' )
+							->asyncCss( '.kenta-to-top', [ '--kenta-to-top-icon-size' => 'value' ] )
 							->enableResponsive()
 							->setMin( 10 )
 							->setMax( 50 )
@@ -132,7 +135,7 @@ if ( ! class_exists( 'Kenta_Scroll_Top_Extension' ) ) {
 						( new Separator() ),
 						( new Slider( 'kenta_to_top_bottom_offset' ) )
 							->setLabel( __( 'Bottom Offset', 'kenta' ) )
-							->bindSelectiveRefresh( 'kenta-global-selective-css' )
+							->asyncCss( '.kenta-to-top', [ '--kenta-to-top-bottom-offset' => 'value' ] )
 							->enableResponsive()
 							->setMin( 5 )
 							->setMax( 300 )
@@ -141,7 +144,7 @@ if ( ! class_exists( 'Kenta_Scroll_Top_Extension' ) ) {
 						,
 						( new Slider( 'kenta_to_top_side_offset' ) )
 							->setLabel( __( 'Side Offset', 'kenta' ) )
-							->bindSelectiveRefresh( 'kenta-global-selective-css' )
+							->asyncCss( '.kenta-to-top', [ '--kenta-to-top-side-offset' => 'value' ] )
 							->enableResponsive()
 							->setMin( 5 )
 							->setMax( 300 )
@@ -184,6 +187,9 @@ if ( ! class_exists( 'Kenta_Scroll_Top_Extension' ) ) {
 					->addColor( 'initial', 'var(--kenta-accent-active)' )
 					->addColor( 'hover', 'var(--kenta-primary-color)' )
 				,
+				( new Placeholder( 'kenta_to_top_border' ) )
+					->setDefaultBorder( 1, 'solid', 'var(--kenta-base-300)', 'var(--kenta-primary-color)' )
+				,
 				( new Placeholder( 'kenta_to_top_padding' ) )
 					->setDefaultValue( [
 						'top'    => '16px',
@@ -203,6 +209,16 @@ if ( ! class_exists( 'Kenta_Scroll_Top_Extension' ) ) {
 					] )
 				,
 				( new Placeholder( 'kenta_to_top_shadow' ) )
+					->setDefaultShadow(
+						'rgba(44, 62, 80, 0.15)',
+						'0px',
+						'10px',
+						'20px',
+						'0px',
+						true
+					)
+				,
+				( new Placeholder( 'kenta_to_top_shadow_active' ) )
 					->setDefaultShadow(
 						'rgba(44, 62, 80, 0.15)',
 						'0px',

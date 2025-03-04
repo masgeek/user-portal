@@ -1,3 +1,11 @@
+<?php
+/**
+ * Template admin/views/common/reports/content-none.php
+ *
+ * @package Forminator
+ */
+
+?>
 <div class="sui-box sui-message">
 
 	<?php if ( forminator_is_show_branding() ) : ?>

@@ -1,5 +1,14 @@
 <?php
-/** @var Forminator_Quiz_Page $this */
+/**
+ * Template admin/views/quiz/list/content.php
+ *
+ * @package Forminator
+ */
+
+/**
+ * Forminator_Quiz_Page
+ *
+ *  @var Forminator_Quiz_Page $this */
 
 // Search keyword.
 $search_keyword      = Forminator_Core::sanitize_text_field( 'module-search' );
@@ -13,7 +22,7 @@ $modules = $this->getModules();
 $count = ! $is_search ? $this->countModules() : count( $modules );
 
 // Start date for retrieving the information of the last 30 days in sql format.
-$sql_month_start_date = date( 'Y-m-d H:i:s', strtotime( '-30 days midnight' ) );
+$sql_month_start_date = gmdate( 'Y-m-d H:i:s', strtotime( '-30 days midnight' ) );
 
 $entry_type  = 'quizzes';
 $most_entry  = Forminator_Form_Entry_Model::get_most_entry( $entry_type );
@@ -24,7 +33,7 @@ if ( $most_entry ) {
 }
 $empty_title   = esc_html__( 'Create fun or challenging quizzes for your visitors to take and share on social media.', 'forminator' );
 $create_dialog = 'quizzes';
-$preview_title = __( 'Preview Quiz', 'forminator' );
+$preview_title = esc_html__( 'Preview Quiz', 'forminator' );
 
 require_once forminator_plugin_dir() . 'admin/views/common/list/summary.php';
 

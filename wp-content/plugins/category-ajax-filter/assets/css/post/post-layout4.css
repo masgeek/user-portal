@@ -71,6 +71,7 @@ ul#caf-layout-pagination.post-layout4 span.page-numbers.current {
     display: block;
     width: 100%;
     padding: 20px 5px 10px 5px;
+    box-sizing: border-box;
 }
 
 .caf-post-layout4 .caf-post-title h2 {
@@ -120,10 +121,14 @@ padding: 0px 0px 5px 0px;
 /*.caf-post-layout4 .caf-meta-content-cats li:nth-child(4) a {
     background: #f79918 !important;
 }*/
-.caf-post-layout4 .caf-meta-content {
+caf-post-layout4 .caf-meta-content {
     display: flex;
     width: 100%;
     padding: 2px 5px;
+    box-sizing: border-box;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: center;
 }
 .caf-post-layout4 span.author,.caf-post-layout4 span.date,.caf-post-layout4 span.comment {
     font-size: 12px;
@@ -135,10 +140,15 @@ padding: 0px 0px 5px 0px;
 	word-break: break-word;
 	font-size: 16px;
     line-height: 28px;
+    box-sizing: border-box;
 }
 .caf-post-layout4 .caf-content-read-more {
     display: block;
     padding: 5px;
+    box-sizing: border-box;
+}
+.caf-post-layout4 span.date {
+    width: 120px;
 }
 .caf-post-layout4 a.caf-read-more {
     box-shadow: none;

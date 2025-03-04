@@ -176,6 +176,13 @@ if ( ! function_exists( 'kcmp_deactivate_classic_editor' ) ) {
 	 * @param bool $silent
 	 */
 	function kcmp_deactivate_classic_editor( $silent = true ) {
+		if ( ! current_user_can( 'activate_plugins' ) ) {
+			wp_die(
+				'<h1>' . __( 'You need a higher level of permission.', 'kenta-companion' ) . '</h1>' .
+				'<p>' . __( 'Sorry, you are not allowed to deactivate plugins on this site.', 'kenta-companion' ) . '</p>',
+				403
+			);
+		}
 
 		if ( is_plugin_active( 'classic-editor/classic-editor.php' ) ) {
 			deactivate_plugins( array( 'classic-editor/classic-editor.php' ) );
@@ -418,6 +425,22 @@ if ( ! function_exists( 'kcmp_upsell_info_control' ) ) {
 			->alignCenter()
 			->hideBackground()
 			->setInfo( kcmp_upsell_info( $info ) );
+	}
+}
+
+if ( ! function_exists( 'kcmp_docs_control' ) ) {
+	/**
+	 * @param $info
+	 * @param $url
+	 *
+	 * @return \LottaFramework\Customizer\Controls\Info
+	 */
+	function kcmp_docs_control( $info, $url, $id = null ) {
+		return ( new \LottaFramework\Customizer\Controls\Info( $id ) )
+			->alignCenter()
+			->setInfo( sprintf(
+				$info, '<a target="_blank" href="' . esc_url( $url ) . '">', '</a>'
+			) );
 	}
 }
 

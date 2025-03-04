@@ -11,12 +11,23 @@ class CAF_shortcode_render
     }
     public function tc_caf_post_layout_read_more($text, $id)
     {
-        $text = 'Read More';
+        $text = __('Read More', 'category-ajax-filter');
         return $text;
     }
     public function caf_filter_call($atts)
     {
         ob_start();
+        if (class_exists('TC_CAF_PRO')) {
+         $caf_pro_class=new TC_CAF_PRO();
+         if($caf_pro_class->check_license()=='Deactivated') {
+            echo "<center style='color:red'>Error : CAF PRO's license is not activated. Please activate the license from admin panel or deactivate the PRO version.</center>";
+            $output = ob_get_contents();
+            ob_end_clean();
+            return $output;
+         }
+        }
+        else {
+
         $caf_filter = new CAF_front_filter();
         static $b = 1;
         $atts = shortcode_atts(array(
@@ -24,10 +35,10 @@ class CAF_shortcode_render
         ), $atts);
         $id = $atts['id'];
         if (!get_post_meta($id, 'caf_taxonomy')) {
-            return "<h2 style='background: #333348;color: #fff;font-size: 14px;line-height: 18px;padding: 10px;margin: 0;width: 100%;display: inline-block;text-align: center;border: none;text-shadow: none;box-shadow: none;'>" . esc_html__('Please select Taxonomy from specific CAF Filter. It is required to properly work for your Filter.', 'category-ajax-filter-pro') . "</h2>";
+            return "<h2 style='background: #333348;color: #fff;font-size: 14px;line-height: 18px;padding: 10px;margin: 0;width: 100%;display: inline-block;text-align: center;border: none;text-shadow: none;box-shadow: none;'>" . esc_html__('Please select Taxonomy from specific CAF Filter. It is required to properly work for your Filter.', 'category-ajax-filter') . "</h2>";
         }
         if (!get_post_meta($id, 'caf_terms')) {
-            return "<h2 style='background: #333348;color: #fff;font-size: 14px;line-height: 18px;padding: 10px;margin: 0;width: 100%;display: inline-block;text-align: center;border: none;text-shadow: none;box-shadow: none;'>" . esc_html__('Please select Categories/Terms from specific CAF Filter. It is required to properly work for your Filter.', 'category-ajax-filter-pro') . "</h2>";
+            return "<h2 style='background: #333348;color: #fff;font-size: 14px;line-height: 18px;padding: 10px;margin: 0;width: 100%;display: inline-block;text-align: center;border: none;text-shadow: none;box-shadow: none;'>" . esc_html__('Please select Categories/Terms from specific CAF Filter. It is required to properly work for your Filter.', 'category-ajax-filter') . "</h2>";
         }
         include TC_CAF_PATH . 'includes/front-variables.php';
         if (get_post_meta($id, 'caf_cpt_value')) {
@@ -52,14 +63,14 @@ class CAF_shortcode_render
                 $tax = implode(",", $tax);
             }
             //var_dump($tax);
-            echo '<div id="caf-post-layout-container" class="caf-post-layout-container ' . $cl . ' ' . $caf_filter_layout . ' ' . $caf_post_layout . ' data-target-div' . $b . '" data-post-type="' . $caf_cpt_value . '" data-tax="' . $tax . '" data-terms="' . $trm . '" data-per-page="' . $caf_per_page . '" data-selected-terms="' . $trm . '" data-filter-id="' . $id . '" data-post-layout="' . $caf_post_layout . '" data-target-div="data-target-div' . $b . '">';
+            echo '<div id="caf-post-layout-container" class="caf-post-layout-container ' . esc_attr($cl) . ' ' . esc_attr($caf_filter_layout) . ' ' . esc_attr($caf_post_layout) . ' data-target-div' . esc_attr($b) . '" data-post-type="' . esc_attr($caf_cpt_value) . '" data-tax="' . esc_attr($tax) . '" data-terms="' . esc_attr($trm) . '" data-per-page="' . esc_attr($caf_per_page) . '" data-selected-terms="' . esc_attr($trm) . '" data-filter-id="' . esc_attr($id) . '" data-post-layout="' . esc_attr($caf_post_layout) . '" data-target-div="data-target-div' . esc_attr($b) . '">';
             if ($caf_filter_status == 'on') {
                 if ($caf_filter_layout && strlen($caf_filter_layout) > 13) {
                     $filepath = TC_CAF_PATH . "includes/layouts/filter/" . $caf_filter_layout . ".php";
                     if (file_exists($filepath)) {
                         include $filepath;
                     } else {
-                        echo "<div class='error-of-filter-layout error-caf'>" . esc_html('Filter Layout is not Available.', 'tc_caf') . "</div>";
+                        echo "<div class='error-of-filter-layout error-caf'>" . esc_html('Filter Layout is not Available.', 'category-ajax-filter') . "</div>";
                     }
                 }
             }
@@ -73,17 +84,19 @@ class CAF_shortcode_render
             echo "</div>";
         } else {
             if (empty($id)) {
-                echo "<div class='error-of-missing-id error-caf'>" . esc_html__('Nothing Found, Missing id as an argument.', 'tc_caf') . ' <a href="https://caf.trustyplugins.com/docs/documentation/getting-started/" target="_blank">' . esc_html__('See Documentation', 'tc_caf') . "</a></div>";
+                echo "<div class='error-of-missing-id error-caf'>" . esc_html__('Nothing Found, Missing id as an argument.', 'category-ajax-filter') . ' <a href="https://caf.trustyplugins.com/docs/documentation/getting-started/" target="_blank">' . esc_html__('See Documentation', 'category-ajax-filter') . "</a></div>";
             } else {
-                echo "<div class='error-of-missing-id error-caf'>" . esc_html__('Nothing Found, ID Mismatched.', 'tc_caf') . ' <a href="https://caf.trustyplugins.com/docs/documentation/getting-started/" target="_blank">' . esc_html__('See Documentation', 'tc_caf') . "</a></div>";
+                echo "<div class='error-of-missing-id error-caf'>" . esc_html__('Nothing Found, ID Mismatched.', 'category-ajax-filter') . ' <a href="https://caf.trustyplugins.com/docs/documentation/getting-started/" target="_blank">' . esc_html__('See Documentation', 'category-ajax-filter') . "</a></div>";
             }
         }
         $output = ob_get_contents();
         ob_end_clean();
         $b++;
         return $output;
-
     }
+}
+
+    
 }
 class CAF_get_filter_posts
 {
@@ -129,7 +142,7 @@ class CAF_get_filter_posts
                 'message' => 'Term doesn\'t exist',
                 'content' => 0,
             ];
-            die(json_encode($response));
+            die(wp_json_encode($response));
         else:
             if ($terms == 'all'):
                 $tax_qry[] = [
@@ -147,8 +160,14 @@ class CAF_get_filter_posts
             endif;
         endif;
         $default_order_by = 'title';
+        if (get_post_meta($filter_id, "caf_post_orders_by", true)) {
+            $default_order_by = get_post_meta($filter_id, "caf_post_orders_by", true);
+        }
         $default_order_by = apply_filters('tc_caf_filter_posts_order_by', $default_order_by);
         $default_order = "asc";
+        if (get_post_meta($filter_id, "caf_post_order_type", true)) {
+            $default_order = get_post_meta($filter_id, "caf_post_order_type", true);
+        }
         $default_order = apply_filters('tc_caf_filter_posts_order', $default_order);
         /*** Setup query ***/
         $args = [
@@ -156,6 +175,7 @@ class CAF_get_filter_posts
             'post_type' => $post_type,
             'post_status' => 'publish',
             'posts_per_page' => $per_page,
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
             'tax_query' => $tax_qry,
             'orderby' => $default_order_by,
             'order' => $default_order,
@@ -163,12 +183,13 @@ class CAF_get_filter_posts
         $qry = new WP_Query($args);
         ob_start();
         echo '<div class="status"></div>';
+        $caf_post_layout=sanitize_file_name($caf_post_layout);
         if ($caf_post_layout && strlen($caf_post_layout) > 11) {
             $filepath = TC_CAF_PATH . "includes/layouts/post/" . $caf_post_layout . ".php";
             if (file_exists($filepath)) {
                 include_once $filepath;
             } else {
-                echo "<div class='error-of-post-layout error-caf'>" . esc_html('Post Layout is not Available.', 'tc_caf') . "</div>";
+                echo "<div class='error-of-post-layout error-caf'>" . esc_html('Post Layout is not Available.', 'category-ajax-filter') . "</div>";
                 $response = [
                     'status' => 404,
                     'message' => 'No posts found',
@@ -178,7 +199,7 @@ class CAF_get_filter_posts
         }
 //include_once TC_CAF_PATH.'includes/layouts/post/post-layout1.php';
         $response['content'] = ob_get_clean();
-        die(json_encode($response));
+        die(wp_json_encode($response));
         //die();
     }
 }
@@ -227,7 +248,7 @@ class CAF_front_filter
     }
     public function tc_caf_custom_title_before_sidebar_filter()
     {
-        return _e('Categories', 'category-ajax-filter');
+        return esc_html_e('Categories', 'category-ajax-filter');
 
     }
     public function tc_caf_filter_order_by($terms_sel)
@@ -244,7 +265,7 @@ class CAF_front_filter
     }
     public function tc_caf_filter_all_text($all_text)
     {
-        return 'All';
+         return __('All', 'category-ajax-filter');
     }
 }
 class CAF_ajax_pagination
@@ -293,9 +314,9 @@ class CAF_ajax_pagination
             'next_text' => $next_text,
         ]);
         if ($query->max_num_pages > 1): ?>
-        <ul id="caf-layout-pagination" class="caf-pagination <?php echo $caf_post_layout; ?>">
+        <ul id="caf-layout-pagination" class="caf-pagination <?php echo esc_attr($caf_post_layout); ?>">
             <?php foreach ($paginate as $page): ?>
-                <li><?php echo $page; ?></li>
+                <li><?php echo wp_kses_post($page); ?></li>
             <?php endforeach;?>
         </ul>
     <?php endif;

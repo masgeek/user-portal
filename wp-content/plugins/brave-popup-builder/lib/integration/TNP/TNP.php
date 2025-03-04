@@ -8,7 +8,7 @@ if ( ! class_exists( 'BravePop_TNP' ) ) {
          if(class_exists('TNP') && class_exists('Newsletter')){
             $lists = get_option( 'newsletter_subscription_lists', array() );
 
-            //error_log('TNP Lists: '.json_encode($lists));
+            //error_log('TNP Lists: '.wp_json_encode($lists));
             $noListItem = new stdClass();
             $noListItem->id = 'no_list';
             $noListItem->name = 'No List'; 
@@ -25,8 +25,8 @@ if ( ! class_exists( 'BravePop_TNP' ) ) {
 
             }
 
-            //error_log(json_encode($finalLists));
-            return json_encode($finalLists);
+            //error_log(wp_json_encode($finalLists));
+            return wp_json_encode($finalLists);
          }
          
       }
@@ -47,7 +47,7 @@ if ( ! class_exists( 'BravePop_TNP' ) ) {
             }
             
             $theData['fields'] = $finalFields;
-            return json_encode($theData);
+            return wp_json_encode($theData);
          }
          
       }
@@ -81,7 +81,7 @@ if ( ! class_exists( 'BravePop_TNP' ) ) {
             }
          }
 
-         error_log(json_encode($contact));
+         // error_log(wp_json_encode($contact));
 
          $userAdded = TNP::subscribe($contact);
 

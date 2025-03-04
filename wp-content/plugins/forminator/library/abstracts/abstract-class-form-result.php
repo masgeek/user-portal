@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator Result.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -11,16 +17,30 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 1.1
  */
 abstract class Forminator_Result {
-
-	/*
+	/**
 	 * Entry id
 	 *
 	 * @var integer
 	 */
-	protected $entry_id  = 0;
+	protected $entry_id = 0;
+
+	/**
+	 * Post data
+	 *
+	 * @var mixed
+	 */
 	protected $post_data = false;
+
+	/**
+	 * Post type
+	 *
+	 * @var string
+	 */
 	protected $post_type = '';
 
+	/**
+	 * Forminator_Result Constructor
+	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'add_rewrite_rules' ) );
 		add_action( 'wp_head', array( $this, 'load_results_page' ), 99 );
@@ -28,6 +48,12 @@ abstract class Forminator_Result {
 		add_action( 'wp_print_styles', array( $this, 'print_styles' ) );
 	}
 
+	/**
+	 * Set Entry
+	 *
+	 * @param mixed $id Entry ID.
+	 * @return void
+	 */
 	public function set_entry( $id = false ) {
 		if ( false === $id ) {
 			$this->entry_id = get_query_var( 'entries', 0 );
@@ -36,12 +62,22 @@ abstract class Forminator_Result {
 		}
 	}
 
+	/**
+	 * Set postdata
+	 *
+	 * @return void
+	 */
 	public function set_postdata() {
 		if ( Forminator_Front_Action::$prepared_data ) {
 			$this->post_data = Forminator_Front_Action::$prepared_data;
 		}
 	}
 
+	/**
+	 * Load results page
+	 *
+	 * @return void
+	 */
 	public function load_results_page() {
 		$this->set_entry();
 
@@ -52,6 +88,11 @@ abstract class Forminator_Result {
 		}
 	}
 
+	/**
+	 * Print scripts
+	 *
+	 * @return void
+	 */
 	public function print_scripts() {
 		$this->set_entry();
 
@@ -60,6 +101,11 @@ abstract class Forminator_Result {
 		}
 	}
 
+	/**
+	 * Print styles
+	 *
+	 * @return void
+	 */
 	public function print_styles() {
 		$this->set_entry();
 		if ( empty( $this->entry_id ) ) {
@@ -67,6 +113,11 @@ abstract class Forminator_Result {
 		}
 	}
 
+	/**
+	 * Print result header
+	 *
+	 * @return void
+	 */
 	public function print_result_header() {
 	}
 
@@ -75,7 +126,7 @@ abstract class Forminator_Result {
 	 *
 	 * @since 1.7
 	 *
-	 * @param Forminator_Form_Entry_Model $entry
+	 * @param Forminator_Form_Entry_Model $entry Form entry model.
 	 *
 	 * @return bool
 	 */
@@ -83,6 +134,12 @@ abstract class Forminator_Result {
 		return false;
 	}
 
+	/**
+	 * Build permalink
+	 *
+	 * @param mixed $id Id.
+	 * @return mixed
+	 */
 	public function build_permalink( $id = false ) {
 		if ( empty( $this->entry_id ) ) {
 			return $this->post_data['_wp_http_referer'];
@@ -109,6 +166,11 @@ abstract class Forminator_Result {
 		return $http_referer . 'entries/' . $this->entry_id . '/';
 	}
 
+	/**
+	 * Add rewrite rules
+	 *
+	 * @return void
+	 */
 	public function add_rewrite_rules() {
 		add_rewrite_tag( '%entries%', '([^&]+)' );
 		add_rewrite_rule( '^entries/([^/]+)/?', 'index.php?entries=$matches[1]', 'top' );

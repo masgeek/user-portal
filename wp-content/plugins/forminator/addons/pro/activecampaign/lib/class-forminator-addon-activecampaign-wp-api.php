@@ -1,12 +1,14 @@
 <?php
-
-require_once dirname( __FILE__ ) . '/class-forminator-addon-activecampaign-wp-api-exception.php';
-require_once dirname( __FILE__ ) . '/class-forminator-addon-activecampaign-wp-api-not-found-exception.php';
+/**
+ * The Forminator Activecampaign Wp_Api.
+ *
+ * @package    Forminator
+ */
 
 /**
- * Class Forminator_Addon_Activecampaign_Wp_Api
+ * Class Forminator_Activecampaign_Wp_Api
  */
-class Forminator_Addon_Activecampaign_Wp_Api {
+class Forminator_Activecampaign_Wp_Api {
 
 	/**
 	 * Activecampaign endpoint of api
@@ -25,7 +27,7 @@ class Forminator_Addon_Activecampaign_Wp_Api {
 	/**
 	 * Last data sent to activecampaign
 	 *
-	 * @since 1.0 Activecampaign Addon
+	 * @since 1.0 Activecampaign Integration
 	 * @var array
 	 */
 	private $_last_data_sent = array();
@@ -33,7 +35,7 @@ class Forminator_Addon_Activecampaign_Wp_Api {
 	/**
 	 * Last data received from activecampaign
 	 *
-	 * @since 1.0 Activecampaign Addon
+	 * @since 1.0 Activecampaign Integration
 	 * @var array
 	 */
 	private $_last_data_received = array();
@@ -41,30 +43,30 @@ class Forminator_Addon_Activecampaign_Wp_Api {
 	/**
 	 * Last URL requested
 	 *
-	 * @since 1.0 Activecampaign Addon
+	 * @since 1.0 Activecampaign Integration
 	 * @var string
 	 */
 	private $_last_url_request = '';
 
 	/**
-	 * Forminator_Addon_Activecampaign_Wp_Api constructor.
+	 * Forminator_Activecampaign_Wp_Api constructor.
 	 *
-	 * @since 1.0 Activecampaign Addon
+	 * @since 1.0 Activecampaign Integration
 	 *
-	 * @param string $_endpoint
+	 * @param string $_endpoint End point.
 	 *
-	 * @param string $_api_key
+	 * @param string $_api_key API Key.
 	 *
-	 * @throws Forminator_Addon_Activecampaign_Wp_Api_Exception
+	 * @throws Forminator_Integration_Exception Throw Integration Exception.
 	 */
 	public function __construct( $_endpoint, $_api_key ) {
-		//prerequisites
+		// prerequisites.
 		if ( ! $_endpoint ) {
-			throw new Forminator_Addon_Activecampaign_Wp_Api_Exception( __( 'Missing required API URL', 'forminator' ) );
+			throw new Forminator_Integration_Exception( esc_html__( 'Missing required API URL', 'forminator' ) );
 		}
 
 		if ( ! $_api_key ) {
-			throw new Forminator_Addon_Activecampaign_Wp_Api_Exception( __( 'Missing required API Key', 'forminator' ) );
+			throw new Forminator_Integration_Exception( esc_html__( 'Missing required API Key', 'forminator' ) );
 		}
 
 		$this->_endpoint = $_endpoint;
@@ -74,9 +76,9 @@ class Forminator_Addon_Activecampaign_Wp_Api {
 	/**
 	 * Add custom user agent on request
 	 *
-	 * @since 1.0 Activecampaign Addon
+	 * @since 1.0 Activecampaign Integration
 	 *
-	 * @param $user_agent
+	 * @param string $user_agent User agent.
 	 *
 	 * @return string
 	 */
@@ -98,15 +100,14 @@ class Forminator_Addon_Activecampaign_Wp_Api {
 	/**
 	 * HTTP Request
 	 *
-	 * @since 1.0 Activecampaign Addon
+	 * @since 1.0 Activecampaign Integration
 	 *
-	 * @param string $verb
-	 * @param        $path
-	 * @param array  $args
+	 * @param string $verb `GET` `POST` `PUT` `DELETE` `PATCH`.
+	 * @param string $path requested path resource.
+	 * @param array  $args arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Activecampaign_Wp_Api_Exception
-	 * @throws Forminator_Addon_Activecampaign_Wp_Api_Not_Found_Exception
+	 * @throws Forminator_Integration_Exception Throw exception.
 	 */
 	private function request( $verb, $path, $args = array() ) {
 		// Adding extra user agent for wp remote request.
@@ -177,8 +178,8 @@ class Forminator_Addon_Activecampaign_Wp_Api {
 
 		if ( is_wp_error( $res ) || ! $res ) {
 			forminator_addon_maybe_log( __METHOD__, $res );
-			throw new Forminator_Addon_Activecampaign_Wp_Api_Exception(
-				__( 'Failed to process request, make sure your API URL and API KEY are correct and your server has internet connection.', 'forminator' )
+			throw new Forminator_Integration_Exception(
+				esc_html__( 'Failed to process request, make sure your API URL and API KEY are correct and your server has internet connection.', 'forminator' )
 			);
 		}
 
@@ -191,11 +192,21 @@ class Forminator_Addon_Activecampaign_Wp_Api {
 				}
 
 				if ( 404 === $status_code ) {
-					/* translators: ... */
-					throw new Forminator_Addon_Activecampaign_Wp_Api_Not_Found_Exception( sprintf( __( 'Failed to process request : %s', 'forminator' ), $msg ) );
+					throw new Forminator_Integration_Exception(
+						sprintf(
+						/* translators: %s: Error message */
+							esc_html__( 'Failed to process request : %s', 'forminator' ),
+							esc_html( $msg )
+						)
+					);
 				}
-				/* translators: ... */
-				throw new Forminator_Addon_Activecampaign_Wp_Api_Exception( sprintf( __( 'Failed to process request : %s', 'forminator' ), $msg ) );
+				throw new Forminator_Integration_Exception(
+					sprintf(
+					/* translators: %s: Error message */
+						esc_html__( 'Failed to process request : %s', 'forminator' ),
+						esc_html( $msg )
+					)
+				);
 			}
 		}
 
@@ -212,15 +223,20 @@ class Forminator_Addon_Activecampaign_Wp_Api {
 					if ( isset( $res->result_message ) && ! empty( $res->result_message ) ) {
 						$message = ' ' . $res->result_message;
 					}
-					/* translators: ... */
-					throw new Forminator_Addon_Activecampaign_Wp_Api_Exception( sprintf( __( 'Failed to get ActiveCampaign data.%1$s', 'forminator' ), $message ) );
+					throw new Forminator_Integration_Exception(
+						sprintf(
+						/* translators: %s: Error message */
+							esc_html__( 'Failed to get ActiveCampaign data.%s', 'forminator' ),
+							esc_html( $message )
+						)
+					);
 				}
 			}
 		}
 
 		$response = $res;
 		/**
-		 * Filter activecampaign api response returned to addon
+		 * Filter activecampaign api response returned to integration
 		 *
 		 * @since 1.1
 		 *
@@ -241,13 +257,12 @@ class Forminator_Addon_Activecampaign_Wp_Api {
 	/**
 	 * Send data to activecampaign API URL
 	 *
-	 * @since 1.0 Activecampaign Addon
+	 * @since 1.0 Activecampaign Integration
 	 *
-	 * @param $args
+	 * @param array $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Activecampaign_Wp_Api_Exception
-	 * @throws Forminator_Addon_Activecampaign_Wp_Api_Not_Found_Exception
+	 * @throws Forminator_Integration_Exception Throw Exception.
 	 */
 	public function post_( $args ) {
 
@@ -261,11 +276,10 @@ class Forminator_Addon_Activecampaign_Wp_Api {
 	/**
 	 * Get Account Detail
 	 *
-	 * @since 1.0 Activecampaign Addon
+	 * @since 1.0 Activecampaign Integration
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Activecampaign_Wp_Api_Exception
-	 * @throws Forminator_Addon_Activecampaign_Wp_Api_Not_Found_Exception
+	 * @throws Forminator_Integration_Exception Throw Exception.
 	 */
 	public function get_account() {
 
@@ -283,13 +297,12 @@ class Forminator_Addon_Activecampaign_Wp_Api {
 	/**
 	 * Get Lists
 	 *
-	 * @since 1.0 Activecampaign Addon
+	 * @since 1.0 Activecampaign Integration
 	 *
-	 * @param array $args
+	 * @param array $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Activecampaign_Wp_Api_Exception
-	 * @throws Forminator_Addon_Activecampaign_Wp_Api_Not_Found_Exception
+	 * @throws Forminator_Integration_Exception Throw Exception.
 	 */
 	public function get_lists( $args = array() ) {
 
@@ -316,12 +329,11 @@ class Forminator_Addon_Activecampaign_Wp_Api {
 	/**
 	 * Get List Detail
 	 *
-	 * @param       $id
-	 * @param array $args
+	 * @param string $id Id.
+	 * @param array  $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Activecampaign_Wp_Api_Exception
-	 * @throws Forminator_Addon_Activecampaign_Wp_Api_Not_Found_Exception
+	 * @throws Forminator_Integration_Exception Throw Integration Exception.
 	 */
 	public function get_list( $id, $args = array() ) {
 		$default_args = array(
@@ -343,11 +355,10 @@ class Forminator_Addon_Activecampaign_Wp_Api {
 	/**
 	 * Get created Forms
 	 *
-	 * @param array $args
+	 * @param array $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Activecampaign_Wp_Api_Exception
-	 * @throws Forminator_Addon_Activecampaign_Wp_Api_Not_Found_Exception
+	 * @throws Forminator_Integration_Exception Throw Integration Exception.
 	 */
 	public function get_forms( $args = array() ) {
 		$default_args = array(
@@ -374,11 +385,10 @@ class Forminator_Addon_Activecampaign_Wp_Api {
 	 * Instead of calling contact_view to check if the contact exists, and then calling contact_add or
 	 * contact_edit, you can make just one call and include only the information you want added or updated.
 	 *
-	 * @param array $args
+	 * @param array $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Activecampaign_Wp_Api_Exception
-	 * @throws Forminator_Addon_Activecampaign_Wp_Api_Not_Found_Exception
+	 * @throws Forminator_Integration_Exception Throw Integration Exception.
 	 */
 	public function contact_sync( $args = array() ) {
 		$query_args = array(
@@ -394,7 +404,7 @@ class Forminator_Addon_Activecampaign_Wp_Api {
 		$args = array_merge( $default_args, $args );
 
 		if ( empty( $args['email'] ) ) {
-			throw new Forminator_Addon_Activecampaign_Wp_Api_Exception( __( 'Required email parameter not set', 'forminator' ) );
+			throw new Forminator_Integration_Exception( esc_html__( 'Required email parameter not set', 'forminator' ) );
 		}
 
 		return $this->request(
@@ -402,7 +412,6 @@ class Forminator_Addon_Activecampaign_Wp_Api {
 			'/admin/api.php' . ( '?' . http_build_query( $query_args ) ),
 			$args
 		);
-
 	}
 
 	/**
@@ -410,11 +419,10 @@ class Forminator_Addon_Activecampaign_Wp_Api {
 	 *
 	 * Allows you to delete an existing contact from the ActiveCampaign system.
 	 *
-	 * @param array $args
+	 * @param array $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Activecampaign_Wp_Api_Exception
-	 * @throws Forminator_Addon_Activecampaign_Wp_Api_Not_Found_Exception
+	 * @throws Forminator_Integration_Exception Throw Integration Exception.
 	 */
 	public function contact_delete( $args = array() ) {
 		$default_args = array(
@@ -427,7 +435,7 @@ class Forminator_Addon_Activecampaign_Wp_Api {
 		$args = array_merge( $default_args, $args );
 
 		if ( empty( $args['id'] ) ) {
-			throw new Forminator_Addon_Activecampaign_Wp_Api_Exception( __( 'Required id parameter not set for contact_delete.', 'forminator' ) );
+			throw new Forminator_Integration_Exception( esc_html__( 'Required id parameter not set for contact_delete.', 'forminator' ) );
 		}
 
 		return $this->request(
@@ -435,13 +443,12 @@ class Forminator_Addon_Activecampaign_Wp_Api {
 			'/admin/api.php',
 			$args
 		);
-
 	}
 
 	/**
 	 * Get last data sent
 	 *
-	 * @since 1.0 Activecampaign Addon
+	 * @since 1.0 Activecampaign Integration
 	 *
 	 * @return array
 	 */
@@ -452,7 +459,7 @@ class Forminator_Addon_Activecampaign_Wp_Api {
 	/**
 	 * Get last data received
 	 *
-	 * @since 1.0 Activecampaign Addon
+	 * @since 1.0 Activecampaign Integration
 	 *
 	 * @return array
 	 */
@@ -463,7 +470,7 @@ class Forminator_Addon_Activecampaign_Wp_Api {
 	/**
 	 * Get last data received
 	 *
-	 * @since 1.0 Activecampaign Addon
+	 * @since 1.0 Activecampaign Integration
 	 *
 	 * @return string
 	 */
@@ -474,7 +481,7 @@ class Forminator_Addon_Activecampaign_Wp_Api {
 	/**
 	 * Get data collection form request result
 	 *
-	 * @param $request_data
+	 * @param array $request_data Request data.
 	 *
 	 * @return array
 	 */
@@ -483,7 +490,7 @@ class Forminator_Addon_Activecampaign_Wp_Api {
 		$request_data = (array) $request_data;
 		foreach ( $request_data as $key => $data ) {
 			/**
-			 * result_code    1
+			 * Result_code    1
 			 * result_message    Success: Something is returned
 			 * result_output    json
 			 */

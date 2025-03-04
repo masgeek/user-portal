@@ -1,4 +1,9 @@
 <?php
+/**
+ * Template admin/views/addons/addon-details.php
+ *
+ * @package Forminator
+ */
 
 if ( ! isset( $pid ) ) {
 	return;
@@ -6,7 +11,7 @@ if ( ! isset( $pid ) ) {
 
 $pid = intval( $pid );
 
-$res = Forminator_Admin_Addons_page::forminator_addon_by_pid( $pid );
+$res = Forminator_Admin_Addons_Page::forminator_addon_by_pid( $pid );
 
 // Skip invalid projects.
 if ( empty( $res->pid ) || empty( $res->name ) ) {
@@ -29,6 +34,7 @@ if ( is_array( $res->features ) && ! empty( $res->features ) ) {
 	$chunk_size   = ceil( count( $res->features ) / 2 );
 	$features     = array_chunk( $res->features, $chunk_size );
 }
+$addon_slug = Forminator_Admin_Addons_Page::get_addon_slug( $pid );
 ?>
 
 <div class="sui-modal sui-modal-lg">
@@ -72,12 +78,13 @@ if ( is_array( $res->features ) && ! empty( $res->features ) ) {
 
 							<?php
 							if ( FORMINATOR_PRO ) {
+								$version = $res->is_installed ? $res->version_installed : $res->version_latest;
 								/* translators: Plugin latest version */
-								echo '<span class="sui-tag sui-tag-sm addons-version">' . sprintf( esc_html__( 'Version %s', 'forminator' ), esc_html( $res->version_installed ) ) . '</span>';
+								echo '<span class="sui-tag sui-tag-sm addons-version">' . /* translators: %s: Installed version */ sprintf( esc_html__( 'Version %s', 'forminator' ), esc_html( $version ) ) . '</span>';
 
 								if ( $res->is_installed && $res->has_update ) {
 									/* translators: Plugin latest version */
-									echo '<span class="sui-tag sui-tag-sm sui-tag-yellow addons-update-tag">' . sprintf( esc_html__( 'v%s update available', 'forminator' ), esc_html( $res->version_latest ) ) . '</span>';
+									echo '<span class="sui-tag sui-tag-sm sui-tag-yellow addons-update-tag">' . /* translators: %s: Latest version. */ sprintf( esc_html__( 'v%s update available', 'forminator' ), esc_html( $res->version_latest ) ) . '</span>';
 								}
 
 								if ( $res->is_installed && $res->is_active ) {
@@ -90,7 +97,7 @@ if ( is_array( $res->features ) && ! empty( $res->features ) ) {
 
 						<?php
 						if ( FORMINATOR_PRO && $res->is_installed && $res->has_update ) {
-							Forminator_Admin_Addons_page::get_instance()->render_template(
+							Forminator_Admin_Addons_Page::get_instance()->render_template(
 								'admin/views/addons/action-button',
 								array(
 									'label' => esc_html__( 'Update', 'forminator' ),
@@ -101,7 +108,7 @@ if ( is_array( $res->features ) && ! empty( $res->features ) ) {
 										'data-action'  => 'addons-update',
 										'data-addon'   => esc_attr( $res->pid ),
 										'data-nonce'   => esc_attr( wp_create_nonce( 'forminator_popup_addons_actions' ) ),
-										'data-version' => sprintf( esc_html__( 'Version %s', 'forminator' ), esc_html( $res->version_latest ) ),
+										'data-version' => /* translators: %s: Latest version */ sprintf( esc_html__( 'Version %s', 'forminator' ), esc_html( $res->version_latest ) ),
 									),
 								)
 							);
@@ -110,11 +117,11 @@ if ( is_array( $res->features ) && ! empty( $res->features ) ) {
 
 						<?php if ( ! FORMINATOR_PRO ) { ?>
 							<a
-								href="https://wpmudev.com/project/forminator-pro/?coupon=FORMINATOR-SUBSCRIPTIONS&checkout=0&utm_source=forminator&utm_medium=plugin&utm_campaign=forminator_stripe-addon"
+								href="https://wpmudev.com/project/forminator-pro/?utm_source=forminator&utm_medium=plugin&utm_campaign=forminator_<?php echo esc_html( $addon_slug ); ?>-addon"
 								target="_blank"
 								class="sui-button sui-button-purple"
 							>
-								<?php esc_html_e( 'Try Pro For 30% Off', 'forminator' ); ?>
+								<?php esc_html_e( 'Upgrade to Pro', 'forminator' ); ?>
 							</a>
 						<?php } ?>
 
@@ -139,18 +146,6 @@ if ( is_array( $res->features ) && ! empty( $res->features ) ) {
 							aria-selected="true"
 						>
 							<?php esc_html_e( 'Details', 'forminator' ); ?>
-						</button>
-
-						<button
-							type="button"
-							role="tab"
-							id="tab-features-<?php echo esc_attr( $pid ); ?>"
-							class="sui-tab-item"
-							aria-controls="tab-content-features-<?php echo esc_attr( $pid ); ?>"
-							aria-selected="false"
-							tabindex="-1"
-						>
-							<?php esc_html_e( 'Features', 'forminator' ); ?>
 						</button>
 
 						<button
@@ -181,26 +176,17 @@ if ( is_array( $res->features ) && ! empty( $res->features ) ) {
 
 							<p><?php echo isset( $res->info ) ? esc_html( $res->info ) : ''; ?></p>
 
-						</div>
-
-						<div
-							role="tabpanel"
-							tabindex="0"
-							id="tab-content-features-<?php echo esc_attr( $pid ); ?>"
-							class="sui-tab-content"
-							aria-labelledby="tab-features-<?php echo esc_attr( $pid ); ?>"
-							hidden
-						>
+							<h4><?php esc_html_e( 'Features', 'forminator' ); ?></h4>
 
 							<?php foreach ( $features as $group => $feature ) : ?>
 
-								<ul>
+								<ul style="margin: 0;">
 
 									<?php foreach ( $feature as $item ) : ?>
 
 										<li>
 											<span class="sui-icon-check sui-sm" aria-hidden="true"></span>
-											<?php echo esc_html( $item ); ?>
+											<?php echo wp_kses_post( $item ); ?>
 										</li>
 
 									<?php endforeach; ?>
@@ -230,18 +216,18 @@ if ( is_array( $res->features ) && ! empty( $res->features ) ) {
 										<div class="forminator-addon-changelog--header">
 
 											<?php
-											$title = '<h4>';
+											$addon_title = '<h4>';
 												/* translators: Log version */
-												$title .= '<span class="sui-tag sui-tag-sm sui-tag-purple">' . sprintf( esc_html__( 'Version %s', 'forminator' ), esc_attr( $log['version'] ) ) . '</span>';
+												$addon_title .= '<span class="sui-tag sui-tag-sm sui-tag-purple">' . /* translators: %s: Current version */ sprintf( esc_html__( 'Version %s', 'forminator' ), esc_attr( $log['version'] ) ) . '</span>';
 											if ( $log['version'] === $res->version_latest ) {
-												$title .= '<span class="sui-tag sui-tag-sm">' . esc_html__( 'Current', 'forminator' ) . '</span>';
+												$addon_title .= '<span class="sui-tag sui-tag-sm">' . esc_html__( 'Current', 'forminator' ) . '</span>';
 											}
-											$title .= '</h4>';
+											$addon_title .= '</h4>';
 
-											echo wp_kses_post( $title );
+											echo wp_kses_post( $addon_title );
 											?>
 
-											<p><?php echo esc_html( date( 'F j, Y', $log['time'] ) ); ?></p>
+											<p><?php echo esc_html( gmdate( 'F j, Y', $log['time'] ) ); ?></p>
 
 										</div>
 
@@ -267,7 +253,7 @@ if ( is_array( $res->features ) && ! empty( $res->features ) ) {
 			<div class="sui-box-footer sui-content-separated">
 
 				<a
-					href="https://wpmudev.com/docs/wpmu-dev-plugins/forminator/?utm_source=forminator&utm_medium=plugin&utm_campaign=forminator_stripe-addon_docs#add-ons"
+					href="https://wpmudev.com/docs/wpmu-dev-plugins/forminator/?utm_source=forminator&utm_medium=plugin&utm_campaign=forminator_<?php echo esc_html( $addon_slug ); ?>-addon_docs#add-ons"
 					target="_blank"
 					class="sui-button sui-button-ghost"
 				>

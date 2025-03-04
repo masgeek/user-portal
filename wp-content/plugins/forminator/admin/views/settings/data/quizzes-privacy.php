@@ -1,3 +1,11 @@
+<?php
+/**
+ * Template admin/views/settings/data/quizzes-privacy.php
+ *
+ * @package Forminator
+ */
+
+?>
 <div class="sui-box-settings-row">
 
 	<div class="sui-box-settings-col-1">
@@ -14,8 +22,8 @@
 				'forever'     => get_option( 'quiz_retain_submission_forever' ),
 				'number'      => get_option( 'forminator_retain_quiz_submissions_interval_number', 0 ),
 				'unit'        => get_option( 'forminator_retain_quiz_submissions_interval_unit', 'days' ),
-				'title'       => __( 'Submissions Retention', 'forminator' ),
-				'description' => __( 'How long do you want to retain the quiz submissions for?', 'forminator' ),
+				'title'       => esc_html__( 'Submissions Retention', 'forminator' ),
+				'description' => esc_html__( 'How long do you want to retain the quiz submissions for?', 'forminator' ),
 			)
 		);
 		?>

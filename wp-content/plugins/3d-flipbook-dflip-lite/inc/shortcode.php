@@ -7,7 +7,7 @@
  * Time: 2:27 PM
  */
 class DFlip_ShortCode {
-  
+
   /**
    * Holds the singleton class object.
    *
@@ -16,7 +16,7 @@ class DFlip_ShortCode {
    * @var object
    */
   public static $instance;
-  
+
   /**
    * Holds the base DFlip class object.
    *
@@ -25,22 +25,22 @@ class DFlip_ShortCode {
    * @var object
    */
   public $base;
-  
+
   /**
    * Primary class constructor.
    *
    * @since 1.0.0
    */
   public function __construct() {
-    
+
     // Load the base class object.
     $this->base = DFlip::get_instance();
-    
+
     // Load shortcode hooks and filters.
     add_shortcode( 'dflip', array( $this, 'shortcode' ) );
-    //		add_shortcode( 'dflip-multi', array( $this, 'dflip_multi_shortcode' ) );
+
   }
-  
+
   /**
    * Builds the dFlip Shortcode for the plugin
    *
@@ -52,7 +52,15 @@ class DFlip_ShortCode {
    *
    */
   public function shortcode( $attr, $content = '' ) {
-    
+
+    if ( $this->base->selective_script_loading == true ) {
+      //enqueue script
+      wp_enqueue_script( $this->base->plugin_slug . '-script' );
+
+      //enqueue styles
+      wp_enqueue_style( $this->base->plugin_slug . '-style' );
+    }
+
     $ismulti = isset( $attr['books'] ) && trim( $attr['books'] ) !== '';
     $atts_default = array(
         'class' => '',
@@ -61,7 +69,7 @@ class DFlip_ShortCode {
     );
     //atts or post defaults
     $atts = shortcode_atts( $atts_default, $attr, 'dflip' );
-    
+
     if ( $ismulti ) {
       $limit = isset( $attr['limit'] ) ? (int) $attr['limit'] : 5;
       $ids = array();
@@ -113,16 +121,16 @@ class DFlip_ShortCode {
         $attr['id'] = esc_attr( $id );
         $html .= $this->book( $attr, $content, true );
         $limit ++;
-        
+
       }
-      
+
       return $html . '</div>';
-      
+
     } else {
       return $this->book( $attr, $content );
     }
   }
-  
+
   /**
    * Helper function for dFlip Shortcode
    *
@@ -138,59 +146,56 @@ class DFlip_ShortCode {
    */
   public function book( $attr, $content = '', $multi = false ) {
     $base = $this->base;
-    
+
     $atts_default = array(
         'class' => '',
         'id'    => '',
         'type'  => $multi ? 'thumb' : 'book'
     );
-    
+
     //atts or post defaults
     $atts = shortcode_atts( $atts_default, $attr, 'dflip' );
-    
+    if($atts["type"] === "hidden"){
+      return "";
+    }
     //in PHP7 if $attr is not an array it causes issue
     if ( is_array( $attr ) == false ) {
       $attr = array();
     }
     $html_attr = array();
-    
+
     //default data
     $id = $atts['id'] === '' ? 'df_rand' . rand() : $atts['id'];
+    $id = sanitize_title($id);
     $type = $atts['type'];
     $class = $atts['class'];
     $title = do_shortcode( $content );
-    
+
     //get Id
-    $post_id = $atts['id'];
+    $post_id = $id;
     $hasId = false;
     $thumb_url = '';
     $thumb_tag_type = $base->get_config( 'thumb_tag_type' );
     $share_slug = $base->get_config( 'share_slug' );
-    
+
     $post_data = array();
-    
-    $help_info = '';
+		
     //pull post data if available for the script part only
     if ( !empty( $post_id ) && is_numeric( $post_id ) ) {
-      
-      /*			$post = get_post( $post_id );
-            if ( $post == null ) {
-              return '';
-            }*/
-      
+
       $id = 'df_' . $post_id;
-      
+
       $post_meta = get_post_meta( $post_id, '_dflip_data' );
-      
+
       if ( $title === '' ) {
         $title = get_the_title( $post_id );
       }
-      
-      
+
+
       if ( is_array( $post_meta ) && count( $post_meta ) > 0 ) {
         $post_data = $post_meta[0];
       }
-      
+
       //conversion
       $post_data['enableDownload'] = isset( $post_data['enable_download'] ) ? $post_data['enable_download'] : null;
       $post_data['backgroundColor'] = isset( $post_data['bg_color'] ) ? $post_data['bg_color'] : null;
@@ -204,12 +209,12 @@ class DFlip_ShortCode {
       $post_data['singlePageMode'] = isset( $post_data['single_page_mode'] ) ? $post_data['single_page_mode'] : null;
       $post_data['pageSize'] = isset( $post_data['page_size'] ) ? $post_data['page_size'] : null;
       $post_data['controlsPosition'] = isset( $post_data['controls_position'] ) ? $post_data['controls_position'] : null;
-      $post_data['forceFit'] = isset( $post_data['force_fit'] ) ? $post_data['force_fit'] : null;
+      $post_data['viewerType'] = isset( $post_data['viewerType'] ) ? $post_data['viewerType'] : null;
       $post_data['autoPlay'] = isset( $post_data['autoplay'] ) ? $post_data['autoplay'] : null;
       $post_data['autoPlayDuration'] = isset( $post_data['autoplay_duration'] ) ? $post_data['autoplay_duration'] : null;
       $post_data['autoPlayStart'] = isset( $post_data['autoplay_start'] ) ? $post_data['autoplay_start'] : null;
-      
-      
+
+
       $post_defaults = array(
           'webgl'               => $base->get_default( 'webgl' ),
           'class'               => '',
@@ -224,7 +229,7 @@ class DFlip_ShortCode {
           'height'              => $base->get_default( 'height' ),
           'duration'            => $base->get_default( 'duration' ),
           'hard'                => $base->get_default( 'hard' ),
-          'forceFit'            => $base->get_default( 'force_fit' ),
+          'viewerType'          => $base->get_default( 'viewerType' ),
           'autoEnableOutline'   => $base->get_default( 'auto_outline' ),
           'autoEnableThumbnail' => $base->get_default( 'auto_thumbnail' ),
           'overwritePDFOutline' => $base->get_default( 'overwrite_outline' ),
@@ -244,20 +249,20 @@ class DFlip_ShortCode {
           'source'              => '',
           'wpOptions'           => 'true'
       );
-      
+
       $post_data = shortcode_atts( $post_defaults, $post_data, 'dflip' );
       //			$data      = shortcode_atts( $post_data, $attr, 'dflip' );
-      
+
       $source_type = $post_data['source_type'];
       $pdf_source = $post_data['pdf_source'];
-      
+			
       $post_data['source'] = '';
-      
+
       if ( $source_type == 'pdf' ) {
         $post_data['source'] = $pdf_source;
         $thumb_url = empty( $post_data['pdf_thumb'] ) ? '' : $post_data['pdf_thumb'];
       }
-      
+
       if ( $source_type == 'image' ) {
         $pages = array_map( 'maybe_unserialize', $post_data['pages'] );
         $source_list = array();
@@ -278,7 +283,8 @@ class DFlip_ShortCode {
         $post_data['links'] = $links;
         $post_data['source'] = $source_list;
       }
-      
+
+			//cleanup unnecessary data
       unset( $post_data['pages'] );
       unset( $post_data['pdf_source'] );
       unset( $post_data['pdf_thumb'] );
@@ -286,21 +292,19 @@ class DFlip_ShortCode {
       unset( $post_data['source_type'] );
       unset( $post_data['class'] );
       unset( $post_data['id'] );
-      
+
+			//remove any data that is global and is redundant
       foreach ( $post_data as $key => $value ) {
         if ( $value === "" || $value === null || $value == "global" ) {//newly added will be null in old post
           unset( $post_data[ $key ] );
         }
       }
-      //			$attr['slug'] = $post->post_name;
-      
-      $help_tip = $base->get_help_link( $post_id );
-      $help_info = '<a href="' . $base->plugin_url . '#installation">DearFlip WordPress Flipbook Plugin Help</a>';
-      
-    } else {
+      $html_attr['_slug'] = get_post( $post_id )->post_name;
+    }
+		else {
       /*handled by new attribute support*/
     }
-    
+
     //deep-link
     $html_attr['data-title'] = sanitize_title( $title );
     if ( !$multi && isset( $attr['slug'] ) && !empty( $attr['slug'] ) ) {
@@ -308,34 +312,30 @@ class DFlip_ShortCode {
     } else if ( $share_slug == 'true' ) {
       $html_attr['slug'] = get_post( $post_id )->post_name;
     }
-    $html_attr['_slug'] = get_post( $post_id )->post_name;
-    
+		
     if ( empty( $title ) ) {
       $title = "Open Book";
     }
-    
-    //		if (0 === strpos($data['source'], '/wp-content/')) {
-    //			$data['source'] = get_site_url() . $data['source'];
-    //		}
-    
+
+		//Region Escape and output variables
     /*Attribute overrides*/
     $attrHTML = ' ';
-    
+
     $html_attr['wpoptions'] = 'true';
-    
+
     if ( !isset( $attr['thumb'] ) && $thumb_url !== '' ) {
       $html_attr['thumb'] = esc_attr( $thumb_url );
     }
     if ( isset( $attr['thumb'] ) ) {
       $html_attr['thumb'] = $attr['thumb'];
     }
-    
+
     if ( !isset( $attr['thumbtype'] ) ) {
       $html_attr['thumbtype'] = esc_attr( $thumb_tag_type );
     } else {
       $html_attr['thumbtype'] = $attr['thumbtype'];
     }
-    
+
     //$attr is removed since it can contain insecure and malicious data, atts hold only required keys and sanitized values
     if ( isset( $attr['data-page'] ) ) {
       $html_attr['data-page'] = esc_attr( $attr['data-page'] );
@@ -352,33 +352,67 @@ class DFlip_ShortCode {
     foreach ( $html_attr as $key => $value ) {
       $attrHTML .= esc_attr( $key ) . '="' . esc_attr( $value ) . '" ';
     }
-    
+
     $html = "";
-    
-    
-    if ( $type == 'thumb' ) {
+    if ( $type == 'thumb' || $type == 'button' ) {
       $html = '<div class="_df_' . $type . ' ' . esc_attr( $class ) . '" id="' . esc_attr( $id ) . '" ' . $attrHTML . '>' . esc_attr( $title ) . '</div>';
     }
-    //
-    //
     else {
-      
-      $html = '<div class="_df_book df-lite' . esc_attr( $class ) . '" id="' . esc_attr( $id ) . '" ' . $attrHTML . '><p class="df-raw-loading">Please wait while flipbook is loading. For more related info, FAQs and issues please refer to ' . $help_info . ' documentation.</p></div>';
+      $html = '<div class="_df_book df-lite' . esc_attr( $class ) . '" id="' . esc_attr( $id ) . '" ' . $attrHTML . '></div>';
     }
-    
+
     if ( count( $post_data ) > 0 ) {
-      
+	    
+	    //escape saved outline
+	    if(is_array($post_data['outline'])){
+		    $post_data['outline'] = $this->array_outline_escaped($post_data['outline']);
+	    }
+			
       /*Normally this occurs only when a valid post id is added*/
-      
-      $code = 'window.option_' . $id . ' = ' . json_encode( $post_data ) . '; if(window.DFLIP && window.DFLIP.parseBooks){window.DFLIP.parseBooks();}';
-      
-      $html .= '<script class="df-shortcode-script" type="application/javascript">' . $code . '</script>';
-      
+      $code = 'window.option_' . esc_js($id) . ' = ' . json_encode( $post_data ) . '; if(window.DFLIP && window.DFLIP.parseBooks){window.DFLIP.parseBooks();}';
+
+      $html .= '<script class="df-shortcode-script" nowprocket type="application/javascript">' . $code . '</script>';
+
     }
-    
+
     return $html;
   }
   
+  
+  /**
+   * escapes and returns values of an outline array. The values should be text, number and urls only
+   *
+   * @param array $arr Array to be sanitized and escaped
+   *
+   * @return array sanitized array
+   * @since 2.3.53
+   *
+   */
+  private function array_outline_escaped( $arr = array() ) {
+    
+    if ( is_null( $arr ) ) {
+      return array();
+    }
+    foreach ( (array) $arr as $k => $val ) {
+      if ( is_array( $val ) ) {
+        $arr[ $k ] = $this->array_outline_escaped( $val );
+      } else if ( $k == "title" ) {
+        $arr[ $k ] = esc_html( $val );
+      } else if ( $k == "dest" ) {
+        if ( is_numeric( $arr[ $k ] ) ) {
+          $arr[ $k ] = esc_html( $val );
+        } else {
+          $arr[ $k ] = esc_url( $val );
+        }
+      }else{
+        return "";
+      }
+    }
+    
+    return $arr;
+    
+  }
+
   /**
    * Returns the singleton instance of the class.
    *
@@ -387,16 +421,16 @@ class DFlip_ShortCode {
    *
    */
   public static function get_instance() {
-    
+
     if ( !isset( self::$instance )
          && !( self::$instance instanceof DFlip_ShortCode ) ) {
       self::$instance = new DFlip_ShortCode();
     }
-    
+
     return self::$instance;
-    
+
   }
-  
+
 }
 
 //Load the dFlip Plugin Class

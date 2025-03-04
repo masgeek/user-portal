@@ -1,4 +1,9 @@
 <?php
+/**
+ * The Forminator_Autofill_Provider_Interface class.
+ *
+ * @package Forminator
+ */
 
 /**
  * Interface Forminator_Autofill_Provider_Interface
@@ -40,7 +45,9 @@ interface Forminator_Autofill_Provider_Interface {
 	public function is_fillable();
 
 	/**
-	 * @param $attribute
+	 * Fill
+	 *
+	 * @param string $attribute Attribute.
 	 *
 	 * @since 1.0.5
 	 *
@@ -114,5 +121,4 @@ interface Forminator_Autofill_Provider_Interface {
 	 * @return array
 	 */
 	public function get_attribute_to_hook();
-
 }

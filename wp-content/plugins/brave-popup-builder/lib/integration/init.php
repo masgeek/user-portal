@@ -28,6 +28,7 @@ include __DIR__ . '/Mailster/Mailster.php';
 include __DIR__ . '/FluentCRM/FluentCRM.php';
 include __DIR__ . '/Sendy/Sendy.php';
 include __DIR__ . '/Omnisend/Omnisend.php';
+include __DIR__ . '/Sender/Sender.php';
 
 if(file_exists(__DIR__ . '/Validators/emailvalidator.php')){
    include __DIR__ . '/Validators/emailvalidator.php';

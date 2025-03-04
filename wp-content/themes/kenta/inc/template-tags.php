@@ -5,17 +5,48 @@ use LottaFramework\Facades\CZ;
 use LottaFramework\Icons\IconsManager;
 use LottaFramework\Utils;
 
+if ( ! function_exists( 'kenta_get_html_attributes' ) ) {
+	/**
+	 * Get html element attributes
+	 *
+	 * @return mixed|null
+	 *
+	 * @since v1.3.0
+	 */
+	function kenta_get_html_attributes( $key = null ) {
+
+		$default_scheme = CZ::checked( 'kenta_default_dark_scheme' ) ? 'dark' : 'light';
+
+		if ( CZ::checked( 'kenta_save_color_scheme' ) ) {
+			$attrs = [
+				'data-save-color-scheme' => 'yes',
+				'data-kenta-blog-id'     => kenta_blog_id(),
+				'data-kenta-theme'       => $_COOKIE[ kenta_blog_id( 'color-mode' ) ] ?? $default_scheme,
+			];
+		} else {
+			$attrs = [
+				'data-save-color-scheme' => 'no',
+				'data-kenta-blog-id'     => kenta_blog_id(),
+				'data-kenta-theme'       => $default_scheme,
+			];
+		}
+
+		$attrs = apply_filters( 'kenta_html_attributes', $attrs );
+
+		if ( $key === null ) {
+			return $attrs;
+		}
+
+		return $attrs[ $key ] ?? null;
+	}
+}
+
 if ( ! function_exists( 'kenta_html_attributes' ) ) {
 	/**
-	 * Output html attributes
+	 * Output html element attributes
 	 */
 	function kenta_html_attributes() {
-
-		$attrs = [
-			'data-kenta-theme' => $_COOKIE['kenta-color-mode'] ?? CZ::get( 'kenta_default_color_scheme' ),
-		];
-
-		Utils::print_attribute_string( apply_filters( 'kenta_html_attributes', $attrs ) );
+		Utils::print_attribute_string( kenta_get_html_attributes() );
 	}
 }
 
@@ -143,6 +174,65 @@ if ( ! function_exists( 'kenta_image_url' ) ) {
 	}
 }
 
+if ( ! function_exists( 'kenta_get_sidebar_layout' ) ) {
+	/**
+	 * Get current post/page/store sidebar layout
+	 *
+	 * @param $post_type
+	 *
+	 * @return mixed|string
+	 * @since 2.0.0
+	 */
+	function kenta_get_sidebar_layout( $post_type = 'page' ) {
+		$layout       = 'no-sidebar';
+		$page_sidebar = kenta_get_current_post_meta( 'site-sidebar-layout' );
+		if ( $page_sidebar && $page_sidebar !== 'default' ) {
+			$layout = $page_sidebar;
+		} else if ( ( ! is_front_page() || is_home() ) && CZ::checked( "kenta_{$post_type}_sidebar_section" ) ) {
+			$layout = CZ::get( "kenta_{$post_type}_sidebar_layout" );
+		}
+
+		return $layout;
+	}
+}
+
+if ( ! function_exists( 'kenta_get_container_style' ) ) {
+	/**
+	 * @return mixed|string
+	 */
+	function kenta_get_container_style( $post_type = 'page' ) {
+		$page_container = kenta_get_current_post_meta( 'site-container-style' );
+		if ( $page_container && $page_container !== 'default' ) {
+			return $page_container;
+		}
+
+		if ( $post_type === 'post' ) {
+			return CZ::get( 'kenta_single_post_container_style' );
+		}
+
+		if ( $post_type === 'page' ) {
+			return CZ::get( 'kenta_pages_container_style' );
+		}
+
+		return 'boxed';
+	}
+}
+
+if ( ! function_exists( 'kenta_get_container_layout' ) ) {
+	/**
+	 * @return mixed|string
+	 */
+	function kenta_get_container_layout( $post_type = 'page' ) {
+		$option_type              = $post_type === 'page' ? 'pages' : 'single_post';
+		$content_container_layout = kenta_get_current_post_meta( 'site-container-layout' );
+		if ( $content_container_layout === 'default' ) {
+			$content_container_layout = CZ::get( 'kenta_' . $option_type . '_container_layout' ) ?? 'normal';
+		}
+
+		return $content_container_layout;
+	}
+}
+
 if ( ! function_exists( 'kenta_container_css' ) ) {
 	/**
 	 * Get container css
@@ -152,13 +242,25 @@ if ( ! function_exists( 'kenta_container_css' ) ) {
 	 *
 	 * @return []|array|string[]
 	 */
-	function kenta_container_css( $layout = 'no-sidebar', $style = 'boxed', $css = [] ) {
-		return array_merge( $css, [
-			'kenta-container lg:flex flex-grow'      => true,
-			'container mx-auto px-gutter'            => $style === 'boxed',
-			'kenta-no-sidebar no-sidebar'            => $layout !== 'right-sidebar' && $layout !== 'left-sidebar',
-			'kenta-right-sidebar lg:flex-row'        => $layout === 'right-sidebar',
-			'kenta-left-sidebar lg:flex-row-reverse' => $layout === 'left-sidebar',
+	function kenta_container_css( $args = array() ) {
+		$args = wp_parse_args( $args, array(
+			'layout'  => 'narrow',
+			'sidebar' => 'no-sidebar',
+			'style'   => 'boxed',
+			'css'     => array(),
+		) );
+
+		$sidebar = $args['sidebar'];
+		$style   = $args['style'];
+
+		return array_merge( $args['css'], [
+			'kenta-container flex flex-col lg:flex-row flex-grow z-[1]' => true,
+			'kenta-max-w-wide mx-auto'                                  => $style === 'boxed' && ( $sidebar === 'right-sidebar' || $sidebar === 'left-sidebar' ),
+			'is-style-' . $style                                        => true,
+			'is-align-' . $args['layout']                               => true,
+			'kenta-no-sidebar no-sidebar'                               => $sidebar !== 'right-sidebar' && $sidebar !== 'left-sidebar',
+			'kenta-right-sidebar lg:flex-row'                           => $sidebar === 'right-sidebar',
+			'kenta-left-sidebar lg:flex-row-reverse'                    => $sidebar === 'left-sidebar',
 		] );
 	}
 }
@@ -229,9 +331,8 @@ if ( ! function_exists( 'kenta_post_metas' ) ) {
 		$options = $options ?? CZ::getFacadeRoot();
 
 		extract( array_merge( $default_args, $args ) );
-		$date_format = $options->get( 'kenta_' . $id . '_published_format', $settings );
-		$divider     = $options->get( 'kenta_' . $id . '_meta_items_divider', $settings );
-		$icon        = $options->get( 'kenta_' . $id . '_meta_items_style', $settings ) === 'icon';
+		$divider = $options->get( 'kenta_' . $id . '_meta_items_divider', $settings );
+		$icon    = $options->get( 'kenta_' . $id . '_meta_items_style', $settings ) === 'icon';
 
 		echo $before;
 
@@ -248,10 +349,16 @@ if ( ! function_exists( 'kenta_post_metas' ) ) {
 					echo '<span class="byline meta-item"> ' . ( $icon ? IconsManager::render( $options->get( 'kenta_' . $id . '_byline_icon' ) ) : '' ) . $byline . '</span>';
 				}
 			} elseif ( $item === 'published' ) {
+				$date_format   = $options->get( 'kenta_' . $id . '_published_format', $settings );
+				$show_modified = $options->checked( 'kenta_' . $id . '_show_modified_date', $settings );
 
 				$time_string = '<time class="published updated" datetime="%1$s">%2$s</time>';
 				if ( get_the_time( 'U' ) !== get_the_modified_time( 'U' ) ) {
-					$time_string = '<time class="published" datetime="%1$s">%2$s</time><time class="updated hidden" datetime="%3$s">%4$s</time>';
+					if ( $show_modified ) {
+						$time_string = '<time class="published hidden" datetime="%1$s">%2$s</time><time class="updated" datetime="%3$s">%4$s</time>';
+					} else {
+						$time_string = '<time class="published" datetime="%1$s">%2$s</time><time class="updated hidden" datetime="%3$s">%4$s</time>';
+					}
 				}
 
 				$time_string = sprintf( $time_string,
@@ -524,8 +631,8 @@ if ( ! function_exists( 'kenta_post_elements_css' ) ) {
 				$css["$scope_selector .entry-title"] = array_merge(
 					Css::typography( $options->get( 'kenta_' . $id . '_title_typography', $settings ) ),
 					Css::colors( $options->get( 'kenta_' . $id . '_title_color', $settings ), [
-						'initial' => '--kenta-initial-color',
-						'hover'   => '--kenta-hover-color',
+						'initial' => '--kenta-link-initial-color',
+						'hover'   => '--kenta-link-hover-color',
 					] ) );
 			}
 
@@ -645,7 +752,7 @@ if ( ! function_exists( 'kenta_show_article_feature_image' ) ) {
 	function kenta_show_article_feature_image( $preview_location, $prefix ) {
 
 		$thumb_attrs = [
-			'class' => $prefix . '_feature_image article-featured-image prose prose-kenta mx-auto',
+			'class' => $prefix . '_feature_image article-featured-image kenta-max-w-content mx-auto',
 		];
 
 		if ( is_customize_preview() ) {
@@ -653,6 +760,7 @@ if ( ! function_exists( 'kenta_show_article_feature_image' ) ) {
 			$thumb_attrs['data-shortcut-location'] = $preview_location . ':' . $prefix . '_featured_image';
 		}
 
+		do_action( 'kenta_before_render_featured_image', $prefix );
 		if ( has_post_thumbnail() || CZ::hasImage( $prefix . '_featured_image_fallback' ) ) {
 			$width = CZ::get( $prefix . '_featured_image_width' );
 			$size  = CZ::get( $prefix . '_featured_image_size' );
@@ -675,6 +783,7 @@ if ( ! function_exists( 'kenta_show_article_feature_image' ) ) {
 			}
 			echo '</div>';
 		}
+		do_action( 'kenta_after_render_featured_image', $prefix );
 	}
 }
 
@@ -704,7 +813,7 @@ if ( ! function_exists( 'kenta_show_article_header' ) ) {
 		$featured_image_pos = CZ::get( "{$prefix}_featured_image_position" );
 
 		$header_attrs = [
-			'class' => "kenta-{$type}-header" . ' kenta-article-header kenta-max-w-content mx-auto relative z-[1]',
+			'class' => "kenta-{$type}-header" . ' kenta-article-header kenta-max-w-content has-global-padding mx-auto relative z-[1]',
 		];
 
 		if ( is_customize_preview() ) {
@@ -773,9 +882,10 @@ if ( ! function_exists( 'kenta_show_article' ) ) {
 		$content_attrs = [
 			'class' => Utils::clsx( apply_filters( 'kenta_article_content_classes', array(
 				'kenta-article-content',
-				'kenta-entry-content',
+				'is-layout-constrained',
+				'kenta-entry-content entry-content',
+				'has-global-padding',
 				'clearfix',
-				'prose prose-kenta',
 				'mx-auto'
 			), $type ) ),
 		];
@@ -802,10 +912,6 @@ if ( ! function_exists( 'kenta_show_article' ) ) {
 					'after'  => '</div>',
 				) );
 				?>
-
-                <div class="text-base link inline py-half-gutter">
-					<?php edit_post_link( esc_html__( 'Edit', 'kenta' ) ); ?>
-                </div>
             </div>
         </article>
 		<?php
@@ -836,10 +942,10 @@ if ( ! function_exists( 'kenta_button_preset' ) ) {
 					'style' => 'none',
 				],
 				$id . 'shadow'        => [
-					'enable' => 'false'
+					'enable' => 'no'
 				],
 				$id . 'shadow_active' => [
-					'enable' => 'false'
+					'enable' => 'no'
 				],
 				$id . 'padding'       => [
 					'top'    => '0px',
@@ -848,7 +954,16 @@ if ( ! function_exists( 'kenta_button_preset' ) ) {
 					'left'   => '0px',
 				],
 			],
-			'solid'   => [],
+			'solid'   => [
+				$id . 'shadow_active' => [
+					'enable'     => 'yes',
+					'color'      => 'var(--kenta-accent-color)',
+					'horizontal' => '0',
+					'vertical'   => '5px',
+					'blur'       => '10px',
+					'spread'     => '-5px',
+				],
+			],
 			'outline' => [
 				$id . 'text_color'   => [
 					'initial' => 'var(--kenta-primary-color)',
@@ -890,20 +1005,28 @@ if ( ! function_exists( 'kenta_button_preset' ) ) {
 				],
 			],
 			'accent'  => [
-				$id . 'button_color' => [
+				$id . 'button_color'  => [
 					'initial' => 'var(--kenta-accent-color)',
 					'hover'   => 'var(--kenta-accent-active)',
 				],
-				$id . 'border'       => [
+				$id . 'border'        => [
 					'style' => 'solid',
 					'width' => 1,
 					'color' => 'var(--kenta-accent-color)',
 					'hover' => 'var(--kenta-accent-active)',
 				],
+				$id . 'shadow_active' => [
+					'enable'     => 'yes',
+					'color'      => 'var(--kenta-accent-active)',
+					'horizontal' => '0',
+					'vertical'   => '5px',
+					'blur'       => '10px',
+					'spread'     => '-5px',
+				],
 			],
 		];
 
-		return $presets[ $preset ] ?? [];
+		return apply_filters( $id . 'preset_args', $presets[ $preset ] ?? [], $id, $preset );
 	}
 }
 
@@ -915,12 +1038,16 @@ if ( ! function_exists( 'kenta_card_style_preset_options' ) ) {
 	 */
 	function kenta_card_style_preset_options() {
 		return array(
-			'ghost'    => __( 'Ghost', 'kenta' ),
-			'plain'    => __( 'Plain', 'kenta' ),
-			'bordered' => __( 'Bordered', 'kenta' ),
-			'shadowed' => __( 'Shadowed', 'kenta' ),
-			'mixed'    => __( 'Mixed', 'kenta' ),
-			'custom'   => __( 'Custom (Premium)', 'kenta' ),
+			'ghost'                 => __( 'Ghost', 'kenta' ),
+			'plain'                 => __( 'Plain', 'kenta' ),
+			'bordered'              => __( 'Bordered', 'kenta' ),
+			'shadowed'              => __( 'Shadowed', 'kenta' ),
+			'mixed'                 => __( 'Mixed', 'kenta' ),
+			'inner-shadow'          => __( 'Inner Shadow', 'kenta' ),
+			'inner-shadow-bordered' => __( 'Inner Shadow Bordered', 'kenta' ),
+			'solid-shadow'          => __( 'Solid Shadow', 'kenta' ),
+			'active'                => __( 'Active', 'kenta' ),
+			'custom'                => __( 'Custom (Premium)', 'kenta' ),
 		);
 	}
 }
@@ -950,13 +1077,38 @@ if ( ! function_exists( 'kenta_card_preset_style' ) ) {
 				return [
 					'border'     => 'none',
 					'background' => 'var(--kenta-base-color)',
-					'box-shadow' => '0 0 14px rgba(226,232,240,0.6)'
+					'box-shadow' => '0 0 14px rgba(70,71,73,0.1)'
 				];
 			case 'mixed':
 				return [
 					'background' => 'var(--kenta-base-color)',
 					'border'     => '1px solid var(--kenta-base-300)',
-					'box-shadow' => '0 0 14px rgba(226,232,240,0.6)'
+					'box-shadow' => '0 0 14px rgba(70,71,73,0.1)'
+				];
+			case 'inner-shadow':
+				return [
+					'border'     => 'none',
+					'background' => 'var(--kenta-base-color)',
+					'box-shadow' => 'rgba(44,62,80,0.25) 0px 20px 16px -15px'
+				];
+			case 'inner-shadow-bordered':
+				return [
+					'border'     => '1px solid var(--kenta-base-300)',
+					'background' => 'var(--kenta-base-color)',
+					'box-shadow' => 'rgba(44,62,80,0.25) 0px 20px 16px -15px'
+				];
+			case 'solid-shadow':
+				return [
+					'border'     => '2px solid var(--kenta-base-300)',
+					'background' => 'var(--kenta-base-color)',
+					'box-shadow' => 'var(--kenta-base-200) 10px 10px 0px 0px'
+				];
+			case 'active':
+				return [
+					'border'     => 'none',
+					'border-top' => '3px solid var(--kenta-primary-color)',
+					'background' => 'var(--kenta-base-color)',
+					'box-shadow' => '0 1px 2px rgba(70,71,73,0.15)'
 				];
 		}
 
@@ -1054,7 +1206,7 @@ if ( ! function_exists( 'kenta_color_presets' ) ) {
 	 */
 	function kenta_color_presets() {
 		$presets = [
-			'preset-1' => [
+			'preset-1'      => [
 				'kenta-primary-color'  => '#0258c7',
 				'kenta-primary-active' => '#0e80e8',
 				'kenta-accent-color'   => '#181f28',
@@ -1064,7 +1216,7 @@ if ( ! function_exists( 'kenta_color_presets' ) ) {
 				'kenta-base-100'       => '#f8fafc',
 				'kenta-base-color'     => '#ffffff',
 			],
-			'preset-2' => [
+			'preset-2'      => [
 				'kenta-primary-color'  => '#f8c240',
 				'kenta-primary-active' => '#e8950e',
 				'kenta-accent-color'   => '#181f28',
@@ -1074,7 +1226,7 @@ if ( ! function_exists( 'kenta_color_presets' ) ) {
 				'kenta-base-100'       => '#f8fafc',
 				'kenta-base-color'     => '#ffffff',
 			],
-			'preset-3' => [
+			'preset-3'      => [
 				'kenta-primary-color'  => '#7678ed',
 				'kenta-primary-active' => '#5253cd',
 				'kenta-accent-color'   => '#181f28',
@@ -1084,7 +1236,7 @@ if ( ! function_exists( 'kenta_color_presets' ) ) {
 				'kenta-base-100'       => '#f8fafc',
 				'kenta-base-color'     => '#ffffff',
 			],
-			'preset-4' => [
+			'preset-4'      => [
 				'kenta-primary-color'  => '#00a4db',
 				'kenta-primary-active' => '#096dd9',
 				'kenta-accent-color'   => '#181f28',
@@ -1094,7 +1246,7 @@ if ( ! function_exists( 'kenta_color_presets' ) ) {
 				'kenta-base-100'       => '#f8fafc',
 				'kenta-base-color'     => '#ffffff',
 			],
-			'preset-5' => [
+			'preset-5'      => [
 				'kenta-primary-color'  => '#dc2626',
 				'kenta-primary-active' => '#b91c1c',
 				'kenta-accent-color'   => '#181f28',
@@ -1104,9 +1256,108 @@ if ( ! function_exists( 'kenta_color_presets' ) ) {
 				'kenta-base-100'       => '#f8fafc',
 				'kenta-base-color'     => '#ffffff',
 			],
+			'preset-6'      => [
+				'kenta-primary-color'  => '#0d9488',
+				'kenta-primary-active' => '#10b981',
+				'kenta-accent-color'   => '#181f28',
+				'kenta-accent-active'  => '#334155',
+				'kenta-base-300'       => '#e2e8f0',
+				'kenta-base-200'       => '#f1f5f9',
+				'kenta-base-100'       => '#f8fafc',
+				'kenta-base-color'     => '#ffffff',
+			],
+			'high-contrast' => [
+				'kenta-primary-color'  => '#000000',
+				'kenta-primary-active' => '#000000',
+				'kenta-accent-color'   => '#000000',
+				'kenta-accent-active'  => '#000000',
+				'kenta-base-300'       => '#000000',
+				'kenta-base-200'       => '#000000',
+				'kenta-base-100'       => '#ffffff',
+				'kenta-base-color'     => '#ffffff',
+			],
 		];
 
 		return apply_filters( 'kenta_filter_color_presets', $presets );
+	}
+}
+
+if ( ! function_exists( 'kenta_dark_color_presets' ) ) {
+	function kenta_dark_color_presets() {
+		$presets = [
+			'preset-1'      => [
+				'kenta-primary-color'  => '#0258c7',
+				'kenta-primary-active' => '#0e80e8',
+				'kenta-accent-color'   => '#f3f4f6',
+				'kenta-accent-active'  => '#a3a9a3',
+				'kenta-base-300'       => '#353f49',
+				'kenta-base-200'       => '#2a323b',
+				'kenta-base-100'       => '#212a33',
+				'kenta-base-color'     => '#17212a',
+			],
+			'preset-2'      => [
+				'kenta-primary-color'  => '#f8c240',
+				'kenta-primary-active' => '#e8950e',
+				'kenta-accent-color'   => '#f3f4f6',
+				'kenta-accent-active'  => '#a3a9a3',
+				'kenta-base-300'       => '#353f49',
+				'kenta-base-200'       => '#2a323b',
+				'kenta-base-100'       => '#212a33',
+				'kenta-base-color'     => '#17212a',
+			],
+			'preset-3'      => [
+				'kenta-primary-color'  => '#7678ed',
+				'kenta-primary-active' => '#5253cd',
+				'kenta-accent-color'   => '#f3f4f6',
+				'kenta-accent-active'  => '#a3a9a3',
+				'kenta-base-300'       => '#353f49',
+				'kenta-base-200'       => '#2a323b',
+				'kenta-base-100'       => '#212a33',
+				'kenta-base-color'     => '#17212a',
+			],
+			'preset-4'      => [
+				'kenta-primary-color'  => '#00a4db',
+				'kenta-primary-active' => '#096dd9',
+				'kenta-accent-color'   => '#f3f4f6',
+				'kenta-accent-active'  => '#a3a9a3',
+				'kenta-base-300'       => '#353f49',
+				'kenta-base-200'       => '#2a323b',
+				'kenta-base-100'       => '#212a33',
+				'kenta-base-color'     => '#17212a',
+			],
+			'preset-5'      => [
+				'kenta-primary-color'  => '#dc2626',
+				'kenta-primary-active' => '#b91c1c',
+				'kenta-accent-color'   => '#f3f4f6',
+				'kenta-accent-active'  => '#a3a9a3',
+				'kenta-base-300'       => '#353f49',
+				'kenta-base-200'       => '#2a323b',
+				'kenta-base-100'       => '#212a33',
+				'kenta-base-color'     => '#17212a',
+			],
+			'preset-6'      => [
+				'kenta-primary-color'  => '#0d9488',
+				'kenta-primary-active' => '#10b981',
+				'kenta-accent-color'   => '#f3f4f6',
+				'kenta-accent-active'  => '#a3a9a3',
+				'kenta-base-300'       => '#353f49',
+				'kenta-base-200'       => '#2a323b',
+				'kenta-base-100'       => '#212a33',
+				'kenta-base-color'     => '#17212a',
+			],
+			'high-contrast' => [
+				'kenta-primary-color'  => '#ffffff',
+				'kenta-primary-active' => '#ffffff',
+				'kenta-accent-color'   => '#ffffff',
+				'kenta-accent-active'  => '#ffffff',
+				'kenta-base-300'       => '#ffffff',
+				'kenta-base-200'       => '#ffffff',
+				'kenta-base-100'       => '#000000',
+				'kenta-base-color'     => '#000000',
+			],
+		];
+
+		return apply_filters( 'kenta_filter_dark_color_presets', $presets );
 	}
 }
 
@@ -1127,8 +1378,8 @@ if ( ! function_exists( 'kenta_show_archive_header' ) ) {
 
 		$attrs = [
 			'class' => Utils::clsx( array(
-				'kenta-archive-header'             => true,
-				'kenta-archive-header-has-overlay' => CZ::checked( 'kenta_archive_header_has_overlay' ),
+				'kenta-archive-header has-global-padding' => true,
+				'kenta-archive-header-has-overlay'        => CZ::checked( 'kenta_archive_header_has_overlay' ),
 			) )
 		];
 
@@ -1139,7 +1390,7 @@ if ( ! function_exists( 'kenta_show_archive_header' ) ) {
 
 		?>
         <section <?php \LottaFramework\Utils::print_attribute_string( $attrs ); ?>>
-            <div class="container mx-auto px-gutter">
+            <div class="container kenta-max-w-wide mx-auto">
 				<?php
 				if ( is_search() ) {
 					?>
@@ -1205,7 +1456,7 @@ if ( ! function_exists( 'kenta_show_share_box' ) ) {
 
 		$socials = CZ::repeater( 'kenta_social_networks' );
 		?>
-        <div class="mx-auto kenta-max-w-content">
+        <div class="mx-auto kenta-max-w-content has-global-padding">
             <div <?php Utils::print_attribute_string( $attrs ); ?>>
 				<?php
 				foreach ( $socials as $social ) {

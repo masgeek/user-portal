@@ -1,9 +1,18 @@
 <?php
 /**
+ * Template admin/views/custom-form/entries/content.php
+ *
+ * @package Forminator
+ */
+
+/**
  * JS reference : assets/js/admin/layout.js
  */
 
-/** @var $this Forminator_CForm_View_Page */
+/**
+ * Forminator_CForm_View_Page
+ *
+ * @var $this Forminator_CForm_View_Page */
 $count             = $this->filtered_total_entries();
 $is_filter_enabled = $this->is_filter_box_enabled();
 
@@ -12,7 +21,7 @@ if ( $this->has_payments() && $count <= 100 ) {
 	$notice_args = array(
 		'submissions'     => $live_payment_count,
 		'min_submissions' => 0,
-		'notice'          => sprintf( esc_html__( "%1\$sCongratulations!%2\$s You have started collecting live payments on this form - that's awesome. We have spent countless hours developing this free plugin for you, and we would really appreciate it if you could drop us a rating on wp.org to help us spread the word and boost our motivation.", 'forminator' ), '<strong>', '</strong>' ),
+		'notice'          => /* Translators: 1. Opening <strong> tag, 2. closing <strong> tag. */ sprintf( esc_html__( "%1\$sCongratulations!%2\$s You have started collecting live payments on this form - that's awesome. We have spent countless hours developing this free plugin for you, and we would really appreciate it if you could drop us a rating on wp.org to help us spread the word and boost our motivation.", 'forminator' ), '<strong>', '</strong>' ),
 	);
 } else {
 	$notice_args = array(
@@ -20,31 +29,10 @@ if ( $this->has_payments() && $count <= 100 ) {
 	);
 }
 
-if ( $this->error_message() ) : ?>
-
-		<div
-			role="alert"
-			class="sui-notice sui-notice-red sui-active"
-			style="display: block; text-align: left;"
-			aria-live="assertive"
-		>
-
-			<div class="sui-notice-content">
-
-				<div class="sui-notice-message">
-
-					<span class="sui-notice-icon sui-icon-info" aria-hidden="true"></span>
-
-					<p><?php echo esc_html( $this->error_message() ); ?></p>
-
-				</div>
-
-			</div>
-
-		</div>
-
-	<?php
-endif;
+if ( $this->error_message() ) {
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is already escaped.
+	echo Forminator_Admin::get_red_notice( esc_html( $this->error_message() ) );
+}
 
 if ( $this->total_entries() > 0 ) :
 
@@ -52,17 +40,17 @@ if ( $this->total_entries() > 0 ) :
 			&& 'registration' === $this->model->settings['form-type'];
 	?>
 
-	<form method="GET" class="forminator-entries-actions">
+	<form method="GET" class="fui-listings-pagination forminator-entries-actions">
 
 		<input type="hidden" name="page" value="<?php echo esc_attr( $this->get_admin_page() ); ?>">
 		<input type="hidden" name="form_type" value="<?php echo esc_attr( $this->get_form_type() ); ?>">
 		<input type="hidden" name="form_id" value="<?php echo esc_attr( $this->get_form_id() ); ?>">
 
-		<div class="fui-pagination-entries sui-pagination-wrap">
+		<div class="fui-pagination-mobile fui-pagination-entries sui-pagination-wrap">
 			<?php $this->paginate(); ?>
 		</div>
 
-		<div class="sui-box fui-box-entries">
+		<div class="fui-pagination-desktop sui-box fui-box-entries">
 
 			<fieldset class="forminator-entries-nonce">
 				<?php wp_nonce_field( 'forminatorFormEntries', 'forminatorEntryNonce' ); ?>
@@ -97,6 +85,7 @@ if ( $this->total_entries() > 0 ) :
 				<tbody>
 
 				<?php
+				$roles        = forminator_get_accessible_user_roles();
 				$url_entry_id = filter_input( INPUT_GET, 'entry_id', FILTER_VALIDATE_INT );
 				$url_entry_id = $url_entry_id ? $url_entry_id : 0;
 				foreach ( $this->entries_iterator() as $entries ) {
@@ -110,6 +99,21 @@ if ( $this->total_entries() > 0 ) :
 
 					$detail       = $entries['detail'];
 					$detail_items = $detail['items'];
+
+					// Fix for Stripe OCS and Stripe old field to show only one.
+					$detail_items_with_type = array_filter(
+						$detail_items,
+						function ( $item ) {
+							return isset( $item['type'] );
+						}
+					);
+
+					$item_types = wp_list_pluck( $detail_items_with_type, 'type' );
+					if ( in_array( 'stripe-ocs', $item_types, true ) && in_array( 'stripe', $item_types, true ) ) {
+						$stripe_key = array_search( 'stripe', $item_types, true );
+
+						unset( $detail_items[ $stripe_key ] );
+					}
 
 					$accordion_classes = '';
 					// Open entry tab by received submission link.
@@ -135,13 +139,17 @@ if ( $this->total_entries() > 0 ) :
 
 								echo '<td>';
 
-								echo esc_html( $summary_item['value'] );
+								echo '<div class="forminator-submissions-column-content">';
+
+								echo '<div class="forminator-submissions-column-ellipsis">' . esc_html( wp_strip_all_tags( $summary_item['value'] ) ) . '</div>';
 
 								echo '<span class="sui-accordion-open-indicator">';
 
 								echo '<i class="sui-icon-chevron-down"></i>';
 
 								echo '</span>';
+
+								echo '</div>';
 
 								echo '</td>';
 
@@ -155,7 +163,8 @@ if ( $this->total_entries() > 0 ) :
 
 								echo '<span aria-hidden="true"></span>';
 
-								echo '<span class="sui-screen-reader-text">' . sprintf(/* translators: ... */
+								echo '<span class="sui-screen-reader-text">' . sprintf(
+									/* translators: %s: Entry ID */
 									esc_html__( 'Select entry number %s', 'forminator' ),
 									esc_html( $db_entry_id )
 								) . '</span>';
@@ -199,7 +208,8 @@ if ( $this->total_entries() > 0 ) :
 						if ( $summary['num_fields_left'] ) {
 
 							echo '<td>';
-							echo '' . sprintf(/* translators: ... */
+							echo '' . sprintf(
+								/* translators: %s: number of other field. */
 								esc_html__( '+ %s other fields', 'forminator' ),
 								esc_html( $summary['num_fields_left'] )
 							) . '';
@@ -247,9 +257,8 @@ if ( $this->total_entries() > 0 ) :
 											type="button"
 											class="sui-button sui-button-ghost sui-button-red wpmudev-open-modal"
 										<?php
-										if ( isset( $entries['activation_key'] ) ) {
-											$button_title      = esc_html( 'Delete Submission & User', 'forminator' );
-											$is_activation_key = true;
+										if ( isset( $entries['activation_key'] ) && current_user_can( 'delete_users' ) ) {
+											$button_title = esc_html__( 'Delete Submission & User', 'forminator' );
 											?>
 											data-activation-key="<?php echo esc_attr( $entries['activation_key'] ); ?>"
 											data-modal="delete-unconfirmed-user-module"
@@ -257,8 +266,7 @@ if ( $this->total_entries() > 0 ) :
 											data-form-id="<?php echo esc_attr( $this->model->id ); ?>"
 											<?php
 										} else {
-											$button_title      = esc_html( 'Delete', 'forminator' );
-											$is_activation_key = false;
+											$button_title = esc_html__( 'Delete', 'forminator' );
 											?>
 											data-modal="delete-module"
 											data-form-id="<?php echo esc_attr( $db_entry_id ); ?>"
@@ -270,7 +278,11 @@ if ( $this->total_entries() > 0 ) :
 										<i class="sui-icon-trash" aria-hidden="true"></i> <?php echo wp_kses_post( $button_title ); ?>
 									</button>
 
-									<?php if ( isset( $entries['activation_method'] ) && 'manual' === $entries['activation_method'] && $is_activation_key ) { ?>
+									<?php
+									if ( isset( $entries['activation_method'] ) && 'manual' === $entries['activation_method'] && ! empty( $entries['activation_key'] ) ) {
+										$signup = Forminator_CForm_User_Signups::get( $entries['activation_key'] );
+										if ( ! empty( $signup->user_data['role'] ) && isset( $roles[ $signup->user_data['role'] ] ) ) {
+											?>
 
 										<div class="sui-actions-right">
 											<button
@@ -287,7 +299,10 @@ if ( $this->total_entries() > 0 ) :
 											</button>
 										</div>
 
-									<?php } ?>
+											<?php
+										}
+									}
+									?>
 
 									<div class="sui-actions-right">
 
@@ -301,9 +316,16 @@ if ( $this->total_entries() > 0 ) :
 												<span class="sui-icon-send" aria-hidden="true"></span>
 												<?php esc_html_e( 'Resend Notification Email', 'forminator' ); ?>
 											</button>
-										<?php } ?>
+											<?php
+										}
 
-										<?php if ( ( isset( $entries['activation_method'] ) && 'email' === $entries['activation_method'] ) && isset( $entries['activation_key'] ) ) { ?>
+										if ( class_exists( 'Forminator_PDF_Generation' ) ) {
+											// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is already escaped.
+											echo Forminator_PDF_Generation::download_button( $this->form_id, $this->model->name, $entries['entry_id'] );
+										}
+
+										if ( ( isset( $entries['activation_method'] ) && 'email' === $entries['activation_method'] ) && isset( $entries['activation_key'] ) ) {
+											?>
 
 											<button
 												role="button"

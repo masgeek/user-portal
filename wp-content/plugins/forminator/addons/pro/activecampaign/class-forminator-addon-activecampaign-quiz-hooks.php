@@ -1,166 +1,76 @@
 <?php
+/**
+ * The Activecampaign Quiz Hooks.
+ *
+ * @package    Forminator
+ */
 
 /**
- * Class Forminator_Addon_Activecampaign_Quiz_Hooks
+ * Class Forminator_Activecampaign_Quiz_Hooks
  *
- * @since 1.0 Activecampaign Addon
- *
+ * @since 1.0 Activecampaign Integration
  */
-class Forminator_Addon_Activecampaign_Quiz_Hooks extends Forminator_Addon_Quiz_Hooks_Abstract {
+class Forminator_Activecampaign_Quiz_Hooks extends Forminator_Integration_Quiz_Hooks {
 
 	/**
-	 * Addon instance are auto available quiz abstract
-	 * Its added here for development purpose,
-	 * Auto-complete will resolve addon directly to `Activecampaign` instance instead of the abstract
-	 * And its public properties can be exposed
+	 * Return custom entry fields
 	 *
-	 * @since 1.0 Activecampaign Addon
-	 * @var Forminator_Addon_Activecampaign
-	 */
-	protected $addon;
-
-	/**
-	 * Quiz Settings Instance
-	 *
-	 * @since 1.0 Activecampaign Addon
-	 * @var Forminator_Addon_Activecampaign_Quiz_Settings | null
-	 */
-	protected $quiz_settings_instance;
-
-	/**
-	 * Forminator_Addon_Activecampaign_Quiz_Hooks constructor.
-	 *
-	 * @since 1.0 Activecampaign Addon
-	 *
-	 * @param Forminator_Addon_Abstract $addon
-	 * @param                           $quiz_id
-	 *
-	 * @throws Forminator_Addon_Exception
-	 */
-	public function __construct( Forminator_Addon_Abstract $addon, $quiz_id ) {
-		parent::__construct( $addon, $quiz_id );
-		$this->_submit_quiz_error_message = __( 'ActiveCampaign failed to process submitted data. Please check your quiz and try again', 'forminator' );
-	}
-
-	/**
-	 * Save status of request sent and received for each connected Active Campaign Connection
-	 *
-	 * @since 1.0 Activecampaign Addon
-	 * @since 1.7 Add $form_entry_fields
-	 *
-	 * @param array $submitted_data
-	 * @param array $form_entry_fields
-	 *
+	 * @param array $submitted_data Submitted data.
+	 * @param array $current_entry_fields Current entry fields.
 	 * @return array
 	 */
-	public function add_entry_fields( $submitted_data, $form_entry_fields = array() ) {
-
-		$quiz_id                = $this->quiz_id;
-		$quiz_settings_instance = $this->quiz_settings_instance;
-
-		/**
-		 * Filter ActiveCampaign submitted quiz data to be processed
-		 *
-		 * @since 1.2
-		 *
-		 * @param array                                         $submitted_data
-		 * @param int                                           $quiz_id                current Quiz ID.
-		 * @param Forminator_Addon_Activecampaign_Quiz_Settings $quiz_settings_instance ActiveCampaign Addon Quiz Settings instance.
-		 */
-		$submitted_data = apply_filters(
-			'forminator_addon_activecampaign_quiz_submitted_data',
-			$submitted_data,
-			$quiz_id,
-			$quiz_settings_instance
-		);
-
-		forminator_addon_maybe_log( __METHOD__, $submitted_data );
-
-		$quiz_submitted_data  = get_quiz_submitted_data( $this->quiz, $submitted_data, $form_entry_fields );
-
-		$addon_setting_values = $this->quiz_settings_instance->get_quiz_settings_values();
-		$quiz_settings        = $this->quiz_settings_instance->get_quiz_settings();
-		$addons_fields        = $this->quiz_settings_instance->get_form_fields();
-
-		$form_entry_fields   = forminator_lead_form_data( $submitted_data );
-		$submitted_data      = get_addons_lead_form_entry_data( $quiz_settings, $submitted_data, $addons_fields );
-		$submitted_data      = array_merge( $submitted_data, $quiz_submitted_data );
-
-		$data = array();
-
-		/**
-		 * Fires before sending contact sync to Active Campaign
-		 *
-		 * @since 1.2
-		 *
-		 * @param int                                           $quiz_id                current Quiz ID.
-		 * @param array                                         $submitted_data
-		 * @param Forminator_Addon_Activecampaign_Quiz_Settings $quiz_settings_instance ActiveCampaign Addon Quiz Settings instance.
-		 */
-		do_action( 'forminator_addon_activecampaign_before_contact_sync', $quiz_id, $submitted_data, $quiz_settings_instance );
+	protected function custom_entry_fields( $submitted_data, $current_entry_fields ): array {
+		$addon_setting_values = $this->settings_instance->get_settings_values();
+		$data                 = array();
 
 		foreach ( $addon_setting_values as $key => $addon_setting_value ) {
 			// save it on entry field, with name `status-$MULTI_ID`, and value is the return result on sending data to active campaign.
-			if ( $quiz_settings_instance->is_multi_quiz_settings_complete( $key ) ) {
+			if ( $this->settings_instance->is_multi_id_completed( $key ) ) {
 				// exec only on completed connection.
 				$data[] = array(
 					'name'  => 'status-' . $key,
-					'value' => $this->get_status_on_contact_sync( $key, $submitted_data, $addon_setting_value, $quiz_settings, $form_entry_fields ),
+					'value' => $this->get_status_on_contact_sync( $key, $submitted_data, $addon_setting_value, $current_entry_fields ),
 				);
 			}
 		}
 
-		$entry_fields = $data;
-		/**
-		 * Filter ActiveCampaign entry fields to be saved to entry model
-		 *
-		 * @since 1.2
-		 *
-		 * @param array                                         $entry_fields
-		 * @param int                                           $quiz_id                current Quiz ID.
-		 * @param array                                         $submitted_data
-		 * @param Forminator_Addon_Activecampaign_Quiz_Settings $quiz_settings_instance ActiveCampaign Addon Quiz Settings instance.
-		 */
-		$data = apply_filters(
-			'forminator_addon_activecampaign_entry_fields',
-			$entry_fields,
-			$quiz_id,
-			$submitted_data,
-			$quiz_settings_instance
-		);
-
 		return $data;
-
 	}
 
 	/**
 	 * Get status on contact sync to ActiveCampaign
 	 *
-	 * @since 1.0 Activecampaign Addon
+	 * @since 1.0 Activecampaign Integration
 	 * @since 1.7 Add $form_entry_fields
 	 *
-	 * @param       $connection_id
-	 * @param       $submitted_data
-	 * @param       $connection_settings
-	 * @param       $quiz_settings
-	 * @param array $form_entry_fields
+	 * @param string $connection_id ID of current connection.
+	 * @param array  $submitted_data Submitted data.
+	 * @param array  $connection_settings Connection settings.
+	 * @param array  $form_entry_fields Form Entry fields.
 	 *
-	 * @return array `is_sent` true means its success send data to ActiveCampaign, false otherwise
+	 * @return array `is_sent` true means its success send data to ActiveCampaign, false otherwise.
+	 *
+	 * @throws Forminator_Integration_Exception Exception.
 	 */
-	private function get_status_on_contact_sync( $connection_id, $submitted_data, $connection_settings, $quiz_settings, $form_entry_fields ) {
+	private function get_status_on_contact_sync( $connection_id, $submitted_data, $connection_settings, $form_entry_fields ) {
+		$quiz_submitted_data = get_quiz_submitted_data( $this->module, $submitted_data, $form_entry_fields );
+		$quiz_settings       = $this->settings_instance->get_quiz_settings();
+		$addons_fields       = $this->settings_instance->get_form_fields();
+		$submitted_data      = get_addons_lead_form_entry_data( $quiz_settings, $submitted_data, $addons_fields );
+		$submitted_data      = array_merge( $submitted_data, $quiz_submitted_data );
 		// initialize as null.
 		$ac_api = null;
 
-		$quiz_id                = $this->quiz_id;
-		$quiz_settings_instance = $this->quiz_settings_instance;
+		$quiz_id                = $this->module_id;
+		$quiz_settings_instance = $this->settings_instance;
 
-		//check required fields
+		// check required fields.
 		try {
 			$ac_api = $this->addon->get_api();
 			$args   = array();
 
 			if ( ! isset( $connection_settings['list_id'] ) ) {
-				throw new Forminator_Addon_Activecampaign_Exception( __( 'List ID not properly set up.', 'forminator' ) );
+				throw new Forminator_Integration_Exception( esc_html__( 'List ID not properly set up.', 'forminator' ) );
 			}
 
 			$args[ 'p[' . $connection_settings['list_id'] . ']' ] = $connection_settings['list_id'];
@@ -171,7 +81,7 @@ class Forminator_Addon_Activecampaign_Quiz_Hooks extends Forminator_Addon_Quiz_H
 
 			$email_element_id = $connection_settings['fields_map']['email'];
 			if ( ! isset( $submitted_data[ $email_element_id ] ) || empty( $submitted_data[ $email_element_id ] ) ) {
-				throw new Forminator_Addon_Activecampaign_Exception( __( 'Email on element not found or not filled on submitted data.', 'forminator' ) );
+				throw new Forminator_Integration_Exception( esc_html__( 'Email on element not found or not filled on submitted data.', 'forminator' ) );
 			}
 			$email         = $submitted_data[ $email_element_id ];
 			$email         = strtolower( trim( $email ) );
@@ -233,7 +143,7 @@ class Forminator_Addon_Activecampaign_Quiz_Hooks extends Forminator_Addon_Quiz_H
 				$tags = array();
 				foreach ( $connection_settings['tags'] as $tag ) {
 					if ( stripos( $tag, '{' ) === 0
-					     && stripos( $tag, '}' ) === ( strlen( $tag ) - 1 )
+						&& stripos( $tag, '}' ) === ( strlen( $tag ) - 1 )
 					) {
 						// translate to value.
 						$element_id = str_ireplace( '{', '', $tag );
@@ -287,8 +197,7 @@ class Forminator_Addon_Activecampaign_Quiz_Hooks extends Forminator_Addon_Quiz_H
 			 * @param string                                        $connection_id          ID of current connection.
 			 * @param array                                         $submitted_data
 			 * @param array                                         $connection_settings    current connection setting, contains options of like `name`, `list_id` etc.
-			 * @param array                                         $quiz_settings          Displayed Quiz settings.
-			 * @param Forminator_Addon_Activecampaign_Quiz_Settings $quiz_settings_instance ActiveCampaign Addon Quiz Settings instance.
+			 * @param Forminator_Activecampaign_Quiz_Settings $quiz_settings_instance ActiveCampaign Integration Quiz Settings instance.
 			 */
 			$args = apply_filters(
 				'forminator_addon_activecampaign_contact_sync_args',
@@ -297,7 +206,6 @@ class Forminator_Addon_Activecampaign_Quiz_Hooks extends Forminator_Addon_Quiz_H
 				$connection_id,
 				$submitted_data,
 				$connection_settings,
-				$quiz_settings,
 				$quiz_settings_instance
 			);
 
@@ -308,343 +216,51 @@ class Forminator_Addon_Activecampaign_Quiz_Hooks extends Forminator_Addon_Quiz_H
 			return array(
 				'is_sent'         => true,
 				'connection_name' => $connection_settings['name'],
-				'description'     => __( 'Successfully send data to ActiveCampaign', 'forminator' ),
+				'description'     => esc_html__( 'Successfully send data to ActiveCampaign', 'forminator' ),
 				'data_sent'       => $ac_api->get_last_data_sent(),
 				'data_received'   => $ac_api->get_last_data_received(),
 				'url_request'     => $ac_api->get_last_url_request(),
 			);
 
-		} catch ( Forminator_Addon_Activecampaign_Exception $e ) {
+		} catch ( Forminator_Integration_Exception $e ) {
 			forminator_addon_maybe_log( __METHOD__, 'Failed to Send to ActiveCampaign' );
 
 			return array(
 				'is_sent'         => false,
 				'description'     => $e->getMessage(),
 				'connection_name' => $connection_settings['name'],
-				'data_sent'       => ( ( $ac_api instanceof Forminator_Addon_Activecampaign_Wp_Api ) ? $ac_api->get_last_data_sent() : array() ),
-				'data_received'   => ( ( $ac_api instanceof Forminator_Addon_Activecampaign_Wp_Api ) ? $ac_api->get_last_data_received() : array() ),
-				'url_request'     => ( ( $ac_api instanceof Forminator_Addon_Activecampaign_Wp_Api ) ? $ac_api->get_last_url_request() : '' ),
+				'data_sent'       => ( ( $ac_api instanceof Forminator_Activecampaign_Wp_Api ) ? $ac_api->get_last_data_sent() : array() ),
+				'data_received'   => ( ( $ac_api instanceof Forminator_Activecampaign_Wp_Api ) ? $ac_api->get_last_data_received() : array() ),
+				'url_request'     => ( ( $ac_api instanceof Forminator_Activecampaign_Wp_Api ) ? $ac_api->get_last_url_request() : '' ),
 			);
 		}
-	}
-
-	/**
-	 * It wil add new row on entry table of submission page, with couple of subentries
-	 * subentries included are defined in @see Forminator_Addon_Activecampaign_Quiz_Hooks::get_additional_entry_item()
-	 *
-	 * @since 1.0 Activecampaign Addon
-	 *
-	 * @param Forminator_Form_Entry_Model $entry_model
-	 * @param                             $addon_meta_data
-	 *
-	 * @return array
-	 */
-	public function on_render_entry( Forminator_Form_Entry_Model $entry_model, $addon_meta_data ) {
-
-		$quiz_id                = $this->quiz_id;
-		$quiz_settings_instance = $this->quiz_settings_instance;
-
-		/**
-		 *
-		 * Filter active campaign metadata that previously saved on db to be processed
-		 *
-		 * @since 1.2
-		 *
-		 * @param array                                         $addon_meta_data
-		 * @param int                                           $quiz_id                current Quiz ID.
-		 * @param Forminator_Addon_Activecampaign_Quiz_Settings $quiz_settings_instance ActiveCampaign Addon Quiz Settings instance.
-		 */
-		$addon_meta_data = apply_filters(
-			'forminator_addon_activecampaign_metadata',
-			$addon_meta_data,
-			$quiz_id,
-			$quiz_settings_instance
-		);
-
-		$addon_meta_datas = $addon_meta_data;
-		if ( ! isset( $addon_meta_data[0] ) || ! is_array( $addon_meta_data[0] ) ) {
-			return array();
-		}
-
-		return $this->on_render_entry_multi_connection( $addon_meta_datas );
-
-	}
-
-	/**
-	 * Loop through addon meta data on multiple active campaign(s)
-	 *
-	 * @since 1.0 Activecampaign Addon
-	 *
-	 * @param $addon_meta_datas
-	 *
-	 * @return array
-	 */
-	private function on_render_entry_multi_connection( $addon_meta_datas ) {
-		$additional_entry_item = array();
-		foreach ( $addon_meta_datas as $addon_meta_data ) {
-			$additional_entry_item[] = $this->get_additional_entry_item( $addon_meta_data );
-		}
-
-		return $additional_entry_item;
-
-	}
-
-	/**
-	 * Format additional entry item as label and value arrays
-	 *
-	 * - Integration Name : its defined by user when they adding Activecampaign integration on their quiz
-	 * - Sent To Activecampaign : will be Yes/No value, that indicates whether sending data to Activecampaign was successful
-	 * - Info : Text that are generated by addon when building and sending data to Activecampaign @see Forminator_Addon_Activecampaign_Quiz_Hooks::add_entry_fields()
-	 * - Below subentries will be added if full log enabled, @see Forminator_Addon_Activecampaign::is_show_full_log() @see FORMINATOR_ADDON_ACTIVECAMPAIGN_SHOW_FULL_LOG
-	 *      - API URL : URL that wes requested when sending data to Activecampaign
-	 *      - Data sent to Activecampaign : encoded body request that was sent
-	 *      - Data received from Activecampaign : json encoded body response that was received
-	 *
-	 * @param $addon_meta_data
-	 *
-	 * @since 1.0 Activecampaign Addon
-	 * @return array
-	 */
-	private function get_additional_entry_item( $addon_meta_data ) {
-
-		if ( ! isset( $addon_meta_data['value'] ) || ! is_array( $addon_meta_data['value'] ) ) {
-			return array();
-		}
-		$status                = $addon_meta_data['value'];
-		$additional_entry_item = array(
-			'label' => __( 'ActiveCampaign Integration', 'forminator' ),
-			'value' => '',
-		);
-
-		$sub_entries = array();
-		if ( isset( $status['connection_name'] ) ) {
-			$sub_entries[] = array(
-				'label' => __( 'Integration Name', 'forminator' ),
-				'value' => $status['connection_name'],
-			);
-		}
-
-		if ( isset( $status['is_sent'] ) ) {
-			$is_sent       = true === $status['is_sent'] ? __( 'Yes', 'forminator' ) : __( 'No', 'forminator' );
-			$sub_entries[] = array(
-				'label' => __( 'Sent To ActiveCampaign', 'forminator' ),
-				'value' => $is_sent,
-			);
-		}
-
-		if ( isset( $status['description'] ) ) {
-			$sub_entries[] = array(
-				'label' => __( 'Info', 'forminator' ),
-				'value' => $status['description'],
-			);
-		}
-
-		if ( Forminator_Addon_Activecampaign::is_show_full_log() ) {
-			// too long to be added on entry data enable this with `define('FORMINATOR_ADDON_ACTIVECAMPAIGN_SHOW_FULL_LOG', true)`.
-			if ( isset( $status['url_request'] ) ) {
-				$sub_entries[] = array(
-					'label' => __( 'API URL', 'forminator' ),
-					'value' => $status['url_request'],
-				);
-			}
-
-			if ( isset( $status['data_sent'] ) ) {
-				$sub_entries[] = array(
-					'label' => __( 'Data sent to ActiveCampaign', 'forminator' ),
-					'value' => '<pre class="sui-code-snippet">' . wp_json_encode( $status['data_sent'], JSON_PRETTY_PRINT ) . '</pre>',
-				);
-			}
-
-			if ( isset( $status['data_received'] ) ) {
-				$sub_entries[] = array(
-					'label' => __( 'Data received from ActiveCampaign', 'forminator' ),
-					'value' => '<pre class="sui-code-snippet">' . wp_json_encode( $status['data_received'], JSON_PRETTY_PRINT ) . '</pre>',
-				);
-			}
-		}
-
-		$additional_entry_item['sub_entries'] = $sub_entries;
-
-		// return single array.
-		return $additional_entry_item;
-	}
-
-	/**
-	 * Activecampaign will add a column on the title/header row
-	 * its called `Active Campaign Info` which can be translated on forminator lang
-	 *
-	 * @since 1.0 Activecampaign Addon
-	 * @return array
-	 */
-	public function on_export_render_title_row() {
-
-		$export_headers = array(
-			'info' => __( 'ActiveCampaign Info', 'forminator' ),
-		);
-
-		$quiz_id                = $this->quiz_id;
-		$quiz_settings_instance = $this->quiz_settings_instance;
-
-		/**
-		 * Filter Activecampaign headers on export file
-		 *
-		 * @since 1.2
-		 *
-		 * @param array                                         $export_headers         headers to be displayed on export file.
-		 * @param int                                           $quiz_id                current Quiz ID.
-		 * @param Forminator_Addon_Activecampaign_Quiz_Settings $quiz_settings_instance Activecampaign Quiz Settings instance.
-		 */
-		$export_headers = apply_filters(
-			'forminator_addon_activecampaign_export_headers',
-			$export_headers,
-			$quiz_id,
-			$quiz_settings_instance
-		);
-
-		return $export_headers;
-	}
-
-	/**
-	 * Activecampaign will add a column that give user information whether sending data to Activecampaign successfully or not
-	 * It will only add one column even its multiple connection, every connection will be separated by comma
-	 *
-	 * @since 1.0 Activecampaign Addon
-	 *
-	 * @param Forminator_Form_Entry_Model $entry_model
-	 * @param                             $addon_meta_data
-	 *
-	 * @return array
-	 */
-	public function on_export_render_entry( Forminator_Form_Entry_Model $entry_model, $addon_meta_data ) {
-
-		$quiz_id                = $this->quiz_id;
-		$quiz_settings_instance = $this->quiz_settings_instance;
-
-		/**
-		 *
-		 * Filter Activecampaign metadata that previously saved on db to be processed
-		 *
-		 * @since 1.2
-		 *
-		 * @param array                                         $addon_meta_data
-		 * @param int                                           $quiz_id                current Quiz ID.
-		 * @param Forminator_Addon_Activecampaign_Quiz_Settings $quiz_settings_instance Activecampaign Quiz Settings instance.
-		 */
-		$addon_meta_data = apply_filters(
-			'forminator_addon_activecampaign_metadata',
-			$addon_meta_data,
-			$quiz_id,
-			$quiz_settings_instance
-		);
-
-		$export_columns = array(
-			'info' => $this->get_from_addon_meta_data( $addon_meta_data, 'description', '' ),
-		);
-
-		/**
-		 * Filter Activecampaign columns to be displayed on export submissions
-		 *
-		 * @since 1.2
-		 *
-		 * @param array                                         $export_columns         column to be exported.
-		 * @param int                                           $quiz_id                current Quiz ID.
-		 * @param Forminator_Form_Entry_Model                   $entry_model            Form Entry Model.
-		 * @param array                                         $addon_meta_data        meta data saved by addon on entry fields.
-		 * @param Forminator_Addon_Activecampaign_Quiz_Settings $quiz_settings_instance Activecampaign Quiz Settings instance.
-		 */
-		$export_columns = apply_filters(
-			'forminator_addon_activecampaign_export_columns',
-			$export_columns,
-			$quiz_id,
-			$entry_model,
-			$addon_meta_data,
-			$quiz_settings_instance
-		);
-
-		return $export_columns;
-	}
-
-	/**
-	 * Get Addon meta data, will be recursive if meta data is multiple because of multiple connection added
-	 *
-	 * @since 1.0 Activecampaign Addon
-	 *
-	 * @param        $addon_meta_data
-	 * @param        $key
-	 * @param string $default
-	 *
-	 * @return string
-	 */
-	protected function get_from_addon_meta_data( $addon_meta_data, $key, $default = '' ) {
-		$addon_meta_datas = $addon_meta_data;
-		if ( ! isset( $addon_meta_data[0] ) || ! is_array( $addon_meta_data[0] ) ) {
-			return $default;
-		}
-
-		$addon_meta_data = $addon_meta_data[0];
-
-		// make sure its `status`, because we only add this.
-		if ( 'status' !== $addon_meta_data['name'] ) {
-			if ( stripos( $addon_meta_data['name'], 'status-' ) === 0 ) {
-				$meta_data = array();
-				foreach ( $addon_meta_datas as $addon_meta_data ) {
-					// make it like single value so it will be processed like single meta data.
-					$addon_meta_data['name'] = 'status';
-
-					// add it on an array for next recursive process.
-					$meta_data[] = $this->get_from_addon_meta_data( array( $addon_meta_data ), $key, $default );
-				}
-
-				return implode( ', ', $meta_data );
-			}
-
-			return $default;
-
-		}
-
-		if ( ! isset( $addon_meta_data['value'] ) || ! is_array( $addon_meta_data['value'] ) ) {
-			return $default;
-		}
-		$status = $addon_meta_data['value'];
-		if ( isset( $status[ $key ] ) ) {
-			$connection_name = '';
-			if ( 'connection_name' !== $key ) {
-				if ( isset( $status['connection_name'] ) ) {
-					$connection_name = '[' . $status['connection_name'] . '] ';
-				}
-			}
-
-			return $connection_name . $status[ $key ];
-		}
-
-		return $default;
 	}
 
 	/**
 	 * It will delete contact on ActiveCampaign list
 	 *
-	 * @since 1.0 ActiveCampaign Addon
+	 * @since 1.0 ActiveCampaign Integration
 	 *
-	 * @param Forminator_Form_Entry_Model $entry_model
-	 * @param  array                      $addon_meta_data
+	 * @param Forminator_Form_Entry_Model $entry_model Form entry model.
+	 * @param  array                       $addon_meta_data Addon meta data.
 	 *
 	 * @return bool
 	 */
 	public function on_before_delete_entry( Forminator_Form_Entry_Model $entry_model, $addon_meta_data ) {
 		// attach hook first.
-		$quiz_id                = $this->quiz_id;
-		$quiz_settings_instance = $this->quiz_settings_instance;
+		$quiz_id                = $this->module_id;
+		$quiz_settings_instance = $this->settings_instance;
 
 		/**
 		 *
-		 * Filter ActiveCampaign addon metadata that previously saved on db to be processed
+		 * Filter ActiveCampaign integration metadata that previously saved on db to be processed
 		 *
 		 * @since 1.1
 		 *
 		 * @param array                                         $addon_meta_data
 		 * @param int                                           $quiz_id                current Quiz ID.
 		 * @param Forminator_Form_Entry_Model                   $entry_model            Forminator Entry Model.
-		 * @param Forminator_Addon_Activecampaign_Quiz_Settings $quiz_settings_instance Activecampaign Quiz Settings instance.
+		 * @param Forminator_Activecampaign_Quiz_Settings $quiz_settings_instance Activecampaign Quiz Settings instance.
 		 */
 		$addon_meta_data = apply_filters(
 			'forminator_addon_activecampaign_metadata',
@@ -661,8 +277,8 @@ class Forminator_Addon_Activecampaign_Quiz_Hooks extends Forminator_Addon_Quiz_H
 		 *
 		 * @param int                                           $quiz_id                current Quiz ID.
 		 * @param Forminator_Form_Entry_Model                   $entry_model            Forminator Entry Model.
-		 * @param array                                         $addon_meta_data        addon meta data.
-		 * @param Forminator_Addon_Activecampaign_Quiz_Settings $quiz_settings_instance Activecampaign Quiz Settings instance.
+		 * @param array                                         $addon_meta_data        integration meta data.
+		 * @param Forminator_Activecampaign_Quiz_Settings $quiz_settings_instance Activecampaign Quiz Settings instance.
 		 */
 		do_action(
 			'forminator_addon_activecampaign_on_before_delete_submission',
@@ -672,7 +288,7 @@ class Forminator_Addon_Activecampaign_Quiz_Hooks extends Forminator_Addon_Quiz_H
 			$quiz_settings_instance
 		);
 
-		if ( ! Forminator_Addon_Activecampaign::is_enable_delete_contact() ) {
+		if ( ! Forminator_Activecampaign::is_enable_delete_contact() ) {
 			// its disabled, go for it!
 			return true;
 		}
@@ -683,8 +299,7 @@ class Forminator_Addon_Activecampaign_Quiz_Hooks extends Forminator_Addon_Quiz_H
 			if ( is_array( $addon_meta_data ) ) {
 				foreach ( $addon_meta_data as $addon_meta_datum ) {
 
-					/** data received reference
-					 *
+					/** Data received reference
 					 * data_received: {
 					 *      subscriber_id: 1,
 					 *      sendlast_should: 0,
@@ -716,9 +331,8 @@ class Forminator_Addon_Activecampaign_Quiz_Hooks extends Forminator_Addon_Quiz_H
 			 *
 			 * @param array                                         $subscriber_ids_to_delete
 			 * @param int                                           $quiz_id                current Quiz ID.
-			 * @param array                                         $addon_meta_data        addon meta data.
-			 * @param Forminator_Addon_Activecampaign_Quiz_Settings $quiz_settings_instance Activecampaign Quiz Settings instance.
-			 *
+			 * @param array                                         $addon_meta_data        integration meta data.
+			 * @param Forminator_Activecampaign_Quiz_Settings $quiz_settings_instance Activecampaign Quiz Settings instance.
 			 */
 			$subscriber_ids_to_delete = apply_filters(
 				'forminator_addon_activecampaign_subscriber_ids_to_delete',
@@ -741,12 +355,12 @@ class Forminator_Addon_Activecampaign_Quiz_Hooks extends Forminator_Addon_Quiz_H
 
 			return true;
 
-		} catch ( Forminator_Addon_Activecampaign_Exception $e ) {
-			// handle all internal addon exceptions with `Forminator_Addon_Activecampaign_Exception`.
+		} catch ( Forminator_Integration_Exception $e ) {
+			// handle all internal integration exceptions with `Forminator_Integration_Exception`.
 
 			// use wp_error, for future usage it can be returned to page entries.
 			$wp_error = new WP_Error( 'forminator_addon_activecampaign_delete_contact', $e->getMessage() );
-			// handle this in addon by self, since page entries cant handle error messages on delete yet.
+			// handle this in integration by self, since page entries cant handle error messages on delete yet.
 			wp_die(
 				esc_html( $wp_error->get_error_message() ),
 				esc_html( $this->addon->get_title() ),
@@ -758,6 +372,5 @@ class Forminator_Addon_Activecampaign_Quiz_Hooks extends Forminator_Addon_Quiz_H
 
 			return false;
 		}
-
 	}
 }

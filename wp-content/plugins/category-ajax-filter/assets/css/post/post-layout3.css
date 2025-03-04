@@ -99,6 +99,7 @@
         /* border-top: 1px solid #fff; 
         box-shadow: 0px 1px 10px 1px #fff;
         box-shadow: 0 1px 10px 3px #730c0c;*/
+        box-sizing: border-box;
     }
     
     
@@ -146,6 +147,7 @@
         display: block;
         width: 100%;
         padding: 0px 5px;
+        box-sizing: border-box;
     }
     .caf-post-layout3 .caf-featured-img-box:hover {
         opacity: 0.6;

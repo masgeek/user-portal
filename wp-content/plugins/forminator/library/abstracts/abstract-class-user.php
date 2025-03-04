@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator User.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -23,13 +29,13 @@ abstract class Forminator_User {
 	 */
 	public function __construct() {
 		// Remove {password-N} in mail data.
-		add_filter( 'forminator_custom_form_mail_data', array( $this, 'remove_password_in_form_mail_data' ) );
+		add_filter( 'forminator_custom_form_mail_data', array( 'Forminator_Password', 'remove_password_field_values' ) );
 	}
 
 	/**
 	 * Remove password-N in mail data
 	 *
-	 * @param array $data
+	 * @param array $data Mail data.
 	 * @return array
 	 */
 	public function remove_password_in_form_mail_data( $data ) {
@@ -45,8 +51,8 @@ abstract class Forminator_User {
 	/**
 	 * Replace user value
 	 *
-	 * @param array  $field_data_array
-	 * @param string $user_key
+	 * @param array  $field_data_array Field data.
+	 * @param string $user_key User Key.
 	 * @return string $user_value
 	 */
 	public function replace_value( $field_data_array, $user_key ) {
@@ -73,7 +79,7 @@ abstract class Forminator_User {
 	/**
 	 * Remove password field from merge tag {all_fields}
 	 *
-	 * @param array $form_fields
+	 * @param array $form_fields For fields.
 	 * @return array
 	 */
 	public static function remove_password_from_all_fields( $form_fields ) {
@@ -251,8 +257,8 @@ abstract class Forminator_User {
 	/**
 	 * Change the settings by saving the specified HTML tags
 	 *
-	 * @param array $sanitized_settings
-	 * @param array $settings
+	 * @param array $sanitized_settings Sanitized settings.
+	 * @param array $settings Settings.
 	 *
 	 * @return array
 	 */

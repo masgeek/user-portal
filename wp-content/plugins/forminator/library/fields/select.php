@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Select class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -12,40 +18,52 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Forminator_Select extends Forminator_Field {
 
 	/**
+	 * Name
+	 *
 	 * @var string
 	 */
 	public $name = '';
 
 	/**
+	 * Slug
+	 *
 	 * @var string
 	 */
 	public $slug = 'select';
 
 	/**
+	 * Type
+	 *
 	 * @var string
 	 */
 	public $type = 'select';
 
 	/**
+	 * Position
+	 *
 	 * @var int
 	 */
 	public $position = 11;
 
 	/**
+	 * Options
+	 *
 	 * @var array
 	 */
 	public $options = array();
 
 	/**
-	 * @var string
-	 */
-	public $category = 'standard';
-
-	/**
+	 * Icon
+	 *
 	 * @var string
 	 */
 	public $icon = 'sui-icon-element-select';
 
+	/**
+	 * Is calculable
+	 *
+	 * @var bool
+	 */
 	public $is_calculable = true;
 
 	/**
@@ -56,7 +74,7 @@ class Forminator_Select extends Forminator_Field {
 	public function __construct() {
 		parent::__construct();
 
-		$this->name = __( 'Select', 'forminator' );
+		$this->name = esc_html__( 'Select', 'forminator' );
 	}
 
 	/**
@@ -67,22 +85,23 @@ class Forminator_Select extends Forminator_Field {
 	 */
 	public function defaults() {
 		return array(
-			'value_type'  => 'single',
-			'field_label' => __( 'Select', 'forminator' ),
-			'options'     => array(
+			'value_type'        => 'single',
+			'field_label'       => esc_html__( 'Select', 'forminator' ),
+			'options'           => array(
 				array(
-					'label' => __( 'Option 1', 'forminator' ),
+					'label' => esc_html__( 'Option 1', 'forminator' ),
 					'value' => 'one',
 					'limit' => '',
 					'key'   => forminator_unique_key(),
 				),
 				array(
-					'label' => __( 'Option 2', 'forminator' ),
+					'label' => esc_html__( 'Option 2', 'forminator' ),
 					'value' => 'two',
 					'limit' => '',
 					'key'   => forminator_unique_key(),
 				),
 			),
+			'multiselect_style' => 'modern',
 		);
 	}
 
@@ -91,7 +110,7 @@ class Forminator_Select extends Forminator_Field {
 	 *
 	 * @since 1.0.5
 	 *
-	 * @param array $settings
+	 * @param array $settings Settings.
 	 *
 	 * @return array
 	 */
@@ -112,8 +131,9 @@ class Forminator_Select extends Forminator_Field {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $field
+	 * @param array                  $field Field.
 	 * @param Forminator_Render_Form $views_obj Forminator_Render_Form object.
+	 * @param array                  $draft_value Draft value.
 	 *
 	 * @return mixed
 	 */
@@ -127,9 +147,10 @@ class Forminator_Select extends Forminator_Field {
 		$id            = self::get_property( 'element_id', $field );
 		$name          = $id;
 		$uniq_id       = Forminator_CForm_Front::$uid;
-		$id            = 'forminator-form-' . $settings['form_id'] . '__field--' . $id . '_' . $uniq_id;
+		$form_id       = $settings['form_id'];
+		$id            = 'forminator-form-' . $form_id . '__field--' . $id . '_' . $uniq_id;
 		$required      = self::get_property( 'required', $field, false, 'bool' );
-		$options       = self::get_property( 'options', $field, array() );
+		$options       = self::get_options( $field );
 		$post_value    = self::get_post_data( $name, false );
 		$description   = self::get_property( 'description', $field, '' );
 		$label         = esc_html( self::get_property( 'field_label', $field, '' ) );
@@ -139,27 +160,14 @@ class Forminator_Select extends Forminator_Field {
 		$is_limit      = self::get_property( 'limit_status', $field, '' );
 		$placeholder   = esc_html( self::get_property( 'placeholder', $field, '' ) );
 		$calc_enabled  = self::get_property( 'calculations', $field, false, 'bool' );
+		$field_style   = self::get_property( 'multiselect_style', $field, 'standard' );
 
-		$hidden_behavior = self::get_property( 'hidden_behavior', $field );
+		$hidden_behavior      = self::get_property( 'hidden_behavior', $field );
+		$checkbox_in_dropdown = self::get_property( 'checkbox_in_dropdown', $field, 'hide' );
 
 		$html .= '<div class="forminator-field">';
 
-		if ( $label ) {
-			if ( $required ) {
-				$html .= sprintf(
-					'<label for="%s" class="forminator-label">%s %s</label>',
-					$id . '-label',
-					esc_html( $label ),
-					forminator_get_required_icon()
-				);
-			} else {
-				$html .= sprintf(
-					'<label for="%s" class="forminator-label">%s</label>',
-					$id . '-label',
-					esc_html( $label )
-				);
-			}
-		}
+		$html .= self::get_field_label( $label, $id, $required );
 
 		if ( $required && empty( $placeholder ) ) {
 			$placeholder = esc_html__( 'Please select an option', 'forminator' );
@@ -170,25 +178,24 @@ class Forminator_Select extends Forminator_Field {
 			$hidden_calc_behavior = ' data-hidden-behavior="' . $hidden_behavior . '"';
 		}
 
-		if ( 'multiselect' === $field_type ) {
+		if ( 'multiselect' === $field_type && 'standard' === $field_style ) {
 			$post_value  = self::get_post_data( $name, self::FIELD_PROPERTY_VALUE_NOT_EXIST );
 			$field_name  = $name;
 			$name        = $name . '[]';
 			$draft_value = isset( $draft_value['value'] ) ? array_map( 'trim', $draft_value['value'] ) : '';
 
 			$html .= sprintf(
-				'<div class="forminator-multiselect" aria-labelledby="%s" aria-describedby="%s">',
+				'<div class="forminator-multiselect" aria-labelledby="%s"%s>',
 				esc_attr( $id . '-label' ),
-				esc_attr( $id . '-description' )
+				( ! empty( $description ) ? ' aria-describedby="' . esc_attr( $id . '-description' ) . '"' : '' )
 			);
 
-			$option_first_key = '';
 			// Multi values.
-			$default_arr 	  = array();
-			$default     	  = '';
-			$prefill          = false;
-			$prefil_valid     = false;
-			$draft_valid	  = false;
+			$default_arr  = array();
+			$default      = '';
+			$prefill      = false;
+			$prefil_valid = false;
+			$draft_valid  = false;
 
 			// Check if Pre-fill parameter used.
 			if ( $this->has_prefill( $field ) ) {
@@ -197,9 +204,9 @@ class Forminator_Select extends Forminator_Field {
 			}
 
 			foreach ( $options as $key => $option ) {
-				$pref_value  = $option['value'] ? esc_html( strip_tags( $option['value'] ) ) : wp_kses_post( strip_tags( $option['label'] ) );
+				$pref_value  = $option['value'] ? esc_html( wp_strip_all_tags( $option['value'] ) ) : wp_kses_post( wp_strip_all_tags( $option['label'] ) );
 				$pref_values = explode( ',', $prefill );
-				if ( in_array( $pref_value, $pref_values ) ) {
+				if ( in_array( strval( $pref_value ), array_map( 'strval', $pref_values ), true ) ) {
 					$prefil_valid  = true;
 					$default_arr[] = $pref_value;
 				}
@@ -214,47 +221,31 @@ class Forminator_Select extends Forminator_Field {
 
 			foreach ( $options as $key => $option ) {
 
-				$value             = $option['value'] ? esc_html( strip_tags( $option['value'] ) ) : wp_kses_post( strip_tags( $option['label'] ) );
-				$label             = $option['label'] ? wp_kses_post( strip_tags( $option['label'] ) ) : '';
-				$limit             = ( isset( $option['limit'] ) && $option['limit'] ) ? esc_html( $option['limit'] ) : '';
+				$value             = $option['value'] ? esc_html( wp_strip_all_tags( $option['value'] ) ) : wp_kses_post( wp_strip_all_tags( $option['label'] ) );
 				$input_id          = $id . '-' . $i;
 				$option_default    = isset( $option['default'] ) ? filter_var( $option['default'], FILTER_VALIDATE_BOOLEAN ) : false;
 				$calculation_value = $calc_enabled && isset( $option['calculation'] ) ? $option['calculation'] : 0.0;
-				$selected 		   = false;
-				if ( 0 === $key ) {
-					$option_first_key = $value;
-				}
+				$selected          = false;
 
-				if ( isset( $is_limit ) && 'enable' === $is_limit && ! empty( $limit ) ) {
-					$entries = Forminator_Form_Entry_Model::select_count_entries_by_meta_field(
-						$settings['form_id'],
-						$field_name,
-						$value,
-						$label,
-						$field_type
-					);
-
-					if ( $limit <= $entries ) {
-						continue;
-					}
+				if ( isset( $is_limit ) && 'enable' === $is_limit
+					&& Forminator_Form_Entry_Model::is_option_limit_reached( $form_id, $field_name, $field_type, $option ) ) {
+					continue;
 				}
 
 				if ( self::FIELD_PROPERTY_VALUE_NOT_EXIST !== $post_value ) {
 					if ( is_array( $post_value ) ) {
 						$selected = in_array( $value, $post_value ); // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 					}
-				} else {
-					if ( $draft_valid ) {
-						if ( in_array( $value, $default_arr ) ) {
-							$selected = true;
-						}
-					} else if ( $prefil_valid ) {
-						if ( in_array( $value, $default_arr ) ) {
-							$selected = true;
-						}
-					} else {
-						$selected = $option_default;
+				} elseif ( $draft_valid ) {
+					if ( in_array( strval( $value ), array_map( 'strval', $default_arr ), true ) ) {
+						$selected = true;
 					}
+				} elseif ( $prefil_valid ) {
+					if ( in_array( strval( $value ), array_map( 'strval', $default_arr ), true ) ) {
+						$selected = true;
+					}
+				} else {
+					$selected = $option_default;
 				}
 
 				if ( $option_default && ! $prefil_valid && ! $draft_valid ) {
@@ -266,27 +257,30 @@ class Forminator_Select extends Forminator_Field {
 
 				$class = 'forminator-option' . $extra_class;
 
-				$html .= sprintf( '<label for="%s" class="' . $class . '">', $input_id );
+				$label_id = $input_id . '-label';
+
+				$html .= sprintf( '<label id="' . $label_id . '" for="%s" class="' . $class . '">', $input_id );
 
 				$html .= sprintf(
-					'<input type="checkbox" name="%s" value="%s" id="%s" data-calculation="%s" %s %s />',
+					'<input type="checkbox" name="%s" value="%s" id="%s" aria-labelledby="%s" data-calculation="%s" %s %s />',
 					$name,
 					$value,
 					$input_id,
+					$label_id,
 					$calculation_value,
 					$hidden_calc_behavior,
 					$selected
 				);
 
-				$html .= wp_kses_post( strip_tags( $option['label'] ) );
+				$html .= wp_kses_post( wp_strip_all_tags( $option['label'] ) );
 
 				$html .= '</label>';
 
-				$i ++;
+				++$i;
 			}
 
 			if ( ! empty( $default_arr ) ) {
-				$default = json_encode( $default_arr, JSON_FORCE_OBJECT );
+				$default = wp_json_encode( $default_arr, JSON_FORCE_OBJECT );
 			}
 
 			$html .= sprintf(
@@ -299,28 +293,47 @@ class Forminator_Select extends Forminator_Field {
 			$html .= '</div>';
 
 		} else {
+			$default_arr    = array();
 			$options_markup = '';
 			$default        = '';
 			$search         = 'false';
 
-			$draft_valid	= false;
-			$post_valid		= false;
-			$prefil_valid 	= false;
+			$draft_valid  = false;
+			$post_valid   = false;
+			$prefil_valid = false;
 
 			if ( 'enable' === $search_status ) {
 				$search = 'true';
 			}
 
 			if ( ! empty( $placeholder ) ) {
-				$options_markup = sprintf( '<option value="">%s</option>', $placeholder );
+				switch ( $field_type ) {
+					case 'multiselect':
+						if ( 'none' !== $design ) {
+							break;
+						}
+						$options_markup = sprintf( '<option value="" disabled>%s</option>', $placeholder );
+						break;
+
+					default:
+						$selected       = ( 'none' === $design ) ? 'selected' : '';
+						$disabled       = ( 'none' === $design ) ? 'disabled' : '';
+						$options_markup = sprintf( '<option value="" %s %s>%s</option>', $disabled, $selected, $placeholder );
+						break;
+				}
 			}
 
 			foreach ( $options as $key => $option ) {
-				$pref_value = ( $option['value'] || is_numeric( $option['value'] ) ? esc_html( strip_tags( $option['value'] ) ) : '' );
+				$pref_value = ( $option['value'] || is_numeric( $option['value'] ) ? esc_html( wp_strip_all_tags( $option['value'] ) ) : '' );
 				if ( isset( $draft_value['value'] ) ) {
-					if ( trim( $draft_value['value'] ) === trim( $pref_value ) ) {
+					if ( is_array( $draft_value['value'] ) ) {
+						if ( in_array( trim( $pref_value ), $draft_value['value'], true ) ) {
+							$draft_valid   = true;
+							$default_arr[] = $pref_value;
+						}
+					} elseif ( trim( $draft_value['value'] ) === trim( $pref_value ) ) {
 						$draft_valid = true;
-						$default 	 = $pref_value;
+						$default     = $pref_value;
 					}
 				}
 
@@ -330,37 +343,31 @@ class Forminator_Select extends Forminator_Field {
 					$prefill_values = explode( ',', $prefill );
 
 					if ( in_array( $pref_value, $prefill_values ) ) { // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
-						$default	  = $pref_value;
+						$default      = $pref_value;
 						$prefil_valid = true;
 					}
 				}
 
 				if ( $pref_value === $post_value ) {
-					$default 	= $pref_value;
+					$default    = $pref_value;
 					$post_valid = true;
 				}
 			}
 
 			foreach ( $options as $key => $option ) {
-				$value             = ( $option['value'] || is_numeric( $option['value'] ) ? esc_html( strip_tags( $option['value'] ) ) : '' );
-				$label             = $option['label'] ? wp_kses_post( strip_tags( $option['label'] ) ) : '';
-				$limit             = ( isset( $option['limit'] ) && $option['limit'] ) ? esc_html( $option['limit'] ) : '';
+				$value             = ( $option['value'] || is_numeric( $option['value'] ) ? esc_html( wp_strip_all_tags( $option['value'] ) ) : '' );
 				$option_default    = isset( $option['default'] ) ? filter_var( $option['default'], FILTER_VALIDATE_BOOLEAN ) : false;
 				$calculation_value = $calc_enabled && isset( $option['calculation'] ) ? esc_html( $option['calculation'] ) : 0.0;
 				$option_selected   = false;
 
-				if ( isset( $is_limit ) && 'enable' === $is_limit && ! empty( $limit ) ) {
+				// Skip options with empty values.
+				if ( '' === $value ) {
+					continue;
+				}
 
-					$entries = Forminator_Form_Entry_Model::select_count_entries_by_meta_field(
-						$settings['form_id'],
-						$name,
-						$value,
-						$label
-					);
-
-					if ( $limit <= $entries ) {
-						continue;
-					}
+				if ( isset( $is_limit ) && 'enable' === $is_limit
+						&& Forminator_Form_Entry_Model::is_option_limit_reached( $form_id, $name, $field_type, $option ) ) {
+					continue;
 				}
 
 				if ( $option_default && ! $draft_valid && ! $prefil_valid && ! $post_valid ) {
@@ -371,15 +378,17 @@ class Forminator_Select extends Forminator_Field {
 					if ( $value === $post_value ) {
 						$option_selected = true;
 					}
-				} else if ( $draft_valid ) {
-					if ( $value == $default ) {
+				} elseif ( $draft_valid ) {
+					if ( ! empty( $default_arr ) && in_array( $value, $default_arr, true ) ) {
+						$option_selected = true;
+					} elseif ( $value === $default ) {
 						$option_selected = true;
 					}
-				} else if ( $prefil_valid ) {
-					if ( $value == $default ) {
+				} elseif ( $prefil_valid ) {
+					if ( $value === $default ) {
 						$option_selected = true;
 					}
-				} else if ( $option_default ) {
+				} elseif ( $option_default ) {
 					$option_selected = true;
 				}
 
@@ -390,21 +399,41 @@ class Forminator_Select extends Forminator_Field {
 					esc_html( $value ),
 					$selected,
 					esc_html( $calculation_value ),
-					wp_kses_post( strip_tags( $option['label'] ) )
+					wp_kses_post( wp_strip_all_tags( $option['label'] ) )
 				);
 			}
 
+			$select_type        = '';
+			$has_checkbox       = 'false';
+			$allow_clear        = 'false';
+			$search_placeholder = $placeholder;
+
+			if ( 'multiselect' === $field_type && 'modern' === $field_style ) {
+				$select_type        = 'multiple';
+				$name               = $name . '[]';
+				$allow_clear        = 'true';
+				$search_placeholder = 'Search';
+
+				if ( 'show' === $checkbox_in_dropdown ) {
+					$has_checkbox = 'true';
+				}
+			}
 			$html .= sprintf(
-				'<select id="%s" class="%s" data-required="%s" name="%s" data-default-value="%s"%s data-placeholder="%s" data-search="%s" aria-describedby="%s">',
+				'<select %s id="%s" class="%s" data-required="%s" name="%s" data-default-value="%s"%s data-placeholder="%s" data-search="%s" data-search-placeholder="%s" data-checkbox="%s" data-allow-clear="%s" aria-labelledby="%s"%s>',
+				$select_type,
 				$id,
-				'forminator-select--field forminator-select2', // class.
+				'forminator-select--field forminator-select2 forminator-select2-multiple', // class.
 				$required,
 				$name,
 				$default,
 				$hidden_calc_behavior,
-				$placeholder,
+				$this->sanitize_value( $placeholder ),
 				$search,
-				esc_attr( $id . '-description' )
+				$search_placeholder,
+				$has_checkbox,
+				$allow_clear,
+				esc_attr( $id . '-label' ),
+				( ! empty( $description ) ? ' aria-describedby="' . esc_attr( $id . '-description' ) . '"' : '' )
 			);
 
 			$html .= $options_markup;
@@ -457,7 +486,7 @@ class Forminator_Select extends Forminator_Field {
 		$field_type  = self::get_property( 'value_type', $field, '' );
 
 		if ( $is_required ) {
-			$required_message = self::get_property( 'required_message', $field, __( 'This field is required. Please select a value.', 'forminator' ) );
+			$required_message = self::get_property( 'required_message', $field, esc_html__( 'This field is required. Please select a value.', 'forminator' ) );
 			$required_message = apply_filters(
 				'forminator_single_field_required_validation_message',
 				$required_message,
@@ -476,12 +505,43 @@ class Forminator_Select extends Forminator_Field {
 	}
 
 	/**
+	 * Are submitted options reached limit
+	 *
+	 * @param array $field Field settings.
+	 * @param array $selected_options Submitted select options.
+	 * @return bool
+	 */
+	private static function options_reached_limit( $field, $selected_options ) {
+		$is_limit = self::get_property( 'limit_status', $field );
+		// Skip if this field is not limitted.
+		if ( ! isset( $is_limit ) || 'enable' !== $is_limit ) {
+			return false;
+		}
+
+		$field_name = self::get_property( 'element_id', $field );
+		$field_type = self::get_property( 'value_type', $field );
+		$form_id    = Forminator_CForm_Front_Action::$module_id;
+
+		foreach ( $field['options'] as $option ) {
+			// Ski if this option was not selected.
+			if ( ! in_array( $option['value'], $selected_options, true ) ) {
+				continue;
+			}
+			if ( Forminator_Form_Entry_Model::is_option_limit_reached( $form_id, $field_name, $field_type, $option, true ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Field back-end validation
 	 *
 	 * @since 1.0
 	 *
-	 * @param array        $field
-	 * @param array|string $data
+	 * @param array        $field Field.
+	 * @param array|string $data Data.
 	 */
 	public function validate( $field, $data ) {
 		$select_type  = isset( $field['value_type'] ) ? $field['value_type'] : 'single';
@@ -490,19 +550,30 @@ class Forminator_Select extends Forminator_Field {
 
 		if ( is_array( $data ) ) {
 			foreach ( $data as $value ) {
-				if ( false === array_search( htmlspecialchars_decode( $value ), array_column( $field['options'], 'value' ) ) ) {
+				if ( false === array_search( strval( htmlspecialchars_decode( $value ) ), array_map( 'strval', array_column( $field['options'], 'value' ) ), true ) ) {
 					$value_exists = false;
 					break;
 				}
 			}
-		} elseif ( ! empty( $data ) && false === array_search( htmlspecialchars_decode( $data ), array_column( $field['options'], 'value' ) ) ) {
+		} elseif ( ! empty( $data ) && false === array_search( strval( htmlspecialchars_decode( $data ) ), array_map( 'strval', array_column( $field['options'], 'value' ) ), true ) ) {
 			$value_exists = false;
 		}
 
 		if ( ! $value_exists ) {
 			$this->validation_message[ $id ] = apply_filters(
 				'forminator_select_field_nonexistent_validation_message',
-				__( 'Selected value does not exist.', 'forminator' ),
+				esc_html__( 'Selected value does not exist.', 'forminator' ),
+				$id,
+				$field
+			);
+		}
+
+		// Check if select options is reached limit.
+		$value_limited = self::options_reached_limit( $field, (array) $data );
+		if ( $value_limited ) {
+			$this->validation_message[ $id ] = apply_filters(
+				'forminator_select_field_nonavailable_validation_message',
+				esc_html__( 'The selected option is no longer available.', 'forminator' ),
 				$id,
 				$field
 			);
@@ -510,10 +581,10 @@ class Forminator_Select extends Forminator_Field {
 
 		if ( $this->is_required( $field ) ) {
 			if ( ! isset( $data ) ||
-				 ( 'single' === $select_type && ! strlen( $data ) ) ||
-				 ( 'multiselect' === $select_type && empty( $data ) )
+				( 'single' === $select_type && ! strlen( $data ) ) ||
+				( 'multiselect' === $select_type && empty( $data ) )
 			) {
-				$required_message                = self::get_property( 'required_message', $field, __( 'This field is required. Please select a value.', 'forminator' ) );
+				$required_message                = self::get_property( 'required_message', $field, esc_html__( 'This field is required. Please select a value.', 'forminator' ) );
 				$this->validation_message[ $id ] = apply_filters(
 					'forminator_single_field_required_validation_message',
 					$required_message,
@@ -529,7 +600,7 @@ class Forminator_Select extends Forminator_Field {
 	 *
 	 * @since 1.0.2
 	 *
-	 * @param array        $field
+	 * @param array        $field Field.
 	 * @param array|string $data - the data to be sanitized.
 	 *
 	 * @return array|string $data - the data after sanitization
@@ -554,8 +625,8 @@ class Forminator_Select extends Forminator_Field {
 	 *
 	 * @since 1.7
 	 *
-	 * @param $submitted_field
-	 * @param $field_settings
+	 * @param array $submitted_field Submitted field.
+	 * @param array $field_settings Field settings.
 	 *
 	 * @return float|string
 	 */
@@ -597,8 +668,12 @@ class Forminator_Select extends Forminator_Field {
 	}
 
 	/**
+	 * Get calculable value
+	 *
 	 * @since 1.7
 	 * @inheritdoc
+	 * @param array $submitted_field_data Submitted field data.
+	 * @param array $field_settings Field settings.
 	 */
 	public static function get_calculable_value( $submitted_field_data, $field_settings ) {
 		$calculable_value = self::calculable_value( $submitted_field_data, $field_settings );

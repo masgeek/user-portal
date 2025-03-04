@@ -1,10 +1,20 @@
 <?php
+/**
+ * Template for authorize
+ *
+ * @package Forminator
+ */
+
 // defaults.
 $vars = array(
 	'auth_url' => '',
 	'token'    => '',
 );
-/** @var array $template_vars */
+/**
+ * Template variables.
+ *
+ * @var array $template_vars
+ * */
 foreach ( $template_vars as $key => $val ) {
 	$vars[ $key ] = $val;
 }
@@ -14,8 +24,8 @@ foreach ( $template_vars as $key => $val ) {
 
 	<h3 id="forminator-integration-popup__title" class="sui-box-title sui-lg" style="overflow: initial; white-space: normal; text-overflow: initial;">
 		<?php
-		/* translators: ... */
-		echo esc_html( sprintf( __( 'Connect %1$s', 'forminator' ), 'Slack' ) );
+		/* translators: 1: Add-on name */
+		printf( esc_html__( 'Connect %1$s', 'forminator' ), 'Slack' );
 		?>
 	</h3>
 

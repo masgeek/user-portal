@@ -1,28 +1,42 @@
 <?php
+/**
+ * The Forminator_Calculator_Parser_Tokenizer class.
+ *
+ * @package Forminator
+ */
 
 /**
  * Class Forminator_Calculator_Tokenizer
- *
  */
 class Forminator_Calculator_Parser_Tokenizer {
 
 	/**
+	 * Input
+	 *
 	 * @var string
 	 */
 	public $input = '';
 
 	/**
+	 * Current position
+	 *
 	 * @var int
 	 */
 	public $current_position = 0;
 
+	/**
+	 * Forminator_Calculator_Parser_Tokenizer constructor
+	 *
+	 * @param mixed $input Input.
+	 */
 	public function __construct( $input = null ) {
 		$this->input = $input;
 	}
 
 	/**
+	 * Tokenize
+	 *
 	 * @return Forminator_Calculator_Parser_Token[]
-	 * @throws Forminator_Calculator_Exception
 	 */
 	public function tokenize() {
 		$this->reset();
@@ -39,8 +53,9 @@ class Forminator_Calculator_Parser_Tokenizer {
 	}
 
 	/**
+	 * Read token
+	 *
 	 * @return Forminator_Calculator_Parser_Token|null
-	 * @throws Forminator_Calculator_Exception
 	 */
 	protected function read_token() {
 		$this->step_over_whitespace();
@@ -85,7 +100,7 @@ class Forminator_Calculator_Parser_Tokenizer {
 
 		/**
 		 * ASCII codes: 65 = 'A', 90 = 'Z', 97 = 'a', 122 = 'z'--
-		 **/
+		 */
 
 		return ( ( $ascii >= 65 && $ascii <= 90 ) || ( $ascii >= 97 && $ascii <= 122 ) );
 	}
@@ -127,7 +142,7 @@ class Forminator_Calculator_Parser_Tokenizer {
 	 * Returns true, if a given character is whitespace.
 	 * Notice: A null char is not seen as whitespace.
 	 *
-	 * @var string|null $char
+	 * @param string|null $char Character.
 	 * @return bool
 	 */
 	protected function is_whitespace( $char ) {
@@ -177,7 +192,7 @@ class Forminator_Calculator_Parser_Tokenizer {
 	 * beginning of a number.
 	 *
 	 * @return string
-	 * @throws Forminator_Calculator_Exception
+	 * @throws Forminator_Calculator_Exception When there is an Calculator error.
 	 */
 	protected function read_number() {
 		$number       = '';
@@ -230,7 +245,7 @@ class Forminator_Calculator_Parser_Tokenizer {
 	 * @return string|null
 	 */
 	public function read_next() {
-		$this->current_position ++;
+		++$this->current_position;
 
 		return $this->read_current();
 	}
@@ -241,10 +256,9 @@ class Forminator_Calculator_Parser_Tokenizer {
 	 * @return string|null
 	 */
 	public function read_current() {
-		if ( $this->has_current() ) {
+		$char = null;
+		if ( $this->has_current() && ! empty( $this->input ) ) {
 			$char = $this->input[ $this->current_position ];
-		} else {
-			$char = null;
 		}
 
 		return $char;

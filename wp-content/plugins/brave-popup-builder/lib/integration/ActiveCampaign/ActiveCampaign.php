@@ -3,6 +3,9 @@ if ( ! class_exists( 'BravePop_ActiveCampaign' ) ) {
    
    class BravePop_ActiveCampaign {
 
+      protected $api_key;
+      protected $api_url;
+
       function __construct() {
 
          $braveSettings = get_option('_bravepopup_settings');
@@ -40,8 +43,8 @@ if ( ! class_exists( 'BravePop_ActiveCampaign' ) ) {
                   $finalLists[] = $listItem;
                }
             }
-            //error_log(json_encode($finalLists));
-            return json_encode($finalLists);
+            //error_log(wp_json_encode($finalLists));
+            return wp_json_encode($finalLists);
          }else{
             return false;
          }
@@ -83,14 +86,14 @@ if ( ! class_exists( 'BravePop_ActiveCampaign' ) ) {
          $addUserargs = array(
             'method' => 'POST',
             'headers' => array( 'content-type' => 'application/json', 'Api-Token' => $this->api_key ),
-            'body' => json_encode(array( 'contact' => $contact ))
+            'body' => wp_json_encode(array( 'contact' => $contact ))
          );
 
          $response = wp_remote_post( $this->api_url.'/api/3/contact/sync', $addUserargs );
          $body = wp_remote_retrieve_body( $response );
          $data = json_decode( $body );
 
-         // error_log('AC Create CONTACT: '. json_encode($response));
+         // error_log('AC Create CONTACT: '. wp_json_encode($response));
 
          if($data && isset($data->contact) && isset($data->contact->id)){
             //Then Add User to a List in ActiveCampaign
@@ -99,7 +102,7 @@ if ( ! class_exists( 'BravePop_ActiveCampaign' ) ) {
             $userToList = array(
                'method' => 'POST',
                'headers' => array( 'content-type' => 'application/json', 'Api-Token' => $this->api_key ),
-               'body' => json_encode(array(
+               'body' => wp_json_encode(array(
                   'contactList' => array(
                      'list' => $list_id,
                      'contact' => $user_id,
@@ -111,7 +114,7 @@ if ( ! class_exists( 'BravePop_ActiveCampaign' ) ) {
             $listbody = wp_remote_retrieve_body( $listresponse );
             $listdata = json_decode( $listbody );
 
-            // error_log('AC ADD CONTACT to LIST: '. json_encode($listresponse));
+            // error_log('AC ADD CONTACT to LIST: '. wp_json_encode($listresponse));
 
             //Add Tags
             if(count($tags) > 0){
@@ -120,18 +123,20 @@ if ( ! class_exists( 'BravePop_ActiveCampaign' ) ) {
                      $userToTags = array(
                         'method' => 'POST', 
                         'headers' => array( 'content-type' => 'application/json', 'Api-Token' => $this->api_key ),
-                        'body' => json_encode(array(  'contactTag' => array( 'tag' => $tag->id, 'contact' => $user_id )  ))
+                        'body' => wp_json_encode(array(  'contactTag' => array( 'tag' => $tag->id, 'contact' => $user_id )  ))
                      );
                      $tagsresponse = wp_remote_post( $this->api_url.'/api/3/contactTags', $userToTags );
                      $tagsbody = wp_remote_retrieve_body( $tagsresponse );
                      $tagsdata = json_decode( $tagsbody );
-                     //error_log(json_encode($tagsresponse));
+                     //error_log(wp_json_encode($tagsresponse));
                   }
                }
             }
 
-            //error_log(json_encode($listdata->contacts));
-            if(isset($listdata->contacts[0]->id)){
+            //error_log(wp_json_encode($listdata->contacts));
+            // $resCode = wp_remote_retrieve_response_code($listresponse);
+            // isSuccess = $resCode >= 200 && $resCode < 300;
+            if(is_wp_error( $listresponse ) === false && isset($listdata->contacts[0]->id)){
                $addedData = array(
                   'action'=> isset($userData['action']) ? $userData['action'] : 'visitor_added',  
                   'user_id'=> isset($userData['userData']['ID']) ? $userData['userData']['ID'] : false,
@@ -140,7 +145,7 @@ if ( ! class_exists( 'BravePop_ActiveCampaign' ) ) {
                do_action( 'bravepop_addded_to_list', 'activecampaign', $addedData );
             }
 
-            if($listdata && isset($listdata->contacts)){
+            if(is_wp_error( $listresponse ) === false){
                return $listdata->contacts; 
             }else{
                return false;

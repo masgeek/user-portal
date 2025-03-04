@@ -1,4 +1,10 @@
 <?php
+/**
+ * Forminator Autofill Loader
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -72,6 +78,11 @@ class Forminator_Autofill_Loader {
 	 */
 	private $autofill_providers_names = array();
 
+	/**
+	 * Forminator_Autofill_Loader instance
+	 *
+	 * @return Forminator_Autofill_Loader|null
+	 */
 	public static function get_instance() {
 		if ( is_null( self::$_instance ) ) {
 			self::$_instance = new self();
@@ -85,7 +96,7 @@ class Forminator_Autofill_Loader {
 	 *
 	 * @since 1.0.5
 	 *
-	 * @param $class_name
+	 * @param string $class_name Class name.
 	 *
 	 * @return bool
 	 */
@@ -128,7 +139,10 @@ class Forminator_Autofill_Loader {
 	private function try_build_autofill_providers_names() {
 		$this->autofill_providers_names = array();
 		foreach ( $this->autofill_providers as $autofill_instance ) {
-			/**@var Forminator_Autofill_Provider_Abstract $autofill_instance */
+			/**
+			 * Forminator_Autofill_Provider_Abstract
+			 *
+			 * @var Forminator_Autofill_Provider_Abstract $autofill_instance */
 			$attributes_map = $autofill_instance->get_attributes_map();
 			if ( empty( $attributes_map ) ) {
 				continue;
@@ -175,7 +189,7 @@ class Forminator_Autofill_Loader {
 	 *              ]
 	 * ...}
 	 *
-	 * @param $slug_attributes
+	 * @param array $slug_attributes Slug attributes.
 	 *
 	 * @return array
 	 */
@@ -232,7 +246,7 @@ class Forminator_Autofill_Loader {
 	 *
 	 * @since 1.0.5
 	 *
-	 * @param $provider_slug
+	 * @param string $provider_slug Slug.
 	 *
 	 * @return Forminator_Autofill_Provider_Abstract|null
 	 */
@@ -249,7 +263,7 @@ class Forminator_Autofill_Loader {
 	 *
 	 * @since 1.0.5
 	 *
-	 * @param $provider_slug
+	 * @param string $provider_slug Slug.
 	 *
 	 * @return Forminator_Autofill_Provider_Abstract|null
 	 */
@@ -283,5 +297,4 @@ class Forminator_Autofill_Loader {
 	public function cleanup_initied_providers() {
 		self::$inited_providers = array();
 	}
-
 }

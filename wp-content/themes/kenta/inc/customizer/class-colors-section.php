@@ -5,16 +5,11 @@
  * @package Kenta
  */
 
-use LottaFramework\Customizer\Controls\Background;
-use LottaFramework\Customizer\Controls\BoxShadow;
 use LottaFramework\Customizer\Controls\ColorPalettes;
 use LottaFramework\Customizer\Controls\ColorPicker;
-use LottaFramework\Customizer\Controls\Condition;
-use LottaFramework\Customizer\Controls\Filters;
 use LottaFramework\Customizer\Controls\Separator;
 use LottaFramework\Customizer\Controls\Toggle;
 use LottaFramework\Customizer\Section;
-use LottaFramework\Facades\AsyncCss;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -28,7 +23,47 @@ if ( ! class_exists( 'Kenta_Colors_Section' ) ) {
 		 * {@inheritDoc}
 		 */
 		public function getControls() {
-			$palettes = ( new ColorPalettes( 'kenta_color_palettes', [
+			return [
+				( new \LottaFramework\Customizer\Controls\Tabs( 'kenta_color_scheme' ) )
+					->setActiveTab( 'light' )
+					->addTab( 'light', __( 'Light', 'kenta' ), $this->getColors( 'light', kenta_color_presets() ) )
+					->addTab( 'dark', __( 'Dark', 'kenta' ), $this->getColors( 'dark', kenta_dark_color_presets(), [
+						'primary-color'  => \LottaFramework\Facades\Css::INITIAL_VALUE,
+						'primary-active' => \LottaFramework\Facades\Css::INITIAL_VALUE,
+					] ) ),
+				kenta_docs_control(
+					__( '%sRead Colors Documentation%s', 'kenta' ),
+					'https://kentatheme.com/docs/kenta-theme/general-theme-options/colors/',
+					'kenta_colors_doc'
+				)->hideBackground(),
+				( new Separator( 'kenta_dark_color_palette_separator' ) ),
+				( new Toggle( 'kenta_default_dark_scheme' ) )
+					->setLabel( __( 'Use Dark Scheme As Default', 'kenta' ) )
+					->closeByDefault()
+				,
+				( new Toggle( 'kenta_save_color_scheme' ) )
+					->setLabel( __( 'Save User Color Scheme', 'kenta' ) )
+					->setDescription( __( "Save the user's color scheme to the cookie and refresh the page without losing current color scheme.", 'kenta' ) )
+					->openByDefault()
+				,
+			];
+		}
+
+		protected function getColors( $scheme, $palettes = [], $defaults = [] ) {
+			$defaults = wp_parse_args( $defaults, [
+				'primary-color'  => "var(--kenta-{$scheme}-primary-color)",
+				'primary-active' => "var(--kenta-{$scheme}-primary-active)",
+				'accent-color'   => "var(--kenta-{$scheme}-accent-color)",
+				'accent-active'  => "var(--kenta-{$scheme}-accent-active)",
+				'base-300'       => "var(--kenta-{$scheme}-base-300)",
+				'base-200'       => "var(--kenta-{$scheme}-base-200)",
+				'base-100'       => "var(--kenta-{$scheme}-base-100)",
+				'base-color'     => "var(--kenta-{$scheme}-base-color)",
+			] );
+
+			$prefix = $scheme === 'light' ? 'kenta' : "kenta_{$scheme}";
+
+			$palettesControl = ( new ColorPalettes( "{$prefix}_color_palettes", [
 				'kenta-primary-color'  => __( 'Primary Color', 'kenta' ),
 				'kenta-primary-active' => __( 'Primary Active', 'kenta' ),
 				'kenta-accent-color'   => __( 'Accent Color', 'kenta' ),
@@ -40,126 +75,82 @@ if ( ! class_exists( 'Kenta_Colors_Section' ) ) {
 				'kenta-base-300'       => __( 'Base 300', 'kenta' ),
 			] ) )
 				->setLabel( __( 'Color Presets', 'kenta' ) )
+				->setColor( "{$prefix}_primary_color", [
+					'default' => 'kenta-primary-color',
+					'active'  => 'kenta-primary-active',
+				] )
+				->setColor( "{$prefix}_accent_color", [
+					'default' => 'kenta-accent-color',
+					'active'  => 'kenta-accent-active',
+				] )
+				->setColor( "{$prefix}_base_color", [
+					'default' => 'kenta-base-color',
+					'100'     => 'kenta-base-100',
+					'200'     => 'kenta-base-200',
+					'300'     => 'kenta-base-300',
+				] )
+				->bindSelectiveRefresh( 'kenta-global-selective-css' )
 				->setDefaultValue( 'preset-1' );
 
-			foreach ( kenta_color_presets() as $id => $preset ) {
-				$palettes->addPalette( $id, $preset );
+			foreach ( $palettes as $id => $preset ) {
+				$palettesControl->addPalette( $id, $preset );
 			}
 
 			return [
-				$palettes,
-				( new ColorPicker( 'kenta_primary_color' ) )
+				$palettesControl,
+				( new ColorPicker( "{$prefix}_primary_color" ) )
 					->setLabel( __( 'Primary Color', 'kenta' ) )
 					->enableAlpha()
+					->computedValue()
 					->setSwatches( [] )
 					->asyncColors( ':root', [
-						'default' => '--kenta-primary-color',
-						'active'  => '--kenta-primary-active',
+						'default' => "--kenta-{$scheme}-primary-color",
+						'active'  => "--kenta-{$scheme}-primary-active",
 					] )
-					->addColor( 'default', __( 'Default', 'kenta' ), 'var(--kenta-primary-color)' )
-					->addColor( 'active', __( 'Active', 'kenta' ), 'var(--kenta-primary-active)' )
+					->setCustomizerColors( ':root', [
+						'default' => "--kenta-{$scheme}-primary-color",
+						'active'  => "--kenta-{$scheme}-primary-active",
+					] )
+					->addColor( 'default', __( 'Default', 'kenta' ), $defaults['primary-color'] )
+					->addColor( 'active', __( 'Active', 'kenta' ), $defaults['primary-active'] )
 				,
-				( new ColorPicker( 'kenta_accent_color' ) )
+				( new ColorPicker( "{$prefix}_accent_color" ) )
 					->setLabel( __( 'Accent Color', 'kenta' ) )
 					->enableAlpha()
+					->computedValue()
 					->setSwatches( [] )
 					->asyncColors( ':root', [
-						'default' => '--kenta-accent-color',
-						'active'  => '--kenta-accent-active',
+						'default' => "--kenta-{$scheme}-accent-color",
+						'active'  => "--kenta-{$scheme}-accent-active",
 					] )
-					->addColor( 'default', __( 'Default', 'kenta' ), 'var(--kenta-accent-color)' )
-					->addColor( 'active', __( 'Active', 'kenta' ), 'var(--kenta-accent-active)' )
+					->setCustomizerColors( ':root', [
+						'default' => "--kenta-{$scheme}-accent-color",
+						'active'  => "--kenta-{$scheme}-accent-active",
+					] )
+					->addColor( 'default', __( 'Default', 'kenta' ), $defaults['accent-color'] )
+					->addColor( 'active', __( 'Active', 'kenta' ), $defaults['accent-active'] )
 				,
-				( new ColorPicker( 'kenta_base_color' ) )
+				( new ColorPicker( "{$prefix}_base_color" ) )
 					->setLabel( __( 'Base Color', 'kenta' ) )
 					->enableAlpha()
+					->computedValue()
 					->setSwatches( [] )
 					->asyncColors( ':root', [
-						'default' => '--kenta-base-color',
-						'100'     => '--kenta-base-100',
-						'200'     => '--kenta-base-200',
-						'300'     => '--kenta-base-300',
+						'default' => "--kenta-{$scheme}-base-color",
+						'100'     => "--kenta-{$scheme}-base-100",
+						'200'     => "--kenta-{$scheme}-base-200",
+						'300'     => "--kenta-{$scheme}-base-300",
 					] )
-					->addColor( '300', __( 'Base 300', 'kenta' ), 'var(--kenta-base-300)' )
-					->addColor( '200', __( 'Base 200', 'kenta' ), 'var(--kenta-base-200)' )
-					->addColor( '100', __( 'Base 100', 'kenta' ), 'var(--kenta-base-100)' )
-					->addColor( 'default', __( 'Base Color', 'kenta' ), 'var(--kenta-base-color)' )
-				,
-				kenta_docs_control(
-					__( '%sRead Colors Documentation%s', 'kenta' ),
-					'https://kentatheme.com/docs/kenta-theme/general-theme-options/colors/',
-					'kenta_colors_doc'
-				)->hideBackground(),
-				( new Separator( 'kenta_site_background_separator' ) ),
-				( new Toggle( 'kenta_enable_site_wrap' ) )
-					->setLabel( __( 'Site Wrap', 'kenta' ) )
-					->setDescription( __( 'Enable boundaries for your site on large screens (>1600px)', 'kenta' ) )
-					->asyncCss( '.kenta-site-wrap', [
-						'max-width'               => AsyncCss::unescape( AsyncCss::valueMapper( [
-							'yes' => '1600px',
-							'no'  => 'inherit',
-						] ) ),
-						'--kenta-site-wrap-width' => AsyncCss::unescape( AsyncCss::valueMapper( [
-							'yes' => '1600px',
-							'no'  => '100vw',
-						] ) ),
+					->setCustomizerColors( ':root', [
+						'default' => "--kenta-{$scheme}-base-color",
+						'100'     => "--kenta-{$scheme}-base-100",
+						'200'     => "--kenta-{$scheme}-base-200",
+						'300'     => "--kenta-{$scheme}-base-300",
 					] )
-					->closeByDefault()
-				,
-				( new Background( 'kenta_site_background' ) )
-					->setLabel( __( 'Site Background', 'kenta' ) )
-					->asyncCss( '.kenta-site-wrap', AsyncCss::background() )
-					->enableResponsive()
-					->setDefaultValue( [
-						'type'  => 'color',
-						'color' => 'var(--kenta-base-100)',
-					] )
-				,
-				( new Condition( 'kenta_site_wrap_condition' ) )
-					->setCondition( [ 'kenta_enable_site_wrap' => 'yes' ] )
-					->setControls( [
-						( new Background( 'kenta_site_body_background' ) )
-							->setLabel( __( 'Body Background', 'kenta' ) )
-							->asyncCss( '.kenta-body', AsyncCss::background() )
-							->enableResponsive()
-							->setDefaultValue( [
-								'type'  => 'color',
-								'color' => 'var(--kenta-base-200)',
-							] )
-						,
-						( new BoxShadow( 'kenta_site_wrap_shadow' ) )
-							->setLabel( __( 'Site Box Shadow', 'kenta' ) )
-							->asyncCss( '.kenta-site-wrap', AsyncCss::shadow() )
-							->setDefaultShadow(
-								'rgba(44, 62, 80, 0.06)',
-								'0px',
-								'0px',
-								'24px',
-								'0px',
-								true
-							)
-						,
-					] )
-				,
-				kenta_docs_control(
-					__( '%sLearn how to use site wrap & site background%s', 'kenta' ),
-					'https://kentatheme.com/docs/kenta-theme/general-theme-options/site-wrap-site-background/',
-					'kenta_site_wrap_doc'
-				)->hideBackground(),
-				( new Filters( 'kenta_site_filters' ) )
-					->setLabel( __( 'Site Css Filters', 'kenta' ) )
-					->asyncCss( ':root', AsyncCss::filters() )
-				,
-				kenta_docs_control(
-					__( '%sLearn how to use site filters', 'kenta' ),
-					'https://kentatheme.com/docs/kenta-theme/general-theme-options/site-css-filters/',
-					'kenta_site_filters_doc'
-				)->hideBackground(),
-				( new Separator( 'kenta_gutenberg_color_palette_separator' ) ),
-				( new Toggle( 'kenta_color_palette_in_gutenberg' ) )
-					->setLabel( __( 'Use Colors in Gutenberg Editor', 'kenta' ) )
-					->setDescription( __( "This option allow you to replace the original Gutenberg's color palette with the colors you defined above.", 'kenta' ) )
-					->openByDefault()
+					->addColor( '300', __( 'Base 300', 'kenta' ), $defaults['base-300'] )
+					->addColor( '200', __( 'Base 200', 'kenta' ), $defaults['base-200'] )
+					->addColor( '100', __( 'Base 100', 'kenta' ), $defaults['base-100'] )
+					->addColor( 'default', __( 'Base Color', 'kenta' ), $defaults['base-color'] )
 				,
 			];
 		}

@@ -22,7 +22,7 @@ if ( ! class_exists( 'BravePop_Zoho' ) ) {
                return false; // Bail early
             }
             $body = wp_remote_retrieve_body( $response );
-            //error_log(json_encode($response));
+            //error_log(wp_json_encode($response));
             $data = json_decode( $body );
             $lists = $data->list_of_details;
             $finalLists = array();
@@ -35,9 +35,9 @@ if ( ! class_exists( 'BravePop_Zoho' ) ) {
                   $finalLists[] = $listItem;
                }
             }
-            //error_log(json_encode($data->list_of_details));
-            //error_log(json_encode($finalLists));
-            return json_encode($finalLists);
+            //error_log(wp_json_encode($data->list_of_details));
+            //error_log(wp_json_encode($finalLists));
+            return wp_json_encode($finalLists);
          }else{
             //error_log('NO ACCESS TOKEN');
             return false;
@@ -92,7 +92,7 @@ if ( ! class_exists( 'BravePop_Zoho' ) ) {
                   $contact[$key] = !empty($value) && is_array($value) ?  implode(',', $value) : $value;
                }
             }
-            $contactInfo = urlencode(json_encode($contact));
+            $contactInfo = urlencode(wp_json_encode($contact));
 
             $response = wp_remote_post( 'https://campaigns.zoho.com/api/v1.1/json/listsubscribe?resfmt=JSON&listkey='.$list_id.'&contactinfo='.$contactInfo, $args );
             $body = wp_remote_retrieve_body( $response );
@@ -111,7 +111,7 @@ if ( ! class_exists( 'BravePop_Zoho' ) ) {
             }
 
          }else{
-            error_log('NO ACCESS TOKEN');
+            // error_log('NO ACCESS TOKEN');
             return false;
          }
 

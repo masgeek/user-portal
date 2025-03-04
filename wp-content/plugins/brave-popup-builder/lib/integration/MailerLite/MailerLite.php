@@ -3,6 +3,10 @@ if ( ! class_exists( 'BravePop_MailerLite' ) ) {
    
    class BravePop_MailerLite {
 
+      protected $api_key;
+      protected $versionTwo;
+      protected $apiURL;
+
       function __construct() {
          $braveSettings = get_option('_bravepopup_settings');
          $integrations = $braveSettings && isset($braveSettings['integrations']) ? $braveSettings['integrations'] : array() ;
@@ -48,8 +52,8 @@ if ( ! class_exists( 'BravePop_MailerLite' ) ) {
                $finalLists[] = $listItem;
             }
 
-            //error_log(json_encode($finalLists));
-            return json_encode($finalLists);
+            //error_log(wp_json_encode($finalLists));
+            return wp_json_encode($finalLists);
          }else{
             return false;
          }
@@ -95,7 +99,7 @@ if ( ! class_exists( 'BravePop_MailerLite' ) ) {
             $args['headers']['X-MailerLite-ApiKey'] = $this->api_key;
          }
 
-         $args['body'] = json_encode($contact);
+         $args['body'] = wp_json_encode($contact);
 
          // Send the Add Request
          $response = wp_remote_post( $this->versionTwo ? $this->apiURL.'subscribers' : $this->apiURL.'groups/'.$list_id.'/subscribers', $args );
@@ -104,7 +108,7 @@ if ( ! class_exists( 'BravePop_MailerLite' ) ) {
          $data = json_decode( $body );
          $addData = isset($data->data) && $this->versionTwo ? $data->data : $data;
 
-         // error_log('### Add to Group Response: '. json_encode(isset($addData->id)).' ==> '. json_encode($addData));
+         // error_log('### Add to Group Response: '. wp_json_encode(isset($addData->id)).' ==> '. wp_json_encode($addData));
 
          if($addData && isset($addData->id)){
             $userID = $addData->id;

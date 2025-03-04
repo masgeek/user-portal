@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Email class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -11,41 +17,50 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Forminator_Email extends Forminator_Field {
 
 	/**
+	 * Name
+	 *
 	 * @var string
 	 */
 	public $name = '';
 
 	/**
+	 * Slug
+	 *
 	 * @var string
 	 */
 	public $slug = 'email';
 
 	/**
+	 * Position
+	 *
 	 * @var int
 	 */
 	public $position = 2;
 
 	/**
+	 * Type
+	 *
 	 * @var string
 	 */
 	public $type = 'email';
 
 	/**
+	 * Options
+	 *
 	 * @var array
 	 */
 	public $options = array();
 
 	/**
-	 * @var string
-	 */
-	public $category = 'standard';
-
-	/**
+	 * Is input
+	 *
 	 * @var bool
 	 */
 	public $is_input = true;
 
 	/**
+	 * Icon
+	 *
 	 * @var string
 	 */
 	public $icon = 'sui-icon-mail';
@@ -57,7 +72,7 @@ class Forminator_Email extends Forminator_Field {
 	 */
 	public function __construct() {
 		parent::__construct();
-		$this->name = __( 'Email', 'forminator' );
+		$this->name = esc_html__( 'Email', 'forminator' );
 	}
 
 	/**
@@ -69,8 +84,8 @@ class Forminator_Email extends Forminator_Field {
 	public function defaults() {
 		return array(
 			'validation'  => false,
-			'placeholder' => __( 'E.g. john@doe.com', 'forminator' ),
-			'field_label' => __( 'Email Address', 'forminator' ),
+			'placeholder' => esc_html__( 'E.g. john@doe.com', 'forminator' ),
+			'field_label' => esc_html__( 'Email Address', 'forminator' ),
 		);
 	}
 
@@ -79,7 +94,7 @@ class Forminator_Email extends Forminator_Field {
 	 *
 	 * @since 1.0.5
 	 *
-	 * @param array $settings
+	 * @param array $settings Settings.
 	 *
 	 * @return array
 	 */
@@ -100,8 +115,9 @@ class Forminator_Email extends Forminator_Field {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $field
+	 * @param array                  $field Field.
 	 * @param Forminator_Render_Form $views_obj Forminator_Render_Form object.
+	 * @param array                  $draft_value Draft value.
 	 *
 	 * @return mixed
 	 */
@@ -115,14 +131,13 @@ class Forminator_Email extends Forminator_Field {
 		$id          = self::get_property( 'element_id', $field );
 		$name        = $id;
 		$design      = $this->get_form_style( $settings );
-		$ariaid      = $id;
-		$id          = 'forminator-field-' . $id . '_' . Forminator_CForm_Front::$uid;
+		$id          = self::get_field_id( $id );
 		$required    = self::get_property( 'required', $field, false );
 		$ariareq     = 'false';
 		$placeholder = $this->sanitize_value( self::get_property( 'placeholder', $field ) );
 		$value       = esc_html( self::get_property( 'value', $field ) );
 		$label       = esc_html( self::get_property( 'field_label', $field ) );
-		$description = esc_html( self::get_property( 'description', $field ) );
+		$description = self::get_property( 'description', $field );
 
 		if ( (bool) $required ) {
 			$ariareq = 'true';
@@ -204,7 +219,7 @@ class Forminator_Email extends Forminator_Field {
 		$field              = $this->field;
 		$id                 = $this->get_id( $field );
 		$is_validate        = self::get_property( 'validation', $field );
-		$validation_message = self::get_property( 'validation_message', $field, __( 'This is not a valid email.', 'forminator' ) );
+		$validation_message = self::get_property( 'validation_message', $field, esc_html__( 'This is not a valid email.', 'forminator' ) );
 
 		$validation_message = htmlentities( $validation_message );
 
@@ -217,7 +232,7 @@ class Forminator_Email extends Forminator_Field {
 					$field,
 					'required_message',
 					'',
-					__( 'This field is required. Please input a valid email.', 'forminator' )
+					esc_html__( 'This field is required. Please input a valid email.', 'forminator' )
 				);
 			$messages                      .= '"required": "' . forminator_addcslashes( $default_required_error_message ) . '",' . "\n";
 		}
@@ -245,15 +260,15 @@ class Forminator_Email extends Forminator_Field {
 	 *
 	 * @since 1.0
 	 *
-	 * @param array        $field
-	 * @param array|string $data
+	 * @param array        $field Field.
+	 * @param array|string $data Data.
 	 *
 	 * @return bool
 	 */
 	public function validate( $field, $data ) {
 		$id                 = self::get_property( 'element_id', $field );
 		$is_validate        = self::get_property( 'validation', $field );
-		$validation_message = self::get_property( 'validation_message', $field, __( 'This is not a valid email.', 'forminator' ) );
+		$validation_message = self::get_property( 'validation_message', $field, esc_html__( 'This is not a valid email.', 'forminator' ) );
 		if ( $this->is_required( $field ) ) {
 			$required_error_message =
 				$this->get_field_multiple_required_message(
@@ -261,7 +276,7 @@ class Forminator_Email extends Forminator_Field {
 					$field,
 					'required_message',
 					'',
-					__( 'This field is required. Please input a valid email.', 'forminator' )
+					esc_html__( 'This field is required. Please input a valid email.', 'forminator' )
 				);
 
 			if ( empty( $data ) ) {
@@ -283,7 +298,7 @@ class Forminator_Email extends Forminator_Field {
 	 *
 	 * @since 1.0.2
 	 *
-	 * @param array        $field
+	 * @param array        $field Field.
 	 * @param array|string $data - the data to be sanitized.
 	 *
 	 * @return array|string $data - the data after sanitization

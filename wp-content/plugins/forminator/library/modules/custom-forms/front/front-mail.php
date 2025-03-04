@@ -1,4 +1,9 @@
 <?php
+/**
+ * The Forminator_CForm_Front_Mail class.
+ *
+ * @package Forminator
+ */
 
 /**
  * Front ajax for custom forms
@@ -108,9 +113,9 @@ class Forminator_CForm_Front_Mail extends Forminator_Mail {
 	 *
 	 * @since 1.0
 	 *
-	 * @param Forminator_Form_Model       	$custom_form
-	 * @param Forminator_Form_Entry_Model 	$entry - saved entry @since 1.0.3.
-	 * @param array 						$submitted_data - submitted data from email draft form	@since 1.17.0
+	 * @param Forminator_Form_Model       $custom_form Form model.
+	 * @param Forminator_Form_Entry_Model $entry - saved entry @since 1.0.3.
+	 * @param array                       $submitted_data - submitted data from email draft form  @since 1.17.0.
 	 */
 	public function process_mail( $custom_form, Forminator_Form_Entry_Model $entry, $submitted_data = array() ) {
 		$data          = Forminator_CForm_Front_Action::$prepared_data;
@@ -121,8 +126,10 @@ class Forminator_CForm_Front_Mail extends Forminator_Mail {
 			isset( $submitted_data['action'] ) &&
 			'forminator_email_draft_link' === $submitted_data['action']
 		) {
-			// Must already be sanitized in the previous function
-			$data = $submitted_data;
+			$data = recreate_prepared_data( $custom_form, $entry );
+
+			// Map data to prepared data.
+			Forminator_Front_Action::$prepared_data = $data;
 		}
 
 		if ( empty( $data['current_url'] ) ) {
@@ -161,7 +168,7 @@ class Forminator_CForm_Front_Mail extends Forminator_Mail {
 			// Process admin mail.
 			foreach ( $notifications as $notification ) {
 
-				// If notification is save_draft type, skip
+				// If notification is save_draft type, skip.
 				if (
 					isset( $data['action'] ) && 'forminator_email_draft_link' !== $data['action'] &&
 					isset( $notification['type'] ) && 'save_draft' === $notification['type']
@@ -211,13 +218,14 @@ class Forminator_CForm_Front_Mail extends Forminator_Mail {
 				$this->set_subject( $subject );
 				$this->set_recipients( $recipients );
 				$this->set_message_with_vars( $this->message_vars, $message );
+				$this->set_pdfs( $notification );
 				if ( ! empty( $files ) && isset( $notification['email-attachment'] ) && 'true' === $notification['email-attachment'] ) {
-					$this->set_attachment( $files );
+					$this->set_attachment( $files, $custom_form, $entry );
 				} else {
-					$this->set_attachment( array() );
+					$this->set_attachment( array(), $custom_form, $entry );
 				}
 
-				// If draft, get the wp_mail response
+				// If draft, get the wp_mail response.
 				if ( isset( $notification['type'] ) && 'save_draft' === $notification['type'] ) {
 					return $this->send_multiple();
 				} else {
@@ -410,8 +418,8 @@ class Forminator_CForm_Front_Mail extends Forminator_Mail {
 	 *
 	 * @since 1.0.3
 	 *
-	 * @param                              $data
-	 * @param Forminator_Form_Model $custom_form
+	 * @param int                   $data Data.
+	 * @param Forminator_Form_Model $custom_form Form model.
 	 *
 	 * @return bool|string
 	 */
@@ -447,8 +455,8 @@ class Forminator_CForm_Front_Mail extends Forminator_Mail {
 	 *
 	 * @since 1.0.3
 	 *
-	 * @param $data
-	 * @param $custom_form
+	 * @param int                   $data Data.
+	 * @param Forminator_Form_Model $custom_form Form model.
 	 *
 	 * @return bool
 	 */
@@ -459,11 +467,8 @@ class Forminator_CForm_Front_Mail extends Forminator_Mail {
 		if ( $data_email && ! empty( $data_email ) ) {
 			// We have data email, use it.
 			$email = $data_email;
-		} else {
-			// Check if user logged in.
-			if ( is_user_logged_in() ) {
-				$email = $this->message_vars['user_email'];
-			}
+		} elseif ( is_user_logged_in() ) { // Check if user logged in.
+			$email = $this->message_vars['user_email'];
 		}
 
 		return apply_filters( 'forminator_get_user_email', $email, $data, $custom_form, $data_email, $this );
@@ -474,9 +479,7 @@ class Forminator_CForm_Front_Mail extends Forminator_Mail {
 	 *
 	 * @since 1.1
 	 *
-	 * @param $email - email address.
-	 *
-	 * @return bool
+	 * @param string $email - email address.
 	 */
 	public function set_sender_email( $email ) {
 		$this->sender_email = $email;
@@ -487,9 +490,7 @@ class Forminator_CForm_Front_Mail extends Forminator_Mail {
 	 *
 	 * @since 1.1
 	 *
-	 * @param $name - sender name.
-	 *
-	 * @return bool
+	 * @param string $name - sender name.
 	 */
 	public function set_sender_name( $name ) {
 		$this->sender_name = $name;
@@ -497,6 +498,11 @@ class Forminator_CForm_Front_Mail extends Forminator_Mail {
 
 	/**
 	 * Get Recipient
+	 *
+	 * @param string $recipient Recipient.
+	 * @param mixed  $custom_form Custom form.
+	 * @param mixed  $entry Entry.
+	 * @param mixed  $lead_model Lead model.
 	 *
 	 * @return string
 	 */
@@ -534,8 +540,8 @@ class Forminator_CForm_Front_Mail extends Forminator_Mail {
 	 * @since 1.6
 	 *
 	 * @param array                       $data submitted data.
-	 * @param Forminator_Form_Model       $custom_form
-	 * @param Forminator_Form_Entry_Model $entry
+	 * @param Forminator_Form_Model       $custom_form Form model.
+	 * @param Forminator_Form_Entry_Model $entry Entry model.
 	 *
 	 * @return array
 	 */
@@ -566,7 +572,7 @@ class Forminator_CForm_Front_Mail extends Forminator_Mail {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $notification
+	 * @param array $notification Notification.
 	 *
 	 * @return bool
 	 */
@@ -586,7 +592,7 @@ class Forminator_CForm_Front_Mail extends Forminator_Mail {
 		foreach ( $all_conditions as $condition ) {
 			$is_condition_fulfilled = Forminator_Field::is_condition_matched( $condition );
 			if ( $is_condition_fulfilled ) {
-				$condition_fulfilled ++;
+				++$condition_fulfilled;
 			}
 		}
 
@@ -612,8 +618,8 @@ class Forminator_CForm_Front_Mail extends Forminator_Mail {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $condition
-	 * @param $module
+	 * @param array $condition Condition.
+	 * @param mixed $module Module.
 	 *
 	 * @return bool
 	 */
@@ -626,7 +632,7 @@ class Forminator_CForm_Front_Mail extends Forminator_Mail {
 	 *
 	 * @since 1.19.0
 	 *
-	 * @param $entry Forminator_Form_Entry_Model
+	 * @param object $entry Forminator_Form_Entry_Model.
 	 *
 	 * @return Forminator_Form_Entry_Model
 	 */
@@ -636,7 +642,7 @@ class Forminator_CForm_Front_Mail extends Forminator_Mail {
 				if ( 0 === strpos( $key, 'stripe-' ) && ! empty( $val ) && ! empty( $val['value'] ) ) {
 					if (
 						isset( $val['value']['payment_type'] ) &&
-						strtolower( __( 'One Time', 'forminator' ) ) === strtolower( $val['value']['payment_type'] )
+						strtolower( esc_html__( 'One Time', 'forminator' ) ) === strtolower( $val['value']['payment_type'] )
 					) {
 						unset( $entry->meta_data[ $key ]['value']['quantity'] );
 					}

@@ -7,7 +7,7 @@ if ( ! class_exists( 'BravePop_Analytics' ) ) {
          if(!$popupID){ return; }
          global $wpdb; $viewTable = $wpdb->prefix . 'bravepopup_stats';
          $popupID = absint( $popupID );
-         $sql   = 'SELECT * FROM ' . $viewTable . " WHERE `popup` = '$popupID' DESC";
+         $sql = $wpdb->prepare("SELECT * FROM $viewTable WHERE `popup` = %d ORDER BY id DESC", $popupID);
          return $wpdb->get_results( $sql );
       }
 
@@ -21,10 +21,12 @@ if ( ! class_exists( 'BravePop_Analytics' ) ) {
          if(!$popupID || !$startDate || !$endDate){ return; }
          global $wpdb; $goalTable = $wpdb->prefix . 'bravepopup_goal_stats';
          $popupID = absint( $popupID ); $pagination ='';
-         if($offset){
-            $pagination = "OFFSET $offset ROWS FETCH NEXT 3 ROWS ONLY";
-         }
-         $sql   = 'SELECT * FROM ' . $goalTable . " WHERE (`popup` = '$popupID' AND `goal_time` BETWEEN '$startDate' AND '$endDate') ORDER BY goal_time";
+         $sql = $wpdb->prepare(
+            "SELECT * FROM $goalTable WHERE (`popup` = %d AND `goal_time` BETWEEN %s AND %s) ORDER BY goal_time",
+            $popupID,
+            $startDate,
+            $endDate
+        );
          return $wpdb->get_results( $sql );
       }
 
@@ -32,7 +34,11 @@ if ( ! class_exists( 'BravePop_Analytics' ) ) {
          if(!$startDate || !$endDate){ return; }
          global $wpdb; $goalTable = $wpdb->prefix . 'bravepopup_goal_stats';
          //$startDate = '2020-08-24';  $endDate = '2020-08-25 23:59:59';
-         $sql   = 'SELECT * FROM ' . $goalTable . "  WHERE `goal_time` BETWEEN '$startDate' and '$endDate'";
+         $sql = $wpdb->prepare(
+            "SELECT * FROM $goalTable WHERE `goal_time` BETWEEN %s AND %s",
+            $startDate,
+            $endDate
+        );
          return $wpdb->get_results( $sql );
       }
 
@@ -65,34 +71,34 @@ if ( ! class_exists( 'BravePop_Analytics' ) ) {
          $startTime = microtime(true);
          global $wpdb; $viewTable = $wpdb->prefix . 'bravepopup_stats';
          $popupID = absint($popupID);
-         $sql   = 'SELECT * FROM ' . $viewTable . " WHERE `popup` = '$popupID'";
+         $sql = $wpdb->prepare("SELECT * FROM $viewTable WHERE `popup` = %d", $popupID);
          $popupViewRow = $wpdb->get_results( $sql );
-         // error_log($type.' '.json_encode($popupViewRow));
+         // error_log($type.' '.wp_json_encode($popupViewRow));
          if(isset($popupViewRow[0])){
             $foundRow = $popupViewRow[0];
             $where = array('id'=> absint($foundRow->id));
             $popupViews = json_decode($foundRow->stats);
-
-            if(!isset($popupViews->$date)){ $popupViews->$date = new stdClass();  }
-            if($bothTypes){
-               $currentViewCount = isset($popupViews->$date->views) ? intval($popupViews->$date->views) : 0;
-               $currentGoalCount = isset($popupViews->$date->goals) ? intval($popupViews->$date->goals) : 0;
-               $popupViews->$date->views = $currentViewCount + 1; 
-               $popupViews->$date->goals = $currentGoalCount + 1;
-            }else{
-               $currentCount = isset($popupViews->$date->$type) ? intval($popupViews->$date->$type) : 0;
-               $popupViews->$date->$type = $currentCount + 1;
+            if(isset($popupViews)){
+               if(!isset($popupViews->$date)){ $popupViews->$date = new stdClass();  }
+               if($bothTypes){
+                  $currentViewCount = isset($popupViews->$date->views) ? intval($popupViews->$date->views) : 0;
+                  $currentGoalCount = isset($popupViews->$date->goals) ? intval($popupViews->$date->goals) : 0;
+                  $popupViews->$date->views = $currentViewCount + 1; 
+                  $popupViews->$date->goals = $currentGoalCount + 1;
+               }else{
+                  $currentCount = isset($popupViews->$date->$type) ? intval($popupViews->$date->$type) : 0;
+                  $popupViews->$date->$type = $currentCount + 1;
+               }
+   
+               $foundRow->stats = wp_json_encode($popupViews);
+               $wpdb->update( $viewTable, array('stats'=> $foundRow->stats), $where );
             }
-
-            $foundRow->stats = json_encode($popupViews);
-            $wpdb->update( $viewTable, array('stats'=> $foundRow->stats), $where );
-
          }else{
             $newdata = array('stats'=>'', 'popup'=> $popupID);
             $viewData = array();
             $viewData[$date] = array('views'=> 1, 'goals'=> ($bothTypes ? 1 : 0) );
-            $newdata['stats'] = json_encode($viewData);
-            //error_log('ROW NOT FOUND. ADDING: '.json_encode($viewData). ' Type: '. $type);
+            $newdata['stats'] = wp_json_encode($viewData);
+            //error_log('ROW NOT FOUND. ADDING: '.wp_json_encode($viewData). ' Type: '. $type);
             $wpdb->insert( $viewTable, $newdata );
          }
          $endTime = microtime(true);
@@ -117,13 +123,16 @@ if ( ! class_exists( 'BravePop_Analytics' ) ) {
       static function get_analytics_csv( $popupID ) {
          if(!$popupID){ return; }
          global $wpdb; 
+         $popupID = absint($popupID);
          $goalTable = $wpdb->prefix . 'bravepopup_goal_stats';
-         $sql   = 'SELECT * FROM ' . $goalTable . "  WHERE (`popup` = '$popupID' )";
+         $sql = $wpdb->prepare("SELECT * FROM $goalTable WHERE `popup` = %d", $popupID);
          $allEntries =  $wpdb->get_results( $sql );
          $analytics_entries = array();
+         $settings = get_option('_bravepopup_settings');
+         $saveIp = isset($settings['analytics']->ipaddress) && $settings['analytics']->ipaddress === true ? true : false;
 
          foreach ($allEntries as $key => $entry) {
-            //error_log(json_encode($theEntry));
+            //error_log(wp_json_encode($theEntry));
             $stat = new stdClass(); 
             $stat->id = intval($entry->id);
             $stat->campaign_ID = intval($entry->popup);
@@ -133,7 +142,7 @@ if ( ! class_exists( 'BravePop_Analytics' ) ) {
             
             $stat->user_id = intval($entry->user) === 0 ? 'Visitor' : intval($entry->user);
             $stat->country = $entry->country ? brave_get_country_name($entry->country) : '';
-            $stat->ip = $entry->ip;
+            $stat->ip = $saveIp ? $entry->ip : '';
             $stat->device = $entry->device;
             $stat->success_rate =  (( 1 / (intval($entry->viewed)||1)) * 100).'%';
 

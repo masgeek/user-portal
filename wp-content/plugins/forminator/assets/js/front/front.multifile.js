@@ -325,7 +325,7 @@
 			 * Get the name of the uploaded file (extension included).
 			 */
 
-			var name = '<p class="forminator-uploaded-file--title">' + filename + '</p>';
+			var name = '<p class="forminator-uploaded-file--title">' + filename.replace( /[<>:"/\\|?*]+/g, '_' ) + '</p>';
 
 			/**
 			 * File Size.
@@ -524,7 +524,8 @@
 
 					$( fileContainer ).remove();
 				}
-				var fileInput = self.form.find( '.forminator-field-'+ self.element + '-' + self.form_id );
+
+				var fileInput = self.form.find( '.forminator-field-'+ element_id + '-' + self.form_id );
 				var liList = self.form.find('.upload-container-' + element_id + ' li' );
 				if( 'undefined' !== typeof fileInput.data('limit') ) {
 					$.each( liList,function( index ) {
@@ -546,8 +547,10 @@
 					fileInput.val('');
 				}
 
+				// Re-enable submit button if there are no errors on the upload fields.
 				if ( 0 === self.form.find( '.forminator-uploaded-file.forminator-has_error' ).length ) {
 					self.form.trigger( 'forminator:uploads:valid' );
+					self.form.find('.forminator-button-submit').attr( 'disabled', false );
 				}
 			})
 		},

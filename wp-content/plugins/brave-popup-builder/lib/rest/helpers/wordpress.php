@@ -8,8 +8,8 @@ function bravepop_get_wpdata( $type, $ids=array() ) {
        //GET ALL PAGES
        $pages = get_pages(array('number' => 300, 'suppress_filters' => true, 'lang' => '')); 
        $posts = get_posts(array('post_type' => 'post', 'numberposts' => 300, 'suppress_filters' => true, 'lang' => ''));
-       $categories = get_terms( 'category', 'orderby=name&order=ASC&hide_empty=0' ); 
-       $tags = get_terms( 'post_tag', 'orderby=name&order=ASC&hide_empty=0' ); 
+       $categories = get_terms(array( 'taxonomy' => 'category', 'orderby' => 'name', 'order' => 'ASC', 'hide_empty' => false));
+       $tags = get_terms(array( 'taxonomy' => 'post_tag', 'orderby' => 'name', 'order' => 'ASC', 'hide_empty' => false)); 
        $attachments = get_posts( array( 'post_type' => 'attachment', 'numberposts' => 100,'post_status' => null,'post_parent' => null) );
        $userFields = [];
        $allPages = [];
@@ -38,15 +38,7 @@ function bravepop_get_wpdata( $type, $ids=array() ) {
          }
       }
 
-       if(class_exists( 'SitePress' ) && function_exists('icl_get_languages')){
-         $allWPMLPostsPages = bravepop_get_wpml_posts_n_pages();
-         if($allWPMLPostsPages['pages'] && is_array($allWPMLPostsPages['pages']) && count($allWPMLPostsPages['pages']) > 0){
-            $pages = $allWPMLPostsPages['pages'];
-         }
-         if($allWPMLPostsPages['posts'] && is_array($allWPMLPostsPages['posts']) && count($allWPMLPostsPages['posts']) > 0){
-            $posts = $allWPMLPostsPages['posts'];
-         }
-       }
+      $allWPMLPostTitles = class_exists( 'SitePress' ) && function_exists('icl_get_languages') ? bravepop_get_wpml_posts_n_pages() : array();
 
        foreach ( get_post_types( array('public'=> true), 'objects' ) as $post_type ) {
          if($post_type->name !== 'post' && $post_type->name !== 'page' && $post_type->name !== 'product' && $post_type->name !== 'popup' ){
@@ -70,7 +62,7 @@ function bravepop_get_wpdata( $type, $ids=array() ) {
        foreach ( $pages as $page ) {
            $object = new stdClass();
            $object->ID = $page->ID ;
-           $object->title = $page->post_title ;
+           $object->title = !empty($allWPMLPostTitles['pages'][$page->ID]) ? $allWPMLPostTitles['pages'][$page->ID] : $page->post_title;
            $object->link = esc_url(get_page_link( $page->ID )) ;
            $object->slug = $page->post_name ;
            if(!in_array($page->ID, $addedItemIDs)){
@@ -95,7 +87,7 @@ function bravepop_get_wpdata( $type, $ids=array() ) {
        foreach ( $posts as $post ) {
            $object = new stdClass();
            $object->ID = $post->ID ;
-           $object->title = $post->post_title ;
+           $object->title = !empty($allWPMLPostTitles['posts'][$post->ID]) ? $allWPMLPostTitles['posts'][$post->ID] : $post->post_title;
            $object->link = esc_url(get_permalink( $post->ID )) ;
            $object->slug = $post->post_name ;
            if(!in_array($post->ID, $addedItemIDs)){
@@ -187,8 +179,8 @@ function bravepop_get_wpdata( $type, $ids=array() ) {
                }
            }
 
-           $productCategories = get_terms( 'product_cat', 'orderby=name&order=ASC&hide_empty=0' ); 
-           $productTags = get_terms( 'product_tag', 'orderby=name&order=ASC&hide_empty=0' ); 
+           $productCategories = get_terms(array( 'taxonomy' => 'product_cat', 'orderby' => 'name', 'order' => 'ASC', 'hide_empty' => false));
+           $productTags = get_terms(array( 'taxonomy' => 'product_tag', 'orderby' => 'name', 'order' => 'ASC', 'hide_empty' => false)); 
            $allProducts = [];
            $allProductCategories = [];
            $allProductTags = [];
@@ -202,7 +194,8 @@ function bravepop_get_wpdata( $type, $ids=array() ) {
            foreach ( $products as $product ) {
                $object = new stdClass();
                $object->ID = $product->get_id() ;
-               $object->title = $product->get_name();
+               // $object->title = $product->get_name();
+               $object->title = !empty($allWPMLPostTitles['products'][$object->ID]) ? $allWPMLPostTitles['products'][$object->ID] : $product->get_name();
                $object->link = get_permalink( $product->get_id() );
                $object->price = $product->get_price();
 
@@ -234,7 +227,7 @@ function bravepop_get_wpdata( $type, $ids=array() ) {
 
        }
 
-       //error_log(json_encode($wpData));
+       //error_log(wp_json_encode($wpData));
        
    }
 
@@ -331,8 +324,8 @@ function bravepop_get_wpPosts( $type='', $postType='', $filterType='', $count=3,
    if($postType === 'page'){
        $args = array( 'post_type' => 'page', 'post__in' => $postID );
    }
-   //error_log(json_encode( $args ));
-   //error_log(json_encode(get_posts( $args )));
+   //error_log(wp_json_encode( $args ));
+   //error_log(wp_json_encode(get_posts( $args )));
 
    $posts = get_posts( $args );
    foreach ( $posts as $post ) {
@@ -342,12 +335,12 @@ function bravepop_get_wpPosts( $type='', $postType='', $filterType='', $count=3,
        if ($postType) {
            $blocks = parse_blocks( $post->post_content );
            foreach ($blocks as $block) {
-               //error_log(json_encode($block));
+               //error_log(wp_json_encode($block));
                if ($block['blockName']) {
                    $theContent .= $block['innerHTML'];
                }
            }
-           //error_log(json_encode($theContent));
+           //error_log(wp_json_encode($theContent));
        }
        
        $object->ID = $post->ID ;
@@ -388,8 +381,8 @@ function bravepop_get_translated_terms( ){
       
       foreach ($currentLangs as $key => $value) {
          $sitepress->switch_lang($key); // Switch to new language
-         $pcats = get_terms( 'product_cat', 'orderby=name&order=ASC&hide_empty=0' ); 
-         $ptags = get_terms( 'product_tag', 'orderby=name&order=ASC&hide_empty=0' );  
+         $pcats = get_terms(array( 'taxonomy' => 'product_cat', 'orderby' => 'name', 'order' => 'ASC', 'hide_empty' => false));
+         $ptags = get_terms(array( 'taxonomy' => 'product_tag', 'orderby' => 'name', 'order' => 'ASC', 'hide_empty' => false)); 
          //Get Categories
          foreach ($pcats as $index => $cat) {
             if($cat->term_id && !isset($allCats[$cat->term_id])){
@@ -414,24 +407,30 @@ function bravepop_get_translated_terms( ){
 function bravepop_get_wpml_posts_n_pages( ){
    $original_lang = ICL_LANGUAGE_CODE; // Save the current language
    $languages = icl_get_languages( 'skip_missing=0' );
-   $allWPMLPages = array(); $allWPMLPosts = array();
+   $allWPMLPages = array(); $allWPMLPosts = array();  $allWPMLProducts = array();
    foreach( (array) $languages as $lang ) {
       do_action( 'wpml_switch_language', $lang['code'] ); 
       $pagesQ = get_pages(array('numberposts' => 300, 'suppress_filters' => false, 'lang' => '')); 
       $postsQ = get_posts(array('post_type' => 'post','numberposts' => 100, 'suppress_filters' => false, 'lang' => '')); 
+      $productsQ = get_posts(array('post_type' => 'product','numberposts' => 100, 'suppress_filters' => false, 'lang' => '')); 
       foreach ( $pagesQ as $page ) {
          $pageItem = $page;
          $pageItem->post_title = isset($page->post_title) ? $page->post_title.' ('.strtoupper($lang['code']).')' : '';
-         $allWPMLPages[] = $pageItem;
+         $allWPMLPages[$page->ID] = $pageItem->post_title;
       }
       foreach ( $postsQ as $post ) {
          $postItem = $post;
          $postItem->post_title = isset($post->post_title) ? $post->post_title.' ('.strtoupper($lang['code']).')' : '';
-         $allWPMLPages[] = $postItem;
+         $allWPMLPosts[$post->ID] = $postItem->post_title;
+      }
+      foreach ( $productsQ as $product ) {
+         $productItem = $product;
+         $productItem->post_title = isset($product->post_title) ? $product->post_title.' ('.strtoupper($lang['code']).')' : '';
+         $allWPMLProducts[$product->ID] = $productItem->post_title;
       }
    }
    do_action( 'wpml_switch_language', $original_lang ); 
-   return array('pages'=>$allWPMLPages, 'posts'=>$allWPMLPosts);
+   return array('pages'=>$allWPMLPages, 'posts'=>$allWPMLPosts, 'products'=>$allWPMLProducts);
 }
 
 // add_filter('bravepop_posts_for_rest', 'bravepop_get_posts_for_rest', 10, 2);

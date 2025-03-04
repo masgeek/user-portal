@@ -1,0 +1,13 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "automatic-youtube-gallery/block",
+	"version": "2.5.1",
+	"title": "Automatic YouTube Gallery",
+	"category": "automatic-youtube-gallery",
+	"keywords": [ "youtube", "videos", "gallery", "automatic-youtube-gallery" ],
+	"icon": "video-alt3",
+	"description": "Build a dynamic YouTube gallery.",
+	"textdomain": "automatic-youtube-gallery",
+	"editorScript": "file:./index.js"
+}

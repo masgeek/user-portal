@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator Payment Gateway.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -44,7 +50,7 @@ abstract class Forminator_Payment_Gateway {
 
 		// Handle purchases.
 		if ( $this->_enabled ) {
-			add_filter( 'forminator_cform_process_purchase', array( $this, '_handle_purchase' ), 10, 5 );
+			add_filter( 'forminator_cform_process_purchase', array( $this, 'process_handle_purchase' ), 10, 5 );
 		}
 	}
 
@@ -60,16 +66,16 @@ abstract class Forminator_Payment_Gateway {
 	 *
 	 * @since 1.0
 	 *
-	 * @param array            $response       - the response array.
-	 * @param array            $product_fields - the product fields.
-	 * @param       $field_data_array
-	 * @param int              $entry_id       - the entry id ( reference for callback).
-	 * @param int              $page_id        - the page id. Used to generate a return url.
-	 * @param int              $shipping       - the shipping cost.
+	 * @param array $response       - the response array.
+	 * @param array $product_fields - the product fields.
+	 * @param array $field_data_array Field data.
+	 * @param int   $entry_id       - the entry id ( reference for callback).
+	 * @param int   $page_id        - the page id. Used to generate a return url.
+	 * @param int   $shipping       - the shipping cost.
 	 *
 	 * @return array $response
 	 */
-	public function _handle_purchase( $response, $product_fields, $field_data_array, $entry_id, $page_id, $shipping ) {
+	public function process_handle_purchase( $response, $product_fields, $field_data_array, $entry_id, $page_id, $shipping ) {
 		return $this->handle_purchase( $response, $product_fields, $field_data_array, $entry_id, $page_id, $shipping );
 	}
 
@@ -80,13 +86,14 @@ abstract class Forminator_Payment_Gateway {
 	 * @since 1.0
 	 * @param array $response - the response array.
 	 * @param array $product_fields - the product fields.
+	 * @param array $field_data_array Field data.
 	 * @param int   $entry_id - the entry id ( reference for callback).
 	 * @param int   $page_id - the page id. Used to generate a return url.
 	 * @param int   $shipping - the shipping cost.
 	 *
 	 * @return array $response
 	 */
-	protected function handle_purchase( $response, $product_fields, $field_data_array, $entry_id, $page_id, $shipping ) {
+	protected function handle_purchase( $response, $product_fields, $field_data_array, $entry_id, $page_id, $shipping ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		return $response;
 	}
 

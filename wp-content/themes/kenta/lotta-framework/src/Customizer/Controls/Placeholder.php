@@ -3,6 +3,7 @@
 namespace LottaFramework\Customizer\Controls;
 
 use LottaFramework\Customizer\Control;
+use LottaFramework\Customizer\Sanitizes;
 
 class Placeholder extends Control {
 
@@ -17,7 +18,7 @@ class Placeholder extends Control {
 	}
 
 	public function getSanitize() {
-		return '__return_null';
+		return [ Sanitizes::class, 'primitive' ];
 	}
 
 	public function setDefaultBorder( $width, $style, $color, $hover = '' ) {
@@ -57,5 +58,22 @@ class Placeholder extends Control {
 		$defaultParam[ $id ] = $default;
 
 		return $this->setDefaultValue( $defaultParam );
+	}
+
+	/**
+	 * Set current color as css var in customizer
+	 *
+	 * @param $selector
+	 * @param $maps
+	 *
+	 * @return Placeholder
+	 *
+	 * @since v2.0.15
+	 */
+	public function setCustomizerColors( $selector, $maps ) {
+		return $this->setOption( 'set_customizer_colors', [
+			'selector' => $selector,
+			'maps'     => $maps,
+		] );
 	}
 }

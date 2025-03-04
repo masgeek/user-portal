@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Quiz_Admin class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -15,18 +21,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 
 	/**
-	 * module objects
+	 * Module objects
 	 *
 	 * @var array
 	 */
 	public $module;
 
 	/**
+	 * Page nowrong edit
+	 *
 	 * @var string
 	 */
 	public $page_edit_nowrong;
 
 	/**
+	 * Page knowledge edit
+	 *
 	 * @var string
 	 */
 	public $page_edit_knowledge;
@@ -50,11 +60,11 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 	 * @since 1.0
 	 */
 	public function includes() {
-		include_once dirname( __FILE__ ) . '/admin-page-new-nowrong.php';
-		include_once dirname( __FILE__ ) . '/admin-page-new-knowledge.php';
-		include_once dirname( __FILE__ ) . '/admin-page-view.php';
-		include_once dirname( __FILE__ ) . '/admin-page-entries.php';
-		include_once dirname( __FILE__ ) . '/admin-renderer-entries.php';
+		include_once __DIR__ . '/admin-page-new-nowrong.php';
+		include_once __DIR__ . '/admin-page-new-knowledge.php';
+		include_once __DIR__ . '/admin-page-view.php';
+		include_once __DIR__ . '/admin-page-entries.php';
+		include_once __DIR__ . '/admin-renderer-entries.php';
 	}
 
 	/**
@@ -63,10 +73,10 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 	 * @since 1.0
 	 */
 	public function add_menu_pages() {
-		new Forminator_Quiz_Page( $this->page, 'quiz/list', __( 'Quizzes', 'forminator' ), __( 'Quizzes', 'forminator' ), 'forminator' );
-		new Forminator_Quiz_New_NoWrong( $this->page_edit_nowrong, 'quiz/nowrong', __( 'Edit Quiz', 'forminator' ), __( 'New Quiz', 'forminator' ), 'forminator' );
-		new Forminator_Quiz_New_Knowledge( $this->page_edit_knowledge, 'quiz/knowledge', __( 'Edit Quiz', 'forminator' ), __( 'New Quiz', 'forminator' ), 'forminator' );
-		new Forminator_Quiz_View_Page( $this->page_entries, 'quiz/entries', __( 'Submissions:', 'forminator' ), __( 'View Quizzes', 'forminator' ), 'forminator' );
+		new Forminator_Quiz_Page( $this->page, 'quiz/list', esc_html__( 'Quizzes', 'forminator' ), esc_html__( 'Quizzes', 'forminator' ), 'forminator' );
+		new Forminator_Quiz_New_NoWrong( $this->page_edit_nowrong, 'quiz/nowrong', esc_html__( 'Edit Quiz', 'forminator' ), esc_html__( 'New Quiz', 'forminator' ), 'forminator' );
+		new Forminator_Quiz_New_Knowledge( $this->page_edit_knowledge, 'quiz/knowledge', esc_html__( 'Edit Quiz', 'forminator' ), esc_html__( 'New Quiz', 'forminator' ), 'forminator' );
+		new Forminator_Quiz_View_Page( $this->page_entries, 'quiz/entries', esc_html__( 'Submissions:', 'forminator' ), esc_html__( 'View Quizzes', 'forminator' ), 'forminator' );
 	}
 
 	/**
@@ -91,8 +101,8 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 		global $plugin_page;
 
 		$page = Forminator_Core::sanitize_text_field( 'page' );
-		if ( empty( $plugin_page ) && $page ) {
-			$plugin_page = $page;
+		if ( empty( $plugin_page ) ) {
+			return $this->page_edit_knowledge === $page;
 		}
 
 		return $this->page_edit_knowledge === $plugin_page;
@@ -108,8 +118,8 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 		global $plugin_page;
 
 		$page = Forminator_Core::sanitize_text_field( 'page' );
-		if ( empty( $plugin_page ) && $page ) {
-			$plugin_page = $page;
+		if ( empty( $plugin_page ) ) {
+			return $this->page_edit_nowrong === $page;
 		}
 
 		return $this->page_edit_nowrong === $plugin_page;
@@ -121,7 +131,7 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 	 * @deprecated 1.1 No longer used because this function override prohibited WordPress global of $plugin_page
 	 * @since      1.0
 	 *
-	 * @param $file
+	 * @param string $file File.
 	 *
 	 * @return mixed
 	 */
@@ -136,8 +146,8 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 	 *
 	 * @since 1.1
 	 *
-	 * @param $submenu_file
-	 * @param $parent_file
+	 * @param string $submenu_file Sub menu file.
+	 * @param string $parent_file Parent file.
 	 *
 	 * @return string
 	 */
@@ -160,7 +170,7 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $data
+	 * @param array $data Date.
 	 *
 	 * @return mixed
 	 */
@@ -172,7 +182,10 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 		if ( $this->is_knowledge_wizard() || $this->is_nowrong_wizard() ) {
 			$id = filter_input( INPUT_GET, 'id', FILTER_VALIDATE_INT );
 			if ( $id && is_null( $model ) ) {
-				/** @var  Forminator_Quiz_Model $model */
+				/**
+				 * Forminator_Quiz_Model
+				 *
+				 * @var  Forminator_Quiz_Model $model */
 				$model = Forminator_Base_Form_Model::get_model( $id );
 			}
 
@@ -307,11 +320,15 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 			'page-indicator-font-family'              => 'Roboto',
 			'page-indicator-font-size'                => '13',
 			'page-indicator-font-weight'              => '400',
+			'store_submissions'                       => '1',
 		);
 	}
 
 	/**
 	 * Knowledge quiz default data
+	 *
+	 * @param string $name Form name.
+	 * @param bool   $has_leads Has lead.
 	 *
 	 * @since 1.14
 	 *
@@ -327,17 +344,19 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 				'admin-email-recipients'                   => array(
 					get_option( 'admin_email' ),
 				),
-				'admin-email-title'                        => __( 'New Quiz Submission for {quiz_name}', 'forminator' ),
-				'admin-email-editor'                       => __(
-					'You have a new quiz submission: <br/><br/>{quiz_answer}<br/><br/>Quiz results: <br/>{quiz_result} <br/>---<br/> This message was sent from {site_url}.',
-					'forminator'
+				'admin-email-title'                        => esc_html__( 'New Quiz Submission for {quiz_name}', 'forminator' ),
+				'admin-email-editor'                       => sprintf(
+					'%1$s <br/><br/>{quiz_answer}<br/><br/>%2$s <br/>{quiz_result} <br/>---<br/> %3$s',
+					esc_html__( 'You have a new quiz submission:', 'forminator' ),
+					esc_html__( 'Quiz results:', 'forminator' ),
+					esc_html__( 'This message was sent from {site_url}.', 'forminator' )
 				),
 				'results_behav'                            => 'after',
 				'visual_style'                             => 'list',
 				'forminator-quiz-theme'                    => 'default',
-				'msg_correct'                              => 'Correct! It was %UserAnswer%.',
-				'msg_incorrect'                            => 'Wrong! It was %CorrectAnswer%, sorry...',
-				'msg_count'                                => 'You got %YourNum%/%Total% correct!',
+				'msg_correct'                              => esc_html__( 'Correct! It was %UserAnswer%.', 'forminator' ),
+				'msg_incorrect'                            => esc_html__( 'Wrong! It was %CorrectAnswer%, sorry...', 'forminator' ),
+				'msg_count'                                => esc_html__( 'You got %YourNum%/%Total% correct!', 'forminator' ),
 				// KNOWLEDGE title.
 				'knowledge-title-color'                    => '#333333',
 				'knowledge-title-font-family'              => 'Roboto',
@@ -418,6 +437,8 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 				'knowledge-social-google'                  => '#DB4437',
 				'forminator-knowledge-social-linkedin'     => '#0084BF',
 				'knowledge-social-size'                    => '36',
+				// KNOWLEDGE Radio and Checkbox Image Size.
+				'field-image-size'                         => 'custom',
 			)
 		);
 	}
@@ -426,6 +447,9 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 	 * No wrong quiz default data
 	 *
 	 * @since 1.14
+	 *
+	 * @param string $name Form name.
+	 * @param bool   $has_leads Has lead.
 	 *
 	 * @return array
 	 */
@@ -442,9 +466,9 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 				'results_behav'                           => 'after',
 				'visual_style'                            => 'list',
 				'forminator-quiz-theme'                   => 'default',
-				'msg_correct'                             => 'Correct! It was %UserAnswer%.',
-				'msg_incorrect'                           => 'Wrong! It was %CorrectAnswer%, sorry...',
-				'msg_count'                               => 'You got %YourNum%/%Total% correct!',
+				'msg_correct'                             => esc_html__( 'Correct! It was %UserAnswer%.', 'forminator' ),
+				'msg_incorrect'                           => esc_html__( 'Wrong! It was %CorrectAnswer%, sorry...', 'forminator' ),
+				'msg_count'                               => esc_html__( 'You got %YourNum%/%Total% correct!', 'forminator' ),
 				// NOWRONG title.
 				'nowrong-title-settings'                  => false,
 				'nowrong-title-color'                     => '#333333',
@@ -530,175 +554,159 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $data
+	 * @param array $data Data.
 	 *
 	 * @return mixed
 	 */
 	public function add_l10n_strings( $data ) {
 		$data['quizzes'] = array(
-			'quizzes'                      => __( 'Quizzes', 'forminator' ),
-			'popup_label'                  => __( 'Choose Quiz Type', 'forminator' ),
-			'results'                      => __( 'Results', 'forminator' ),
-			'questions'                    => __( 'Questions', 'forminator' ),
-			'details'                      => __( 'Details', 'forminator' ),
-			'settings'                     => __( 'Settings', 'forminator' ),
-			'appearance'                   => __( 'Appearance', 'forminator' ),
-			'preview'                      => __( 'Preview', 'forminator' ),
-			'preview_quiz'                 => __( 'Preview Quiz', 'forminator' ),
-			'list'                         => __( 'List', 'forminator' ),
-			'grid'                         => __( 'Grid', 'forminator' ),
-			'visual_style'                 => __( 'Visual style', 'forminator' ),
-			'quiz_title'                   => __( 'Quiz Title', 'forminator' ),
-			'quiz_title_desc'              => __( "Further customize the appearance for quiz title. It appears as result's header.", 'forminator' ),
-			'title'                        => __( 'Title', 'forminator' ),
-			'title_desc'                   => __( 'Further customize appearance for quiz title.', 'forminator' ),
-			'image_desc'                   => __( 'Further customize appearance for quiz featured image.', 'forminator' ),
-			'enable_styles'                => __( 'Enable custom styles', 'forminator' ),
-			'desc_desc'                    => __( 'Further customize appearance for quiz description / intro.', 'forminator' ),
-			'description'                  => __( 'Description / Intro', 'forminator' ),
-			'feat_image'                   => __( 'Featured image', 'forminator' ),
-			'font_color'                   => __( 'Font color', 'forminator' ),
-			'browse'                       => __( 'Browse', 'forminator' ),
-			'clear'                        => __( 'Clear', 'forminator' ),
-			'results_behav'                => __( 'Results behavior', 'forminator' ),
-			'rb_description'               => __( 'Pick if you want to reveal the correct answer as user finishes question, or only after the whole quiz is completed.', 'forminator' ),
-			'reveal'                       => __( 'When to reveal correct answer', 'forminator' ),
-			'after'                        => __( 'After user picks answer', 'forminator' ),
-			'before'                       => __( 'At the end of whole quiz', 'forminator' ),
-			'phrasing'                     => __( 'Answer phrasing', 'forminator' ),
-			'phrasing_desc'                => __(
-				'Pick how you want the correct & incorrect answers to read. Use <strong>%UserAnswer%</strong> to pull in the value user selected & <strong>%CorrectAnswer%</strong> to pull in the correct value.',
-				'forminator'
-			),
-			'phrasing_desc_alt'            => __( 'Further customize appearance for answer message.', 'forminator' ),
-			'msg_correct'                  => __( 'Correct answer message', 'forminator' ),
-			'msg_incorrect'                => __( 'Incorrect answer message', 'forminator' ),
-			'msg_count'                    => __( 'Final count message', 'forminator' ),
-			'msg_count_desc'               => __(
-				'Edit the copy of the final result count message that will appear after the quiz is complete. Use <strong>%YourNum%</strong> to display number of correct answers and <strong>%Total%</strong> for total number of questions.',
-				'forminator'
-			),
-			'msg_count_info'               => __( 'You can now add some html content here to personalize even more text displayed as Final Count Message. Try it now!', 'forminator' ),
-			'share'                        => __( 'Share on social media', 'forminator' ),
-			'order'                        => __( 'Results priority order', 'forminator' ),
-			'order_label'                  => __( 'Pick priority for results', 'forminator' ),
-			'order_alt'                    => __( 'Quizzes can have even number of scores for 2 or more results, in those scenarios, this order will help determine the result.', 'forminator' ),
-			'questions_title'              => __( 'Questions', 'forminator' ),
-			'question_desc'                => __( 'Further customize appearance for quiz questions.', 'forminator' ),
-			'result_title'                 => __( 'Result title', 'forminator' ),
-			'result_description'           => __( 'Result description', 'forminator' ),
-			'result_description_desc'      => __( 'Further customize the appearance for result description typography.', 'forminator' ),
-			'result_title_desc'            => __( 'Further customize the appearance for result title typography.', 'forminator' ),
-			'retake_button'                => __( 'Retake button', 'forminator' ),
-			'retake_button_desc'           => __( 'Further customize the appearance for retake quiz button.', 'forminator' ),
-			'validate_form_name'           => __( 'Form name cannot be empty! Please pick a name for your quiz.', 'forminator' ),
-			'validate_form_question'       => __( 'Quiz question cannot be empty! Please add questions for your quiz.', 'forminator' ),
-			'validate_form_answers'        => __( 'Quiz answers cannot be empty! Please add some questions.', 'forminator' ),
-			'validate_form_answers_result' => __( 'Result answer cannot be empty! Please select a result.', 'forminator' ),
-			'validate_form_correct_answer' => __( 'This question needs a correct answer. Please, select one before saving or proceeding to next step.', 'forminator' ),
-			'validate_form_no_answer'      => __( 'Please add an answer for this question.', 'forminator' ),
-			'answer'                       => __( 'Answers', 'forminator' ),
-			'no_answer'                    => __( "You don't have any answer for this question yet.", 'forminator' ),
-			'answer_desc'                  => __( 'Further customize appearance for quiz answers.', 'forminator' ),
-			'back'                         => __( 'Back', 'forminator' ),
-			'cancel'                       => __( 'Cancel', 'forminator' ),
-			'continue'                     => __( 'Continue', 'forminator' ),
-			'correct_answer'               => __( 'Correct answer', 'forminator' ),
-			'correct_answer_desc'          => __( 'Customize appearance for correct answers.', 'forminator' ),
-			'finish'                       => __( 'Finish', 'forminator' ),
-			'smartcrawl'                   => __(
-				"<strong>Want more control?</strong> <strong><a href='https://wpmudev.com/project/smartcrawl-wordpress-seo/' target='_blank'>SmartCrawl</a></strong> OpenGraph and Twitter Card support lets you choose how your content looks when it’s shared on social media.",
-				'forminator'
-			),
-			'submit'                       => __( 'Submit', 'forminator' ),
-			'submit_desc'                  => __( 'Further customize appearance for quiz submit button.', 'forminator' ),
-			'main_styles'                  => __( 'Main styles', 'forminator' ),
-			'border'                       => __( 'Border', 'forminator' ),
-			'border_desc'                  => __( "Further customize border for result's main container.", 'forminator' ),
-			'padding'                      => __( 'Padding', 'forminator' ),
-			'background'                   => __( 'Background', 'forminator' ),
-			'background_desc'              => __(
+			'quizzes'                      => esc_html__( 'Quizzes', 'forminator' ),
+			'popup_label'                  => esc_html__( 'Choose Quiz Type', 'forminator' ),
+			'results'                      => esc_html__( 'Results', 'forminator' ),
+			'questions'                    => esc_html__( 'Questions', 'forminator' ),
+			'details'                      => esc_html__( 'Details', 'forminator' ),
+			'settings'                     => esc_html__( 'Settings', 'forminator' ),
+			'appearance'                   => esc_html__( 'Appearance', 'forminator' ),
+			'preview'                      => esc_html__( 'Preview', 'forminator' ),
+			'preview_quiz'                 => esc_html__( 'Preview Quiz', 'forminator' ),
+			'list'                         => esc_html__( 'List', 'forminator' ),
+			'grid'                         => esc_html__( 'Grid', 'forminator' ),
+			'visual_style'                 => esc_html__( 'Visual style', 'forminator' ),
+			'quiz_title'                   => esc_html__( 'Quiz Title', 'forminator' ),
+			'quiz_title_desc'              => esc_html__( 'Further customize the appearance for quiz title. It appears as result\'s header.', 'forminator' ),
+			'title'                        => esc_html__( 'Title', 'forminator' ),
+			'title_desc'                   => esc_html__( 'Further customize appearance for quiz title.', 'forminator' ),
+			'image_desc'                   => esc_html__( 'Further customize appearance for quiz featured image.', 'forminator' ),
+			'enable_styles'                => esc_html__( 'Enable custom styles', 'forminator' ),
+			'desc_desc'                    => esc_html__( 'Further customize appearance for quiz description / intro.', 'forminator' ),
+			'description'                  => esc_html__( 'Description / Intro', 'forminator' ),
+			'feat_image'                   => esc_html__( 'Featured image', 'forminator' ),
+			'font_color'                   => esc_html__( 'Font color', 'forminator' ),
+			'browse'                       => esc_html__( 'Browse', 'forminator' ),
+			'clear'                        => esc_html__( 'Clear', 'forminator' ),
+			'results_behav'                => esc_html__( 'Results behavior', 'forminator' ),
+			'rb_description'               => esc_html__( 'Pick if you want to reveal the correct answer as user finishes question, or only after the whole quiz is completed.', 'forminator' ),
+			'reveal'                       => esc_html__( 'When to reveal correct answer', 'forminator' ),
+			'after'                        => esc_html__( 'After user picks answer', 'forminator' ),
+			'before'                       => esc_html__( 'At the end of whole quiz', 'forminator' ),
+			'phrasing'                     => esc_html__( 'Answer phrasing', 'forminator' ),
+			'phrasing_desc_alt'            => esc_html__( 'Further customize appearance for answer message.', 'forminator' ),
+			'msg_correct'                  => esc_html__( 'Correct answer message', 'forminator' ),
+			'msg_incorrect'                => esc_html__( 'Incorrect answer message', 'forminator' ),
+			'msg_count'                    => esc_html__( 'Final count message', 'forminator' ),
+			'msg_count_info'               => esc_html__( 'You can now add some html content here to personalize even more text displayed as Final Count Message. Try it now!', 'forminator' ),
+			'share'                        => esc_html__( 'Share on social media', 'forminator' ),
+			'order'                        => esc_html__( 'Results priority order', 'forminator' ),
+			'order_label'                  => esc_html__( 'Pick priority for results', 'forminator' ),
+			'order_alt'                    => esc_html__( 'Quizzes can have even number of scores for 2 or more results, in those scenarios, this order will help determine the result.', 'forminator' ),
+			'questions_title'              => esc_html__( 'Questions', 'forminator' ),
+			'question_desc'                => esc_html__( 'Further customize appearance for quiz questions.', 'forminator' ),
+			'result_title'                 => esc_html__( 'Result title', 'forminator' ),
+			'result_description'           => esc_html__( 'Result description', 'forminator' ),
+			'result_description_desc'      => esc_html__( 'Further customize the appearance for result description typography.', 'forminator' ),
+			'result_title_desc'            => esc_html__( 'Further customize the appearance for result title typography.', 'forminator' ),
+			'retake_button'                => esc_html__( 'Retake button', 'forminator' ),
+			'retake_button_desc'           => esc_html__( 'Further customize the appearance for retake quiz button.', 'forminator' ),
+			'validate_form_name'           => esc_html__( 'Form name cannot be empty! Please pick a name for your quiz.', 'forminator' ),
+			'validate_form_question'       => esc_html__( 'Quiz question cannot be empty! Please add questions for your quiz.', 'forminator' ),
+			'validate_form_answers'        => esc_html__( 'Quiz answers cannot be empty! Please add some questions.', 'forminator' ),
+			'validate_form_answers_result' => esc_html__( 'Result answer cannot be empty! Please select a result.', 'forminator' ),
+			'validate_form_correct_answer' => esc_html__( 'This question needs a correct answer. Please, select one before saving or proceeding to next step.', 'forminator' ),
+			'validate_form_no_answer'      => esc_html__( 'Please add an answer for this question.', 'forminator' ),
+			'answer'                       => esc_html__( 'Answers', 'forminator' ),
+			'no_answer'                    => esc_html__( 'You don\'t have any answer for this question yet.', 'forminator' ),
+			'answer_desc'                  => esc_html__( 'Further customize appearance for quiz answers.', 'forminator' ),
+			'back'                         => esc_html__( 'Back', 'forminator' ),
+			'cancel'                       => esc_html__( 'Cancel', 'forminator' ),
+			'continue'                     => esc_html__( 'Continue', 'forminator' ),
+			'correct_answer'               => esc_html__( 'Correct answer', 'forminator' ),
+			'correct_answer_desc'          => esc_html__( 'Customize appearance for correct answers.', 'forminator' ),
+			'finish'                       => esc_html__( 'Finish', 'forminator' ),
+			'submit'                       => esc_html__( 'Submit', 'forminator' ),
+			'submit_desc'                  => esc_html__( 'Further customize appearance for quiz submit button.', 'forminator' ),
+			'main_styles'                  => esc_html__( 'Main styles', 'forminator' ),
+			'border'                       => esc_html__( 'Border', 'forminator' ),
+			'border_desc'                  => esc_html__( 'Further customize border for result\'s main container.', 'forminator' ),
+			'padding'                      => esc_html__( 'Padding', 'forminator' ),
+			'background'                   => esc_html__( 'Background', 'forminator' ),
+			'background_desc'              => esc_html__(
 				'The Results box has three different backgrounds: main container, header background (where quiz title and reload button are placed), and content background (where result title and description are placed). Here you can customize the three of them.',
 				'forminator'
 			),
-			'bg_main'                      => __( 'Main BG', 'forminator' ),
-			'bg_header'                    => __( 'Header BG', 'forminator' ),
-			'bg_content'                   => __( 'Content BG', 'forminator' ),
-			'color'                        => __( 'Color', 'forminator' ),
-			'result_appearance'            => __( "Result's Box", 'forminator' ),
-			'margin'                       => __( 'Margin', 'forminator' ),
-			'summary'                      => __( 'Summary', 'forminator' ),
-			'summary_desc'                 => __( 'Further customize appearance for quiz final count message', 'forminator' ),
-			'sshare'                       => __( 'Sharing text', 'forminator' ),
-			'sshare_desc'                  => __( 'Further customize appearance for share on social media text', 'forminator' ),
-			'social'                       => __( 'Social icons', 'forminator' ),
-			'social_desc'                  => __( 'Further customize appearance for social media icons', 'forminator' ),
-			'wrong_answer'                 => __( 'Wrong answer', 'forminator' ),
-			'wrong_answer_desc'            => __( 'Customize appearance for wrong answers.', 'forminator' ),
-			'msg_description'              => __(
-				'Use <strong>%UserAnswer%</strong> to pull in the value user selected and <strong>%CorrectAnswer%</strong> to pull in the correct value.',
-				'forminator'
-			),
-			'facebook'                     => __( 'Facebook', 'forminator' ),
-			'twitter'                      => __( 'Twitter', 'forminator' ),
-			'google'                       => __( 'Google', 'forminator' ),
-			'linkedin'                     => __( 'LinkedIn', 'forminator' ),
-			'title_styles'                 => __( 'Title Appearance', 'forminator' ),
-			'enable'                       => __( 'Enable', 'forminator' ),
-			'checkbox_styles'              => __( 'Checkbox styles', 'forminator' ),
-			'main'                         => __( 'Main', 'forminator' ),
-			'header'                       => __( 'Header', 'forminator' ),
-			'content'                      => __( 'Content', 'forminator' ),
-			'quiz_design'                  => __( 'Quiz design', 'forminator' ),
-			'quiz_design_description'      => __( "Choose a pre-made style for your quiz and further customize it's appearance.", 'forminator' ),
-			'customize_quiz_colors'        => __( 'Customize quiz colors', 'forminator' ),
-			'visual_style_description'     => __( 'There are two ways for displaying your quiz answers: grid or list.', 'forminator' ),
+			'bg_main'                      => esc_html__( 'Main BG', 'forminator' ),
+			'bg_header'                    => esc_html__( 'Header BG', 'forminator' ),
+			'bg_content'                   => esc_html__( 'Content BG', 'forminator' ),
+			'color'                        => esc_html__( 'Color', 'forminator' ),
+			'result_appearance'            => esc_html__( 'Result\'s Box', 'forminator' ),
+			'margin'                       => esc_html__( 'Margin', 'forminator' ),
+			'summary'                      => esc_html__( 'Summary', 'forminator' ),
+			'summary_desc'                 => esc_html__( 'Further customize appearance for quiz final count message', 'forminator' ),
+			'sshare'                       => esc_html__( 'Sharing text', 'forminator' ),
+			'sshare_desc'                  => esc_html__( 'Further customize appearance for share on social media text', 'forminator' ),
+			'social'                       => esc_html__( 'Social icons', 'forminator' ),
+			'social_desc'                  => esc_html__( 'Further customize appearance for social media icons', 'forminator' ),
+			'wrong_answer'                 => esc_html__( 'Wrong answer', 'forminator' ),
+			'wrong_answer_desc'            => esc_html__( 'Customize appearance for wrong answers.', 'forminator' ),
+			'facebook'                     => esc_html__( 'Facebook', 'forminator' ),
+			'twitter'                      => esc_html__( 'Twitter', 'forminator' ),
+			'google'                       => esc_html__( 'Google', 'forminator' ),
+			'linkedin'                     => esc_html__( 'LinkedIn', 'forminator' ),
+			'title_styles'                 => esc_html__( 'Title Appearance', 'forminator' ),
+			'enable'                       => esc_html__( 'Enable', 'forminator' ),
+			'checkbox_styles'              => esc_html__( 'Checkbox styles', 'forminator' ),
+			'main'                         => esc_html__( 'Main', 'forminator' ),
+			'header'                       => esc_html__( 'Header', 'forminator' ),
+			'content'                      => esc_html__( 'Content', 'forminator' ),
+			'quiz_design'                  => esc_html__( 'Quiz design', 'forminator' ),
+			'quiz_design_description'      => esc_html__( 'Choose a pre-made style for your quiz and further customize it\'s appearance.', 'forminator' ),
+			'customize_quiz_colors'        => esc_html__( 'Customize quiz colors', 'forminator' ),
+			'visual_style_description'     => esc_html__( 'There are two ways for displaying your quiz answers: grid or list.', 'forminator' ),
 		);
 
 		$data['quiz_details'] = array(
-			'name'                => __( 'Quiz Name', 'forminator' ),
-			'name_details'        => __( "This won't be displayed on your quiz, but will help you to identify it.", 'forminator' ),
-			'name_validate'       => __( 'Quiz name cannot be empty! Please, pick a name for your quiz.', 'forminator' ),
-			'title'               => __( 'Quiz Title', 'forminator' ),
-			'title_details'       => __( 'This is the main title of your quiz and will be displayed on front.', 'forminator' ),
-			'image'               => __( 'Featured image', 'forminator' ),
-			'image_details'       => __( 'Add some nice main image to your quiz.', 'forminator' ),
-			'description'         => __( 'Description', 'forminator' ),
-			'description_details' => __( 'Give more information related to your quiz. This content will be displayed on front.' ),
+			'name'                => esc_html__( 'Quiz Name', 'forminator' ),
+			'name_details'        => esc_html__( 'This won\'t be displayed on your quiz, but will help you to identify it.', 'forminator' ),
+			'name_validate'       => esc_html__( 'Quiz name cannot be empty! Please, pick a name for your quiz.', 'forminator' ),
+			'title'               => esc_html__( 'Quiz Title', 'forminator' ),
+			'title_details'       => esc_html__( 'This is the main title of your quiz and will be displayed on front.', 'forminator' ),
+			'image'               => esc_html__( 'Featured image', 'forminator' ),
+			'image_details'       => esc_html__( 'Add some nice main image to your quiz.', 'forminator' ),
+			'description'         => esc_html__( 'Description', 'forminator' ),
+			'description_details' => esc_html__( 'Give more information related to your quiz. This content will be displayed on front.', 'forminator' ),
 		);
 
 		$data['quiz_appearance'] = array(
-			'answer'               => __( 'Answer', 'forminator' ),
-			'checkbox'             => __( 'Checkbox', 'forminator' ),
-			'container_border'     => __( 'Container border', 'forminator' ),
-			'container_background' => __( 'Container background', 'forminator' ),
-			'customize_main'       => __( 'Customize main colors', 'forminator' ),
-			'customize_question'   => __( 'Customize question colors', 'forminator' ),
-			'customize_answer'     => __( 'Customize answer colors', 'forminator' ),
-			'customize_result'     => __( "Customize result's box colors", 'forminator' ),
-			'customize_submit'     => __( 'Customize submit button colors', 'forminator' ),
-			'main_container'       => __( 'Main container', 'forminator' ),
-			'main_border'          => __( 'Main border', 'forminator' ),
-			'main_styles'          => __( 'Main styles', 'forminator' ),
-			'header_styles'        => __( 'Header styles', 'forminator' ),
-			'content_styles'       => __( 'Content styles', 'forminator' ),
-			'quiz_title'           => __( 'Quiz Title', 'forminator' ),
-			'retake_button'        => __( 'Retake button', 'forminator' ),
-			'result_title'         => __( 'Result title', 'forminator' ),
-			'quiz_description'     => __( 'Quiz description', 'forminator' ),
-			'result_description'   => __( 'Result description', 'forminator' ),
-			'quiz_image'           => __( 'Quiz image', 'forminator' ),
-			'question'             => __( 'Question', 'forminator' ),
-			'answer_message'       => __( 'Answer message', 'forminator' ),
-			'submit_button'        => __( 'Submit Button', 'forminator' ),
-			'quiz_result'          => __( 'Quiz result', 'forminator' ),
-			'social_share'         => __( 'Social share', 'forminator' ),
-			'customize_colors'     => __( 'Customize colors', 'forminator' ),
-			'customize_typography' => __( 'Customize typography', 'forminator' ),
-			'checkbox_border'      => __( 'Checkbox border', 'forminator' ),
-			'checkbox_background'  => __( 'Checkbox background', 'forminator' ),
-			'checkbox_icon'        => __( 'Checkbox icon', 'forminator' ),
-			'quiz_title_notice'    => __( "The quiz title appears on result's header.", 'forminator' ),
+			'answer'               => esc_html__( 'Answer', 'forminator' ),
+			'checkbox'             => esc_html__( 'Checkbox', 'forminator' ),
+			'container_border'     => esc_html__( 'Container border', 'forminator' ),
+			'container_background' => esc_html__( 'Container background', 'forminator' ),
+			'customize_main'       => esc_html__( 'Customize main colors', 'forminator' ),
+			'customize_question'   => esc_html__( 'Customize question colors', 'forminator' ),
+			'customize_answer'     => esc_html__( 'Customize answer colors', 'forminator' ),
+			'customize_result'     => esc_html__( 'Customize result\'s box colors', 'forminator' ),
+			'customize_submit'     => esc_html__( 'Customize submit button colors', 'forminator' ),
+			'main_container'       => esc_html__( 'Main container', 'forminator' ),
+			'main_border'          => esc_html__( 'Main border', 'forminator' ),
+			'main_styles'          => esc_html__( 'Main styles', 'forminator' ),
+			'header_styles'        => esc_html__( 'Header styles', 'forminator' ),
+			'content_styles'       => esc_html__( 'Content styles', 'forminator' ),
+			'quiz_title'           => esc_html__( 'Quiz Title', 'forminator' ),
+			'retake_button'        => esc_html__( 'Retake button', 'forminator' ),
+			'result_title'         => esc_html__( 'Result title', 'forminator' ),
+			'quiz_description'     => esc_html__( 'Quiz description', 'forminator' ),
+			'result_description'   => esc_html__( 'Result description', 'forminator' ),
+			'quiz_image'           => esc_html__( 'Quiz image', 'forminator' ),
+			'question'             => esc_html__( 'Question', 'forminator' ),
+			'answer_message'       => esc_html__( 'Answer message', 'forminator' ),
+			'submit_button'        => esc_html__( 'Submit Button', 'forminator' ),
+			'quiz_result'          => esc_html__( 'Quiz result', 'forminator' ),
+			'social_share'         => esc_html__( 'Social share', 'forminator' ),
+			'customize_colors'     => esc_html__( 'Customize colors', 'forminator' ),
+			'customize_typography' => esc_html__( 'Customize typography', 'forminator' ),
+			'checkbox_border'      => esc_html__( 'Checkbox border', 'forminator' ),
+			'checkbox_background'  => esc_html__( 'Checkbox background', 'forminator' ),
+			'checkbox_icon'        => esc_html__( 'Checkbox icon', 'forminator' ),
+			'quiz_title_notice'    => esc_html__( 'The quiz title appears on result\'s header.', 'forminator' ),
 		);
 
 		return $data;
@@ -708,11 +716,14 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 	 * Create quiz module
 	 *
 	 * @since 1.14
-	 *
-	 * @return no return
 	 */
 	public function create_module() {
-		if ( ! $this->is_knowledge_wizard() && ! $this->is_nowrong_wizard() || self::is_edit() ) {
+		if ( ( ! $this->is_knowledge_wizard() && ! $this->is_nowrong_wizard() ) || self::is_edit() ) {
+			return;
+		}
+
+		$nonce = Forminator_Core::sanitize_text_field( 'create_nonce' );
+		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'forminator_create_module' ) ) {
 			return;
 		}
 
@@ -741,6 +752,10 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 
 		$id = self::create( $name, $status, $template );
 
+		if ( is_wp_error( $id ) ) {
+			return;
+		}
+
 		$wizard_url = admin_url( 'admin.php?page=forminator-' . $quiz_type . '-wizard&id=' . $id );
 
 		wp_safe_redirect( $wizard_url );
@@ -760,6 +775,9 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 		// If we have leads, create leads form automatically.
 		if ( $has_leads ) {
 			$leads_id = self::create_leads_form( $name );
+			if ( is_wp_error( $leads_id ) ) {
+				return $leads_id;
+			}
 		}
 
 		if ( 'knowledge' === $quiz_type ) {
@@ -791,25 +809,44 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 
 		if ( $has_leads ) {
 			if ( 'knowledge' === $quiz_type ) {
-				$email_body = __( 'Hey {name-1},<br/><br/>Thanks for participating in {quiz_name} quiz.<br/><br/><b>{quiz_name}</b><br/>{quiz_answer}<br/><br/>Want to retake the quiz? Follow this link {embed_url}<br/><br/>---<br/><br/>This message was sent from {site_url}.', 'forminator' );
+				$email_body = sprintf(
+					'%1$s {name-1},<br/><br/>%2$s<br/><br/><b>{quiz_name}</b><br/>{quiz_answer}<br/><br/>%3$s<br/><br/>---<br/><br/>%4$s',
+					esc_html__( 'Hey', 'forminator' ),
+					esc_html__( 'Thanks for participating in {quiz_name} quiz.', 'forminator' ),
+					esc_html__( 'Want to retake the quiz? Follow this link {embed_url}', 'forminator' ),
+					esc_html__( 'This message was sent from {site_url}.', 'forminator' )
+				);
 			} else {
-				$email_body = __( 'Hey {name-1},<br/><br/>Thanks for participating in our {quiz_name} quiz.<br/><br/>Your scored {quiz_result} on this quiz and following are your answers:<br/>{quiz_answer}<br/><br/>Want to retake the quiz? Follow this link {embed_url}<br/><br/>---<br/><br/>This message was sent from {site_url}.', 'forminator' );
+				$email_body = sprintf(
+					'%1$s {name-1},<br/><br/>%2$s<br/><br/>%3$s<br/>{quiz_answer}<br/><br/>%4$s<br/><br/>---<br/><br/>%5$s',
+					esc_html__( 'Hey', 'forminator' ),
+					esc_html__( 'Thanks for participating in our {quiz_name} quiz.', 'forminator' ),
+					esc_html__( 'You scored {quiz_result} on this quiz and following are your answers:', 'forminator' ),
+					esc_html__( 'Want to retake the quiz? Follow this link {embed_url}', 'forminator' ),
+					esc_html__( 'This message was sent from {site_url}.', 'forminator' )
+				);
 			}
 			$model->notifications = array(
 				array(
 					'slug'             => 'notification-1234-4567',
-					'label'            => 'Admin Notification',
+					'label'            => esc_html__( 'Admin Notification', 'forminator' ),
 					'email-recipients' => 'default',
 					'recipients'       => get_option( 'admin_email' ),
-					'email-subject'    => __( 'New Quiz Submission #{submission_id} for {quiz_name}', 'forminator' ),
-					'email-editor'     => __( 'You have a new {quiz_type} quiz submission: <br/><br/>Lead details:<br/>{all_fields}<br/><br/>---<br/><br/>Quiz details: <br/>{quiz_result} <br/>{quiz_answer}<br/><br/>This message was sent from {site_url}.', 'forminator' ),
+					'email-subject'    => esc_html__( 'New Quiz Submission #{submission_id} for {quiz_name}', 'forminator' ),
+					'email-editor'     => sprintf(
+						'%1$s <br/><br/>%2$s<br/>{all_fields}<br/><br/>---<br/><br/>%3$s <br/>{quiz_result} <br/>{quiz_answer}<br/><br/>%4$s',
+						esc_html__( 'You have a new {quiz_type} quiz submission:', 'forminator' ),
+						esc_html__( 'Lead details:', 'forminator' ),
+						esc_html__( 'Quiz details:', 'forminator' ),
+						esc_html__( 'This message was sent from {site_url}.', 'forminator' )
+					),
 				),
 				array(
 					'slug'             => 'notification-4567-8765',
-					'label'            => 'Participant\'s Notification',
+					'label'            => __( "Participant's Notification", 'forminator' ),
 					'email-recipients' => 'default',
 					'recipients'       => '{email-1}',
-					'email-subject'    => __( 'Your quiz result', 'forminator' ),
+					'email-subject'    => esc_html__( 'Your quiz result', 'forminator' ),
 					'email-editor'     => $email_body,
 				),
 			);
@@ -828,7 +865,7 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 	 * @param string $title Name.
 	 * @param string $status Status.
 	 * @param object $template Template.
-	 * @return int post ID
+	 * @return WP_Error post ID
 	 */
 	public static function update( $id, $title, $status, $template ) {
 		if ( is_null( $id ) || $id <= 0 ) {
@@ -843,7 +880,7 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 			$action     = 'update';
 
 			if ( ! is_object( $form_model ) ) {
-				return new WP_Error( __( "Quiz model doesn't exist", 'forminator' ) );
+				return new WP_Error( esc_html__( 'Quiz model doesn\'t exist', 'forminator' ) );
 			}
 
 			if ( empty( $status ) ) {
@@ -870,6 +907,11 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 					$description = wp_kses_post( $result['description'] );
 				}
 				$results[ $key ]['description'] = $description;
+
+				// Check if order exists.
+				if ( ! isset( $result['order'] ) ) {
+					$results[ $key ]['order'] = $key;
+				}
 			}
 
 			$form_model->results = $results;
@@ -906,16 +948,22 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 					$notifications[ $count ]['email-editor'] = wp_kses_post( $template->notifications[ $count ]['email-editor'] );
 				}
 
-				$count++;
+				++$count;
 			}
 		}
 
-		$form_model->settings      = self::validate_settings( $settings );
+		$form_model->settings        = self::validate_settings( $settings );
+		$settings['previous_status'] = get_post_status( $id );
+
 		$form_model->notifications = $notifications;
 		$form_model->status        = $status;
 
 		// Save data.
 		$id = $form_model->save();
+
+		if ( is_wp_error( $id ) ) {
+			return $id;
+		}
 
 		$type = $form_model->quiz_type;
 
@@ -929,8 +977,9 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 		 * @param string $status - quiz status.
 		 * @param array  $questions - quiz questions.
 		 * @param array  $results - quiz results.
+		 * @param array  $settings - quiz settings.
 		 */
-		do_action( 'forminator_quiz_action_' . $action, $id, $type, $status, $questions, $results );
+		do_action( 'forminator_quiz_action_' . $action, $id, $type, $status, $questions, $results, $settings );
 
 		Forminator_Render_Form::regenerate_css_file( $id );
 
@@ -942,14 +991,14 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 	 *
 	 * @since 1.14
 	 *
-	 * @param $name
+	 * @param string $name Form name.
 	 *
 	 * @return mixed
 	 */
 	public static function create_leads_form( $name ) {
 		$model = new Forminator_Form_Model();
 
-		$name = $name . __( ' - Leads form', 'forminator' );
+		$name = $name . esc_html__( ' - Leads form', 'forminator' );
 
 		$model->name          = $name;
 		$model->notifications = array();
@@ -991,7 +1040,7 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 	 *
 	 * @since 1.1
 	 *
-	 * @param Forminator_Quiz_Model|null $quiz
+	 * @param Forminator_Quiz_Model|null $quiz Quiz model.
 	 *
 	 * @return mixed
 	 */
@@ -1000,11 +1049,16 @@ class Forminator_Quiz_Admin extends Forminator_Admin_Module {
 			return array(
 				array(
 					'slug'             => 'notification-1234-4567',
-					'label'            => 'Admin Email',
+					'label'            => esc_html__( 'Admin Email', 'forminator' ),
 					'email-recipients' => 'default',
 					'recipients'       => get_option( 'admin_email' ),
-					'email-subject'    => __( 'New Quiz Submission for {quiz_name}', 'forminator' ),
-					'email-editor'     => __( 'You have a new quiz submission: <br/><br/>{quiz_answer}<br/><br/>Quiz results: <br/>{quiz_result} <br/>---<br/> This message was sent from {site_url}.', 'forminator' ),
+					'email-subject'    => esc_html__( 'New Quiz Submission for {quiz_name}', 'forminator' ),
+					'email-editor'     => sprintf(
+						'%1$s <br/><br/>{quiz_answer}<br/><br/>%2$s <br/>{quiz_result} <br/>---<br/> %3$s',
+						esc_html__( 'You have a new quiz submission:', 'forminator' ),
+						esc_html__( 'Quiz results:', 'forminator' ),
+						esc_html__( 'This message was sent from {site_url}.', 'forminator' )
+					),
 				),
 			);
 		}

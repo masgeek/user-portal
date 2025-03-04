@@ -6,7 +6,7 @@
  	 *
  	 * @since 1.0.0
  	 */
-	 function ayg_render_media_uploader( $elem ) { 
+	function ayg_render_media_uploader( $elem ) { 
     	var file_frame, attachment;
  
      	// If an instance of file_frame already exists, then we can open it rather than creating a new instance
@@ -40,16 +40,6 @@
     	// Now display the actual file_frame
     	file_frame.open(); 
 	};
-
-	/**
- 	 * Close the popup.
- 	 *
- 	 * @since 1.0.0
- 	 */
-	function ayg_modal_hide() {		
-		$( '.ayg-modal' ).hide();
-		$( 'html' ).removeClass( 'ayg-no-scroll' );
-	}
 
 	/**
  	 * Get Youtube playlist ID from Youtube URL.
@@ -134,6 +124,17 @@
 	 * @since 1.0.0
 	 */
 	$(function() {
+		// Common: Initialize the color picker
+		$( '.ayg-color-picker' ).wpColorPicker();
+
+		// Common: Init the popup.
+		if ( $.fn.magnificPopup ) {
+			$( '.ayg-modal-button' ).magnificPopup({
+				type: 'inline',
+				mainClass: 'mfp-fade'
+			});
+		}
+
 		// Dashboard: Save API Key
 		$( '#ayg-button-save-api-key' ).on( 'click', function( e ) {																			  
 			e.preventDefault();
@@ -227,23 +228,7 @@
 
 			// Shortcode output		
 			$( '#aiovg-shortcode').val( '[automatic_youtube_gallery' + attrs + ']' ); 
-
-			// Initialize the popup
-			$( 'html' ).addClass( 'ayg-no-scroll' );
-			$( '#ayg-shortcode-modal' ).show();
 		});
-
-		// Dashboard: Close the shortcode builder popup
-		$( '.ayg-modal-close' ).on( 'click', function( e ) {		
-			e.preventDefault();
-			ayg_modal_hide();			
-		});	
-		
-		$( '.ayg-modal-content' ).on( 'click', function( e ) {		
-			if ( $( e.target ).hasClass( 'ayg-modal-content' ) ) {
-				ayg_modal_hide();
-			};			
-		});	
 
 		// Editor: Toggle between field sections
 		$( document ).on( 'click', '.ayg-editor-section-header', function( e ) {
@@ -262,46 +247,82 @@
 				.slideToggle();
 		});
 
-		// Editor: Show/Hide fields based on the selected source 'type'
-		$( document ).on( 'change', '.ayg-editor-field-type', function( e ) {			
-			var type  = $( this ).val();
-			var $elem = $( this ).closest( '.ayg-editor' );
+		// Editor: Toggle fields based on the source type
+		$( document ).on( 'change', '.ayg-editor-field-type', function() {
+			var $container = $( this ).closest( '.ayg-editor' );			
+			var value = $( this ).val();			
 
-			$elem.removeClass(function( index, classes ) {
+			$container.removeClass(function( index, classes ) {
 				var matches = classes.match( /\ayg-editor-field-type-\S+/ig );
-				return ( matches ) ? matches.join(' ') : '';
+				return ( matches ) ? matches.join( ' ' ) : '';
 			});
 
-			$elem.addClass( 'ayg-editor-field-type-' + type );
+			$container.addClass( 'ayg-editor-field-type-' + value );
 		});
 
-		// Editor: Show/Hide fields based on the selected theme
-		$( document ).on( 'change', '.ayg-editor-field-theme', function( e ) {			
-			var theme = $( this ).val();
-			var $elem = $( this ).closest( '.ayg-editor' );
+		// Editor: Toggle fields based on the theme
+		$( document ).on( 'change', '.ayg-editor-field-theme', function() {
+			var $container = $( this ).closest( '.ayg-editor' );			
+			var value = $( this ).val();			
 
-			$elem.removeClass(function( index, classes ) {
+			$container.removeClass(function( index, classes ) {
 				var matches = classes.match( /\ayg-editor-field-theme-\S+/ig );
-				return ( matches ) ? matches.join(' ') : '';
+				return ( matches ) ? matches.join( ' ' ) : '';
 			});
 
-			$elem.addClass( 'ayg-editor-field-theme-' + theme );
+			$container.addClass( 'ayg-editor-field-theme-' + value );
 		});	
 
-		// Settings: Initialize the color picker
-		$( '.ayg-color-picker', '#ayg-settings' ).wpColorPicker();
+		// Editor: Toggle fields based on the pagination type
+		$( document ).on( 'change', '.ayg-editor-field-pagination_type', function() {			
+			var $container = $( this ).closest( '.ayg-editor' );
+			var value = $( this ).val();
 
-		// Settings: Show/Hide fields based on the selected theme
-		$( 'tr.theme', '#ayg-settings' ).find( 'select' ).on( 'change', function() {			
-			var theme = $( this ).val();
-			var $elem = $( '#ayg-settings' );
-
-			$elem.removeClass(function( index, classes ) {
-				var matches = classes.match( /\ayg-settings-theme-\S+/ig );
-				return ( matches ) ? matches.join(' ') : '';
+			$container.removeClass(function( index, classes ) {
+				var matches = classes.match( /\ayg-editor-field-pagination_type-\S+/ig );
+				return ( matches ) ? matches.join( ' ' ) : '';
 			});
 
-			$elem.addClass( 'ayg-settings-theme-' + theme );
+			$container.addClass( 'ayg-editor-field-pagination_type-' + value );
+		});		
+
+		// Settings: Toggle fields based on the theme
+		$( 'tr.theme select', '#ayg-settings' ).on( 'change', function() {
+			var $container = $( '#ayg-settings' );		
+			var value = $( this ).val();			
+
+			$container.removeClass(function( index, classes ) {
+				var matches = classes.match( /theme-\S+/ig );
+				return ( matches ) ? matches.join( ' ' ) : '';
+			});
+
+			$container.addClass( 'theme-' + value );
+		});
+
+		// Settings: Toggle fields based on the pagination type
+		$( 'tr.pagination_type select', '#ayg-settings' ).on( 'change', function() {
+			var $container = $( '#ayg-settings' );			
+			var value = $( this ).val();			
+
+			$container.removeClass(function( index, classes ) {
+				var matches = classes.match( /pagination_type-\S+/ig );
+				return ( matches ) ? matches.join( ' ' ) : '';
+			});
+
+			$container.addClass( 'pagination_type-' + value );
+		});
+
+		// Settings: Toggle fields based on the player type
+		$( 'tr.player_type input[type="radio"]', '#ayg-settings' ).on( 'change', function() {	
+			var $container = $( '#ayg-settings' );		
+			var value = $container.find( 'tr.player_type input[type="radio"]:checked' ).val();			
+
+			$container.removeClass(function( index, classes ) {
+				var matches = classes.match( /player_type-\S+/ig );
+				return ( matches ) ? matches.join( ' ' ) : '';
+			});
+
+			$container.addClass( 'player_type-' + value );
 		});
 
 		// Settings: Browse button
@@ -334,46 +355,6 @@
 		});
 
 		$( document ).on( 'widget-added widget-updated', on_ayg_widget_update );
-
-		// Gutenberg: Toggle fields or panels based on the selected source type
-		if ( 'undefined' !== typeof wp && 'undefined' !== typeof wp['hooks'] ) {
-			wp.hooks.addFilter( 'ayg_block_toggle_controls', 'automatic-youtube-gallery/block', function( value, control, attributes ) {
-				switch ( control ) {
-					case 'channel':
-						if ( 'livestream' == attributes.type ) {
-							value = true;
-						}
-						break;
-					case 'cache':
-					case 'player_title':
-					case 'player_description':
-					case 'loop':
-						if ( 'livestream' == attributes.type ) {
-							value = false;
-						}
-						break;
-					case 'autoadvance':
-						if ( 'video' == attributes.type || 'livestream' == attributes.type ) {
-							value = false;
-						}
-						break;
-				}
-		
-				return value;		
-			});
-
-			wp.hooks.addFilter( 'ayg_block_toggle_panels', 'automatic-youtube-gallery/block', function( value, panel, attributes ) {
-				switch ( panel ) {
-					case 'gallery':
-						if ( 'livestream' == attributes.type ) {
-							value = false;
-						}
-						break;
-				}
-		
-				return value;		
-			});
-		}
 	});
 
 })( jQuery );

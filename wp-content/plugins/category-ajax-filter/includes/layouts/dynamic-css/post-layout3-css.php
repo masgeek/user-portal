@@ -4,8 +4,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 include TC_CAF_PATH.'includes/query-variables.php';
 $target_div=".data-target-div".$b;
-
-$post_css="".$target_div." .error-caf {font-family:".$caf_post_font.";background-color: ".$caf_post_sec_color."; color: ".$caf_post_primary_color.";font-size:".$caf_post_title_font_size."px;}
+$post_css="";
+if(class_exists("TC_CAF_PRO")){
+    if (get_post_meta($id, 'caf_post_desc_font')) {
+        $caf_post_desc_font = get_post_meta($id, 'caf_post_desc_font', true);
+    }
+    if (get_post_meta($id, 'caf_post_desc_transform')) {
+        $caf_post_desc_transform = get_post_meta($id, 'caf_post_desc_transform', true);
+    }
+    if (get_post_meta($id, 'caf_post_desc_font_size')) {
+        $caf_post_desc_font_size = get_post_meta($id, 'caf_post_desc_font_size', true);
+    }
+    $post_css.="".$target_div." .caf-post-layout3 .caf-content {font-family:".$caf_post_desc_font.";text-transform:".$caf_post_desc_transform.";font-size:".$caf_post_desc_font_size."px;}";
+}
+$post_css.="".$target_div." .error-caf {font-family:".$caf_post_font.";background-color: ".$caf_post_sec_color."; color: ".$caf_post_primary_color.";font-size:".$caf_post_title_font_size."px;}
 ".$target_div." .caf-post-layout3 .caf-post-title h2 a {font-family:".$caf_post_font.";text-transform:".$caf_post_title_transform.";font-size:".$caf_post_title_font_size."px;}
 ".$target_div." .caf-post-layout3 .caf-meta-content-cats li a {font-family:".$caf_post_font.";}
 ".$target_div." .caf-post-layout3 span.author, ".$target_div." .caf-post-layout3 span.date, ".$target_div." .caf-post-layout3 span.comment {font-family:".$caf_post_font.";color: ".$caf_post_primary_color.";}

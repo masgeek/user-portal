@@ -20,8 +20,7 @@
  * @subpackage Popup_Box/includes
  * @author     AYS Pro LLC <info@ays-pro.com>
  */
-class Popup_Box_Integrations
-{
+class Popup_Box_Integrations {
 
     /**
      * The ID of this plugin.
@@ -140,15 +139,16 @@ class Popup_Box_Integrations
             $content = '';
 
             $content .= '<div class="form-group row" style="margin:0px;">';
-            $content .= '<div class="col-sm-12 only_pro">';
-                $content .= '<div class="pro_features">';
-                    $content .= '<div>';
-                        $content .= '<p>';
-                            $content .= __("This feature is available only in ", "ays-popup-box");
-                            $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" title="PRO feature"> ' .__("PRO version!!!", "ays-popup-box") .'</a>';
-                        $content .= '</p>';
-                    $content .= '</div>';
-                $content .= '</div>';
+                $content .= '<div class="col-sm-12 ays-pro-features-v2-main-box">';
+                    $content .= '<div class="ays-pro-features-v2-small-buttons-box">';
+                        $content .= '';
+                            $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" class="ays-pro-features-v2-upgrade-button">';
+                                $content .= '<div class="ays-pro-features-v2-upgrade-icon" style="background-image: url('.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg);" data-img-src="'.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg"></div>';
+                                $content .= '<div class="ays-pro-features-v2-upgrade-text">';
+                                    $content .= __("Upgrade" , "ays-popup-box");
+                                $content .= '</div>';
+                            $content .= '</a>';
+                        $content .= '</div>';
             $content .= '<hr>';
             $content .= '<div class="form-group row">
                 <div class="col-sm-4">
@@ -199,14 +199,15 @@ class Popup_Box_Integrations
 
             $content = '';
             $content .= '<div class="form-group row" style="margin:0px;">';
-            $content .= '<div class="col-sm-12 only_pro">';
-                $content .= '<div class="pro_features">';
-                    $content .= '<div>';
-                        $content .= '<p>';
-                            $content .= __("This feature is available only in ", "ays-popup-box");
-                            $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" title="PRO feature"> ' .__("PRO version!!!", "ays-popup-box") .'</a>';
-                        $content .= '</p>';
-                    $content .= '</div>';
+            $content .= '<div class="col-sm-12 ays-pro-features-v2-main-box">';
+            $content .= '<div class="ays-pro-features-v2-small-buttons-box">';
+                $content .= '';
+                    $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" class="ays-pro-features-v2-upgrade-button">';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-icon" style="background-image: url('.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg);" data-img-src="'.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg"></div>';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-text">';
+                            $content .= __("Upgrade" , "ays-popup-box");
+                        $content .= '</div>';
+                    $content .= '</a>';
                 $content .= '</div>';
             $content .= '<div class="form-group row">
                 <div class="col-sm-12">
@@ -271,14 +272,15 @@ class Popup_Box_Integrations
             $content = '';
 
             $content .= '<div class="form-group row" style="margin:0px;">';
-            $content .= '<div class="col-sm-12 only_pro">';
-                $content .= '<div class="pro_features">';
-                    $content .= '<div>';
-                        $content .= '<p>';
-                            $content .= __("This feature is available only in ", "ays-popup-box");
-                            $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" title="PRO feature"> ' .__("PRO version!!!", "ays-popup-box") .'</a>';
-                        $content .= '</p>';
-                    $content .= '</div>';
+            $content .= '<div class="col-sm-12 ays-pro-features-v2-main-box">';
+            $content .= '<div class="ays-pro-features-v2-small-buttons-box">';
+                $content .= '';
+                    $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" class="ays-pro-features-v2-upgrade-button">';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-icon" style="background-image: url('.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg);" data-img-src="'.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg"></div>';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-text">';
+                            $content .= __("Upgrade" , "ays-popup-box");
+                        $content .= '</div>';
+                    $content .= '</a>';
                 $content .= '</div>';
             $content .= '<hr/>
                 <div class="form-group row">
@@ -328,14 +330,15 @@ class Popup_Box_Integrations
 
             $content = '';
             $content .= '<div class="form-group row" style="margin:0px;">';
-            $content .= '<div class="col-sm-12 only_pro">';
-                $content .= '<div class="pro_features">';
-                    $content .= '<div>';
-                        $content .= '<p>';
-                            $content .= __("This feature is available only in ", "ays-popup-box");
-                            $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" title="PRO feature"> ' .__("PRO version!!!", "ays-popup-box") .'</a>';
-                        $content .= '</p>';
-                    $content .= '</div>';
+            $content .= '<div class="col-sm-12 ays-pro-features-v2-main-box">';
+            $content .= '<div class="ays-pro-features-v2-small-buttons-box">';
+                $content .= '';
+                    $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" class="ays-pro-features-v2-upgrade-button">';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-icon" style="background-image: url('.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg);" data-img-src="'.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg"></div>';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-text">';
+                            $content .= __("Upgrade" , "ays-popup-box");
+                        $content .= '</div>';
+                    $content .= '</a>';
                 $content .= '</div>';
             $content .= '<div class="form-group row">
                 <div class="col-sm-12">
@@ -402,14 +405,15 @@ class Popup_Box_Integrations
 
             $content = '';
             $content .= '<div class="form-group row" style="margin:0px;">';
-            $content .= '<div class="col-sm-12 only_pro">';
-                $content .= '<div class="pro_features">';
-                    $content .= '<div>';
-                        $content .= '<p>';
-                            $content .= __("This feature is available only in ", "ays-popup-box");
-                            $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" title="PRO feature"> ' .__("PRO version!!!", "ays-popup-box") .'</a>';
-                        $content .= '</p>';
-                    $content .= '</div>';
+            $content .= '<div class="col-sm-12 ays-pro-features-v2-main-box">';
+            $content .= '<div class="ays-pro-features-v2-small-buttons-box">';
+                $content .= '';
+                    $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" class="ays-pro-features-v2-upgrade-button">';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-icon" style="background-image: url('.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg);" data-img-src="'.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg"></div>';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-text">';
+                            $content .= __("Upgrade" , "ays-popup-box");
+                        $content .= '</div>';
+                    $content .= '</a>';
                 $content .= '</div>';
                     $content .= '<hr/>
                     <div class="form-group row">
@@ -470,14 +474,15 @@ class Popup_Box_Integrations
 
             $content = '';
             $content .= '<div class="form-group row" style="margin:0px;">';
-            $content .= '<div class="col-sm-12 only_pro">';
-                $content .= '<div class="pro_features">';
-                    $content .= '<div>';
-                        $content .= '<p>';
-                            $content .= __("This feature is available only in ", "ays-popup-box");
-                            $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" title="PRO feature"> ' .__("PRO version!!!", "ays-popup-box") .'</a>';
-                        $content .= '</p>';
-                    $content .= '</div>';
+            $content .= '<div class="col-sm-12 ays-pro-features-v2-main-box">';
+            $content .= '<div class="ays-pro-features-v2-small-buttons-box">';
+                $content .= '';
+                    $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" class="ays-pro-features-v2-upgrade-button">';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-icon" style="background-image: url('.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg);" data-img-src="'.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg"></div>';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-text">';
+                            $content .= __("Upgrade" , "ays-popup-box");
+                        $content .= '</div>';
+                    $content .= '</a>';
                 $content .= '</div>';
             $content .= '<div class="form-group row">
                             <div class="col-sm-12">
@@ -543,15 +548,16 @@ class Popup_Box_Integrations
 
             $content = '';
             $content .= '<div class="form-group row" style="margin:0px;">';
-                $content .= '<div class="col-sm-12 only_pro">';
-                    $content .= '<div class="pro_features">';
-                        $content .= '<div>';
-                            $content .= '<p>';
-                                $content .= __("This feature is available only in ", "ays-popup-box");
-                                $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" title="PRO feature"> ' .__("PRO version!!!", "ays-popup-box") .'</a>';
-                            $content .= '</p>';
+            $content .= '<div class="col-sm-12 ays-pro-features-v2-main-box">';
+            $content .= '<div class="ays-pro-features-v2-small-buttons-box">';
+                $content .= '';
+                    $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" class="ays-pro-features-v2-upgrade-button">';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-icon" style="background-image: url('.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg);" data-img-src="'.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg"></div>';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-text">';
+                            $content .= __("Upgrade" , "ays-popup-box");
                         $content .= '</div>';
-                    $content .= '</div>';
+                    $content .= '</a>';
+                $content .= '</div>';
                     $content .= '<div class="form-group row">
                                     <div class="col-sm-12">
                                         <div class="form-group row">
@@ -591,15 +597,16 @@ class Popup_Box_Integrations
             $title = __('GetResponse Settings',"ays-popup-box");
             $content = '';
             $content .= '<div class="form-group row" style="margin:0px;">';
-                $content .= '<div class="col-sm-12 only_pro">';
-                    $content .= '<div class="pro_features">';
-                        $content .= '<div>';
-                            $content .= '<p>';
-                                $content .= __("This feature is available only in ", "ays-popup-box");
-                                $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" title="PRO feature"> ' .__("PRO version!!!", "ays-popup-box") .'</a>';
-                            $content .= '</p>';
+            $content .= '<div class="col-sm-12 ays-pro-features-v2-main-box">';
+            $content .= '<div class="ays-pro-features-v2-small-buttons-box">';
+                $content .= '';
+                    $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" class="ays-pro-features-v2-upgrade-button">';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-icon" style="background-image: url('.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg);" data-img-src="'.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg"></div>';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-text">';
+                            $content .= __("Upgrade" , "ays-popup-box");
                         $content .= '</div>';
-                    $content .= '</div>';
+                    $content .= '</a>';
+                $content .= '</div>';
                     $content .= '<hr/>';
                     $content .= '<div class="form-group row">
                                     <div class="col-sm-4">
@@ -650,15 +657,16 @@ class Popup_Box_Integrations
 
             $content = '';
             $content .= '<div class="form-group row" style="margin:0px;">';
-                $content .= '<div class="col-sm-12 only_pro">';
-                    $content .= '<div class="pro_features">';
-                        $content .= '<div>';
-                            $content .= '<p>';
-                                $content .= __("This feature is available only in ", "ays-popup-box");
-                                $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" title="PRO feature"> ' .__("PRO version!!!", "ays-popup-box") .'</a>';
-                            $content .= '</p>';
+            $content .= '<div class="col-sm-12 ays-pro-features-v2-main-box">';
+            $content .= '<div class="ays-pro-features-v2-small-buttons-box">';
+                $content .= '';
+                    $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" class="ays-pro-features-v2-upgrade-button">';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-icon" style="background-image: url('.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg);" data-img-src="'.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg"></div>';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-text">';
+                            $content .= __("Upgrade" , "ays-popup-box");
                         $content .= '</div>';
-                    $content .= '</div>';
+                    $content .= '</a>';
+                $content .= '</div>';
                     $content .= '<div class="form-group row">
                                     <div class="col-sm-12">
                                         <div class="form-group row">
@@ -696,15 +704,16 @@ class Popup_Box_Integrations
 
             $content = '';
             $content .= '<div class="form-group row" style="margin:0px;">';
-                $content .= '<div class="col-sm-12 only_pro">';
-                    $content .= '<div class="pro_features">';
-                        $content .= '<div>';
-                            $content .= '<p>';
-                                $content .= __("This feature is available only in ", "ays-popup-box");
-                                $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" title="PRO feature"> ' .__("PRO version!!!", "ays-popup-box") .'</a>';
-                            $content .= '</p>';
+            $content .= '<div class="col-sm-12 ays-pro-features-v2-main-box">';
+            $content .= '<div class="ays-pro-features-v2-small-buttons-box">';
+                $content .= '';
+                    $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" class="ays-pro-features-v2-upgrade-button">';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-icon" style="background-image: url('.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg);" data-img-src="'.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg"></div>';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-text">';
+                            $content .= __("Upgrade" , "ays-popup-box");
                         $content .= '</div>';
-                    $content .= '</div>';
+                    $content .= '</a>';
+                $content .= '</div>';
                     $content .= '<hr/>';
                     $content .= '<div class="form-group row">
                                     <div class="col-sm-4">
@@ -754,24 +763,25 @@ class Popup_Box_Integrations
         // Sendinblue Settings integration in popup page content
         public function ays_popup_page_sendinblue_content( $integrations, $args ){
 
-            $icon  = AYS_PB_ADMIN_URL .'/images/integrations/sendinblue.png';
-            $title = __('Sendinblue Settings',"ays-popup-box");
+            $icon  = AYS_PB_ADMIN_URL .'/images/integrations/brevo-logo.png';
+            $title = __('Brevo Settings',"ays-popup-box");
 
             $content = '';
             $content .= '<div class="form-group row" style="margin:0px;">';
-                $content .= '<div class="col-sm-12 only_pro">';
-                    $content .= '<div class="pro_features">';
-                        $content .= '<div>';
-                            $content .= '<p>';
-                                $content .= __("This feature is available only in ", "ays-popup-box");
-                                $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" title="PRO feature"> ' .__("PRO version!!!", "ays-popup-box") .'</a>';
-                            $content .= '</p>';
+            $content .= '<div class="col-sm-12 ays-pro-features-v2-main-box">';
+            $content .= '<div class="ays-pro-features-v2-small-buttons-box">';
+                $content .= '';
+                    $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" class="ays-pro-features-v2-upgrade-button">';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-icon" style="background-image: url('.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg);" data-img-src="'.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg"></div>';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-text">';
+                            $content .= __("Upgrade" , "ays-popup-box");
                         $content .= '</div>';
-                    $content .= '</div>';
+                    $content .= '</a>';
+                $content .= '</div>';
                     $content .= '<hr/>';
                     $content .= '<div class="form-group row">
                                     <div class="col-sm-4">
-                                        <label for="ays_popup_enable_sendinblue">'. __('Enable Sendinblue', "ays-popup-box") .'</label>
+                                        <label for="ays_popup_enable_sendinblue">'. __('Enable Brevo', "ays-popup-box") .'</label>
                                     </div>
                                     <div class="col-sm-1">
                                         <input type="checkbox" class="ays-enable-timer1">
@@ -780,7 +790,7 @@ class Popup_Box_Integrations
                                 <hr>
                                 <div class="form-group row">
                                     <div class="col-sm-4">
-                                        <label for="ays_popup_sendinblue_list">'. __('Sendinblue List', "ays-popup-box") .'</label>
+                                        <label for="ays_popup_sendinblue_list">'. __('Brevo List', "ays-popup-box") .'</label>
                                     </div>
                                     <div class="col-sm-8">
                                         <select>
@@ -804,20 +814,21 @@ class Popup_Box_Integrations
 
         // Sendinblue Settings integration in General settings page content
         public function ays_settings_page_sendinblue_content( $integrations, $args ){
-            $icon  = AYS_PB_ADMIN_URL . '/images/integrations/sendinblue.png';
-            $title = __( 'Sendinblue', "ays-popup-box" );
+            $icon  = AYS_PB_ADMIN_URL . '/images/integrations/brevo-logo.png';
+            $title = __( 'Brevo', "ays-popup-box" );
 
             $content = '';
             $content .= '<div class="form-group row" style="margin:0px;">';
-                $content .= '<div class="col-sm-12 only_pro">';
-                    $content .= '<div class="pro_features">';
-                        $content .= '<div>';
-                            $content .= '<p>';
-                                $content .= __("This feature is available only in ", "ays-popup-box");
-                                $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" title="PRO feature"> ' .__("PRO version!!!", "ays-popup-box") .'</a>';
-                            $content .= '</p>';
+            $content .= '<div class="col-sm-12 ays-pro-features-v2-main-box">';
+            $content .= '<div class="ays-pro-features-v2-small-buttons-box">';
+                $content .= '';
+                    $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" class="ays-pro-features-v2-upgrade-button">';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-icon" style="background-image: url('.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg);" data-img-src="'.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg"></div>';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-text">';
+                            $content .= __("Upgrade" , "ays-popup-box");
                         $content .= '</div>';
-                    $content .= '</div>';
+                    $content .= '</a>';
+                $content .= '</div>';
                     $content .= '<div class="form-group row">
                                     <div class="col-sm-12">
                                         <div class="form-group row">
@@ -865,15 +876,16 @@ class Popup_Box_Integrations
 
             $content = '';
             $content .= '<div class="form-group row" style="margin:0px;">';
-                $content .= '<div class="col-sm-12 only_pro">';
-                    $content .= '<div class="pro_features">';
-                        $content .= '<div>';
-                            $content .= '<p>';
-                                $content .= __("This feature is available only in ", "ays-popup-box");
-                                $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" title="PRO feature"> ' .__("PRO version!!!", "ays-popup-box") .'</a>';
-                            $content .= '</p>';
+            $content .= '<div class="col-sm-12 ays-pro-features-v2-main-box">';
+            $content .= '<div class="ays-pro-features-v2-small-buttons-box">';
+                $content .= '';
+                    $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" class="ays-pro-features-v2-upgrade-button">';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-icon" style="background-image: url('.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg);" data-img-src="'.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg"></div>';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-text">';
+                            $content .= __("Upgrade" , "ays-popup-box");
                         $content .= '</div>';
-                    $content .= '</div>';
+                    $content .= '</a>';
+                $content .= '</div>';
                     $content .= '<hr/>';
                     $content .= '<div class="form-group row">
                                     <div class="col-sm-4">
@@ -923,14 +935,15 @@ class Popup_Box_Integrations
 
             $content = '';
             $content .= '<div class="form-group row" style="margin:0px;">';
-            $content .= '<div class="col-sm-12 only_pro">';
-                $content .= '<div class="pro_features">';
-                    $content .= '<div>';
-                        $content .= '<p>';
-                            $content .= __("This feature is available only in ", "ays-popup-box");
-                            $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" title="PRO feature"> ' .__("PRO version!!!", "ays-popup-box") .'</a>';
-                        $content .= '</p>';
-                    $content .= '</div>';
+            $content .= '<div class="col-sm-12 ays-pro-features-v2-main-box">';
+            $content .= '<div class="ays-pro-features-v2-small-buttons-box">';
+                $content .= '';
+                    $content .= '<a href="https://ays-pro.com/wordpress/popup-box" target="_blank" class="ays-pro-features-v2-upgrade-button">';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-icon" style="background-image: url('.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg);" data-img-src="'.esc_attr(AYS_PB_ADMIN_URL).'/images/icons/pro-features-icons/Locked_24x24.svg"></div>';
+                        $content .= '<div class="ays-pro-features-v2-upgrade-text">';
+                            $content .= __("Upgrade" , "ays-popup-box");
+                        $content .= '</div>';
+                    $content .= '</a>';
                 $content .= '</div>';
                 $content .= '<div class="form-group row">
                                 <div class="col-sm-12">

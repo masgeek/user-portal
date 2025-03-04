@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator Spam Protection.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -19,7 +25,7 @@ abstract class Forminator_Spam_Protection {
 	 */
 	public function __construct() {
 		if ( $this->is_enabled() ) {
-			add_filter( 'forminator_spam_protection', array( $this, '_handle_spam_protection' ), 10, 4 );
+			add_filter( 'forminator_spam_protection', array( $this, 'process_spam_protection' ), 10, 4 );
 		}
 	}
 
@@ -44,14 +50,14 @@ abstract class Forminator_Spam_Protection {
 	 *
 	 * @return bool $is_spam
 	 */
-	public function _handle_spam_protection( $is_spam, $posted_params, $form_id, $form_type ) {
+	public function process_spam_protection( $is_spam, $posted_params, $form_id, $form_type ) {
 		return $this->handle_spam_protection( $is_spam, $posted_params, $form_id, $form_type );
 	}
 
 	/**
 	 * Handle spam protection
 	 *
-	 * @see _handle_spam_protection
+	 * @see process_spam_protection
 	 *
 	 * @since 1.0
 	 * @param bool   $is_spam - if the data is spam.
@@ -61,7 +67,7 @@ abstract class Forminator_Spam_Protection {
 	 *
 	 * @return bool $is_spam
 	 */
-	protected function handle_spam_protection( $is_spam, $posted_params, $form_id, $form_type ) {
+	protected function handle_spam_protection( $is_spam, $posted_params, $form_id, $form_type ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		return $is_spam;
 	}
 }

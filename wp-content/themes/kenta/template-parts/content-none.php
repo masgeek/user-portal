@@ -6,10 +6,8 @@
  *
  * @package Kenta
  */
-
 ?>
-
-<section class="px-half-gutter mb-60 max-w-prose mx-auto">
+<section class="kenta-max-w-content has-global-padding mx-auto mb-60">
     <header class="text-center mt-10 mb-half-gutter">
         <h1 class="text-3xl font-bold text-accent-active">
 			<?php

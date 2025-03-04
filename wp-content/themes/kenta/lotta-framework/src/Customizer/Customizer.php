@@ -50,15 +50,17 @@ class Customizer {
 		add_action( 'wp_enqueue_scripts', [ $this, 'registerScripts' ] );
 		add_action( 'customize_controls_print_footer_scripts', [ $this, 'registerScripts' ] );
 
-		// enqueue editor scripts
-		add_action( 'customize_controls_print_footer_scripts', array(
-			'_WP_Editors',
-			'force_uncompressed_tinymce'
-		), 1 );
-		add_action( 'customize_controls_print_footer_scripts', array(
-			'_WP_Editors',
-			'print_default_editor_scripts'
-		), 45 );
+		if ( class_exists( '_WP_Editors' ) ) {
+			// enqueue editor scripts
+			add_action( 'customize_controls_print_footer_scripts', array(
+				'_WP_Editors',
+				'force_uncompressed_tinymce'
+			), 1 );
+			add_action( 'customize_controls_print_footer_scripts', array(
+				'_WP_Editors',
+				'print_default_editor_scripts'
+			), 45 );
+		}
 
 		add_action( 'customize_controls_enqueue_scripts', [ $this, 'enqueueControlsScripts' ] );
 		add_action( 'customize_preview_init', [ $this, 'enqueuePreviewScripts' ] );
@@ -66,15 +68,26 @@ class Customizer {
 	}
 
 	/**
+	 * Reset all customizer options
+	 */
+	public function reset() {
+		if ( $this->store === 'option' ) {
+			foreach ( array_keys( $this->_settings ) as $key ) {
+				delete_option( $key );
+			}
+		}
+
+		remove_theme_mods();
+	}
+
+	/**
 	 * Enqueue frontend scripts
 	 */
 	public function registerScripts() {
-		$suffix = defined( 'WP_DEBUG' ) && WP_DEBUG ? '' : '.min';
-
 		wp_register_style(
 			'lotta-fontawesome',
-			$this->app->uri() . 'dist/vendor/fontawesome/css/all' . $suffix . '.css',
-			[], Application::VERSION
+			$this->app->uri() . 'dist/vendor/fontawesome/css/all.min.css',
+			[], WP_DEBUG ? time() : Application::VERSION
 		);
 	}
 
@@ -673,6 +686,7 @@ class Customizer {
 			],
 			'settings'       => array(
 				'system_fonts' => Fonts::system_fonts(),
+				'custom_fonts' => Fonts::custom_fonts(),
 				'google_fonts' => Fonts::google_fonts(),
 			),
 			'iconsLibrary'   => IconsManager::allLibraries(),

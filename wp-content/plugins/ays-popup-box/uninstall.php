@@ -26,20 +26,23 @@
  */
 
 // If uninstall not called from WordPress, then exit.
-if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
+if ( !defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
-if(get_option('ays_pb_upgrade_plugin','false') === 'false'){
+if (get_option('ays_pb_upgrade_plugin','false') === 'false') {
     global $wpdb;
-    $pb_table      		=   $wpdb->prefix . 'ays_pb';
-    $pb_categories      =   $wpdb->prefix . 'ays_pb_categories';
-    $settings_table     =   $wpdb->prefix . 'ays_pb_settings';
+    $pb_table = $wpdb->prefix . 'ays_pb';
+    $pb_categories = $wpdb->prefix . 'ays_pb_categories';
+    $settings_table = $wpdb->prefix . 'ays_pb_settings';
 
-    $wpdb->query("DROP TABLE IF EXISTS `".$pb_table."`");
-    $wpdb->query("DROP TABLE IF EXISTS `".$pb_categories."`");
-    $wpdb->query("DROP TABLE IF EXISTS `".$settings_table."`");
+    $wpdb->query("DROP TABLE IF EXISTS `" . $pb_table . "`");
+    $wpdb->query("DROP TABLE IF EXISTS `" . $pb_categories . "`");
+    $wpdb->query("DROP TABLE IF EXISTS `" . $settings_table . "`");
 
-    delete_option( "ays_pb_db_version");
-    delete_option( "ays_pb_upgrade_plugin");
+    delete_option("ays_pb_db_version");
+    delete_option("ays_pb_upgrade_plugin");
+    delete_option("ays_pb_sale_date");
+    delete_option("ays_pb_sale_btn");
+    delete_option("ays_pb_banner_time");
 }

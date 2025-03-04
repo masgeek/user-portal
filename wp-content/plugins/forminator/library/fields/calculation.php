@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Calculation class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -11,50 +17,66 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Forminator_Calculation extends Forminator_Field {
 
 	/**
+	 * Name
+	 *
 	 * @var string
 	 */
 	public $name = '';
 
 	/**
+	 * Slug
+	 *
 	 * @var string
 	 */
 	public $slug = 'calculation';
 
 	/**
+	 * Type
+	 *
 	 * @var string
 	 */
 	public $type = 'calculation';
 
 	/**
+	 * Position
+	 *
 	 * @var int
 	 */
 	public $position = 11;
 
 	/**
+	 * Options
+	 *
 	 * @var array
 	 */
 	public $options = array();
 
 	/**
-	 * @var string
-	 */
-	public $category = 'standard';
-
-	/**
+	 * Is input
+	 *
 	 * @var bool
 	 */
 	public $is_input = false;
 
 	/**
+	 * Has counter
+	 *
 	 * @var bool
 	 */
 	public $has_counter = false;
 
 	/**
+	 * Icon
+	 *
 	 * @var string
 	 */
 	public $icon = 'sui-icon-calculator';
 
+	/**
+	 * Is calculable
+	 *
+	 * @var bool
+	 */
 	public $is_calculable = true;
 
 	/**
@@ -65,7 +87,7 @@ class Forminator_Calculation extends Forminator_Field {
 	public function __construct() {
 		parent::__construct();
 
-		$this->name = __( 'Calculations', 'forminator' );
+		$this->name = esc_html__( 'Calculations', 'forminator' );
 	}
 
 	/**
@@ -76,7 +98,7 @@ class Forminator_Calculation extends Forminator_Field {
 	 */
 	public function defaults() {
 		return array(
-			'field_label' => __( 'Calculations', 'forminator' ),
+			'field_label' => esc_html__( 'Calculations', 'forminator' ),
 		);
 	}
 
@@ -85,7 +107,7 @@ class Forminator_Calculation extends Forminator_Field {
 	 *
 	 * @since 1.7
 	 *
-	 * @param $field
+	 * @param array                  $field Field.
 	 * @param Forminator_Render_Form $views_obj Forminator_Render_Form object.
 	 *
 	 * @return mixed
@@ -101,7 +123,7 @@ class Forminator_Calculation extends Forminator_Field {
 		$wrapper     = array();
 		$id          = self::get_property( 'element_id', $field );
 		$name        = $id;
-		$id          = $id . '-field' . '_' . Forminator_CForm_Front::$uid;
+		$id          = $id . '-field_' . Forminator_CForm_Front::$uid;
 		$required    = self::get_property( 'required', $field, false );
 		$value       = esc_html( self::get_post_data( $name, self::get_property( 'default_value', $field ) ) );
 		$label       = esc_html( self::get_property( 'field_label', $field, '' ) );
@@ -117,7 +139,7 @@ class Forminator_Calculation extends Forminator_Field {
 
 		$point = ! empty( $precision ) ? $separators['point'] : '';
 
-		if( is_numeric( $formula ) ) {
+		if ( is_numeric( $formula ) ) {
 			$formula = $formula . '*1';
 		}
 
@@ -129,21 +151,25 @@ class Forminator_Calculation extends Forminator_Field {
 			}
 			$form_id = isset( $this->form_settings['form_id'] ) ? $this->form_settings['form_id'] : 0;
 			if ( ! empty( $form_id ) ) {
-				if ( false !== strpos( $field_id, 'number-' ) || false !== strpos( $field_id, 'currency-' ) ) {
-					$field_form		= Forminator_Form_Model::model()->load( $form_id );
-					$formula_field 	= $field_form->get_field( $field_id, true );
-					$calc_enabled 	= self::get_property( 'calculations', $formula_field, true, 'bool' );
+				if ( false !== strpos( $field_id, 'number-' )
+					|| false !== strpos( $field_id, 'currency-' )
+					|| false !== strpos( $field_id, 'slider-' )
+				) {
+					$field_form    = Forminator_Form_Model::model()->load( $form_id );
+					$formula_field = $field_form->get_field( $field_id, true );
+					$calc_enabled  = self::get_property( 'calculations', $formula_field, true, 'bool' );
 					if ( ! $calc_enabled ) {
-						$field_val		= Forminator_CForm_Front_Action::replace_to( $field_id, $formula );
-						$find_str		= $full_matches[ $key ];
-						$replace_with	= '(' . ( $field_val ) . ')';
-						$formula 		= implode( $replace_with, explode( $find_str, $formula, 2 ) );
+						$field_val    = Forminator_CForm_Front_Action::replace_to( $field_id, $formula );
+						$find_str     = $full_matches[ $key ];
+						$replace_with = '(' . ( $field_val ) . ')';
+						$formula      = implode( $replace_with, explode( $find_str, $formula, 2 ) );
 					}
 				}
 			}
 		}
 
 		$number_attr = array(
+			'type'               => 'text',
 			'name'               => $name,
 			'value'              => $value,
 			'id'                 => $id,
@@ -216,7 +242,7 @@ class Forminator_Calculation extends Forminator_Field {
 	 *
 	 * @since 1.7
 	 *
-	 * @param array        $field
+	 * @param array        $field Field.
 	 * @param array|string $data - the data to be sanitized.
 	 *
 	 * @return array|string $data - the data after sanitization
@@ -251,8 +277,12 @@ class Forminator_Calculation extends Forminator_Field {
 	}
 
 	/**
+	 * Get calculable value
+	 *
 	 * @since 1.7
 	 * @inheritdoc
+	 * @param mixed $submitted_field_data Submitted field data.
+	 * @param array $field_settings Field settings.
 	 */
 	public static function get_calculable_value( $submitted_field_data, $field_settings ) {
 		$formula = self::get_property( 'formula', $field_settings, '', 'str' );
@@ -285,7 +315,7 @@ class Forminator_Calculation extends Forminator_Field {
 	 * @return string
 	 */
 	public static function default_error_message() {
-		$message = __( 'Failed to calculate field.', 'forminator' );
+		$message = esc_html__( 'Failed to calculate field.', 'forminator' );
 
 		/**
 		 * Filter default error message

@@ -1,17 +1,46 @@
 <?php
+/**
+ * The Forminator_WP_Post_Autofill_Provider class.
+ *
+ * @package Forminator
+ */
 
+/**
+ * Class Forminator_WP_Post_Autofill_Provider
+ */
 class Forminator_WP_Post_Autofill_Provider extends Forminator_Autofill_Provider_Abstract {
 
-	protected $_slug       = 'wp_post';
-	protected $_name       = 'WordPress Post';
+	/**
+	 * Slug
+	 *
+	 * @var string
+	 */
+	protected $_slug = 'wp_post';
+
+	/**
+	 * Name
+	 *
+	 * @var string
+	 */
+	protected $_name = 'WordPress Post';
+
+	/**
+	 * Short name
+	 *
+	 * @var string
+	 */
 	protected $_short_name = 'WP Post';
 
 	/**
+	 * Forminator_WP_Post_Autofill_Provider
+	 *
 	 * @var self|null
 	 */
 	private static $_instance = null;
 
 	/**
+	 * WP Post
+	 *
 	 * @var WP_Post
 	 */
 	private $wp_post;
@@ -23,15 +52,15 @@ class Forminator_WP_Post_Autofill_Provider extends Forminator_Autofill_Provider_
 
 		$attributes_map = array(
 			'id'        => array(
-				'name'         => __( 'ID', 'forminator' ),
+				'name'         => esc_html__( 'ID', 'forminator' ),
 				'value_getter' => array( $this, 'get_value_id' ),
 			),
 			'title'     => array(
-				'name'         => __( 'Title', 'forminator' ),
+				'name'         => esc_html__( 'Title', 'forminator' ),
 				'value_getter' => array( $this, 'get_value_title' ),
 			),
 			'permalink' => array(
-				'name'         => __( 'Permalink', 'forminator' ),
+				'name'         => esc_html__( 'Permalink', 'forminator' ),
 				'value_getter' => array( $this, 'get_value_permalink' ),
 			),
 		);
@@ -42,6 +71,8 @@ class Forminator_WP_Post_Autofill_Provider extends Forminator_Autofill_Provider_
 	}
 
 	/**
+	 * Get Id
+	 *
 	 * @return int
 	 */
 	public function get_value_id() {
@@ -49,6 +80,8 @@ class Forminator_WP_Post_Autofill_Provider extends Forminator_Autofill_Provider_
 	}
 
 	/**
+	 * Get title
+	 *
 	 * @return string
 	 */
 	public function get_value_title() {
@@ -56,6 +89,8 @@ class Forminator_WP_Post_Autofill_Provider extends Forminator_Autofill_Provider_
 	}
 
 	/**
+	 * Get permalink
+	 *
 	 * @return false|string
 	 */
 	public function get_value_permalink() {
@@ -63,6 +98,8 @@ class Forminator_WP_Post_Autofill_Provider extends Forminator_Autofill_Provider_
 	}
 
 	/**
+	 * Is enabled
+	 *
 	 * @return bool
 	 */
 	public function is_enabled() {
@@ -70,6 +107,8 @@ class Forminator_WP_Post_Autofill_Provider extends Forminator_Autofill_Provider_
 	}
 
 	/**
+	 * Fillable
+	 *
 	 * @return bool
 	 */
 	public function is_fillable() {
@@ -81,6 +120,8 @@ class Forminator_WP_Post_Autofill_Provider extends Forminator_Autofill_Provider_
 	}
 
 	/**
+	 * Get instance
+	 *
 	 * @return Forminator_Autofill_Provider_Interface|Forminator_WP_Post_Autofill_Provider|null
 	 */
 	public static function get_instance() {
@@ -115,6 +156,8 @@ class Forminator_WP_Post_Autofill_Provider extends Forminator_Autofill_Provider_
 	}
 
 	/**
+	 * Get attribute
+	 *
 	 * @return array
 	 */
 	public function get_attribute_to_hook() {

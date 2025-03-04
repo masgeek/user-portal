@@ -1,5 +1,11 @@
 <?php
 /**
+ * Template admin/views/custom-form/entries/content-details.php
+ *
+ * @package Forminator
+ */
+
+/**
  * Content details of Submissions
  *
  * @param array   $detail_item Item details.
@@ -13,7 +19,7 @@ function forminator_submissions_content_details( $detail_item, $inside_group = f
 	<div class="sui-box-settings-slim-row sui-sm">
 
 		<?php
-		if ( isset( $detail_item['type'] ) && in_array( $detail_item['type'], array( 'stripe', 'paypal', 'group' ), true ) ) {
+		if ( isset( $detail_item['type'] ) && in_array( $detail_item['type'], array( 'stripe', 'paypal', 'group', 'stripe-ocs' ), true ) ) {
 
 			if ( ! empty( $sub_entries ) ) {
 				?>
@@ -35,7 +41,7 @@ function forminator_submissions_content_details( $detail_item, $inside_group = f
 
 								foreach ( $sub_entries as $sub_key => $sub_entry ) {
 
-									$sub_key++;
+									++$sub_key;
 
 									if ( $max_fields < $sub_key ) {
 
@@ -72,15 +78,10 @@ function forminator_submissions_content_details( $detail_item, $inside_group = f
 							<tr class="sui-accordion-item">
 
 								<?php
-								$end             = count( $sub_entries );
-								$subscription_id = array_search( 'subscription_id', array_column( $sub_entries, 'key', 'value' ), true );
-								if ( class_exists( 'Forminator_Stripe_Subscription' ) && 'stripe' === $detail_item['type'] && empty( $subscription_id ) ) {
-									$keys = array_search( 'subscription_id', array_column( $sub_entries, 'key' ), true );
-									unset( $sub_entries[ $keys ] );
-								}
+								$end = count( $sub_entries );
 								foreach ( $sub_entries as $sub_key => $sub_entry ) {
 
-									$sub_key++;
+									++$sub_key;
 
 									if ( $max_fields < $sub_key ) {
 
@@ -90,7 +91,8 @@ function forminator_submissions_content_details( $detail_item, $inside_group = f
 									if ( $max_fields === $sub_key && $max_fields < count( $sub_entries ) ) {
 										$sub_count = count( $sub_entries ) - $max_fields + 1;
 										echo '<td style="padding-top: 5px; padding-bottom: 5px;">';
-										echo '<span class="fui-accordion-open-text">' . sprintf(/* translators: ... */
+										echo '<span class="fui-accordion-open-text">' . sprintf(
+												/* translators: %s: field sub count */
 											esc_html__( '+ %s other fields', 'forminator' ),
 											esc_html( $sub_count )
 										) . '</span>';
@@ -98,19 +100,17 @@ function forminator_submissions_content_details( $detail_item, $inside_group = f
 										echo '<i class="sui-icon-chevron-down"></i>';
 										echo '</span>';
 										echo '</td>';
-									} else {
-										if ( ! empty( $sub_entry['sub_entries'] ) ) {
+									} elseif ( ! empty( $sub_entry['sub_entries'] ) ) {
 											echo '<td style="padding-top: 5px; padding-bottom: 5px;">';
 											forminator_submissions_content_details( $sub_entry, true );
 											echo '</td>';
-										} else {
-											echo '<td style="padding-top: 5px; padding-bottom: 5px;">';
-											echo wp_kses_post( $sub_entry['value'] );
-											if ( 1 !== $sub_key && 2 < $end && 'group' === $detail_item['type'] ) {
-												echo '<span class="sui-accordion-open-indicator fui-mobile-only" aria-hidden="true"><i class="sui-icon-chevron-down"></i></span>';
-											}
-											echo '</td>';
+									} else {
+										echo '<td style="padding-top: 5px; padding-bottom: 5px;">';
+										echo wp_kses_post( $sub_entry['value'] );
+										if ( 1 !== $sub_key && 2 < $end && 'group' === $detail_item['type'] ) {
+											echo '<span class="sui-accordion-open-indicator fui-mobile-only" aria-hidden="true"><i class="sui-icon-chevron-down"></i></span>';
 										}
+										echo '</td>';
 									}
 								}
 								?>
@@ -172,7 +172,8 @@ function forminator_submissions_content_details( $detail_item, $inside_group = f
 				<span class="sui-settings-label sui-sm"><?php echo esc_html( $detail_item['label'] ); ?></span>
 			</div>
 			<?php } ?>
-			<div class="sui-box-settings-col-2">
+
+			<div class="sui-box-settings-col-2<?php echo ( empty( $sub_entries ) || $inside_group ) ? '' : ' sui-border-frame'; ?>">
 
 				<?php if ( empty( $sub_entries ) ) { ?>
 
@@ -200,8 +201,14 @@ function forminator_submissions_content_details( $detail_item, $inside_group = f
 					<?php foreach ( $sub_entries as $sub_entry ) { ?>
 
 						<div class="sui-form-field">
-							<span class="sui-settings-label"><?php echo esc_html( $sub_entry['label'] ); ?></span>
-							<span class="sui-description"><?php echo wp_kses_post( $sub_entry['value'] ); ?></span>
+							<div class="sui-row">
+								<div class="sui-col-md-3">
+									<span class="sui-settings-label"><?php echo esc_html( $sub_entry['label'] ); ?></span>
+								</div>
+								<div class="sui-col-md-9">
+									<span class="sui-description"><?php echo wp_kses_post( $sub_entry['value'] ); ?></span>
+								</div>
+							</div>
 						</div>
 
 					<?php } ?>
@@ -226,13 +233,15 @@ function forminator_submissions_content_details( $detail_item, $inside_group = f
  * @return array
  */
 function forminator_submissions_remove_quantity( $sub_entries, $item_type ) {
-	if ( 'stripe' === $item_type ) {
+	if ( 'stripe' === $item_type || 'stripe-ocs' === $item_type ) {
 		$payment_type_index = array_search( 'payment_type', array_column( $sub_entries, 'key' ), true );
 		$quantity_index     = array_search( 'quantity', array_column( $sub_entries, 'key' ), true );
+		$subscription_index = array_search( 'subscription_id', array_column( $sub_entries, 'key' ), true );
 		$payment_type       = $sub_entries[ $payment_type_index ]['value'];
 
-		if ( strtolower( __( 'One Time', 'forminator' ) ) === strtolower( $payment_type ) ) {
+		if ( strtolower( esc_html__( 'One Time', 'forminator' ) ) === strtolower( $payment_type ) ) {
 			unset( $sub_entries[ $quantity_index ] );
+			unset( $sub_entries[ $subscription_index ] );
 		}
 	}
 

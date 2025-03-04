@@ -1,4 +1,10 @@
 <?php
+/**
+ * Forminator Core
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -11,6 +17,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Forminator_Core {
 
 	/**
+	 * Forminator_Admin Instance
+	 *
 	 * @var Forminator_Admin
 	 */
 	public $admin;
@@ -112,17 +120,23 @@ class Forminator_Core {
 
 		// HACK: Add settings and entries page at the end of the list.
 		if ( is_admin() ) {
+			$this->admin->add_templates_page();
 			$this->admin->add_entries_page();
 			$this->admin->add_addons_page();
 			if ( Forminator::is_addons_feature_enabled() ) {
 				$this->admin->add_integrations_page();
 			}
-			$this->admin->add_reports_page();
+			if ( forminator_global_tracking() ) {
+				$this->admin->add_reports_page();
+			}
 			$this->admin->add_settings_page();
 
 			if ( ! FORMINATOR_PRO ) {
 				$this->admin->add_upgrade_page();
 			}
+
+			// Call Mixpanel class.
+			new Forminator_Mixpanel();
 		}
 
 		// Protection management.
@@ -131,10 +145,16 @@ class Forminator_Core {
 		// Export management.
 		Forminator_Export::get_instance();
 
-		Forminator_Reports::get_instance();
+		if ( forminator_global_tracking() ) {
+			Forminator_Reports::get_instance();
+		}
 
 		// Post meta box.
 		add_action( 'init', array( &$this, 'post_field_meta_box' ) );
+
+		// Clean up Action Scheduler.
+		add_action( 'init', array( $this, 'schedule_action_scheduler_cleanup' ), 999 );
+		add_action( 'forminator_action_scheduler_cleanup', array( &$this, 'action_scheduler_cleanup' ) );
 	}
 
 	/**
@@ -156,6 +176,9 @@ class Forminator_Core {
 	 * @return object
 	 */
 	public static function get_field_object( $type ) {
+		if ( 'stripe-ocs' === $type ) {
+			$type = 'stripe';
+		}
 		$object = isset( self::$field_objects[ $type ] ) ? self::$field_objects[ $type ] : null;
 
 		return $object;
@@ -175,14 +198,14 @@ class Forminator_Core {
 	/**
 	 * Get field type based on $element_id
 	 *
-	 * @param $element_id Field slug.
+	 * @param string $element_id Field slug.
 	 * @return array
 	 */
 	public static function get_field_type( $element_id ) {
 		$field_type = '';
 		$parts      = explode( '-', $element_id );
 		// all avail fields on library.
-		$field_types = Forminator_Core::get_field_types();
+		$field_types = self::get_field_types();
 
 		if ( in_array( $parts[0], $field_types, true ) ) {
 			$field_type = $parts[0];
@@ -236,7 +259,8 @@ class Forminator_Core {
 		include_once forminator_plugin_dir() . 'library/class-export-result.php';
 		/* @noinspection PhpIncludeInspection */
 		include_once forminator_plugin_dir() . 'library/class-export.php';
-        /* @noinspection PhpIncludeInspection */
+		include_once forminator_plugin_dir() . 'library/class-template-api.php';
+		/* @noinspection PhpIncludeInspection */
 		include_once forminator_plugin_dir() . 'library/class-reports.php';
 		/* @noinspection PhpIncludeInspection */
 		include_once forminator_plugin_dir() . 'library/render/class-render-form.php';
@@ -265,6 +289,7 @@ class Forminator_Core {
 		include_once forminator_plugin_dir() . 'library/model/class-form-entry-model.php';
 
 		// Helpers.
+		include_once forminator_plugin_dir() . 'library/helpers/encryption.php';
 		/* @noinspection PhpIncludeInspection */
 		include_once forminator_plugin_dir() . 'library/helpers/helper-core.php';
 		/* @noinspection PhpIncludeInspection */
@@ -330,7 +355,7 @@ class Forminator_Core {
 				require_once ABSPATH . 'wp-admin/includes/template.php';
 			}
 			/* @noinspection PhpIncludeInspection */
-			include_once forminator_plugin_dir() . 'library/model/class-form-entries-list-table.php';
+			include_once forminator_plugin_dir() . 'library/mixpanel/class-mixpanel.php';
 		}
 
 		if ( Forminator::is_internal_page_cache_support_enabled() ) {
@@ -360,7 +385,7 @@ class Forminator_Core {
 			if ( $is_forminator_meta ) {
 				add_meta_box(
 					'forminator-post-meta-box',
-					__( 'Post Custom Data', 'forminator' ),
+					esc_html__( 'Post Custom Data', 'forminator' ),
 					array( $this, 'render_post_meta_box' ),
 					$post->post_type,
 					'normal',
@@ -370,6 +395,11 @@ class Forminator_Core {
 		}
 	}
 
+	/**
+	 * Localize pointers
+	 *
+	 * @return void
+	 */
 	public function localize_pointers() {
 		?>
 		<script type="text/javascript">
@@ -380,6 +410,8 @@ class Forminator_Core {
 
 	/**
 	 * Render Meta box
+	 *
+	 * @param WP_Post $post Post.
 	 *
 	 * @since 1.0
 	 */
@@ -412,37 +444,42 @@ class Forminator_Core {
 	 *
 	 * @param string $key POST key.
 	 * @param mixed  $default_value Default value.
-	 * @return type
+	 * @return mixed
 	 */
 	public static function sanitize_text_field( $key, $default_value = '' ) {
-		if ( ! empty( $_POST[ $key ] ) ) {
-			$value = sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
-		} elseif ( ! empty( $_GET[ $key ] ) ) {
-			$value = sanitize_text_field( wp_unslash( $_GET[ $key ] ) );
+		if ( ! empty( $_POST[ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$value = sanitize_text_field( wp_unslash( $_POST[ $key ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		} elseif ( ! empty( $_GET[ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$value = sanitize_text_field( wp_unslash( $_GET[ $key ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		} else {
 			$value = $default_value;
+		}
+		if ( 'page' === $key ) {
+			$value = esc_attr( $value );
 		}
 
 		return $value;
 	}
 
 	/**
-     * Recursively sanitize data
-     *
+	 * Recursively sanitize data
+	 *
 	 * @param array  $data Data.
 	 * @param string $current_key Current key.
 	 *
 	 * @return array|string
 	 */
 	public static function sanitize_array( $data, $current_key = '' ) {
-		$data = wp_unslash( $data );
+		$data         = wp_unslash( $data );
 		$skipped_keys = array( 'preview_data' );
-		// TODO: Should skip fields that has its own sanitize function
+		// TODO: Should skip fields that has its own sanitize function.
 		if (
 			in_array( $current_key, $skipped_keys, true ) ||
 			0 === strpos( $current_key, 'url-' ) ||
 			0 === strpos( $current_key, 'select-' ) ||
-			0 === strpos( $current_key, 'checkbox-' )
+			0 === strpos( $current_key, 'checkbox-' ) ||
+			0 === strpos( $current_key, 'password-' ) ||
+			0 === strpos( $current_key, 'confirm_password-' )
 		) {
 			return $data;
 		}
@@ -451,6 +488,8 @@ class Forminator_Core {
 			'variations',
 			'question_description',
 			'thankyou-message',
+			'email-thankyou-message',
+			'manual-thankyou-message',
 			'user-email-editor',
 			'admin-email-editor',
 			'quiz_description',
@@ -458,19 +497,25 @@ class Forminator_Core {
 			'email-editor',
 			'email-editor-method-email',
 			'email-editor-method-manual',
-            'msg_count',
+			'msg_count',
 			'confirm-password-description',
 			'description',
-            'consent_description',
-            'hc_invisible_notice',
-            'options_bulk_editor',
-            'label',
-            'value',
-            'importable',
-            'sc_message',
+			'consent_description',
+			'hc_invisible_notice',
+			'options_bulk_editor',
+			'label',
+			'value',
+			'importable',
+			'sc_message',
 			'hidden-registration-form-message',
 			'hidden-login-form-message',
+			'footer_value',
+			'payee_info',
+			'payer_info',
+			'payment_note',
 		);
+
+		$allow_iframe = array( 'variations' );
 		if (
 			in_array( $current_key, $allow_html, true ) ||
 			0 === strpos( $current_key, 'html-' ) ||
@@ -480,10 +525,22 @@ class Forminator_Core {
 			false !== strpos( $current_key, '-post-content' ) ||
 			false !== strpos( $current_key, '-post-excerpt' )
 		) {
+			if ( in_array( $current_key, $allow_iframe, true ) ) {
+				// To allow iframes in content.
+				add_filter( 'wp_kses_allowed_html', array( __CLASS__, 'maybe_add_iframe_to_kses_allowed_html' ) );
+				$data = trim( wp_kses_post( $data ) );
+				remove_filter( 'wp_kses_allowed_html', array( __CLASS__, 'maybe_add_iframe_to_kses_allowed_html' ) );
+				return $data;
+			}
 			return trim( wp_kses_post( $data ) );
 		}
 
-		if ( 'custom_css' === $current_key ) {
+		// Allow line breaks.
+		$allow_linebreaks = array(
+			'custom_css',
+			'placeholder',
+		);
+		if ( in_array( $current_key, $allow_linebreaks, true ) ) {
 			return sanitize_textarea_field( $data );
 		}
 
@@ -520,5 +577,169 @@ class Forminator_Core {
 
 			return $data;
 		}
+	}
+
+	/**
+	 * Shedule the Action Scheduler cleanup every hour.
+	 *
+	 * @return mixed
+	 */
+	public function schedule_action_scheduler_cleanup() {
+		forminator_set_recurring_action( 'forminator_action_scheduler_cleanup', HOUR_IN_SECONDS * 2 );
+	}
+
+	/**
+	 * Delete Action Scheduler actions and logs of Forminator.
+	 *
+	 * @param null|string $db_prefix DB Prefix.
+	 *
+	 * @return void
+	 */
+	public static function action_scheduler_cleanup( $db_prefix = null ) {
+		global $wpdb;
+		$is_uninstall = false;
+
+		// If null, its being called by AS action hook.
+		if ( is_null( $db_prefix ) ) {
+			$db_prefix = $wpdb->prefix;
+		} else {
+			// Plugin is being uninstalled, unschedule all and all forminator scheduled actions.
+			$is_uninstall = true;
+		}
+
+		$table_actions = $db_prefix . 'actionscheduler_actions';
+		$table_logs    = $db_prefix . 'actionscheduler_logs';
+		$table_groups  = $db_prefix . 'actionscheduler_groups';
+		$slug          = 'forminator';
+
+		// Check if all tables exist.
+		if ( ! self::check_action_scheduler_tables( $db_prefix ) ) {
+			return;
+		}
+
+		$group_id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT group_id FROM {$table_groups} WHERE slug = %s", $slug ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$and      = '';
+
+		// If not uninstall, do not delete pending tasks.
+		if ( ! $is_uninstall ) {
+			$and = "AND ( as_actions.status = 'complete' || as_actions.status = 'failed' || as_actions.status = 'canceled' )";
+		}
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+		$query = $wpdb->prepare(
+			"SELECT action_id
+			FROM {$table_actions} as_actions
+			WHERE as_actions.group_id = %s
+			" . $and . '
+			LIMIT 100',
+			$group_id
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+
+		// Delete all AS forminator actions and logs.
+		while ( $action_ids = $wpdb->get_col( $query ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
+			if ( empty( $action_ids ) ) {
+				break;
+			}
+
+			$where_in = implode(
+				', ',
+				array_fill(
+					0,
+					is_array( $action_ids ) || $action_ids instanceof \Countable ? count( $action_ids ) : 0,
+					'%s'
+				)
+			);
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$wpdb->query(
+				// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+				$wpdb->prepare(
+					"DELETE as_actions, as_logs
+					 FROM {$table_actions} as_actions
+					 LEFT JOIN {$table_logs} as_logs
+						ON as_actions.action_id = as_logs.action_id
+					 WHERE as_actions.action_id IN ( {$where_in} )",
+					$action_ids
+				)
+				// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+			);
+		}
+	}
+
+	/**
+	 * Check if Action Scheduler tables exist.
+	 *
+	 * @param string $db_prefix DB Prefix.
+	 *
+	 * @return bool
+	 */
+	public static function check_action_scheduler_tables( $db_prefix = null ) {
+		global $wpdb;
+
+		if ( is_null( $db_prefix ) ) {
+			$db_prefix = $wpdb->prefix;
+		}
+
+		$table_actions = $db_prefix . 'actionscheduler_actions';
+		$table_logs    = $db_prefix . 'actionscheduler_logs';
+		$table_groups  = $db_prefix . 'actionscheduler_groups';
+
+		// Check if all tables exist.
+		$table_count = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare(
+				'SELECT count(*)
+				FROM information_schema.tables
+				WHERE table_schema = %s AND table_name IN (%s, %s, %s)',
+				$wpdb->dbname,
+				$table_actions,
+				$table_logs,
+				$table_groups
+			)
+		);
+
+		if ( 3 !== $table_count ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Add iframe to the wp_kses_allowed_html filter for the front end.
+	 * It is strongly recommended to call this method via maybe_add_iframe_to_kses_allowed_html unless it's an exceptional case.
+	 *
+	 * @param array $allowed_html Allowed HTML tags.
+	 * @return array
+	 */
+	public static function add_iframe_to_kses_allowed_html( $allowed_html ) {
+		$allowed_html['iframe'] = array(
+			'align'           => true,
+			'width'           => true,
+			'height'          => true,
+			'frameborder'     => true,
+			'name'            => true,
+			'src'             => true,
+			'id'              => true,
+			'class'           => true,
+			'style'           => true,
+			'scrolling'       => true,
+			'marginwidth'     => true,
+			'marginheight'    => true,
+			'allowfullscreen' => true,
+		);
+		return $allowed_html;
+	}
+
+	/**
+	 * Add iframe on filter wp_kses_allowed_html
+	 *
+	 * @param array $allowed_html Allowed HTML tags.
+	 * @return array
+	 */
+	public static function maybe_add_iframe_to_kses_allowed_html( $allowed_html ) {
+		if ( current_user_can( 'unfiltered_html' ) ) {
+			return self::add_iframe_to_kses_allowed_html( $allowed_html );
+		}
+		return $allowed_html;
 	}
 }

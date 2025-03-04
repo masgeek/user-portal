@@ -56,28 +56,27 @@ if ( ! function_exists( 'kenta_blocks_advanced_attrs' ) ) {
 
 if ( ! function_exists( 'kenta_blocks_advanced_css' ) ) {
 	/**
-	 * @param $attrs
-	 * @param $metadata
+	 * @param $block
 	 * @param array $exclude
 	 *
 	 * @return array
 	 */
-	function kenta_blocks_advanced_css( $attrs, $metadata, $exclude = array() ) {
+	function kenta_blocks_advanced_css( $block, $exclude = array() ) {
 		$result = array();
 		if ( ! in_array( 'z-index', $exclude ) ) {
-			$result['z-index'] = kenta_blocks_block_attr( 'zIndex', $attrs, $metadata );
+			$result['z-index'] = kb_get_block_attr( $block, 'zIndex' );
 		}
 
 		if ( ! in_array( 'overflow', $exclude ) ) {
-			$result['overflow'] = kenta_blocks_block_attr( 'overflow', $attrs, $metadata );
+			$result['overflow'] = kb_get_block_attr( $block, 'overflow' );
 		}
 
 		if ( ! in_array( 'margin', $exclude ) ) {
-			$result = array_merge( $result, kenta_blocks_css()->dimensions( kenta_blocks_block_attr( 'margin', $attrs, $metadata ) ) );
+			$result = array_merge( $result, kenta_blocks_css()->dimensions( kb_get_block_attr( $block, 'margin' ) ) );
 		}
 
 		if ( ! in_array( 'padding', $exclude ) ) {
-			$result = array_merge( $result, kenta_blocks_css()->dimensions( kenta_blocks_block_attr( 'padding', $attrs, $metadata ), 'padding' ) );
+			$result = array_merge( $result, kenta_blocks_css()->dimensions( kb_get_block_attr( $block, 'padding' ), 'padding' ) );
 		}
 
 		return $result;

@@ -13,6 +13,7 @@
 /* =============== */
 /* SECTION: Global */
 <?php include('global/quiz-container.html') ?>
+<?php include('global/response-error-colors.html') ?>
 
 /* =============== */
 /* SECTION: Header */
@@ -29,6 +30,7 @@
 <?php include('global/content/questions-result.html') ?>
 <?php include('global/footer/retake-button.html') ?>
 <?php include('global/content/answers-text.html') ?>
+<?php include('global/content/field-image-size.html') ?>
 <?php if ( forminator_array_value_exists( $properties, 'forminator-quiz-theme' ) && 'none' != $properties['forminator-quiz-theme'] ) { ?>
 	<?php include self::get_template( $properties['forminator-quiz-theme'], 'answers-container.html'); ?>
 	<?php include self::get_template( $properties['forminator-quiz-theme'], 'answers-checkbox.html'); ?>

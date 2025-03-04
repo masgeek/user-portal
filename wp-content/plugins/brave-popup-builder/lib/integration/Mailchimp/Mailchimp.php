@@ -3,6 +3,9 @@ if ( ! class_exists( 'BravePop_Mailchimp' ) ) {
    
    class BravePop_Mailchimp {
 
+      protected $api_key;
+      protected $dc;
+
       function __construct() {
          $braveSettings = get_option('_bravepopup_settings');
          $integrations = $braveSettings && isset($braveSettings['integrations']) ? $braveSettings['integrations'] : array() ;
@@ -40,8 +43,8 @@ if ( ! class_exists( 'BravePop_Mailchimp' ) ) {
                $finalLists[] = $listItem;
             }
 
-            //error_log(json_encode($finalLists));
-            return json_encode($finalLists);
+            //error_log(wp_json_encode($finalLists));
+            return wp_json_encode($finalLists);
          }else{
             return false;
          }
@@ -112,7 +115,7 @@ if ( ! class_exists( 'BravePop_Mailchimp' ) ) {
             'headers' => array(
                'Authorization' => 'Basic ' . base64_encode( 'user:'. $this->api_key )
             ),
-            'body' => json_encode($contact)
+            'body' => wp_json_encode($contact)
          );
 
          // https://mailchimp.com/developer/api/marketing/list-members/add-member-to-list/
@@ -121,7 +124,7 @@ if ( ! class_exists( 'BravePop_Mailchimp' ) ) {
 
          $body = wp_remote_retrieve_body( $response );
          $data = json_decode( $body );
-         //error_log('######## MC Result: '.json_encode($response));
+         //error_log('######## MC Result: '.wp_json_encode($response));
          $addedResult = new stdClass();
          if($data && isset($data->id)){
                if(isset($contact['tags']) && is_array($contact['tags']) && count($contact['tags']) > 0){
@@ -131,7 +134,7 @@ if ( ! class_exists( 'BravePop_Mailchimp' ) ) {
                   foreach ($contact['tags'] as $key => $tag) {   $tagsFinal[] = array('name'=> $tag, 'status'=>'active'); }
                   $tagargs = array( 
                      'method' => 'POST', 'timeout' => 30, 'headers' => array( 'Authorization' => 'Basic ' . base64_encode( 'user:'. $this->api_key ) ),
-                     'body' => json_encode(array('tags'=> $tagsFinal))
+                     'body' => wp_json_encode(array('tags'=> $tagsFinal))
                   );
                   $tagsResponse = wp_remote_post( 'https://' . $this->dc . '.api.mailchimp.com/3.0/lists/' . $list_id . '/members/' . md5(strtolower($email)).'/tags', $tagargs );
                }

@@ -1,8 +1,12 @@
 <?php
+/**
+ * The Forminator_Calculator_Parser_Node_Container class.
+ *
+ * @package Forminator
+ */
 
 /**
  * A parent node is a container for a (sorted) array of nodes.
- *
  */
 class Forminator_Calculator_Parser_Node_Container extends Forminator_Calculator_Parser_Node_Abstract {
 
@@ -17,9 +21,7 @@ class Forminator_Calculator_Parser_Node_Container extends Forminator_Calculator_
 	/**
 	 * ContainerNode constructor.
 	 *
-	 * @param Forminator_Calculator_Parser_Node_Abstract[] $child_nodes
-	 *
-	 * @throws Forminator_Calculator_Exception
+	 * @param Forminator_Calculator_Parser_Node_Abstract[] $child_nodes Forminator_Calculator_Parser_Node_Abstract.
 	 */
 	public function __construct( $child_nodes ) {
 		$this->set_child_nodes( $child_nodes );
@@ -29,16 +31,16 @@ class Forminator_Calculator_Parser_Node_Container extends Forminator_Calculator_
 	 * Setter for the child nodes.
 	 * Notice: The number of child nodes can be 0.
 	 *
-	 * @param Forminator_Calculator_Parser_Node_Abstract[] $child_nodes
+	 * @param Forminator_Calculator_Parser_Node_Abstract[] $child_nodes Forminator_Calculator_Parser_Node_Abstract.
 	 *
-	 * @throws Forminator_Calculator_Exception
+	 * @throws Forminator_Calculator_Exception When there is an Calculator error.
 	 */
 	public function set_child_nodes( $child_nodes ) {
 		// Ensure integrity of $nodes array.
 		foreach ( $child_nodes as $child_node ) {
 			if ( ! $child_node instanceof Forminator_Calculator_Parser_Node_Abstract ) {
 				throw new Forminator_Calculator_Exception(
-					'Error: Expected AbstractNode, but got "' . gettype( $child_node ) . '"'
+					'Error: Expected AbstractNode, but got "' . esc_attr( gettype( $child_node ) ) . '"'
 				);
 			}
 		}
@@ -74,5 +76,4 @@ class Forminator_Calculator_Parser_Node_Container extends Forminator_Calculator_
 	public function get_child_nodes() {
 		return $this->child_nodes;
 	}
-
 }

@@ -207,19 +207,19 @@ class PageBuilder extends ContainerControl {
 		foreach ( $settings as $ri => $row ) {
 			$columns = $row['columns'] ?? [];
 
-			$this->row->start( $this->getRowId( $ri ), $row, $this->location . ":row-${ri}" );
+			$this->row->start( $this->getRowId( $ri ), $row, $this->location . ":row-{$ri}" );
 
 			foreach ( $columns as $ci => $column ) {
 				$elements = $column['elements'] ?? [];
 
-				$this->column->start( $this->getColId( $ri, $ci ), $column, $this->location . ":col-${ri}-{$ci}" );
+				$this->column->start( $this->getColId( $ri, $ci ), $column, $this->location . ":col-{$ri}-{$ci}" );
 
 				foreach ( $elements as $ei => $data ) {
 					$id = $data['id'] ?? '';
 					if ( isset( $this->elements[ $id ] ) ) {
 						$this->elements[ $id ]->render( [
 							'id'       => $this->getElId( $ri, $ci, $ei ),
-							'location' => $this->location . ":element-${ri}-{$ci}-{$ei}",
+							'location' => $this->location . ":element-{$ri}-{$ci}-{$ei}",
 							'settings' => $data['settings'] ?? [],
 						] );
 					}

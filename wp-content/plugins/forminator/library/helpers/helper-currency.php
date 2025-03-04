@@ -1,8 +1,19 @@
 <?php
+/**
+ * Currency helper functions.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
 
+/**
+ * Currency list
+ *
+ * @return mixed
+ */
 function forminator_pp_currency_list() {
 	return apply_filters(
 		'forminator_pp_currency_list',
@@ -67,11 +78,9 @@ function forminator_currency_list() {
 			'AWG' => array( 'Aruba, Guilders (also called Florins)', '192' ),
 			'AUD' => array( 'Australia, Dollars', '24' ),
 			'AZN' => array( 'Azerbaijan, New Manats', '43c, 430, 43d' ),
-			// 'BHD' => array( 'Bahrain, Dinars', '2e, 62f, 2e, 628' ), // currently not supported.
 			'BSD' => array( 'Bahamas, Dollars', '24' ),
 			'BDT' => array( 'Bangladesh, Takas', '9f3' ),
 			'BBD' => array( 'Barbados, Dollars', '24' ),
-			// 'BYR' => array( 'Belarus, Rubles', '70, 2e' ), // currently not supported.
 			'BZD' => array( 'Belize, Dollars', '42, 5a, 24' ),
 			'BMD' => array( 'Bermuda, Dollars', '24' ),
 			'BOB' => array( 'Bolivia, Bolivianos', '24, 62' ),
@@ -92,7 +101,6 @@ function forminator_currency_list() {
 			'KMF' => array( 'Comoros, Francs', '43, 46' ),
 			'CRC' => array( 'Costa Rica, Colones', '20a1' ),
 			'HRK' => array( 'Croatia, Kuna', '6b, 6e' ),
-			// 'CUP' => array( 'Cuba, Pesos', '20b1' ), // currently not supported.
 			'CZK' => array( 'Czech Republic, Koruny', '4b, 10d' ),
 			'CDF' => array( 'Democratic Republic of Congo, Francs', '46, 43' ),
 			'DKK' => array( 'Denmark, Kroner', '6b, 72' ),
@@ -100,18 +108,14 @@ function forminator_currency_list() {
 			'DOP' => array( 'Dominican Republic, Pesos', '52, 44, 24' ),
 			'XCD' => array( 'East Caribbean, Dollars', '24' ),
 			'EGP' => array( 'Egypt, Pounds', '45, 47, 50' ),
-			// 'SVC' => array( 'El Salvador, Colones', '24' ), // currently not supported.
-			// 'EEK' => array( 'Estonia, Krooni', '6b, 72' ), // currently not supported.
 			'ETB' => array( 'Ethiopia, Birrs', '42, 72' ),
 			'EUR' => array( 'Euro', '20ac' ),
 			'FKP' => array( 'Falkland Islands, Pounds', 'a3' ),
 			'FJD' => array( 'Fiji, Dollars', '24' ),
 			'GMD' => array( 'Gambia, Dalasis', '44' ),
 			'GEL' => array( 'Georgia, Lari', '6c, 61, 72, 69' ),
-			// 'GHC' => array( 'Ghana, Cedis', 'a2' ), // currently not supported.
 			'GIP' => array( 'Gibraltar, Pounds', 'a3' ),
 			'GTQ' => array( 'Guatemala, Quetzales', '51' ),
-			// 'GGP' => array( 'Guernsey, Pounds', 'a3' ), // currently not supported.
 			'GNF' => array( 'Guinea, Francs', '46, 47' ),
 			'GYD' => array( 'Guyana, Dollars', '24' ),
 			'HTG' => array( 'Haiti, Gourdes', '47' ),
@@ -121,23 +125,17 @@ function forminator_currency_list() {
 			'ISK' => array( 'Iceland, Kronur', '6b, 72' ),
 			'INR' => array( 'India, Rupees', '20a8' ),
 			'IDR' => array( 'Indonesia, Rupiahs', '52, 70' ),
-			// 'IRR' => array( 'Iran, Rials', 'fdfc' ), // currently not supported.
-			// 'IMP' => array( 'Isle of Man, Pounds', 'a3' ), // currently not supported.
 			'ILS' => array( 'Israel, New Shekels', '20aa' ),
 			'JMD' => array( 'Jamaica, Dollars', '4a, 24' ),
 			'JOD' => array( 'Jordan, Dinars', '4a, 44' ),
 			'JPY' => array( 'Japan, Yen', 'a5' ),
-			// 'JEP' => array( 'Jersey, Pounds', 'a3' ), // currently not supported.
 			'KZT' => array( 'Kazakhstan, Tenge', '43b, 432' ),
 			'KES' => array( 'Kenyan Shillings', '4B, 73, 68, 73' ),
-			// 'KWD' => array( 'Kuwait, Dinar', '4B, 2E, 44, 2E' ), // currently not supported.
 			'KGS' => array( 'Kyrgyzstan, Soms', '43b, 432' ),
 			'LAK' => array( 'Laos, Kips', '20ad' ),
-			// 'LVL' => array( 'Latvia, Lati', '4c, 73' ), // currently not supported.
 			'LBP' => array( 'Lebanon, Pounds', 'a3' ),
 			'LSL' => array( 'Lesotho, Maloti', '4d' ),
 			'LRD' => array( 'Liberia, Dollars', '24' ),
-			// 'LTL' => array( 'Lithuania, Litai', '4c, 74' ), // currently not supported.
 			'MKD' => array( 'North Macedonia, Denars', '434, 435, 43d' ),
 			'MOP' => array( 'Macau, Patacas', '4d, 4f, 50, 24' ),
 			'MGA' => array( 'Madagascar, Ariary', '41, 72' ),
@@ -157,9 +155,7 @@ function forminator_currency_list() {
 			'NZD' => array( 'New Zealand, Dollars', '24' ),
 			'NIO' => array( 'Nicaragua, Cordobas', '43, 24' ),
 			'NGN' => array( 'Nigeria, Nairas', '20a6' ),
-			// 'KPW' => array( 'North Korea, Won', '20a9' ), // currently not supported.
 			'NOK' => array( 'Norway, Kroner', '6b, 72' ),
-			// 'OMR' => array( 'Oman, Rials', 'fdfc' ),.
 			'PKR' => array( 'Pakistan, Rupees', '20a8' ),
 			'PAB' => array( 'Panama, Balboas', '42, 2f, 2e' ),
 			'PGK' => array( 'Papua New Guinea, Kina', '4b' ),
@@ -188,7 +184,6 @@ function forminator_currency_list() {
 			'SEK' => array( 'Sweden, Kronor', '6b, 72' ),
 			'CHF' => array( 'Switzerland, Francs', '43, 48, 46' ),
 			'SRD' => array( 'Suriname, Dollars', '24' ),
-			// 'SYP' => array( 'Syria, Pounds', 'a3' ),.
 			'TWD' => array( 'Taiwan, New Dollars', '4e, 54, 24' ),
 			'TJS' => array( 'Tajikistan, Somoni', '53, 4d' ),
 			'TZS' => array( 'Tanzania, Shillings', '54, 53, 68' ),
@@ -196,7 +191,6 @@ function forminator_currency_list() {
 			'TOP' => array( 'Tonga, Paʻanga', '54, 24' ),
 			'TTD' => array( 'Trinidad and Tobago, Dollars', '54, 54, 24' ),
 			'TRY' => array( 'Turkey, Liras', '20BA' ),
-			// 'TVD' => array( 'Tuvalu, Dollars', '24' ),.
 			'UGX' => array( 'Uganda, Shillings', '55, 53, 68' ),
 			'UAH' => array( 'Ukraine, Hryvnia', '20b4' ),
 			'AED' => array( 'United Arab Emirates, Dirhams', '64, 68' ),
@@ -204,7 +198,6 @@ function forminator_currency_list() {
 			'USD' => array( 'United States of America, Dollars', '24' ),
 			'UYU' => array( 'Uruguay, Pesos', '24, 55' ),
 			'UZS' => array( 'Uzbekistan, Sums', '43b, 432' ),
-			// 'VEF' => array( 'Venezuela, Bolivares Fuertes', '42, 73' ),.
 			'VUV' => array( 'Vanuatu, Vatu', '56, 54' ),
 			'VND' => array( 'Vietnam, Dong', '20ab' ),
 			'XAF' => array( 'BEAC, CFA Francs', '46, 43, 46, 41' ),

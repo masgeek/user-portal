@@ -1,18 +1,23 @@
 <?php
-
-require_once dirname( __FILE__ ) . '/class-forminator-addon-hubspot-wp-api-exception.php';
-require_once dirname( __FILE__ ) . '/class-forminator-addon-hubspot-wp-api-not-found-exception.php';
+/**
+ * Forminator Hubspot API
+ *
+ * @package Forminator
+ */
 
 /**
- * Class Forminator_Addon_Hubspot_Wp_Api
+ * Class Forminator_Hubspot_Wp_Api
  */
-class Forminator_Addon_Hubspot_Wp_Api {
+class Forminator_Hubspot_Wp_Api {
 
 	const AUTHORIZE_URL = 'https://app.hubspot.com/oauth/authorize';
 	const CLIENT_ID     = 'd4c00215-5579-414c-a831-95be7218239b';
-	const CLIENT_SECRET = '502c3a75-38fe-4a1f-9fc4-ff2464b639bf';
-	const HAPIKEY       = '7cf97e44-4037-4708-a032-0955318e0e76';
 
+	/**
+	 * OAuth scopes
+	 *
+	 * @var string
+	 */
 	public static $oauth_scopes = 'tickets crm.lists.write crm.lists.read crm.objects.contacts.write crm.objects.contacts.read crm.schemas.contacts.write crm.schemas.contacts.read';
 
 	/**
@@ -32,7 +37,7 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	/**
 	 * Last data sent to hubspot
 	 *
-	 * @since 1.0 HubSpot Addon
+	 * @since 1.0 HubSpot Integration
 	 * @var array
 	 */
 	private $_last_data_sent = array();
@@ -40,7 +45,7 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	/**
 	 * Last data received from hubspot
 	 *
-	 * @since 1.0 HubSpot Addon
+	 * @since 1.0 HubSpot Integration
 	 * @var array
 	 */
 	private $_last_data_received = array();
@@ -48,33 +53,46 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	/**
 	 * Last URL requested
 	 *
-	 * @since 1.0 HubSpot Addon
+	 * @since 1.0 HubSpot Integration
 	 * @var string
 	 */
 	private $_last_url_request = '';
 
+	/**
+	 * Token
+	 *
+	 * @var string
+	 */
 	private $_token = '';
 
+	/**
+	 * Global Id
+	 *
+	 * @var string
+	 */
 	private $_global_id = '';
 
 	/**
+	 * Option name
+	 *
 	 * @var string
 	 */
 	private $option_name = 'forminator-hubspot-token';
 
 	/**
-	 * Forminator_Addon_Hubspot_Wp_Api constructor.
+	 * Forminator_Hubspot_Wp_Api constructor.
 	 *
-	 * @since 1.0 HubSpot Addon
+	 * @since 1.0 HubSpot Integration
 	 *
-	 * @param $_token
+	 * @param string $_token Token.
+	 * @param string $_global_id Global Id.
 	 *
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Exception
+	 * @throws Forminator_Integration_Exception Throws Integration Exception.
 	 */
 	public function __construct( $_token, $_global_id ) {
-		//prerequisites
+		// prerequisites.
 		if ( ! $_token ) {
-			throw new Forminator_Addon_Hubspot_Wp_Api_Exception( __( 'Missing required Token', 'forminator' ) );
+			throw new Forminator_Integration_Exception( esc_html__( 'Missing required Token', 'forminator' ) );
 		}
 
 		$this->_token       = $_token;
@@ -92,12 +110,13 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	/**
 	 * Get singleton
 	 *
-	 * @since 1.0 HubSpot Addon
+	 * @since 1.0 HubSpot Integration
 	 *
-	 * @param $_token
+	 * @param string $_token Token.
+	 * @param string $global_id Global Id.
 	 *
-	 * @return Forminator_Addon_Hubspot_Wp_Api|null
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Exception
+	 * @return Forminator_Hubspot_Wp_Api|null
+	 * @throws Forminator_Integration_Exception Throws Integration Exception.
 	 */
 	public static function get_instance( $_token, $global_id ) {
 		if ( ! isset( self::$_instances[ md5( $_token ) ] ) ) {
@@ -110,9 +129,9 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	/**
 	 * Add custom user agent on request
 	 *
-	 * @since 1.0 HubSpot Addon
+	 * @since 1.0 HubSpot Integration
 	 *
-	 * @param $user_agent
+	 * @param string $user_agent User Agent.
 	 *
 	 * @return string
 	 */
@@ -134,17 +153,16 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	/**
 	 * HTTP Request
 	 *
-	 * @since 1.0 HubSpot Addon
+	 * @since 1.0 HubSpot Integration
 	 *
-	 * @param string $verb
-	 * @param        $path
-	 * @param array $args
-	 * @param string $access_token
-	 * @param bool $json
+	 * @param string $verb `GET` `POST` `PUT` `DELETE` `PATCH`.
+	 * @param string $path Requested path.
+	 * @param array  $args Arguments.
+	 * @param string $access_token Access token.
+	 * @param bool   $json Is Json.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Exception
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Not_Found_Exception
+	 * @throws Forminator_Integration_Exception Throws Integration Exception.
 	 */
 	private function request( $verb, $path, $args, $access_token, $json = false ) {
 		if ( ! is_array( $args ) ) {
@@ -171,9 +189,12 @@ class Forminator_Addon_Hubspot_Wp_Api {
 
 		$this->_last_url_request = $url;
 
-		$headers = array(
-			'Authorization' => 'Bearer ' . ( ! empty( $access_token ) ? $access_token : self::HAPIKEY ),
-		);
+		$headers = array();
+		if ( $access_token ) {
+			$headers = array(
+				'Authorization' => 'Bearer ' . $access_token,
+			);
+		}
 
 		if ( 'GET' !== $verb && ! $json ) {
 			$headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=utf-8';
@@ -227,8 +248,8 @@ class Forminator_Addon_Hubspot_Wp_Api {
 		remove_filter( 'http_headers_useragent', array( $this, 'filter_user_agent' ) );
 
 		if ( is_wp_error( $res ) || ! $res ) {
-			throw new Forminator_Addon_Hubspot_Wp_Api_Exception(
-				__( 'Failed to process request, make sure your API URL is correct and your server has internet connection.', 'forminator' )
+			throw new Forminator_Integration_Exception(
+				esc_html__( 'Failed to process request, make sure your API URL is correct and your server has internet connection.', 'forminator' )
 			);
 		}
 
@@ -241,11 +262,21 @@ class Forminator_Addon_Hubspot_Wp_Api {
 				}
 
 				if ( 404 === $status_code ) {
-					/* translators: ... */
-					throw new Forminator_Addon_Hubspot_Wp_Api_Not_Found_Exception( sprintf( __( 'Failed to process request : %s', 'forminator' ), esc_html( $msg ) ) );
+					throw new Forminator_Integration_Exception(
+						sprintf(
+						/* translators: %s: Error message */
+							esc_html__( 'Failed to process request : %s', 'forminator' ),
+							esc_html( $msg )
+						)
+					);
 				}
-				/* translators: ... */
-				throw new Forminator_Addon_Hubspot_Wp_Api_Exception( sprintf( __( 'Failed to process request : %s', 'forminator' ), esc_html( $msg ) ) );
+				throw new Forminator_Integration_Exception(
+					sprintf(
+					/* translators: %s: Error message */
+						esc_html__( 'Failed to process request : %s', 'forminator' ),
+						esc_html( $msg )
+					)
+				);
 			}
 		}
 
@@ -257,23 +288,33 @@ class Forminator_Addon_Hubspot_Wp_Api {
 
 			$this->_last_data_received = $res;
 			if ( isset( $res->status ) && 'error' === $res->status ) {
-				$message = isset( $res->message ) ? $res->message : __( 'Invalid', 'forminator' );
-				/* translators: ... */
-				throw new Forminator_Addon_Hubspot_Wp_Api_Not_Found_Exception( sprintf( __( 'Failed to process request : %s', 'forminator' ), esc_html( $message ) ) );
+				$message = isset( $res->message ) ? $res->message : esc_html__( 'Invalid', 'forminator' );
+				throw new Forminator_Integration_Exception(
+					sprintf(
+					/* translators: %s: Error message */
+						esc_html__( 'Failed to process request : %s', 'forminator' ),
+						esc_html( $message )
+					)
+				);
 			}
 			if ( isset( $res->ok ) && false === $res->ok ) {
 				$msg = '';
 				if ( isset( $res->error ) ) {
 					$msg = $res->error;
 				}
-				/* translators: ... */
-				throw new Forminator_Addon_Hubspot_Wp_Api_Exception( sprintf( __( 'Failed to process request : %s', 'forminator' ), esc_html( $msg ) ) );
+				throw new Forminator_Integration_Exception(
+					sprintf(
+					/* translators: %s: Error message */
+						esc_html__( 'Failed to process request : %s', 'forminator' ),
+						esc_html( $msg )
+					)
+				);
 			}
 		}
 
 		$response = $res;
 		/**
-		 * Filter hubspot api response returned to addon
+		 * Filter hubspot api response returned to integration
 		 *
 		 * @since 1.1
 		 *
@@ -291,7 +332,7 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	/**
 	 * Get last data sent
 	 *
-	 * @since 1.0 HubSpot Addon
+	 * @since 1.0 HubSpot Integration
 	 *
 	 * @return array
 	 */
@@ -302,7 +343,7 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	/**
 	 * Get last data received
 	 *
-	 * @since 1.0 HubSpot Addon
+	 * @since 1.0 HubSpot Integration
 	 *
 	 * @return array
 	 */
@@ -313,7 +354,7 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	/**
 	 * Get last data received
 	 *
-	 * @since 1.0 HubSpot Addon
+	 * @since 1.0 HubSpot Integration
 	 *
 	 * @return string
 	 */
@@ -333,7 +374,7 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	/**
 	 * Update token data.
 	 *
-	 * @param array $token
+	 * @param array $token Token.
 	 *
 	 * @return void
 	 */
@@ -345,29 +386,17 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	 * Is authorized
 	 *
 	 * @return array|bool|mixed|object
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Exception
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Not_Found_Exception
 	 */
 	public function is_authorized() {
 		$auth = $this->get_auth_token();
 
-		if ( empty( $auth ) ) {
-			return false;
-		}
-
-		if ( ! empty( $auth['expires_in'] ) && time() < $auth['expires_in'] ) {
-			return true;
-		}
-
-		return false;
+		return ! empty( $auth['expires_in'] ) && time() < $auth['expires_in'];
 	}
 
 	/**
 	 * Rfresh access token
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Exception
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Not_Found_Exception
 	 */
 	public function refresh_access_token() {
 		$args     = array(
@@ -376,7 +405,7 @@ class Forminator_Addon_Hubspot_Wp_Api {
 		);
 		$response = $this->get_access_token( $args );
 
-		if ( ! is_wp_error( $response ) && ! empty( $response->access_token ) ) {
+		if ( ! empty( $response->access_token ) ) {
 			return $response->access_token;
 		}
 
@@ -386,7 +415,7 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	/**
 	 * Get token
 	 *
-	 * @param $key
+	 * @param string $key Key.
 	 *
 	 * @return bool|mixed
 	 */
@@ -404,8 +433,6 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	 * Get the current token's information.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Exception
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Not_Found_Exception
 	 */
 	public function get_access_token_information() {
 
@@ -425,34 +452,43 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	/**
 	 * Get access token
 	 *
-	 * @param array $args
+	 * @param array $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Exception
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Not_Found_Exception
+	 * @throws Forminator_Hubspot_Wp_Api_Exception Throws Integration Exception.
 	 */
 	public function get_access_token( $args = array() ) {
 		$default_args = array(
-			'grant_type'    => 'authorization_code',
-			'client_id'     => self::CLIENT_ID,
-			'client_secret' => self::CLIENT_SECRET,
-			'scope'         => rawurlencode( self::$oauth_scopes ),
+			'grant_type' => 'authorization_code',
+			'state'      => 'state', // It's added just because state param is required on the final endpoint. It's unuseful here.
 		);
 		$args         = array_merge( $default_args, $args );
 
-		$response = $this->request(
-			'POST',
-			'oauth/v1/token',
-			$args,
-			''
+		$url = Forminator_Hubspot::redirect_uri(
+			'hubspot',
+			'get_access_token',
+			$args
 		);
-		if ( ! is_wp_error( $response ) && ! empty( $response->refresh_token ) ) {
+
+		$res      = wp_remote_get( $url );
+		$body     = is_wp_error( $res ) || ! $res ? '' : wp_remote_retrieve_body( $res );
+		$response = $body ? json_decode( $body ) : '';
+		if ( ! empty( $response->refresh_token ) ) {
 			$token_data = get_object_vars( $response );
 
 			$token_data['expires_in'] += time();
 
 			// Update auth token.
 			$this->update_auth_token( $token_data );
+		} elseif ( isset( $response->error ) ) {
+			if ( 'failed_request' === $response->error ) {
+				$error = esc_html__( 'Failed to process request, make sure your API URL is correct and your server has internet connection.', 'forminator' );
+			} else {
+				/* Translators: 1. Error message. */
+				$error = sprintf( esc_html__( 'Failed to process request : %s', 'forminator' ), esc_html( $response->error ) );
+			}
+
+			throw new Forminator_Hubspot_Wp_Api_Exception( $error ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception message is already escaped.
 		}
 
 		return $response;
@@ -461,14 +497,12 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	/**
 	 * Helper function to send authenticated Post request.
 	 *
-	 * @param $verb
-	 * @param $end_point
-	 * @param array $query_args
-	 * @param array $json
+	 * @param string $verb Request type.
+	 * @param string $end_point Request URL.
+	 * @param array  $query_args Arguments.
+	 * @param bool   $json Is Json.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Exception
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Not_Found_Exception
 	 */
 	public function send_authenticated( $verb, $end_point, $query_args = array(), $json = false ) {
 		if ( $this->is_authorized() ) {
@@ -483,11 +517,9 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	/**
 	 * Get Contact list
 	 *
-	 * @param array $args
+	 * @param array $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Exception
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Not_Found_Exception
 	 */
 	public function get_contact_list( $args = array() ) {
 		$default_args = array(
@@ -503,11 +535,9 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	/**
 	 * Add contact subscriber to HubSpot.
 	 *
-	 * @param $data
+	 * @param array $data Contact Data.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Exception
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Not_Found_Exception
 	 */
 	public function add_update_contact( $data ) {
 		$props = array();
@@ -535,11 +565,9 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	/**
 	 * Add contact subscriber to HubSpot.
 	 *
-	 * @param $data
+	 * @param array $data Contact Data.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Exception
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Not_Found_Exception
 	 */
 	public function delete_contact( $data ) {
 		$args     = array();
@@ -553,13 +581,11 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	/**
 	 * Add contact to contact list.
 	 *
-	 * @param $contact_id
-	 * @param $email
-	 * @param $email_list
+	 * @param string $contact_id Contact id.
+	 * @param string $email Email.
+	 * @param string $email_list Email list.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Exception
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Not_Found_Exception
 	 */
 	public function add_to_contact_list( $contact_id, $email, $email_list ) {
 		$args     = array(
@@ -585,11 +611,9 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	/**
 	 * Get Pipeline list
 	 *
-	 * @param array $args
+	 * @param array $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Exception
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Not_Found_Exception
 	 */
 	public function get_pipeline( $args = array() ) {
 		$response = $this->send_authenticated( 'GET', 'crm-pipelines/v1/pipelines/tickets', $args );
@@ -600,11 +624,9 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	/**
 	 * Add contact to contact list.
 	 *
-	 * @param $ticket
+	 * @param array $ticket Tickets.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Exception
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Not_Found_Exception
 	 */
 	public function create_ticket( $ticket ) {
 		$args    = array();
@@ -619,13 +641,13 @@ class Forminator_Addon_Hubspot_Wp_Api {
 		foreach ( $request as $key => $value ) {
 			$args[ $i ]['name']  = $key;
 			$args[ $i ]['value'] = $value;
-			$i ++;
+			++$i;
 		}
 		$endpoint = 'crm-objects/v1/objects/tickets';
 		$response = $this->send_authenticated( 'POST', $endpoint, $args, true );
 
-		if ( ! is_wp_error( $response ) && ! empty( $response->objectId ) ) {
-			return $response->objectId;
+		if ( ! is_wp_error( $response ) && ! empty( $response->objectId ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			return $response->objectId; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		}
 
 		return $response;
@@ -634,11 +656,9 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	/**
 	 * Associate ticket with contact
 	 *
-	 * @param $args
+	 * @param array $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Exception
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Not_Found_Exception
 	 */
 	public function ticket_associate_contact( $args = array() ) {
 		$default_args = array(
@@ -656,11 +676,9 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	/**
 	 * Delete Tickets
 	 *
-	 * @param $data
+	 * @param array $data Data to delete.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Exception
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Not_Found_Exception
 	 */
 	public function delete_ticket( $data ) {
 		$args     = array();
@@ -674,11 +692,9 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	/**
 	 * Get Properties list
 	 *
-	 * @param array $args
+	 * @param array $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Exception
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Not_Found_Exception
 	 */
 	public function get_properties( $args = array() ) {
 		$response = $this->send_authenticated( 'GET', 'properties/v1/contacts/properties', $args );
@@ -689,13 +705,11 @@ class Forminator_Addon_Hubspot_Wp_Api {
 	/**
 	 * Get Property of field
 	 *
-	 * @param string $property
-	 * @param string $field
-	 * @param array $args
+	 * @param string $property Property.
+	 * @param string $field Field.
+	 * @param array  $args Arguments.
 	 *
 	 * @return array|mixed|object
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Exception
-	 * @throws Forminator_Addon_Hubspot_Wp_Api_Not_Found_Exception
 	 */
 	public function get_property( $property, $field, $args ) {
 		$response = $this->send_authenticated( 'GET', 'properties/v1/contacts/properties/named/' . $field, $args );
@@ -703,8 +717,7 @@ class Forminator_Addon_Hubspot_Wp_Api {
 		if ( property_exists( $response, $property ) ) {
 			return $response->$property;
 		} else {
-			return __( 'Property does not exist', 'forminator' );
+			return esc_html__( 'Property does not exist', 'forminator' );
 		}
 	}
-
 }

@@ -3,6 +3,8 @@ if ( ! class_exists( 'BravePop_Pabbly' ) ) {
    
    class BravePop_Pabbly {
 
+      protected $api_key;
+
       function __construct() {
          $braveSettings = get_option('_bravepopup_settings');
          $integrations = $braveSettings && isset($braveSettings['integrations']) ? $braveSettings['integrations'] : array() ;
@@ -39,7 +41,7 @@ if ( ! class_exists( 'BravePop_Pabbly' ) ) {
                   $finalLists[] = $listItem;
                }
             }
-            return json_encode($finalLists);
+            return wp_json_encode($finalLists);
          }else{
             return false;
          }
@@ -78,14 +80,14 @@ if ( ! class_exists( 'BravePop_Pabbly' ) ) {
                'content-type' => 'application/json',
                'Authorization' => 'Bearer ' .$this->api_key 
             ),
-            'body' => json_encode($contact)
+            'body' => wp_json_encode($contact)
          );
 
          $response = wp_remote_post( 'https://emails.pabbly.com/api/subscribers', $args );
 
          $body = wp_remote_retrieve_body( $response );
          $data = json_decode( $body );
-         //error_log(json_encode($data->Data[0]));
+         //error_log(wp_json_encode($data->Data[0]));
          if($data && isset($data->status) && $data->status === 'success'){
             //error_log('##### USER ADDED #####');
             return $data->status; 

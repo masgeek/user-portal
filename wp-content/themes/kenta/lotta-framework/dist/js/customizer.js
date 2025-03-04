@@ -111,23 +111,25 @@
             window.Lotta = {};
         }
         window.Lotta.expand = function(location) {
-            var path = location.split(":");
-            var section = path.shift();
-            var expanded = Object.values(wp.customize.section._value).find((function(e) {
-                return e.expanded();
+            setTimeout((function() {
+                var path = location.split(":");
+                var section = path.shift();
+                var expanded = Object.values(wp.customize.section._value).find((function(e) {
+                    return e.expanded();
+                }));
+                LottaEvents.trigger("lotta-before-expand-panel", path);
+                var timeout = 0;
+                if (!expanded || expanded.id !== section) {
+                    var s = wp.customize.section(section);
+                    s && s.expand();
+                    timeout = 180;
+                }
+                if (path.length > 0) {
+                    setTimeout((function() {
+                        return LottaEvents.trigger("lotta-expand-panel", path);
+                    }), timeout);
+                }
             }));
-            LottaEvents.trigger("lotta-before-expand-panel", path);
-            var timeout = 0;
-            if (!expanded || expanded.id !== section) {
-                var s = wp.customize.section(section);
-                s && s.expand();
-                timeout = 180;
-            }
-            if (path.length > 0) {
-                setTimeout((function() {
-                    return LottaEvents.trigger("lotta-expand-panel", path);
-                }), timeout);
-            }
         };
         if (wp.customize) {
             wp.customize.bind("ready", (function() {
@@ -150,11 +152,14 @@
             clamp: () => clamp,
             clampMax: () => clampMax,
             composeEventHandlers: () => composeEventHandlers,
+            generateFontFacesCss: () => generateFontFacesCss,
             getColorValue: () => getColorValue,
             getQueryParams: () => getQueryParams,
             in_array: () => in_array,
+            loadCustomFonts: () => loadCustomFonts,
             round: () => round,
-            roundWholeNumbers: () => roundWholeNumbers
+            roundWholeNumbers: () => roundWholeNumbers,
+            sanitize_array_value: () => sanitize_array_value
         });
         var _index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
         function _typeof(obj) {
@@ -333,6 +338,41 @@
             }
             return target;
         }
+        function sanitize_array_value(v) {
+            return Array.isArray(v) ? v : [];
+        }
+        function generateFontFacesCss(fonts) {
+            var parse_css = "";
+            fonts.forEach((function(font) {
+                parse_css += "@font-face {";
+                parse_css += "font-family: '".concat(font["f"], "';");
+                parse_css += "font-weight: '".concat(font["v"], "';");
+                font["u"].forEach((function(src) {
+                    if (src.indexOf(".otf") !== -1) {
+                        parse_css += "src: url('".concat(src, '\') format("opentype");');
+                    } else if (src.indexOf(".ttf") !== -1) {
+                        parse_css += "src: url('".concat(src, '\') format("truetype");');
+                    } else if (src.indexOf(".woff2") !== -1) {
+                        parse_css += "src: url('".concat(src, '\') format("woff2");');
+                    } else if (src.indexOf(".woff") !== -1) {
+                        parse_css += "src: url('".concat(src, '\') format("woff");');
+                    }
+                }));
+                parse_css += "}";
+            }));
+            return parse_css;
+        }
+        var loadCustomFonts = function loadCustomFonts(fonts) {
+            if (fonts.length <= 0 || !window.Lotta || !window.Lotta.customizer.settings) {
+                return;
+            }
+            var custom_fonts = window.Lotta.customizer.settings.custom_fonts;
+            var parse_css = generateFontFacesCss(fonts.map((function(f) {
+                return custom_fonts[f];
+            })));
+            jQuery("style#lotta-dynamic-custom-fonts-loader").remove();
+            jQuery("head").append('<style id="lotta-dynamic-custom-fonts-loader">' + parse_css + "</style>");
+        };
     }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
         "use strict";
         __webpack_require__.r(__webpack_exports__);
@@ -417,8 +457,8 @@
         var buildNestedControls = function buildNestedControls(_ref) {
             var controls = _ref.controls, _onChange = _ref.onChange, settings = _ref.settings;
             return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_nested_controls__WEBPACK_IMPORTED_MODULE_2__["default"], {
-                onChange: function onChange(val, id) {
-                    _onChange(val, id);
+                onChange: function onChange(val, id, self) {
+                    _onChange(val, id, self);
                 },
                 controls,
                 value: settings ? settings : CZ_VALUES
@@ -483,7 +523,7 @@
                 renderContent: function renderContent() {
                     var _this = this;
                     var options = Object.assign({}, this.params, this.params.options || {});
-                    (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.render)(buildControl({
+                    var controlEl = buildControl({
                         id: this.id,
                         options,
                         value: this.setting.get(),
@@ -495,7 +535,15 @@
                             LottaEvents.trigger("lotta-setting-change", id, v);
                         },
                         Component
-                    }), this.container[0]);
+                    });
+                    if (_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createRoot) {
+                        if (!this.reactDOMRoot) {
+                            this.reactDOMRoot = (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createRoot)(this.container[0]);
+                        }
+                        this.reactDOMRoot.render(controlEl);
+                    } else {
+                        (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.render)(controlEl, this.container[0]);
+                    }
                 },
                 ready: function ready() {
                     var _this2 = this;
@@ -504,7 +552,12 @@
                     }));
                 },
                 destroy: function destroy() {
-                    (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.unmountComponentAtNode)(this.container[0]);
+                    if (this.reactDOMRoot) {
+                        this.reactDOMRoot.unmount();
+                        this.reactDOMRoot = null;
+                    } else {
+                        (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.unmountComponentAtNode)(this.container[0]);
+                    }
                     if (wp.customize.Control.prototype.destroy) {
                         wp.customize.Control.prototype.destroy.call(this);
                     }
@@ -776,6 +829,15 @@
                         }
                         onChangeWithMobileBridge.apply(void 0, [ options.responsive ? _objectSpread(_objectSpread({}, promoteScalarValueIntoResponsive(value)), {}, _defineProperty({}, _this3.state.device, scalarValue)) : scalarValue ].concat(args));
                     };
+                    if (design === "raw") {
+                        return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(Control, {
+                            id,
+                            onChange: onChangeWithResponsiveBridge,
+                            value: valueWithResponsive,
+                            options,
+                            settings
+                        });
+                    }
                     var label = Object.keys(options).indexOf("label") === -1 ? (id || "").replace(/./, (function(s) {
                         return s.toUpperCase();
                     })).replace(/\_|\-/g, " ") : options.label;
@@ -4870,8 +4932,7 @@ object-assign
         var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6);
         var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = __webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
         var _generic_control__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(72);
-        var _index__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(5);
-        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(10);
+        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(10);
         function _typeof(obj) {
             "@babel/helpers - typeof";
             return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(obj) {
@@ -5019,14 +5080,14 @@ object-assign
                 key: "render",
                 value: function render() {
                     var _this$props = this.props, value = _this$props.value, controls = _this$props.controls, _onChange = _this$props.onChange;
-                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
+                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
                         children: controls.map((function(control) {
-                            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_generic_control__WEBPACK_IMPORTED_MODULE_1__["default"], {
+                            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(_generic_control__WEBPACK_IMPORTED_MODULE_1__["default"], {
                                 id: control.id,
                                 settings: value,
                                 options: Object.assign({}, control, control.options || {}),
                                 onChange: function onChange(v, id) {
-                                    _onChange(v, id || control.id);
+                                    _onChange(v, id || control.id, id === control.id);
                                     LottaEvents.trigger("lotta-setting-change", control.id, v);
                                 }
                             }, control.id);
@@ -5208,7 +5269,7 @@ object-assign
         var _toggle__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(176);
         var _section__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(177);
         var _color_picker__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(189);
-        var _border__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(254);
+        var _border__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(266);
         var _color_palettes__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(267);
         var _spacing__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(268);
         var _select__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(270);
@@ -5234,6 +5295,7 @@ object-assign
         var _icons__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(327);
         var _multi_select__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(328);
         var _filters__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(329);
+        var _file_uploader__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(330);
         var controls = {
             "lotta-text": _text__WEBPACK_IMPORTED_MODULE_0__["default"],
             "lotta-text-area": _text_area__WEBPACK_IMPORTED_MODULE_1__["default"],
@@ -5267,7 +5329,8 @@ object-assign
             "lotta-repeater": _repeater__WEBPACK_IMPORTED_MODULE_29__["default"],
             "lotta-icons": _icons__WEBPACK_IMPORTED_MODULE_30__["default"],
             "lotta-multi-select": _multi_select__WEBPACK_IMPORTED_MODULE_31__["default"],
-            "lotta-css-filters": _filters__WEBPACK_IMPORTED_MODULE_32__["default"]
+            "lotta-css-filters": _filters__WEBPACK_IMPORTED_MODULE_32__["default"],
+            "lotta-file-uploader": _file_uploader__WEBPACK_IMPORTED_MODULE_33__["default"]
         };
         const __WEBPACK_DEFAULT_EXPORT__ = controls;
     }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
@@ -11126,6 +11189,7 @@ object-assign
             _createClass(PanelContent, [ {
                 key: "render",
                 value: function render() {
+                    var _this = this;
                     var _this$props = this.props, controls = _this$props.controls, getSettings = _this$props.getSettings, style = _this$props.style, titlePrefix = _this$props.titlePrefix, label = _this$props.label, onClose = _this$props.onClose, _onChange = _this$props.onChange;
                     return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)(_react_spring_web__WEBPACK_IMPORTED_MODULE_2__.animated.div, {
                         style,
@@ -11149,8 +11213,11 @@ object-assign
                             children: (0, _customizer_index__WEBPACK_IMPORTED_MODULE_1__.buildNestedControls)({
                                 settings: getSettings,
                                 controls,
-                                onChange: function onChange(val, id) {
+                                onChange: function onChange(val, id, self) {
                                     _onChange(val, id);
+                                    if (!self) {
+                                        _this.forceUpdate();
+                                    }
                                 }
                             })
                         }) ]
@@ -11163,35 +11230,36 @@ object-assign
             _inherits(Panel, _Component2);
             var _super2 = _createSuper(Panel);
             function Panel() {
-                var _this;
+                var _this2;
                 _classCallCheck(this, Panel);
                 for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
                     args[_key] = arguments[_key];
                 }
-                _this = _super2.call.apply(_super2, [ this ].concat(args));
-                _defineProperty(_assertThisInitialized(_this), "container", (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createRef)());
-                _defineProperty(_assertThisInitialized(_this), "wrapper", null);
-                _defineProperty(_assertThisInitialized(_this), "unbind", []);
-                _defineProperty(_assertThisInitialized(_this), "current", null);
-                _defineProperty(_assertThisInitialized(_this), "open", (function(options) {
+                _this2 = _super2.call.apply(_super2, [ this ].concat(args));
+                _defineProperty(_assertThisInitialized(_this2), "container", (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createRef)());
+                _defineProperty(_assertThisInitialized(_this2), "wrapper", null);
+                _defineProperty(_assertThisInitialized(_this2), "unbind", []);
+                _defineProperty(_assertThisInitialized(_this2), "current", null);
+                _defineProperty(_assertThisInitialized(_this2), "reactDOMRoot", null);
+                _defineProperty(_assertThisInitialized(_this2), "open", (function(options) {
                     var controls = options.controls;
                     var label = options.label || (options.id || "").replace(/./, (function(s) {
                         return s.toUpperCase();
                     })).replace(/\_|\-/g, " ");
-                    _this.current = options.id || null;
-                    if (wp.customize && wp.customize.previewer && _this.props.id) {
-                        wp.customize.previewer.send("lotta-panel-open", _this.props.id);
+                    _this2.current = options.id || null;
+                    if (wp.customize && wp.customize.previewer && _this2.props.id) {
+                        wp.customize.previewer.send("lotta-panel-open", _this2.props.id);
                     }
-                    if (!_this.wrapper) {
-                        _this.wrapper = document.createElement("div");
-                        _this.wrapper.classList.add("lotta-panel-wrapper");
+                    if (!_this2.wrapper) {
+                        _this2.wrapper = document.createElement("div");
+                        _this2.wrapper.classList.add("lotta-panel-wrapper");
                     }
-                    var czControls = _this.container.current.closest('[id="customize-theme-controls"]');
+                    var czControls = _this2.container.current.closest('[id="customize-theme-controls"]');
                     if (!czControls) {
                         return;
                     }
-                    czControls.appendChild(_this.wrapper);
-                    var section = _this.container.current.closest(".accordion-section-content") || _this.container.current.closest(".lotta-customizer-panel");
+                    czControls.appendChild(_this2.wrapper);
+                    var section = _this2.container.current.closest(".accordion-section-content") || _this2.container.current.closest(".lotta-customizer-panel");
                     if (!section) {
                         return;
                     }
@@ -11199,7 +11267,7 @@ object-assign
                     var titlePrefix = "";
                     var h3 = section.querySelector(".customize-section-description-container h3") || section.querySelector(".customize-panel-actions h3");
                     h3 && (titlePrefix = "".concat(h3.querySelector("span").innerText, " ▸ ").concat(h3.innerText.split("\n")[h3.innerText.split("\n").length - 1]));
-                    (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.render)((0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_react_spring_web__WEBPACK_IMPORTED_MODULE_2__.Transition, {
+                    var panelContentEl = (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_react_spring_web__WEBPACK_IMPORTED_MODULE_2__.Transition, {
                         items: options,
                         from: {
                             transform: "translateX(100%)"
@@ -11223,41 +11291,54 @@ object-assign
                                 style: props,
                                 controls,
                                 getSettings: function getSettings() {
-                                    if (_this.props.getSettings) {
-                                        return _this.props.getSettings(options.id);
+                                    if (_this2.props.getSettings) {
+                                        return _this2.props.getSettings(options.id);
                                     }
                                     return undefined;
                                 },
                                 onChange: function onChange(val, id) {
-                                    if (_this.props.onChange) {
-                                        _this.props.onChange(options.id, id, val);
+                                    if (_this2.props.onChange) {
+                                        _this2.props.onChange(options.id, id, val);
                                     }
                                 },
                                 titlePrefix,
                                 label,
-                                onClose: _this.close
+                                onClose: _this2.close
                             });
                         }
-                    }), _this.wrapper);
+                    });
+                    if (_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createRoot) {
+                        if (!_this2.reactDOMRoot) {
+                            _this2.reactDOMRoot = (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createRoot)(_this2.wrapper);
+                        }
+                        _this2.reactDOMRoot.render(panelContentEl);
+                    } else {
+                        (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.render)(panelContentEl, _this2.wrapper);
+                    }
                 }));
-                _defineProperty(_assertThisInitialized(_this), "close", (function() {
-                    var section = _this.container.current.closest(".accordion-section-content") || _this.container.current.closest(".lotta-customizer-panel");
+                _defineProperty(_assertThisInitialized(_this2), "close", (function() {
+                    var section = _this2.container.current.closest(".accordion-section-content") || _this2.container.current.closest(".lotta-customizer-panel");
                     section && section.classList.remove("lotta-panel-open");
-                    if (!_this.wrapper) {
+                    if (!_this2.wrapper) {
                         return;
                     }
-                    var innerSection = _this.wrapper.querySelector(".lotta-customizer-panel");
+                    var innerSection = _this2.wrapper.querySelector(".lotta-customizer-panel");
                     innerSection && innerSection.classList.add("lotta-panel-close");
                     setTimeout((function() {
-                        if (wp.customize && wp.customize.previewer && _this.props.id) {
-                            wp.customize.previewer.send("lotta-panel-close", _this.props.id);
+                        if (wp.customize && wp.customize.previewer && _this2.props.id) {
+                            wp.customize.previewer.send("lotta-panel-close", _this2.props.id);
                         }
-                        (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.unmountComponentAtNode)(_this.wrapper);
-                        _this.wrapper.remove();
-                        _this.wrapper = null;
+                        if (_this2.reactDOMRoot) {
+                            _this2.reactDOMRoot.unmount();
+                            _this2.reactDOMRoot = null;
+                        } else {
+                            (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.unmountComponentAtNode)(_this2.wrapper);
+                        }
+                        _this2.wrapper.remove();
+                        _this2.wrapper = null;
                     }), 180);
                 }));
-                return _this;
+                return _this2;
             }
             _createClass(Panel, [ {
                 key: "componentDidMount",
@@ -14918,25 +14999,18 @@ object-assign
         "use strict";
         __webpack_require__.r(__webpack_exports__);
         __webpack_require__.d(__webpack_exports__, {
-            default: () => ColorPicker
+            ColorPickerHooks: () => ColorPickerHooks,
+            default: () => __WEBPACK_DEFAULT_EXPORT__
         });
-        var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6);
-        var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = __webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
-        var _components_state_popup__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(190);
-        var _components_tooltip__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(251);
-        var _components_react_color_picker__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(252);
-        var _utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(4);
-        var clsx__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(9);
-        var _index__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(5);
+        var _components_state_popup__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(190);
+        var _components_tooltip__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(251);
+        var _components_react_color_picker__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(252);
+        var _utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(4);
+        var clsx__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(9);
+        var _index__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(5);
+        var _wordpress_element__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(6);
+        var _wordpress_element__WEBPACK_IMPORTED_MODULE_6___default = __webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_6__);
         var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(10);
-        function _typeof(obj) {
-            "@babel/helpers - typeof";
-            return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(obj) {
-                return typeof obj;
-            } : function(obj) {
-                return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-            }, _typeof(obj);
-        }
         function ownKeys(object, enumerableOnly) {
             var keys = Object.keys(object);
             if (Object.getOwnPropertySymbols) {
@@ -14958,95 +15032,6 @@ object-assign
             }
             return target;
         }
-        function _classCallCheck(instance, Constructor) {
-            if (!(instance instanceof Constructor)) {
-                throw new TypeError("Cannot call a class as a function");
-            }
-        }
-        function _defineProperties(target, props) {
-            for (var i = 0; i < props.length; i++) {
-                var descriptor = props[i];
-                descriptor.enumerable = descriptor.enumerable || false;
-                descriptor.configurable = true;
-                if ("value" in descriptor) descriptor.writable = true;
-                Object.defineProperty(target, descriptor.key, descriptor);
-            }
-        }
-        function _createClass(Constructor, protoProps, staticProps) {
-            if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-            if (staticProps) _defineProperties(Constructor, staticProps);
-            Object.defineProperty(Constructor, "prototype", {
-                writable: false
-            });
-            return Constructor;
-        }
-        function _inherits(subClass, superClass) {
-            if (typeof superClass !== "function" && superClass !== null) {
-                throw new TypeError("Super expression must either be null or a function");
-            }
-            subClass.prototype = Object.create(superClass && superClass.prototype, {
-                constructor: {
-                    value: subClass,
-                    writable: true,
-                    configurable: true
-                }
-            });
-            Object.defineProperty(subClass, "prototype", {
-                writable: false
-            });
-            if (superClass) _setPrototypeOf(subClass, superClass);
-        }
-        function _setPrototypeOf(o, p) {
-            _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) {
-                o.__proto__ = p;
-                return o;
-            };
-            return _setPrototypeOf(o, p);
-        }
-        function _createSuper(Derived) {
-            var hasNativeReflectConstruct = _isNativeReflectConstruct();
-            return function _createSuperInternal() {
-                var Super = _getPrototypeOf(Derived), result;
-                if (hasNativeReflectConstruct) {
-                    var NewTarget = _getPrototypeOf(this).constructor;
-                    result = Reflect.construct(Super, arguments, NewTarget);
-                } else {
-                    result = Super.apply(this, arguments);
-                }
-                return _possibleConstructorReturn(this, result);
-            };
-        }
-        function _possibleConstructorReturn(self, call) {
-            if (call && (_typeof(call) === "object" || typeof call === "function")) {
-                return call;
-            } else if (call !== void 0) {
-                throw new TypeError("Derived constructors may only return object or undefined");
-            }
-            return _assertThisInitialized(self);
-        }
-        function _assertThisInitialized(self) {
-            if (self === void 0) {
-                throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-            }
-            return self;
-        }
-        function _isNativeReflectConstruct() {
-            if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-            if (Reflect.construct.sham) return false;
-            if (typeof Proxy === "function") return true;
-            try {
-                Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], (function() {})));
-                return true;
-            } catch (e) {
-                return false;
-            }
-        }
-        function _getPrototypeOf(o) {
-            _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) {
-                return o.__proto__ || Object.getPrototypeOf(o);
-            };
-            return _getPrototypeOf(o);
-        }
         function _defineProperty(obj, key, value) {
             if (key in obj) {
                 Object.defineProperty(obj, key, {
@@ -15060,85 +15045,101 @@ object-assign
             }
             return obj;
         }
-        var ColorPicker = function(_Component) {
-            _inherits(ColorPicker, _Component);
-            var _super = _createSuper(ColorPicker);
-            function ColorPicker() {
-                var _this;
-                _classCallCheck(this, ColorPicker);
-                for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-                    args[_key] = arguments[_key];
-                }
-                _this = _super.call.apply(_super, [ this ].concat(args));
-                _defineProperty(_assertThisInitialized(_this), "container", (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createRef)());
-                return _this;
-            }
-            _createClass(ColorPicker, [ {
-                key: "render",
-                value: function render() {
-                    var _this$props = this.props, options = _this$props.options, value = _this$props.value, _onChange = _this$props.onChange;
-                    if (!options.colors) {
-                        return null;
-                    }
-                    var colorValues = {};
-                    options.colors.forEach((function(c) {
-                        colorValues[c.id] = value[c.id] || _index__WEBPACK_IMPORTED_MODULE_6__.CSS_INITIAL_VALUE;
-                    }));
-                    var swatches = options.swatches;
-                    if (!swatches && window.Lotta && window.Lotta.customizer && window.Lotta.customizer.colorPicker) {
-                        swatches = window.Lotta.customizer.colorPicker.swatches;
-                    }
-                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("div", {
-                        className: "lotta-color-picker",
-                        children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("div", {
-                            className: "colors",
-                            ref: this.container,
-                            children: options.colors.map((function(color) {
-                                return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_components_state_popup__WEBPACK_IMPORTED_MODULE_1__["default"], {
-                                    placement: "bottom",
-                                    content: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_components_react_color_picker__WEBPACK_IMPORTED_MODULE_3__["default"], {
-                                        swatches,
-                                        enableAlpha: options.alpha,
-                                        color: (0, _utils__WEBPACK_IMPORTED_MODULE_4__.getColorValue)(colorValues[color.id]),
-                                        onChange: function onChange(v) {
-                                            _onChange(_objectSpread(_objectSpread({}, colorValues), {}, _defineProperty({}, color.id, v !== _index__WEBPACK_IMPORTED_MODULE_6__.CSS_INITIAL_VALUE && options.computed ? (0, 
-                                            _utils__WEBPACK_IMPORTED_MODULE_4__.getColorValue)(v) : v)));
+        function ColorPickerHooks(props) {
+            (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_6__.useEffect)((function() {
+                return LottaEvents.bind("lotta-setting-change", (function(id, colors) {
+                    if (id === props.id) {
+                        var options = props.options;
+                        if (options.set_customizer_colors) {
+                            var css = options.set_customizer_colors.selector + "{";
+                            var maps = options.set_customizer_colors.maps;
+                            Object.keys(maps).forEach((function(color) {
+                                if (colors[color]) {
+                                    if (colors[color] !== _index__WEBPACK_IMPORTED_MODULE_5__.CSS_INITIAL_VALUE && colors[color] !== "") {
+                                        var selectors = maps[color];
+                                        if (!Array.isArray(selectors)) {
+                                            selectors = [ selectors ];
                                         }
-                                    }),
-                                    children: function children(_ref) {
-                                        var props = _ref.props;
-                                        return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("div", _objectSpread(_objectSpread({}, props), {}, {
-                                            className: (0, clsx__WEBPACK_IMPORTED_MODULE_5__["default"])({
-                                                preview: true,
-                                                "initial-preview": (colorValues[color.id] || "") === _index__WEBPACK_IMPORTED_MODULE_6__.CSS_INITIAL_VALUE,
-                                                global: (Array.isArray(swatches) ? swatches : Object.keys(swatches)).indexOf(colorValues[color.id] || "") !== -1
-                                            }),
-                                            style: {
-                                                color: (0, _utils__WEBPACK_IMPORTED_MODULE_4__.getColorValue)(colorValues[color.id] || "")
-                                            },
-                                            children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_components_tooltip__WEBPACK_IMPORTED_MODULE_2__["default"], {
-                                                content: color.title,
-                                                placement: "top",
-                                                children: function children(_ref2) {
-                                                    var props = _ref2.props;
-                                                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("div", _objectSpread({
-                                                        className: "preview-inner"
-                                                    }, props));
-                                                }
-                                            })
+                                        selectors.forEach((function(selector) {
+                                            css += "".concat(maps[color], ": ").concat((0, _utils__WEBPACK_IMPORTED_MODULE_3__.getColorValue)(colors[color]), ";");
                                         }));
                                     }
-                                }, color.id);
-                            }))
-                        })
-                    });
-                }
-            } ]);
-            return ColorPicker;
-        }(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.Component);
-        _defineProperty(ColorPicker, "renderingConfig", {
+                                }
+                            }));
+                            css += "}";
+                            jQuery("style#" + id).remove();
+                            jQuery("head").append('<style id="' + id + '">' + css + "</style>");
+                        }
+                    }
+                }));
+            }), []);
+        }
+        function ColorPicker(props) {
+            ColorPickerHooks(props);
+            var options = props.options, value = props.value, onChange = props.onChange;
+            if (!options.colors) {
+                return null;
+            }
+            var colorValues = {};
+            options.colors.forEach((function(c) {
+                colorValues[c.id] = value[c.id] || _index__WEBPACK_IMPORTED_MODULE_5__.CSS_INITIAL_VALUE;
+            }));
+            var swatches = options.swatches;
+            if (!swatches && window.Lotta && window.Lotta.customizer && window.Lotta.customizer.colorPicker) {
+                swatches = window.Lotta.customizer.colorPicker.swatches;
+            }
+            var handleColorChange = function handleColorChange(colors) {
+                onChange(colors);
+            };
+            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("div", {
+                className: "lotta-color-picker",
+                children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("div", {
+                    className: "colors",
+                    children: options.colors.map((function(color) {
+                        var previewColor = options.computed ? (0, _utils__WEBPACK_IMPORTED_MODULE_3__.getColorValue)(colorValues[color.id] || "") : colorValues[color.id] || "";
+                        return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_components_state_popup__WEBPACK_IMPORTED_MODULE_0__["default"], {
+                            placement: "bottom",
+                            content: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_components_react_color_picker__WEBPACK_IMPORTED_MODULE_2__["default"], {
+                                swatches,
+                                enableAlpha: options.alpha,
+                                color: previewColor,
+                                onChange: function onChange(v) {
+                                    handleColorChange(_objectSpread(_objectSpread({}, colorValues), {}, _defineProperty({}, color.id, v !== _index__WEBPACK_IMPORTED_MODULE_5__.CSS_INITIAL_VALUE && options.computed ? (0, 
+                                    _utils__WEBPACK_IMPORTED_MODULE_3__.getColorValue)(v) : v)));
+                                }
+                            }),
+                            children: function children(_ref) {
+                                var props = _ref.props;
+                                return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("div", _objectSpread(_objectSpread({}, props), {}, {
+                                    className: (0, clsx__WEBPACK_IMPORTED_MODULE_4__["default"])({
+                                        preview: true,
+                                        "initial-preview": (colorValues[color.id] || "") === _index__WEBPACK_IMPORTED_MODULE_5__.CSS_INITIAL_VALUE,
+                                        global: (Array.isArray(swatches) ? swatches : Object.keys(swatches)).indexOf(colorValues[color.id] || "") !== -1
+                                    }),
+                                    style: {
+                                        color: previewColor
+                                    },
+                                    children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_components_tooltip__WEBPACK_IMPORTED_MODULE_1__["default"], {
+                                        content: color.title,
+                                        placement: "top",
+                                        children: function children(_ref2) {
+                                            var props = _ref2.props;
+                                            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("div", _objectSpread({
+                                                className: "preview-inner"
+                                            }, props));
+                                        }
+                                    })
+                                }));
+                            }
+                        }, color.id);
+                    }))
+                })
+            });
+        }
+        ColorPicker.renderingConfig = {
             design: "inline"
-        });
+        };
+        const __WEBPACK_DEFAULT_EXPORT__ = ColorPicker;
     }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
         "use strict";
         __webpack_require__.r(__webpack_exports__);
@@ -15232,8 +15233,13 @@ object-assign
         function _arrayWithHoles(arr) {
             if (Array.isArray(arr)) return arr;
         }
-        var StatePopup = function StatePopup(_ref) {
-            var children = _ref.children, content = _ref.content, placement = _ref.placement, toggleable = _ref.toggleable, arrow = _ref.arrow, offset = _ref.offset, disableOutsideClick = _ref.disableOutsideClick;
+        var StatePopup = function StatePopup() {
+            var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
+                placement: "bottom",
+                toggleable: true,
+                arrow: true,
+                offset: [ 0, 12 ]
+            }, children = _ref.children, content = _ref.content, placement = _ref.placement, toggleable = _ref.toggleable, arrow = _ref.arrow, offset = _ref.offset, disableOutsideClick = _ref.disableOutsideClick;
             var _useState = (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(false), _useState2 = _slicedToArray(_useState, 2), isOpen = _useState2[0], setIsOpen = _useState2[1];
             var _useState3 = (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(null), _useState4 = _slicedToArray(_useState3, 2), referenceElement = _useState4[0], setReferenceElement = _useState4[1];
             var _useState5 = (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(null), _useState6 = _slicedToArray(_useState5, 2), popperElement = _useState6[0], setPopperElement = _useState6[1];
@@ -15284,12 +15290,6 @@ object-assign
                     }) ]
                 })) ]
             });
-        };
-        StatePopup.defaultProps = {
-            placement: "bottom",
-            toggleable: true,
-            arrow: true,
-            offset: [ 0, 12 ]
         };
         const __WEBPACK_DEFAULT_EXPORT__ = StatePopup;
     }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
@@ -17660,8 +17660,10 @@ object-assign
         function _arrayWithHoles(arr) {
             if (Array.isArray(arr)) return arr;
         }
-        function Tooltip(_ref) {
-            var children = _ref.children, content = _ref.content, placement = _ref.placement;
+        function Tooltip() {
+            var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
+                placement: "top"
+            }, children = _ref.children, content = _ref.content, placement = _ref.placement;
             var _useState = (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(false), _useState2 = _slicedToArray(_useState, 2), isOpen = _useState2[0], setIsOpen = _useState2[1];
             var _useState3 = (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(null), _useState4 = _slicedToArray(_useState3, 2), referenceElement = _useState4[0], setReferenceElement = _useState4[1];
             var _useState5 = (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(null), _useState6 = _slicedToArray(_useState5, 2), popperElement = _useState6[0], setPopperElement = _useState6[1];
@@ -17704,9 +17706,6 @@ object-assign
                 })) ]
             });
         }
-        Tooltip.defaultProps = {
-            placement: "top"
-        };
         const __WEBPACK_DEFAULT_EXPORT__ = Tooltip;
     }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
         "use strict";
@@ -17720,7 +17719,8 @@ object-assign
         var clsx__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(9);
         var _utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(4);
         var _index__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(5);
-        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(10);
+        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(254);
+        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(10);
         function ownKeys(object, enumerableOnly) {
             var keys = Object.keys(object);
             if (Object.getOwnPropertySymbols) {
@@ -17777,42 +17777,50 @@ object-assign
             if (hasMeta) {
                 swatches = Object.keys(swatches);
             }
-            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
                 className: "lotta-react-color-picker",
-                children: [ swatches && swatches.length > 0 && (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
-                    className: "swatches",
-                    children: swatches.map((function(color, i) {
-                        var label = hasMeta && props.swatches[color] ? props.swatches[color] : "";
-                        return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
-                            className: "swatch-wrap",
-                            children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
-                                className: (0, clsx__WEBPACK_IMPORTED_MODULE_2__["default"])({
-                                    swatch: true,
-                                    "initial-swatch": color === _index__WEBPACK_IMPORTED_MODULE_4__.CSS_INITIAL_VALUE,
-                                    active: (0, _utils__WEBPACK_IMPORTED_MODULE_3__.getColorValue)(color) === (0, _utils__WEBPACK_IMPORTED_MODULE_3__.getColorValue)(props.color)
-                                }),
-                                style: {
-                                    color: (0, _utils__WEBPACK_IMPORTED_MODULE_3__.getColorValue)(color)
-                                },
-                                onClick: function onClick() {
-                                    return props.onChange(color);
-                                },
-                                children: label ? (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_tooltip__WEBPACK_IMPORTED_MODULE_1__["default"], {
-                                    content: label,
-                                    placement: "top",
-                                    children: function children(_ref) {
-                                        var props = _ref.props;
-                                        return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", _objectSpread({
-                                            className: "swatch-inner"
-                                        }, props));
-                                    }
-                                }) : (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
-                                    className: "swatch-inner"
+                children: [ swatches && swatches.length > 0 && (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.Fragment, {
+                    children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("h4", {
+                        className: "category-title",
+                        children: (0, _wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Theme")
+                    }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
+                        className: "swatches",
+                        children: swatches.map((function(color, i) {
+                            var label = hasMeta && props.swatches[color] ? props.swatches[color] : "";
+                            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
+                                className: "swatch-wrap",
+                                children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
+                                    className: (0, clsx__WEBPACK_IMPORTED_MODULE_2__["default"])({
+                                        swatch: true,
+                                        "initial-swatch": color === _index__WEBPACK_IMPORTED_MODULE_4__.CSS_INITIAL_VALUE,
+                                        active: (0, _utils__WEBPACK_IMPORTED_MODULE_3__.getColorValue)(color) === (0, _utils__WEBPACK_IMPORTED_MODULE_3__.getColorValue)(props.color)
+                                    }),
+                                    style: {
+                                        color
+                                    },
+                                    onClick: function onClick() {
+                                        return props.onChange(color);
+                                    },
+                                    children: label ? (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_tooltip__WEBPACK_IMPORTED_MODULE_1__["default"], {
+                                        content: label,
+                                        placement: "top",
+                                        children: function children(_ref) {
+                                            var props = _ref.props;
+                                            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", _objectSpread({
+                                                className: "swatch-inner"
+                                            }, props));
+                                        }
+                                    }) : (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
+                                        className: "swatch-inner"
+                                    })
                                 })
-                            })
-                        }, i);
-                    }))
-                }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.ColorPicker, {
+                            }, i);
+                        }))
+                    }) ]
+                }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("h4", {
+                    className: "category-title",
+                    children: (0, _wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Custom")
+                }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.ColorPicker, {
                     className: "color-picker",
                     color: props.color,
                     enableAlpha: props.enableAlpha,
@@ -17820,11 +17828,11 @@ object-assign
                     onChange: function onChange(value) {
                         return props.onChange(hex2rgba(value));
                     }
-                }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
                     className: "color-picker-value",
-                    children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("input", {
+                    children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("input", {
                         type: "text",
-                        value: props.color,
+                        value: (0, _utils__WEBPACK_IMPORTED_MODULE_3__.getColorValue)(props.color),
                         onChange: function onChange(e) {
                             props.onChange(hex2rgba(e.target.value));
                         }
@@ -17835,211 +17843,6 @@ object-assign
     }, module => {
         "use strict";
         module.exports = window.wp.components;
-    }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-        "use strict";
-        __webpack_require__.r(__webpack_exports__);
-        __webpack_require__.d(__webpack_exports__, {
-            default: () => __WEBPACK_DEFAULT_EXPORT__
-        });
-        var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6);
-        var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = __webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
-        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(255);
-        var clsx__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(9);
-        var react_outside_click_handler__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(79);
-        var _color_picker__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(189);
-        var _utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(4);
-        var _index__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(5);
-        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(10);
-        function _toConsumableArray(arr) {
-            return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
-        }
-        function _nonIterableSpread() {
-            throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-        }
-        function _iterableToArray(iter) {
-            if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
-        }
-        function _arrayWithoutHoles(arr) {
-            if (Array.isArray(arr)) return _arrayLikeToArray(arr);
-        }
-        function ownKeys(object, enumerableOnly) {
-            var keys = Object.keys(object);
-            if (Object.getOwnPropertySymbols) {
-                var symbols = Object.getOwnPropertySymbols(object);
-                enumerableOnly && (symbols = symbols.filter((function(sym) {
-                    return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-                }))), keys.push.apply(keys, symbols);
-            }
-            return keys;
-        }
-        function _objectSpread(target) {
-            for (var i = 1; i < arguments.length; i++) {
-                var source = null != arguments[i] ? arguments[i] : {};
-                i % 2 ? ownKeys(Object(source), !0).forEach((function(key) {
-                    _defineProperty(target, key, source[key]);
-                })) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach((function(key) {
-                    Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-                }));
-            }
-            return target;
-        }
-        function _defineProperty(obj, key, value) {
-            if (key in obj) {
-                Object.defineProperty(obj, key, {
-                    value,
-                    enumerable: true,
-                    configurable: true,
-                    writable: true
-                });
-            } else {
-                obj[key] = value;
-            }
-            return obj;
-        }
-        function _slicedToArray(arr, i) {
-            return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
-        }
-        function _nonIterableRest() {
-            throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-        }
-        function _unsupportedIterableToArray(o, minLen) {
-            if (!o) return;
-            if (typeof o === "string") return _arrayLikeToArray(o, minLen);
-            var n = Object.prototype.toString.call(o).slice(8, -1);
-            if (n === "Object" && o.constructor) n = o.constructor.name;
-            if (n === "Map" || n === "Set") return Array.from(o);
-            if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
-        }
-        function _arrayLikeToArray(arr, len) {
-            if (len == null || len > arr.length) len = arr.length;
-            for (var i = 0, arr2 = new Array(len); i < len; i++) {
-                arr2[i] = arr[i];
-            }
-            return arr2;
-        }
-        function _iterableToArrayLimit(arr, i) {
-            var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
-            if (_i == null) return;
-            var _arr = [];
-            var _n = true;
-            var _d = false;
-            var _s, _e;
-            try {
-                for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) {
-                    _arr.push(_s.value);
-                    if (i && _arr.length === i) break;
-                }
-            } catch (err) {
-                _d = true;
-                _e = err;
-            } finally {
-                try {
-                    if (!_n && _i["return"] != null) _i["return"]();
-                } finally {
-                    if (_d) throw _e;
-                }
-            }
-            return _arr;
-        }
-        function _arrayWithHoles(arr) {
-            if (Array.isArray(arr)) return arr;
-        }
-        var Border = function Border(_ref) {
-            var _clsx;
-            var value = _ref.value, options = _ref.options, _onChange = _ref.onChange;
-            var _useState = (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(false), _useState2 = _slicedToArray(_useState, 2), isOpen = _useState2[0], setIsOpen = _useState2[1];
-            value = Object.assign({
-                width: 1,
-                color: _index__WEBPACK_IMPORTED_MODULE_6__.CSS_INITIAL_VALUE
-            }, value);
-            var colors = [ {
-                id: "color",
-                title: (0, _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Initial")
-            } ];
-            var colorValues = {
-                color: value.color || ""
-            };
-            if (options.enableHover) {
-                colors.push({
-                    id: "hover",
-                    title: (0, _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Hover")
-                });
-                colorValues["hover"] = value.hover || "";
-            }
-            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("div", {
-                className: "lotta-border",
-                children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("div", {
-                    className: (0, clsx__WEBPACK_IMPORTED_MODULE_2__["default"])("lotta-value-changer", (_clsx = {}, 
-                    _defineProperty(_clsx, "active", isOpen), _defineProperty(_clsx, "lotta-disabled", value.style === "none" || value.inherit), 
-                    _clsx)),
-                    children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("input", {
-                        type: "number",
-                        value: value.width,
-                        disabled: value.style === "none",
-                        onChange: function onChange(_ref2) {
-                            var width = _ref2.target.value;
-                            return _onChange(_objectSpread(_objectSpread({}, value), {}, {
-                                width: (0, _utils__WEBPACK_IMPORTED_MODULE_5__.clamp)(1, 100, parseInt(width, 10) || 1)
-                            }));
-                        }
-                    }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("span", {
-                        className: "lotta-value-divider"
-                    }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("span", {
-                        className: "lotta-current-value",
-                        "data-style": value.inherit ? "none" : value.style,
-                        onClick: function onClick() {
-                            return setIsOpen(!isOpen);
-                        },
-                        children: value.inherit ? (0, _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Inherit") : value.style === "none" ? (0, 
-                        _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("none") : null
-                    }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(react_outside_click_handler__WEBPACK_IMPORTED_MODULE_3__["default"], {
-                        disabled: !isOpen,
-                        onOutsideClick: function onOutsideClick() {
-                            if (!isOpen) return;
-                            setIsOpen(false);
-                        },
-                        children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("ul", {
-                            className: "lotta-styles-list",
-                            children: [ "solid", "dashed", "dotted", "none" ].reduce((function(current, el, index) {
-                                return [].concat(_toConsumableArray(current.slice(0, index % 2 === 0 ? undefined : -1)), _toConsumableArray(index % 2 === 0 ? [ [ el ] ] : [ [ current[current.length - 1][0], el ] ]));
-                            }), []).map((function(group) {
-                                return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("li", {
-                                    children: group.map((function(style) {
-                                        return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("span", {
-                                            className: (0, clsx__WEBPACK_IMPORTED_MODULE_2__["default"])({
-                                                active: style === value.style
-                                            }),
-                                            "data-style": style,
-                                            onClick: function onClick() {
-                                                _onChange(_objectSpread(_objectSpread({}, value), {}, {
-                                                    inherit: false,
-                                                    style
-                                                }));
-                                                setIsOpen(false);
-                                            },
-                                            children: style === "none" ? (0, _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("None") : null
-                                        }, style);
-                                    }))
-                                }, group[0]);
-                            }))
-                        })
-                    }) ]
-                }), !value.inherit && value.style !== "none" && (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_color_picker__WEBPACK_IMPORTED_MODULE_4__["default"], {
-                    options: {
-                        alpha: true,
-                        colors
-                    },
-                    value: colorValues,
-                    onChange: function onChange(c) {
-                        _onChange(_objectSpread(_objectSpread({}, value), c));
-                    }
-                }) ]
-            });
-        };
-        Border.renderingConfig = {
-            design: "inline"
-        };
-        const __WEBPACK_DEFAULT_EXPORT__ = Border;
     }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
         "use strict";
         __webpack_require__.r(__webpack_exports__);
@@ -18058,18 +17861,18 @@ object-assign
             sprintf: () => _sprintf__WEBPACK_IMPORTED_MODULE_0__.sprintf,
             subscribe: () => _default_i18n__WEBPACK_IMPORTED_MODULE_2__.subscribe
         });
-        var _sprintf__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(256);
-        var _create_i18n__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(259);
-        var _default_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(265);
+        var _sprintf__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(255);
+        var _create_i18n__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(258);
+        var _default_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(264);
     }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
         "use strict";
         __webpack_require__.r(__webpack_exports__);
         __webpack_require__.d(__webpack_exports__, {
             sprintf: () => sprintf
         });
-        var memize__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(257);
+        var memize__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(256);
         var memize__WEBPACK_IMPORTED_MODULE_0___default = __webpack_require__.n(memize__WEBPACK_IMPORTED_MODULE_0__);
-        var sprintf_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(258);
+        var sprintf_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(257);
         var sprintf_js__WEBPACK_IMPORTED_MODULE_1___default = __webpack_require__.n(sprintf_js__WEBPACK_IMPORTED_MODULE_1__);
         const logErrorOnce = memize__WEBPACK_IMPORTED_MODULE_0___default()(console.error);
         function sprintf(format) {
@@ -18368,7 +18171,7 @@ object-assign
         __webpack_require__.d(__webpack_exports__, {
             createI18n: () => createI18n
         });
-        var tannin__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(260);
+        var tannin__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(259);
         const DEFAULT_LOCALE_DATA = {
             "": {
                 plural_forms(n) {
@@ -18518,7 +18321,7 @@ object-assign
         __webpack_require__.d(__webpack_exports__, {
             default: () => Tannin
         });
-        var _tannin_plural_forms__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(261);
+        var _tannin_plural_forms__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(260);
         var DEFAULT_OPTIONS = {
             contextDelimiter: "",
             onMissingKey: null
@@ -18581,7 +18384,7 @@ object-assign
         __webpack_require__.d(__webpack_exports__, {
             default: () => pluralForms
         });
-        var _tannin_compile__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(262);
+        var _tannin_compile__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(261);
         function pluralForms(expression) {
             var evaluate = (0, _tannin_compile__WEBPACK_IMPORTED_MODULE_0__["default"])(expression);
             return function(n) {
@@ -18596,8 +18399,8 @@ object-assign
         __webpack_require__.d(__webpack_exports__, {
             default: () => compile
         });
-        var _tannin_postfix__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(263);
-        var _tannin_evaluate__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(264);
+        var _tannin_postfix__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(262);
+        var _tannin_evaluate__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(263);
         function compile(expression) {
             var terms = (0, _tannin_postfix__WEBPACK_IMPORTED_MODULE_0__["default"])(expression);
             return function(variables) {
@@ -18764,8 +18567,8 @@ object-assign
             setLocaleData: () => setLocaleData,
             subscribe: () => subscribe
         });
-        var _create_i18n__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(259);
-        var _wordpress_hooks__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(266);
+        var _create_i18n__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(258);
+        var _wordpress_hooks__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(265);
         var _wordpress_hooks__WEBPACK_IMPORTED_MODULE_1___default = __webpack_require__.n(_wordpress_hooks__WEBPACK_IMPORTED_MODULE_1__);
         const i18n = (0, _create_i18n__WEBPACK_IMPORTED_MODULE_0__.createI18n)(undefined, undefined, _wordpress_hooks__WEBPACK_IMPORTED_MODULE_1__.defaultHooks);
         const __WEBPACK_DEFAULT_EXPORT__ = i18n;
@@ -18790,11 +18593,217 @@ object-assign
         });
         var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6);
         var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = __webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
+        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(254);
+        var clsx__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(9);
+        var react_outside_click_handler__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(79);
+        var _color_picker__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(189);
+        var _utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(4);
+        var _index__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(5);
+        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(10);
+        function _toConsumableArray(arr) {
+            return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
+        }
+        function _nonIterableSpread() {
+            throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+        }
+        function _iterableToArray(iter) {
+            if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
+        }
+        function _arrayWithoutHoles(arr) {
+            if (Array.isArray(arr)) return _arrayLikeToArray(arr);
+        }
+        function ownKeys(object, enumerableOnly) {
+            var keys = Object.keys(object);
+            if (Object.getOwnPropertySymbols) {
+                var symbols = Object.getOwnPropertySymbols(object);
+                enumerableOnly && (symbols = symbols.filter((function(sym) {
+                    return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+                }))), keys.push.apply(keys, symbols);
+            }
+            return keys;
+        }
+        function _objectSpread(target) {
+            for (var i = 1; i < arguments.length; i++) {
+                var source = null != arguments[i] ? arguments[i] : {};
+                i % 2 ? ownKeys(Object(source), !0).forEach((function(key) {
+                    _defineProperty(target, key, source[key]);
+                })) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach((function(key) {
+                    Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+                }));
+            }
+            return target;
+        }
+        function _defineProperty(obj, key, value) {
+            if (key in obj) {
+                Object.defineProperty(obj, key, {
+                    value,
+                    enumerable: true,
+                    configurable: true,
+                    writable: true
+                });
+            } else {
+                obj[key] = value;
+            }
+            return obj;
+        }
+        function _slicedToArray(arr, i) {
+            return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
+        }
+        function _nonIterableRest() {
+            throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+        }
+        function _unsupportedIterableToArray(o, minLen) {
+            if (!o) return;
+            if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+            var n = Object.prototype.toString.call(o).slice(8, -1);
+            if (n === "Object" && o.constructor) n = o.constructor.name;
+            if (n === "Map" || n === "Set") return Array.from(o);
+            if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+        }
+        function _arrayLikeToArray(arr, len) {
+            if (len == null || len > arr.length) len = arr.length;
+            for (var i = 0, arr2 = new Array(len); i < len; i++) {
+                arr2[i] = arr[i];
+            }
+            return arr2;
+        }
+        function _iterableToArrayLimit(arr, i) {
+            var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
+            if (_i == null) return;
+            var _arr = [];
+            var _n = true;
+            var _d = false;
+            var _s, _e;
+            try {
+                for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) {
+                    _arr.push(_s.value);
+                    if (i && _arr.length === i) break;
+                }
+            } catch (err) {
+                _d = true;
+                _e = err;
+            } finally {
+                try {
+                    if (!_n && _i["return"] != null) _i["return"]();
+                } finally {
+                    if (_d) throw _e;
+                }
+            }
+            return _arr;
+        }
+        function _arrayWithHoles(arr) {
+            if (Array.isArray(arr)) return arr;
+        }
+        var Border = function Border(_ref) {
+            var _clsx;
+            var value = _ref.value, options = _ref.options, _onChange = _ref.onChange;
+            var _useState = (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(false), _useState2 = _slicedToArray(_useState, 2), isOpen = _useState2[0], setIsOpen = _useState2[1];
+            value = Object.assign({
+                width: 1,
+                color: _index__WEBPACK_IMPORTED_MODULE_6__.CSS_INITIAL_VALUE
+            }, value);
+            var colors = [ {
+                id: "color",
+                title: (0, _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Initial")
+            } ];
+            var colorValues = {
+                color: value.color || ""
+            };
+            if (options.enableHover) {
+                colors.push({
+                    id: "hover",
+                    title: (0, _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Hover")
+                });
+                colorValues["hover"] = value.hover || "";
+            }
+            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("div", {
+                className: "lotta-border",
+                children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("div", {
+                    className: (0, clsx__WEBPACK_IMPORTED_MODULE_2__["default"])("lotta-value-changer", (_clsx = {}, 
+                    _defineProperty(_clsx, "active", isOpen), _defineProperty(_clsx, "lotta-disabled", value.style === "none" || value.inherit), 
+                    _clsx)),
+                    children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("input", {
+                        type: "number",
+                        value: value.width,
+                        disabled: value.style === "none",
+                        onChange: function onChange(_ref2) {
+                            var width = _ref2.target.value;
+                            return _onChange(_objectSpread(_objectSpread({}, value), {}, {
+                                width: (0, _utils__WEBPACK_IMPORTED_MODULE_5__.clamp)(1, 100, parseInt(width, 10) || 1)
+                            }));
+                        }
+                    }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("span", {
+                        className: "lotta-value-divider"
+                    }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("span", {
+                        className: "lotta-current-value",
+                        "data-style": value.inherit ? "none" : value.style,
+                        onClick: function onClick() {
+                            return setIsOpen(!isOpen);
+                        },
+                        children: value.inherit ? (0, _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Inherit") : value.style === "none" ? (0, 
+                        _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("none") : null
+                    }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(react_outside_click_handler__WEBPACK_IMPORTED_MODULE_3__["default"], {
+                        disabled: !isOpen,
+                        onOutsideClick: function onOutsideClick() {
+                            if (!isOpen) return;
+                            setIsOpen(false);
+                        },
+                        children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("ul", {
+                            className: "lotta-styles-list",
+                            children: [ "solid", "dashed", "dotted", "none" ].reduce((function(current, el, index) {
+                                return [].concat(_toConsumableArray(current.slice(0, index % 2 === 0 ? undefined : -1)), _toConsumableArray(index % 2 === 0 ? [ [ el ] ] : [ [ current[current.length - 1][0], el ] ]));
+                            }), []).map((function(group) {
+                                return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("li", {
+                                    children: group.map((function(style) {
+                                        return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("span", {
+                                            className: (0, clsx__WEBPACK_IMPORTED_MODULE_2__["default"])({
+                                                active: style === value.style
+                                            }),
+                                            "data-style": style,
+                                            onClick: function onClick() {
+                                                _onChange(_objectSpread(_objectSpread({}, value), {}, {
+                                                    inherit: false,
+                                                    style
+                                                }));
+                                                setIsOpen(false);
+                                            },
+                                            children: style === "none" ? (0, _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("None") : null
+                                        }, style);
+                                    }))
+                                }, group[0]);
+                            }))
+                        })
+                    }) ]
+                }), !value.inherit && value.style !== "none" && (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_color_picker__WEBPACK_IMPORTED_MODULE_4__["default"], {
+                    options: {
+                        alpha: true,
+                        colors
+                    },
+                    value: colorValues,
+                    onChange: function onChange(c) {
+                        _onChange(_objectSpread(_objectSpread({}, value), c));
+                    }
+                }) ]
+            });
+        };
+        Border.renderingConfig = {
+            design: "inline"
+        };
+        const __WEBPACK_DEFAULT_EXPORT__ = Border;
+    }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+        "use strict";
+        __webpack_require__.r(__webpack_exports__);
+        __webpack_require__.d(__webpack_exports__, {
+            default: () => __WEBPACK_DEFAULT_EXPORT__
+        });
+        var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6);
+        var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = __webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
         var _components_state_popup__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(190);
         var _components_tooltip__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(251);
         var clsx__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(9);
         var _utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(4);
-        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(10);
+        var _index__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(5);
+        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(10);
         function _typeof(obj) {
             "@babel/helpers - typeof";
             return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(obj) {
@@ -18937,24 +18946,24 @@ object-assign
                 key: "render",
                 value: function render() {
                     var _this$props = this.props, palette = _this$props.palette, labels = _this$props.labels, className = _this$props.className;
-                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
                         className: (0, clsx__WEBPACK_IMPORTED_MODULE_3__["default"])("colors", className),
                         children: Object.keys(palette).map((function(color) {
-                            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
                                 className: "preview",
                                 style: {
                                     color: palette[color]
                                 },
-                                children: labels ? (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_components_tooltip__WEBPACK_IMPORTED_MODULE_2__["default"], {
+                                children: labels ? (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_components_tooltip__WEBPACK_IMPORTED_MODULE_2__["default"], {
                                     content: labels[color],
                                     placement: "top",
                                     children: function children(_ref) {
                                         var props = _ref.props;
-                                        return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", _objectSpread({
+                                        return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", _objectSpread({
                                             className: "preview-inner"
                                         }, props));
                                     }
-                                }) : (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                                }) : (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
                                     className: "preview-inner"
                                 })
                             }, color);
@@ -18975,24 +18984,24 @@ object-assign
                 key: "render",
                 value: function render() {
                     var _this$props2 = this.props, palettes = _this$props2.palettes, current = _this$props2.current, onChange = _this$props2.onChange;
-                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
                         className: "palette-list",
                         children: Object.keys(palettes).map((function(palette) {
-                            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+                            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
                                 onClick: function onClick() {
                                     return onChange(palette);
                                 },
                                 className: (0, clsx__WEBPACK_IMPORTED_MODULE_3__["default"])("palette-item", {
                                     active: current === palette
                                 }),
-                                children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+                                children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
                                     className: "palette-title",
-                                    children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+                                    children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("span", {
                                         children: (0, _utils__WEBPACK_IMPORTED_MODULE_4__.capitalize)(palette).replaceAll("-", " ")
-                                    }), current === palette && (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+                                    }), current === palette && (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("span", {
                                         className: "dashicons dashicons-saved"
                                     }) ]
-                                }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(Preview, {
+                                }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(Preview, {
                                     palette: palettes[palette]
                                 }) ]
                             }, palette);
@@ -19013,30 +19022,35 @@ object-assign
                 key: "render",
                 value: function render() {
                     var _this$props3 = this.props, options = _this$props3.options, value = _this$props3.value, _onChange = _this$props3.onChange;
-                    var palettes = options.palettes, labels = options.labels;
+                    var palettes = options.palettes, maps = options.maps, labels = options.labels;
                     var palette = palettes[value] || Object.values(palettes)[0];
-                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_components_state_popup__WEBPACK_IMPORTED_MODULE_1__["default"], {
-                        content: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(PaletteList, {
+                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_components_state_popup__WEBPACK_IMPORTED_MODULE_1__["default"], {
+                        content: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(PaletteList, {
                             current: value,
                             palettes,
                             onChange: function onChange(value) {
-                                var palette = palettes[value];
-                                var style = "";
-                                Object.keys(palette).forEach((function(varName) {
-                                    style += "--".concat(varName, ": ").concat(palette[varName], ";");
-                                }));
-                                document.documentElement.style = style;
+                                if (maps) {
+                                    var _palette = palettes[value];
+                                    Object.keys(maps).forEach((function(control) {
+                                        var colorMap = maps[control];
+                                        var colorValue = {};
+                                        Object.keys(colorMap).forEach((function(color) {
+                                            colorValue[color] = _palette[colorMap[color]] ? _palette[colorMap[color]] : _index__WEBPACK_IMPORTED_MODULE_5__.CSS_INITIAL_VALUE;
+                                        }));
+                                        _onChange(colorValue, control);
+                                    }));
+                                }
                                 _onChange(value);
                             }
                         }),
                         children: function children(_ref2) {
                             var props = _ref2.props;
-                            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", _objectSpread(_objectSpread({}, props), {}, {
+                            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", _objectSpread(_objectSpread({}, props), {}, {
                                 className: "palette-preview",
-                                children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(Preview, {
+                                children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(Preview, {
                                     palette,
                                     labels
-                                }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+                                }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("span", {
                                     className: "dashicons dashicons-arrow-down-alt2"
                                 }) ]
                             }));
@@ -20259,8 +20273,11 @@ object-assign
                             children: (0, _index__WEBPACK_IMPORTED_MODULE_2__.buildNestedControls)({
                                 controls: active.controls,
                                 settings,
-                                onChange: function onChange(val, id) {
+                                onChange: function onChange(val, id, self) {
                                     _onChange(val, id);
+                                    if (!self) {
+                                        _this2.forceUpdate();
+                                    }
                                 }
                             })
                         }) ]
@@ -20420,8 +20437,11 @@ object-assign
                             children: (0, _index__WEBPACK_IMPORTED_MODULE_2__.buildNestedControls)({
                                 controls: options.controls,
                                 settings,
-                                onChange: function onChange(val, id) {
+                                onChange: function onChange(val, id, self) {
                                     _onChange(val, id);
+                                    if (!self) {
+                                        _this2.forceUpdate();
+                                    }
                                 }
                             })
                         }) ]
@@ -20760,6 +20780,7 @@ object-assign
             _createClass(Layer, [ {
                 key: "render",
                 value: function render() {
+                    var _this2 = this;
                     var _this$props = this.props, value = _this$props.value, layer = _this$props.layer, dynamic = _this$props.dynamic, onChange = _this$props.onChange, onNestedChange = _this$props.onNestedChange, onRemove = _this$props.onRemove, settings = _this$props.settings;
                     return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsxs)("li", {
                         className: "layer-wrapper",
@@ -20815,8 +20836,11 @@ object-assign
                             children: (0, _index__WEBPACK_IMPORTED_MODULE_3__.buildNestedControls)({
                                 controls: layer.controls || [],
                                 settings,
-                                onChange: function onChange(val, id) {
+                                onChange: function onChange(val, id, self) {
                                     onNestedChange(val, id);
+                                    if (!self) {
+                                        _this2.forceUpdate();
+                                    }
                                 }
                             })
                         }) ]
@@ -20829,21 +20853,21 @@ object-assign
             _inherits(Layers, _Component2);
             var _super2 = _createSuper(Layers);
             function Layers() {
-                var _this2;
+                var _this3;
                 _classCallCheck(this, Layers);
                 for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
                     args[_key2] = arguments[_key2];
                 }
-                _this2 = _super2.call.apply(_super2, [ this ].concat(args));
-                _defineProperty(_assertThisInitialized(_this2), "state", {
+                _this3 = _super2.call.apply(_super2, [ this ].concat(args));
+                _defineProperty(_assertThisInitialized(_this3), "state", {
                     selected: ""
                 });
-                return _this2;
+                return _this3;
             }
             _createClass(Layers, [ {
                 key: "render",
                 value: function render() {
-                    var _this3 = this;
+                    var _this4 = this;
                     var _this$props2 = this.props, value = _this$props2.value, _onChange = _this$props2.onChange, settings = _this$props2.settings;
                     var _this$props$options = this.props.options, layers = _this$props$options.layers, dynamic = _this$props$options.dynamic;
                     var items = value;
@@ -20871,23 +20895,23 @@ object-assign
                                 items: layers,
                                 value: this.state.selected,
                                 onSelect: function onSelect(current) {
-                                    _this3.setState({
+                                    _this4.setState({
                                         selected: current
                                     });
                                 }
                             }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)("button", {
                                 type: "button",
                                 onClick: function onClick() {
-                                    if (_this3.state.selected && value.findIndex((function(i) {
-                                        return i.id === _this3.state.selected;
+                                    if (_this4.state.selected && value.findIndex((function(i) {
+                                        return i.id === _this4.state.selected;
                                     })) === -1) {
                                         _onChange(immutability_helper__WEBPACK_IMPORTED_MODULE_1___default()(value, {
                                             $push: [ {
-                                                id: _this3.state.selected,
+                                                id: _this4.state.selected,
                                                 visible: true
                                             } ]
                                         }));
-                                        _this3.setState({
+                                        _this4.setState({
                                             selected: ""
                                         });
                                     }
@@ -26169,7 +26193,9 @@ object-assign
         __webpack_require__.d(__webpack_exports__, {
             default: () => Placeholder
         });
-        function Placeholder() {
+        var _color_picker__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(189);
+        function Placeholder(props) {
+            (0, _color_picker__WEBPACK_IMPORTED_MODULE_0__.ColorPickerHooks)(props);
             return null;
         }
     }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
@@ -28291,11 +28317,9 @@ object-assign
         var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6);
         var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = __webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
         var clsx__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9);
-        var underscore__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(70);
-        var underscore__WEBPACK_IMPORTED_MODULE_2___default = __webpack_require__.n(underscore__WEBPACK_IMPORTED_MODULE_2__);
-        var _wordpress_components__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(253);
-        var _wordpress_components__WEBPACK_IMPORTED_MODULE_3___default = __webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__);
-        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(10);
+        var _wordpress_components__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(253);
+        var _wordpress_components__WEBPACK_IMPORTED_MODULE_2___default = __webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__);
+        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(10);
         function _typeof(obj) {
             "@babel/helpers - typeof";
             return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(obj) {
@@ -28540,7 +28564,7 @@ object-assign
                             close: false
                         },
                         states: [ new wp.media.controller.Library({
-                            title: "Select logo",
+                            title: "Select File",
                             library: wp.media.query({
                                 type: this.props.options.mediaType || "image"
                             }),
@@ -28600,21 +28624,21 @@ object-assign
                 value: function render() {
                     var _clsx, _this3 = this;
                     var _this$props$options = this.props.options, positionPicker = _this$props$options.positionPicker, emptyLabel = _this$props$options.emptyLabel;
-                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
                         className: (0, clsx__WEBPACK_IMPORTED_MODULE_1__["default"])("lotta-image-uploader", (_clsx = {}, 
                         _defineProperty(_clsx, "landscape", this.state.attachment_info), _defineProperty(_clsx, "attachment-media-view-image", this.state.attachment_info), 
                         _clsx)),
-                        children: this.state.attachment_info ? (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+                        children: this.state.attachment_info ? (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
                             className: "thumbnail thumbnail-image",
                             onClick: function onClick() {
                                 return !positionPicker && _this3.openFrame();
                             },
-                            children: [ !positionPicker && (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("img", {
+                            children: [ !positionPicker && (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("img", {
                                 className: "attachment-thumb",
                                 src: this.getUrlFor(this.state.attachment_info),
                                 draggable: "false",
                                 alt: ""
-                            }), positionPicker && (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.FocalPointPicker, {
+                            }), positionPicker && (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.FocalPointPicker, {
                                 url: this.getUrlFor(this.state.attachment_info),
                                 dimensions: {
                                     width: 400,
@@ -28627,9 +28651,9 @@ object-assign
                                 onChange: function onChange(drag_position) {
                                     _this3.props.onChange(_objectSpread(_objectSpread({}, _this3.props.value), drag_position));
                                 }
-                            }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+                            }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
                                 className: "actions",
-                                children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+                                children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
                                     type: "button",
                                     className: "button edit-button control-focus",
                                     title: "Edit",
@@ -28637,7 +28661,7 @@ object-assign
                                         e.stopPropagation();
                                         _this3.openFrame();
                                     }
-                                }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+                                }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
                                     onClick: function onClick(e) {
                                         e.stopPropagation();
                                         _this3.setState({
@@ -28650,7 +28674,7 @@ object-assign
                                     className: "button remove-button"
                                 }) ]
                             }) ]
-                        }) : (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+                        }) : (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
                             type: "button",
                             onClick: function onClick() {
                                 return _this3.openFrame();
@@ -28682,7 +28706,7 @@ object-assign
         var _image_radio__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(273);
         var _radio__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(271);
         var _color_picker__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(189);
-        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(255);
+        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(254);
         var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(10);
         function _typeof(obj) {
             "@babel/helpers - typeof";
@@ -29043,7 +29067,8 @@ object-assign
                 }), type === "color" && (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("div", {
                     className: "modal-content",
                     children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(_components_react_color_picker__WEBPACK_IMPORTED_MODULE_3__["default"], {
-                        swatches: window.Lotta && window.Lotta.customizer && window.Lotta.customizer.colorPicker ? window.Lotta.customizer.colorPicker.swatches || [] : [],
+                        swatches: window.Lotta && window.Lotta.customizer && window.Lotta.customizer.colorPicker ? (0, 
+                        _utils__WEBPACK_IMPORTED_MODULE_7__.sanitize_array_value)(window.Lotta.customizer.colorPicker.swatches) : [],
                         enableAlpha: true,
                         color: (0, _utils__WEBPACK_IMPORTED_MODULE_7__.getColorValue)(color),
                         onChange: function onChange(v) {
@@ -29146,24 +29171,26 @@ object-assign
         var _wordpress_components__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(253);
         var _wordpress_components__WEBPACK_IMPORTED_MODULE_0___default = __webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__);
         var clsx__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9);
-        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(10);
+        var _utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(4);
+        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(10);
         var GradientPicker = function GradientPicker(_ref) {
             var gradient = _ref.gradient, _onChange = _ref.onChange, swatches = _ref.swatches;
             if (!swatches && window.Lotta && window.Lotta.customizer && window.Lotta.customizer.gradientPicker) {
                 swatches = window.Lotta.customizer.gradientPicker.swatches;
             }
-            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
+            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
                 className: "lotta-gradient-picker",
-                children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.GradientPicker, {
+                children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.GradientPicker, {
                     className: "wp-gradient-picker",
                     value: gradient,
+                    gradients: [],
                     onChange: function onChange(currentGradient) {
                         _onChange(currentGradient);
                     }
-                }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("ul", {
+                }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("ul", {
                     className: "lotta-gradient-switches",
-                    children: (swatches || []).map((function(swatch, index) {
-                        return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("li", {
+                    children: (0, _utils__WEBPACK_IMPORTED_MODULE_2__.sanitize_array_value)(swatches).map((function(swatch, index) {
+                        return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("li", {
                             className: (0, clsx__WEBPACK_IMPORTED_MODULE_1__["default"])({
                                 active: swatch.gradient === gradient
                             }),
@@ -29187,7 +29214,7 @@ object-assign
         });
         var _components_state_popup__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(190);
         var _color_picker__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(189);
-        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(255);
+        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(254);
         var _toggle__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(176);
         var _index__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(5);
         var _slider__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(174);
@@ -29349,7 +29376,7 @@ object-assign
         var _control_wrapper__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(7);
         var clsx__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(9);
         var _components_tooltip__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(251);
-        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(255);
+        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(254);
         var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(10);
         var react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(12);
         var react__WEBPACK_IMPORTED_MODULE_14___default = __webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_14__);
@@ -29559,20 +29586,22 @@ object-assign
                             responsive: true,
                             units: [ {
                                 unit: "px",
-                                min: 0,
-                                max: 200
+                                min: 10,
+                                max: 200,
+                                step: 1
                             }, {
                                 unit: "pt",
-                                min: 0,
-                                max: 50
+                                min: 10,
+                                max: 50,
+                                step: 1
                             }, {
                                 unit: "em",
-                                min: 0,
+                                min: .5,
                                 max: 50,
                                 step: .1
                             }, {
                                 unit: "rem",
-                                min: 0,
+                                min: .5,
                                 max: 50,
                                 step: .1
                             } ]
@@ -29585,23 +29614,23 @@ object-assign
                             responsive: true,
                             units: [ {
                                 unit: "",
-                                min: 0,
+                                min: 1,
                                 max: 10
                             }, {
                                 unit: "px",
-                                min: 0,
+                                min: 10,
                                 max: 100
                             }, {
                                 unit: "pt",
-                                min: 0,
+                                min: 10,
                                 max: 100
                             }, {
                                 unit: "em",
-                                min: 0,
+                                min: 1,
                                 max: 100
                             }, {
                                 unit: "rem",
-                                min: 0,
+                                min: 1,
                                 max: 100
                             } ]
                         }
@@ -29614,11 +29643,13 @@ object-assign
                             units: [ {
                                 unit: "px",
                                 min: -20,
-                                max: 20
+                                max: 20,
+                                step: 1
                             }, {
                                 unit: "pt",
                                 min: -20,
-                                max: 20
+                                max: 20,
+                                step: 1
                             }, {
                                 unit: "em",
                                 min: -10,
@@ -29783,17 +29814,19 @@ object-assign
             SingleFont: () => SingleFont,
             default: () => FontsList,
             getFontName: () => getFontName,
+            isCustomFonts: () => isCustomFonts,
             isGoogleFonts: () => isGoogleFonts,
             loadGoogleFonts: () => loadGoogleFonts
         });
-        var react_window__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(285);
+        var react_window__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(285);
         var webfontloader__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(308);
         var webfontloader__WEBPACK_IMPORTED_MODULE_0___default = __webpack_require__.n(webfontloader__WEBPACK_IMPORTED_MODULE_0__);
         var react_virtualized_auto_sizer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(309);
         var _wordpress_element__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(6);
         var _wordpress_element__WEBPACK_IMPORTED_MODULE_2___default = __webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__);
         var clsx__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(9);
-        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(10);
+        var _utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(4);
+        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(10);
         function _typeof(obj) {
             "@babel/helpers - typeof";
             return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(obj) {
@@ -29991,6 +30024,12 @@ object-assign
             }
             return false;
         };
+        var isCustomFonts = function isCustomFonts(id) {
+            if (window.Lotta && window.Lotta.customizer.settings) {
+                return !!window.Lotta.customizer.settings.custom_fonts[id];
+            }
+            return false;
+        };
         var loadGoogleFonts = function loadGoogleFonts(fonts) {
             if (fonts.length <= 0 || !window.Lotta || !window.Lotta.customizer.settings) {
                 return;
@@ -30005,8 +30044,8 @@ object-assign
             });
         };
         var getFontName = function getFontName(family) {
-            var _window$Lotta$customi = window.Lotta.customizer.settings, system_fonts = _window$Lotta$customi.system_fonts, google_fonts = _window$Lotta$customi.google_fonts;
-            var data = Object.assign({}, system_fonts, google_fonts);
+            var _window$Lotta$customi = window.Lotta.customizer.settings, custom_fonts = _window$Lotta$customi.custom_fonts, system_fonts = _window$Lotta$customi.system_fonts, google_fonts = _window$Lotta$customi.google_fonts;
+            var data = Object.assign({}, custom_fonts, system_fonts, google_fonts);
             return data[family] ? data[family].f : "";
         };
         var SingleFont = function(_Component) {
@@ -30022,22 +30061,29 @@ object-assign
                     var _this$props = this.props, style = _this$props.style, data = _this$props.data, index = _this$props.index, family = _this$props.family, _onClick = _this$props.onClick;
                     var id = data.fonts[index];
                     var font = data.data[id];
-                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+                    var font_type = "system";
+                    if (isCustomFonts(id)) {
+                        font_type = "custom";
+                    } else if (isGoogleFonts(id)) {
+                        font_type = "google";
+                    }
+                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
                         style,
-                        className: (0, clsx__WEBPACK_IMPORTED_MODULE_3__["default"])("font-item", {
+                        className: (0, clsx__WEBPACK_IMPORTED_MODULE_3__["default"])("font-item", font_type + "-font-item", {
                             active: family === id
                         }),
                         onClick: function onClick() {
                             return _onClick(id, font);
                         },
-                        children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+                        children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
                             className: "font-label",
-                            children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
+                            children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
                                 children: font.f
-                            }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
-                                children: isGoogleFonts(id) ? "Google" : "System"
+                            }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+                                className: "font-type-label " + font_type + "-font-type-label",
+                                children: (0, _utils__WEBPACK_IMPORTED_MODULE_4__.capitalize)(font_type)
                             }) ]
-                        }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("p", {
+                        }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("p", {
                             className: "font-preview",
                             style: {
                                 fontFamily: font.f
@@ -30062,27 +30108,30 @@ object-assign
                 _defineProperty(_assertThisInitialized(_this), "state", {
                     filter: ""
                 });
-                _defineProperty(_assertThisInitialized(_this), "loadGoogleFontsTimer", null);
+                _defineProperty(_assertThisInitialized(_this), "loadWebFontsTimer", null);
                 _defineProperty(_assertThisInitialized(_this), "listRef", (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_2__.createRef)());
-                _defineProperty(_assertThisInitialized(_this), "loadGoogleFonts", (function(fonts) {
-                    if (_this.loadGoogleFontsTimer) {
-                        clearTimeout(_this.loadGoogleFontsTimer);
+                _defineProperty(_assertThisInitialized(_this), "loadWebFonts", (function(fonts) {
+                    if (_this.loadWebFontsTimer) {
+                        clearTimeout(_this.loadWebFontsTimer);
                     }
-                    _this.loadGoogleFontsTimer = setTimeout((function() {
+                    _this.loadWebFontsTimer = setTimeout((function() {
                         if (!_this.listRef.current) {
                             return;
                         }
                         var _this$listRef$current = _this.listRef.current._getRangeToRender(), _this$listRef$current2 = _slicedToArray(_this$listRef$current, 1), overscanStartIndex = _this$listRef$current2[0];
                         var perPage = 10;
                         var startingPage = Math.ceil((overscanStartIndex + 1) / perPage);
-                        var pageItems = _toConsumableArray(Array(perPage)).map((function(_, i) {
+                        var webFonts = _toConsumableArray(Array(perPage)).map((function(_, i) {
                             return (startingPage - 1) * perPage + i;
                         })).map((function(index) {
                             return fonts[index];
-                        })).filter((function(s) {
-                            return !!s && isGoogleFonts(s);
                         }));
-                        loadGoogleFonts(pageItems);
+                        (0, _utils__WEBPACK_IMPORTED_MODULE_4__.loadCustomFonts)(webFonts.filter((function(s) {
+                            return !!s && isCustomFonts(s);
+                        })));
+                        loadGoogleFonts(webFonts.filter((function(s) {
+                            return !!s && isGoogleFonts(s);
+                        })));
                     }), 100);
                 }));
                 return _this;
@@ -30090,11 +30139,14 @@ object-assign
             _createClass(FontsList, [ {
                 key: "fonts",
                 get: function get() {
-                    var _window$Lotta$customi2 = window.Lotta.customizer.settings, system_fonts = _window$Lotta$customi2.system_fonts, google_fonts = _window$Lotta$customi2.google_fonts;
-                    var fonts = Object.keys(system_fonts).concat(Object.keys(google_fonts));
+                    var _window$Lotta$customi2 = window.Lotta.customizer.settings, custom_fonts = _window$Lotta$customi2.custom_fonts, system_fonts = _window$Lotta$customi2.system_fonts, google_fonts = _window$Lotta$customi2.google_fonts;
+                    var fonts = Object.keys(custom_fonts).concat(Object.keys(system_fonts), Object.keys(google_fonts));
                     var keyword = this.state.filter.toLowerCase();
                     if (this.state.filter) {
                         fonts = fonts.filter((function(f) {
+                            if (custom_fonts[f] && custom_fonts[f].f.toLowerCase().indexOf(keyword) !== -1) {
+                                return true;
+                            }
                             if (system_fonts[f] && system_fonts[f].f.toLowerCase().indexOf(keyword) !== -1) {
                                 return true;
                             }
@@ -30104,7 +30156,7 @@ object-assign
                             return f.indexOf(keyword) !== -1;
                         }));
                     }
-                    this.loadGoogleFonts(fonts);
+                    this.loadWebFonts(fonts);
                     return fonts;
                 }
             }, {
@@ -30127,14 +30179,14 @@ object-assign
                     if (!window.Lotta) {
                         return null;
                     }
-                    var _window$Lotta$customi3 = window.Lotta.customizer.settings, system_fonts = _window$Lotta$customi3.system_fonts, google_fonts = _window$Lotta$customi3.google_fonts;
-                    var data = Object.assign({}, system_fonts, google_fonts);
+                    var _window$Lotta$customi3 = window.Lotta.customizer.settings, custom_fonts = _window$Lotta$customi3.custom_fonts, system_fonts = _window$Lotta$customi3.system_fonts, google_fonts = _window$Lotta$customi3.google_fonts;
+                    var data = Object.assign({}, custom_fonts, system_fonts, google_fonts);
                     var fonts = this.fonts;
-                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
                         className: "lotta-fonts-list-wrapper",
-                        children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+                        children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
                             className: "lotta-fonts-search",
-                            children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("input", {
+                            children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("input", {
                                 type: "text",
                                 value: this.state.filter,
                                 onChange: function onChange(e) {
@@ -30143,12 +30195,12 @@ object-assign
                                     });
                                 }
                             })
-                        }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+                        }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
                             className: "lotta-fonts-list",
-                            children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(react_virtualized_auto_sizer__WEBPACK_IMPORTED_MODULE_1__["default"], {
+                            children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(react_virtualized_auto_sizer__WEBPACK_IMPORTED_MODULE_1__["default"], {
                                 children: function children(_ref) {
                                     var height = _ref.height, width = _ref.width;
-                                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(react_window__WEBPACK_IMPORTED_MODULE_5__.FixedSizeList, {
+                                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(react_window__WEBPACK_IMPORTED_MODULE_6__.FixedSizeList, {
                                         ref: _this3.listRef,
                                         width,
                                         height,
@@ -30159,10 +30211,10 @@ object-assign
                                             data
                                         },
                                         onScroll: function onScroll() {
-                                            return _this3.loadGoogleFonts(fonts);
+                                            return _this3.loadWebFonts(fonts);
                                         },
                                         children: function children(props) {
-                                            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(SingleFont, _objectSpread({
+                                            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(SingleFont, _objectSpread({
                                                 family: _this3.props.family,
                                                 onClick: _this3.props.onChange
                                             }, props));
@@ -31306,7 +31358,10 @@ object-assign
             if (!window.Lotta) {
                 return [];
             }
-            var _window$Lotta$customi = window.Lotta.customizer.settings, system_fonts = _window$Lotta$customi.system_fonts, google_fonts = _window$Lotta$customi.google_fonts;
+            var _window$Lotta$customi = window.Lotta.customizer.settings, custom_fonts = _window$Lotta$customi.custom_fonts, system_fonts = _window$Lotta$customi.system_fonts, google_fonts = _window$Lotta$customi.google_fonts;
+            if (custom_fonts[family]) {
+                return [ custom_fonts[family].v ];
+            }
             if (system_fonts[family]) {
                 return [ "300", "400", "700" ];
             }
@@ -31531,6 +31586,7 @@ object-assign
             }, {
                 key: "render",
                 value: function render() {
+                    var _this3 = this;
                     var _this$props = this.props, options = _this$props.options, settings = _this$props.settings, _onChange = _this$props.onChange;
                     var czSettings = typeof settings === "function" ? settings() : settings;
                     czSettings = czSettings === _index__WEBPACK_IMPORTED_MODULE_1__.CZ_VALUES ? undefined : czSettings;
@@ -31549,8 +31605,11 @@ object-assign
                     }) : (0, _index__WEBPACK_IMPORTED_MODULE_1__.buildNestedControls)({
                         controls: options.controls,
                         settings,
-                        onChange: function onChange(val, id) {
+                        onChange: function onChange(val, id, self) {
                             _onChange(val, id);
+                            if (!self) {
+                                _this3.forceUpdate();
+                            }
                         }
                     });
                 }
@@ -31575,7 +31634,7 @@ object-assign
         var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6);
         var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = __webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
         var _panel__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(178);
-        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(255);
+        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(254);
         var _sidebar__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(314);
         var _navigation__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(317);
         var immutability_helper__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(279);
@@ -31583,7 +31642,8 @@ object-assign
         var _icons__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(277);
         var _throttler__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(75);
         var _customize__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(320);
-        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(10);
+        var _utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(4);
+        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(10);
         function _typeof(obj) {
             "@babel/helpers - typeof";
             return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(obj) {
@@ -31786,10 +31846,11 @@ object-assign
                     if (id.startsWith("row")) {
                         var rowIndex = Number(id.replace("row-", "").split("-")[0]);
                         if (!isNaN(rowIndex)) {
-                            if (Array.isArray(_this.props.value[rowIndex]["settings"])) {
+                            if (Array.isArray(_this.props.value) && Array.isArray(_this.props.value[rowIndex]["settings"])) {
                                 _this.props.value[rowIndex]["settings"] = {};
                             }
-                            _this.props.onChange(immutability_helper__WEBPACK_IMPORTED_MODULE_5___default()(_this.props.value, _defineProperty({}, rowIndex, {
+                            _this.props.onChange(immutability_helper__WEBPACK_IMPORTED_MODULE_5___default()((0, 
+                            _utils__WEBPACK_IMPORTED_MODULE_9__.sanitize_array_value)(_this.props.value), _defineProperty({}, rowIndex, {
                                 settings: _defineProperty({}, settingId, {
                                     $set: val
                                 })
@@ -31801,10 +31862,11 @@ object-assign
                         var _rowIndex = Number(indexes[0]);
                         var colIndex = Number(indexes[1]);
                         if (!isNaN(_rowIndex) && !isNaN(colIndex)) {
-                            if (Array.isArray(_this.props.value[_rowIndex]["columns"][colIndex]["settings"])) {
+                            if (Array.isArray(_this.props.value) && Array.isArray(_this.props.value[_rowIndex]["columns"][colIndex]["settings"])) {
                                 _this.props.value[_rowIndex]["columns"][colIndex]["settings"] = {};
                             }
-                            _this.props.onChange(immutability_helper__WEBPACK_IMPORTED_MODULE_5___default()(_this.props.value, _defineProperty({}, _rowIndex, {
+                            _this.props.onChange(immutability_helper__WEBPACK_IMPORTED_MODULE_5___default()((0, 
+                            _utils__WEBPACK_IMPORTED_MODULE_9__.sanitize_array_value)(_this.props.value), _defineProperty({}, _rowIndex, {
                                 columns: _defineProperty({}, colIndex, {
                                     settings: _defineProperty({}, settingId, {
                                         $set: val
@@ -31819,10 +31881,11 @@ object-assign
                         var _colIndex = Number(_indexes[1]);
                         var elIndex = Number(_indexes[2]);
                         if (!isNaN(_rowIndex2) && !isNaN(_colIndex) && !isNaN(elIndex)) {
-                            if (Array.isArray(_this.props.value[_rowIndex2]["columns"][_colIndex]["elements"][elIndex]["settings"])) {
+                            if (Array.isArray(_this.props.value) && Array.isArray(_this.props.value[_rowIndex2]["columns"][_colIndex]["elements"][elIndex]["settings"])) {
                                 _this.props.value[_rowIndex2]["columns"][_colIndex]["elements"][elIndex]["settings"] = {};
                             }
-                            _this.props.onChange(immutability_helper__WEBPACK_IMPORTED_MODULE_5___default()(_this.props.value, _defineProperty({}, _rowIndex2, {
+                            _this.props.onChange(immutability_helper__WEBPACK_IMPORTED_MODULE_5___default()((0, 
+                            _utils__WEBPACK_IMPORTED_MODULE_9__.sanitize_array_value)(_this.props.value), _defineProperty({}, _rowIndex2, {
                                 columns: _defineProperty({}, _colIndex, {
                                     elements: _defineProperty({}, elIndex, {
                                         settings: _defineProperty({}, settingId, {
@@ -31860,11 +31923,11 @@ object-assign
                 key: "createSidebar",
                 value: function createSidebar() {
                     var _this3 = this;
-                    var root = document.createElement("div");
-                    root.classList.add("lotta-page-builder-sidebar-wrapper");
-                    document.querySelector(".wp-full-overlay").appendChild(root);
+                    var container = document.createElement("div");
+                    container.classList.add("lotta-page-builder-sidebar-wrapper");
+                    document.querySelector(".wp-full-overlay").appendChild(container);
                     this.renderSidebar = function() {
-                        (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.render)((0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_sidebar__WEBPACK_IMPORTED_MODULE_3__["default"], {
+                        var sidebarEl = (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_sidebar__WEBPACK_IMPORTED_MODULE_3__["default"], {
                             options: _this3.props.options,
                             type: _this3.state.sidebarType,
                             visible: _this3.state.sidebarVisible,
@@ -31876,13 +31939,14 @@ object-assign
                                 }));
                             },
                             onRowAdd: function onRowAdd(row) {
-                                _this3.props.onChange([].concat(_toConsumableArray(_this3.props.value), [ row ]));
+                                _this3.props.onChange([].concat(_toConsumableArray((0, _utils__WEBPACK_IMPORTED_MODULE_9__.sanitize_array_value)(_this3.props.value)), [ row ]));
                             },
                             onElementChoose: function onElementChoose(el) {
                                 if (_this3.state.activeRow === null || _this3.state.activeColumn === null) {
                                     return;
                                 }
-                                _this3.props.onChange(immutability_helper__WEBPACK_IMPORTED_MODULE_5___default()(_this3.props.value, _defineProperty({}, _this3.state.activeRow, {
+                                _this3.props.onChange(immutability_helper__WEBPACK_IMPORTED_MODULE_5___default()((0, 
+                                _utils__WEBPACK_IMPORTED_MODULE_9__.sanitize_array_value)(_this3.props.value), _defineProperty({}, _this3.state.activeRow, {
                                     columns: _defineProperty({}, _this3.state.activeColumn, {
                                         elements: {
                                             $push: [ {
@@ -31893,46 +31957,60 @@ object-assign
                                     })
                                 })));
                             }
-                        }), root);
+                        });
+                        if (_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createRoot) {
+                            if (!_this3.sidebarRoot) {
+                                _this3.sidebarRoot = (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createRoot)(container);
+                            }
+                            _this3.sidebarRoot.render(sidebarEl);
+                        } else {
+                            (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.render)(sidebarEl, container);
+                        }
                     };
                     this.renderSidebar();
                 }
             }, {
                 key: "destroySidebars",
                 value: function destroySidebars() {
+                    var _this4 = this;
                     var sidebars = document.querySelectorAll(".lotta-page-builder-sidebar-wrapper");
                     sidebars.forEach((function(sidebar) {
                         sidebar.classList.add("leave");
                     }));
                     setTimeout((function() {
-                        sidebars.forEach((function(sidebar) {
-                            (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.unmountComponentAtNode)(sidebar);
-                            sidebar.remove();
-                        }));
+                        if (_this4.sidebarRoot) {
+                            _this4.sidebarRoot.unmout();
+                            _this4.sidebarRoot = null;
+                        } else {
+                            sidebars.forEach((function(sidebar) {
+                                (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.unmountComponentAtNode)(sidebar);
+                                sidebar.remove();
+                            }));
+                        }
                     }), 150);
                 }
             }, {
                 key: "showRowStructureSidebar",
                 value: function showRowStructureSidebar() {
-                    var _this4 = this;
+                    var _this5 = this;
                     this.setState({
                         sidebarVisible: true,
                         sidebarType: "row-structure"
                     }, (function() {
-                        _this4.renderSidebar();
+                        _this5.renderSidebar();
                     }));
                 }
             }, {
                 key: "showElementsSidebar",
                 value: function showElementsSidebar(row, col) {
-                    var _this5 = this;
+                    var _this6 = this;
                     this.setState({
                         sidebarVisible: true,
                         sidebarType: "elements",
                         activeRow: row,
                         activeColumn: col
                     }, (function() {
-                        _this5.renderSidebar();
+                        _this6.renderSidebar();
                     }));
                 }
             }, {
@@ -31940,19 +32018,19 @@ object-assign
                 get: function get() {
                     var _this$props = this.props, value = _this$props.value, options = _this$props.options;
                     var listeners = {};
-                    value.forEach((function(row, ri) {
+                    (0, _utils__WEBPACK_IMPORTED_MODULE_9__.sanitize_array_value)(value).forEach((function(row, ri) {
                         listeners["row-".concat(ri)] = Object.assign({
                             id: "row-".concat(ri),
                             values: Object.assign({}, options.row.defaults, row.settings || {}),
                             label: "Row # ".concat(ri + 1)
                         }, options.row);
-                        (row.columns || []).forEach((function(col, ci) {
+                        (0, _utils__WEBPACK_IMPORTED_MODULE_9__.sanitize_array_value)(row.columns).forEach((function(col, ci) {
                             listeners["col-".concat(ri, "-").concat(ci)] = Object.assign({
                                 id: "col-".concat(ri, "-").concat(ci),
                                 values: Object.assign({}, options.column.defaults, col.settings || {}),
                                 label: "Column # ".concat(ri + 1, "-").concat(ci + 1)
                             }, options.column);
-                            (col.elements || []).forEach((function(el, ei) {
+                            (0, _utils__WEBPACK_IMPORTED_MODULE_9__.sanitize_array_value)(col.elements).forEach((function(el, ei) {
                                 var element = options.elements[el.id] || {};
                                 listeners["element-".concat(ri, "-").concat(ci, "-").concat(ei)] = Object.assign({
                                     id: "element-".concat(ri, "-").concat(ci, "-").concat(ei),
@@ -31966,35 +32044,35 @@ object-assign
             }, {
                 key: "render",
                 value: function render() {
-                    var _this6 = this;
+                    var _this7 = this;
                     var options = this.props.options;
-                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_panel__WEBPACK_IMPORTED_MODULE_1__["default"], {
+                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_panel__WEBPACK_IMPORTED_MODULE_1__["default"], {
                         listeners: this.listeners,
                         onChange: this.handleChange,
                         getSettings: function getSettings(id) {
-                            if (id && _this6.listeners[id]) {
-                                return _this6.listeners[id].values;
+                            if (id && _this7.listeners[id]) {
+                                return _this7.listeners[id].values;
                             }
                             return undefined;
                         },
                         children: function children(_ref) {
                             var container = _ref.container, open = _ref.open;
-                            _this6.openPanel = open;
-                            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
+                            _this7.openPanel = open;
+                            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("div", {
                                 ref: container,
                                 className: "lotta-page-builder",
-                                children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
+                                children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)("div", {
                                     className: "page-builder-content",
-                                    children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_navigation__WEBPACK_IMPORTED_MODULE_4__["default"], {
+                                    children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_navigation__WEBPACK_IMPORTED_MODULE_4__["default"], {
                                         options,
-                                        value: _this6.props.value,
+                                        value: (0, _utils__WEBPACK_IMPORTED_MODULE_9__.sanitize_array_value)(_this7.props.value),
                                         onRowsChange: function onRowsChange(rows) {
-                                            _this6.props.onChange(rows);
+                                            _this7.props.onChange(rows);
                                         },
                                         onColumnsChange: function onColumnsChange(row, columns) {
-                                            if (_this6.columnsChangeThrottler === null) {
-                                                _this6.columnsChangeThrottler = new _throttler__WEBPACK_IMPORTED_MODULE_7__["default"](0, (function(changes) {
-                                                    var value = _this6.props.value;
+                                            if (_this7.columnsChangeThrottler === null) {
+                                                _this7.columnsChangeThrottler = new _throttler__WEBPACK_IMPORTED_MODULE_7__["default"](0, (function(changes) {
+                                                    var value = (0, _utils__WEBPACK_IMPORTED_MODULE_9__.sanitize_array_value)(_this7.props.value);
                                                     changes.forEach((function(data) {
                                                         var _data = _slicedToArray(data, 2), row = _data[0], columns = _data[1];
                                                         value = immutability_helper__WEBPACK_IMPORTED_MODULE_5___default()(value, _defineProperty({}, row, {
@@ -32003,15 +32081,15 @@ object-assign
                                                             }
                                                         }));
                                                     }));
-                                                    _this6.props.onChange(value);
+                                                    _this7.props.onChange(value);
                                                 }));
                                             }
-                                            _this6.columnsChangeThrottler.buffer(row, columns);
+                                            _this7.columnsChangeThrottler.buffer(row, columns);
                                         },
                                         onElementsChange: function onElementsChange(row, col, elements) {
-                                            if (_this6.elementsChangeThrottler === null) {
-                                                _this6.elementsChangeThrottler = new _throttler__WEBPACK_IMPORTED_MODULE_7__["default"](0, (function(changes) {
-                                                    var value = _this6.props.value;
+                                            if (_this7.elementsChangeThrottler === null) {
+                                                _this7.elementsChangeThrottler = new _throttler__WEBPACK_IMPORTED_MODULE_7__["default"](0, (function(changes) {
+                                                    var value = (0, _utils__WEBPACK_IMPORTED_MODULE_9__.sanitize_array_value)(_this7.props.value);
                                                     changes.forEach((function(data) {
                                                         var _data2 = _slicedToArray(data, 3), row = _data2[0], col = _data2[1], elements = _data2[2];
                                                         value = immutability_helper__WEBPACK_IMPORTED_MODULE_5___default()(value, _defineProperty({}, row, {
@@ -32022,25 +32100,28 @@ object-assign
                                                             })
                                                         }));
                                                     }));
-                                                    _this6.props.onChange(value);
+                                                    _this7.props.onChange(value);
                                                 }));
                                             }
-                                            _this6.elementsChangeThrottler.buffer(row, col, elements);
+                                            _this7.elementsChangeThrottler.buffer(row, col, elements);
                                         },
                                         onRowRemove: function onRowRemove(row) {
-                                            _this6.props.onChange(immutability_helper__WEBPACK_IMPORTED_MODULE_5___default()(_this6.props.value, {
+                                            _this7.props.onChange(immutability_helper__WEBPACK_IMPORTED_MODULE_5___default()((0, 
+                                            _utils__WEBPACK_IMPORTED_MODULE_9__.sanitize_array_value)(_this7.props.value), {
                                                 $splice: [ [ row, 1 ] ]
                                             }));
                                         },
                                         onColumnRemove: function onColumnRemove(row, col) {
-                                            _this6.props.onChange(immutability_helper__WEBPACK_IMPORTED_MODULE_5___default()(_this6.props.value, _defineProperty({}, row, {
+                                            _this7.props.onChange(immutability_helper__WEBPACK_IMPORTED_MODULE_5___default()((0, 
+                                            _utils__WEBPACK_IMPORTED_MODULE_9__.sanitize_array_value)(_this7.props.value), _defineProperty({}, row, {
                                                 columns: {
                                                     $splice: [ [ col, 1 ] ]
                                                 }
                                             })));
                                         },
                                         onElementRemove: function onElementRemove(row, col, el) {
-                                            _this6.props.onChange(immutability_helper__WEBPACK_IMPORTED_MODULE_5___default()(_this6.props.value, _defineProperty({}, row, {
+                                            _this7.props.onChange(immutability_helper__WEBPACK_IMPORTED_MODULE_5___default()((0, 
+                                            _utils__WEBPACK_IMPORTED_MODULE_9__.sanitize_array_value)(_this7.props.value), _defineProperty({}, row, {
                                                 columns: _defineProperty({}, col, {
                                                     elements: {
                                                         $splice: [ [ el, 1 ] ]
@@ -32049,7 +32130,8 @@ object-assign
                                             })));
                                         },
                                         onColumnAdd: function onColumnAdd(row) {
-                                            _this6.props.onChange(immutability_helper__WEBPACK_IMPORTED_MODULE_5___default()(_this6.props.value, _defineProperty({}, row, {
+                                            _this7.props.onChange(immutability_helper__WEBPACK_IMPORTED_MODULE_5___default()((0, 
+                                            _utils__WEBPACK_IMPORTED_MODULE_9__.sanitize_array_value)(_this7.props.value), _defineProperty({}, row, {
                                                 columns: {
                                                     $push: [ {
                                                         elements: [],
@@ -32061,39 +32143,39 @@ object-assign
                                             })));
                                         },
                                         onRowClick: function onRowClick(row) {
-                                            open(_this6.listeners["row-".concat(row)]);
+                                            open(_this7.listeners["row-".concat(row)]);
                                         },
                                         onColumnClick: function onColumnClick(row, col) {
-                                            open(_this6.listeners["col-".concat(row, "-").concat(col)]);
+                                            open(_this7.listeners["col-".concat(row, "-").concat(col)]);
                                         },
                                         onElementClick: function onElementClick(row, col, el) {
-                                            open(_this6.listeners["element-".concat(row, "-").concat(col, "-").concat(el)]);
+                                            open(_this7.listeners["element-".concat(row, "-").concat(col, "-").concat(el)]);
                                         },
                                         onAddElement: function onAddElement(row, col) {
-                                            _this6.showElementsSidebar(row, col);
+                                            _this7.showElementsSidebar(row, col);
                                         }
-                                    }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("button", {
+                                    }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)("button", {
                                         className: "page-builder-add-row",
                                         type: "button",
                                         onClick: function onClick() {
-                                            return _this6.showRowStructureSidebar();
+                                            return _this7.showRowStructureSidebar();
                                         },
-                                        children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_icons__WEBPACK_IMPORTED_MODULE_6__.PlusSolid, {
+                                        children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_icons__WEBPACK_IMPORTED_MODULE_6__.PlusSolid, {
                                             w: 14,
                                             h: 14
-                                        }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("span", {
+                                        }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("span", {
                                             children: (0, _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Add Row")
                                         }) ]
-                                    }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("button", {
+                                    }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsxs)("button", {
                                         className: "page-builder-reset",
                                         type: "button",
                                         onClick: function onClick() {
-                                            return _this6.props.onChange(_this6.props.options["default"]);
+                                            _this7.props.onChange(_this7.props.options["default"]);
                                         },
-                                        children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_icons__WEBPACK_IMPORTED_MODULE_6__.RotateLeft, {
+                                        children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_icons__WEBPACK_IMPORTED_MODULE_6__.RotateLeft, {
                                             w: 14,
                                             h: 14
-                                        }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("span", {
+                                        }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)("span", {
                                             children: (0, _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Reset Default")
                                         }) ]
                                     }) ]
@@ -32114,7 +32196,7 @@ object-assign
         });
         var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6);
         var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = __webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
-        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(255);
+        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(254);
         var _elements__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(315);
         var _row_structure__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(316);
         var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(10);
@@ -32755,7 +32837,7 @@ object-assign
         var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6);
         var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = __webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
         var _icons__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(277);
-        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(255);
+        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(254);
         var _navigation_column__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(319);
         var react_sortablejs__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(280);
         var react_sortablejs__WEBPACK_IMPORTED_MODULE_4___default = __webpack_require__.n(react_sortablejs__WEBPACK_IMPORTED_MODULE_4__);
@@ -32984,7 +33066,7 @@ object-assign
         var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6);
         var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = __webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
         var _icons__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(277);
-        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(255);
+        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(254);
         var react_sortablejs__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(280);
         var react_sortablejs__WEBPACK_IMPORTED_MODULE_3___default = __webpack_require__.n(react_sortablejs__WEBPACK_IMPORTED_MODULE_3__);
         var deep_equal__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(14);
@@ -33228,10 +33310,7 @@ object-assign
                 return null;
             };
             var $body = jQuery("body");
-            if ($body.hasClass("wp-customizer") && $body.hasClass("ready")) {
-                return fallback();
-            }
-            wp.customize.bind("ready", (function() {
+            var handleBind = function handleBind() {
                 var control = wp.customize.control(id);
                 if (!control || !control.section()) {
                     return fallback();
@@ -33241,7 +33320,11 @@ object-assign
                     return fallback();
                 }
                 section.expanded.bind(callback);
-            }));
+            };
+            if ($body.hasClass("wp-customizer") && $body.hasClass("ready")) {
+                return handleBind();
+            }
+            wp.customize.bind("ready", handleBind);
         }
     }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
         "use strict";
@@ -33519,42 +33602,48 @@ object-assign
             }, {
                 key: "destroyPlacements",
                 value: function destroyPlacements() {
+                    var _this5 = this;
                     var placements = document.querySelectorAll(".lotta-builder-placements-wrapper");
                     placements.forEach((function(placement) {
                         placement.classList.add("leave");
                     }));
                     setTimeout((function() {
-                        placements.forEach((function(placement) {
-                            (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.unmountComponentAtNode)(placement);
-                            placement.remove();
-                        }));
+                        if (_this5.placementsRoot) {
+                            _this5.placementsRoot.unmount();
+                            _this5.placementsRoot = null;
+                        } else {
+                            placements.forEach((function(placement) {
+                                (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.unmountComponentAtNode)(placement);
+                                placement.remove();
+                            }));
+                        }
                     }), 150);
                 }
             }, {
                 key: "createPlacements",
                 value: function createPlacements() {
-                    var _this5 = this;
-                    var root = document.createElement("div");
-                    root.classList.add("lotta-builder-placements-wrapper");
-                    document.querySelector(".wp-full-overlay").appendChild(root);
+                    var _this6 = this;
+                    var container = document.createElement("div");
+                    container.classList.add("lotta-builder-placements-wrapper");
+                    document.querySelector(".wp-full-overlay").appendChild(container);
                     this.renderPlacements = function() {
-                        var responsive = _this5.props.options.responsive_builder;
-                        var device = _this5.state.device === "desktop" ? "desktop" : "mobile";
-                        (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.render)((0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_placements__WEBPACK_IMPORTED_MODULE_1__["default"], {
-                            value: _this5.props.value,
-                            elements: _this5.props.options.elements,
-                            rows: _this5.props.options.rows,
+                        var responsive = _this6.props.options.responsive_builder;
+                        var device = _this6.state.device === "desktop" ? "desktop" : "mobile";
+                        var placementsEl = (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_10__.jsx)(_placements__WEBPACK_IMPORTED_MODULE_1__["default"], {
+                            value: _this6.props.value,
+                            elements: _this6.props.options.elements,
+                            rows: _this6.props.options.rows,
                             device,
-                            onDeviceChange: _this5.setDevice.bind(_this5),
+                            onDeviceChange: _this6.setDevice.bind(_this6),
                             responsive,
                             onElementsChange: function onElementsChange(row, col, elements) {
-                                if (!_this5.elementsChangeThrottler) {
-                                    _this5.elementsChangeThrottler = new _throttler__WEBPACK_IMPORTED_MODULE_7__["default"](0, (function(changes) {
-                                        var device = _this5.state.device === "desktop" ? "desktop" : "mobile";
-                                        var value = (0, _utils__WEBPACK_IMPORTED_MODULE_2__.ensureBuilderValueStructure)(responsive, _this5.props.value, _this5.props.options.rows);
+                                if (!_this6.elementsChangeThrottler) {
+                                    _this6.elementsChangeThrottler = new _throttler__WEBPACK_IMPORTED_MODULE_7__["default"](0, (function(changes) {
+                                        var device = _this6.state.device === "desktop" ? "desktop" : "mobile";
+                                        var value = (0, _utils__WEBPACK_IMPORTED_MODULE_2__.ensureBuilderValueStructure)(responsive, _this6.props.value, _this6.props.options.rows);
                                         changes.forEach((function(data) {
                                             var _data = _slicedToArray(data, 3), row = _data[0], col = _data[1], elements = _data[2];
-                                            var rowData = _this5.props.options.rows[row] || {};
+                                            var rowData = _this6.props.options.rows[row] || {};
                                             var defaultColumn = rowData.type === "off-canvas" ? {
                                                 elements: [],
                                                 settings: {
@@ -33576,14 +33665,14 @@ object-assign
                                                 value[row]["columns"][col]["elements"] = (0, _utils__WEBPACK_IMPORTED_MODULE_3__.array_unique)(elements);
                                             }
                                         }));
-                                        _this5.props.onChange(value);
-                                        _this5.setState({}, _this5.renderPlacements);
+                                        _this6.props.onChange(value);
+                                        _this6.setState({}, _this6.renderPlacements);
                                     }));
                                 }
-                                _this5.elementsChangeThrottler.buffer(row, col, elements);
+                                _this6.elementsChangeThrottler.buffer(row, col, elements);
                             },
                             onElementRemove: function onElementRemove(el, row, col) {
-                                var value = (0, _utils__WEBPACK_IMPORTED_MODULE_2__.ensureBuilderValueStructure)(responsive, _this5.props.value, _this5.props.options.rows);
+                                var value = (0, _utils__WEBPACK_IMPORTED_MODULE_2__.ensureBuilderValueStructure)(responsive, _this6.props.value, _this6.props.options.rows);
                                 if (responsive) {
                                     var index = value[row][device]["columns"][col]["elements"].indexOf(el);
                                     if (index !== -1) {
@@ -33595,21 +33684,21 @@ object-assign
                                         value[row]["columns"][col]["elements"].splice(_index, 1);
                                     }
                                 }
-                                _this5.props.onChange(value);
-                                _this5.setState({}, _this5.renderPlacements);
+                                _this6.props.onChange(value);
+                                _this6.setState({}, _this6.renderPlacements);
                             },
                             onElementClick: function onElementClick(el) {
-                                _this5.openPanel(_this5.props.options.elements[el]);
+                                _this6.openPanel(_this6.props.options.elements[el]);
                             },
                             onRowClick: function onRowClick(row) {
-                                _this5.openPanel(_this5.props.options.rows[row]);
+                                _this6.openPanel(_this6.props.options.rows[row]);
                             },
                             onSettingColumn: function onSettingColumn(row, colIndex) {
-                                var device = responsive ? _this5.state.device === "desktop" ? "desktop" : "mobile" : "all";
-                                _this5.openPanel(_this5.listeners["".concat(row, "-").concat(device, "-").concat(colIndex)]);
+                                var device = responsive ? _this6.state.device === "desktop" ? "desktop" : "mobile" : "all";
+                                _this6.openPanel(_this6.listeners["".concat(row, "-").concat(device, "-").concat(colIndex)]);
                             },
                             onAddColumn: function onAddColumn(row, colIndex) {
-                                var value = (0, _utils__WEBPACK_IMPORTED_MODULE_2__.ensureBuilderValueStructure)(responsive, _this5.props.value, _this5.props.options.rows);
+                                var value = (0, _utils__WEBPACK_IMPORTED_MODULE_2__.ensureBuilderValueStructure)(responsive, _this6.props.value, _this6.props.options.rows);
                                 if (responsive) {
                                     var columns = value[row][device]["columns"];
                                     value[row][device]["columns"] = [].concat(_toConsumableArray(columns.splice(0, colIndex + 1)), [ {
@@ -33623,20 +33712,28 @@ object-assign
                                         settings: {}
                                     } ], _toConsumableArray(_columns.splice(colIndex, _columns.length)));
                                 }
-                                _this5.props.onChange(value);
-                                _this5.setState({}, _this5.renderPlacements);
+                                _this6.props.onChange(value);
+                                _this6.setState({}, _this6.renderPlacements);
                             },
                             onRemoveColumn: function onRemoveColumn(row, colIndex) {
-                                var value = (0, _utils__WEBPACK_IMPORTED_MODULE_2__.ensureBuilderValueStructure)(responsive, _this5.props.value, _this5.props.options.rows);
+                                var value = (0, _utils__WEBPACK_IMPORTED_MODULE_2__.ensureBuilderValueStructure)(responsive, _this6.props.value, _this6.props.options.rows);
                                 if (responsive) {
                                     value[row][device]["columns"].splice(colIndex, 1);
                                 } else {
                                     value[row]["columns"].splice(colIndex, 1);
                                 }
-                                _this5.props.onChange(value);
-                                _this5.setState({}, _this5.renderPlacements);
+                                _this6.props.onChange(value);
+                                _this6.setState({}, _this6.renderPlacements);
                             }
-                        }), root);
+                        });
+                        if (_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createRoot) {
+                            if (!_this6.placementsRoot) {
+                                _this6.placementsRoot = (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createRoot)(container);
+                            }
+                            _this6.placementsRoot.render(placementsEl);
+                        } else {
+                            (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.render)(placementsEl, container);
+                        }
                     };
                     this.renderPlacements();
                 }
@@ -33651,7 +33748,7 @@ object-assign
                             all: value[row]
                         };
                         Object.keys(responsiveValue).forEach((function(device) {
-                            var columns = responsiveValue[device].columns || [];
+                            var columns = (0, _utils__WEBPACK_IMPORTED_MODULE_3__.sanitize_array_value)(responsiveValue[device].columns);
                             columns.forEach((function(col, ci) {
                                 listeners[row + "-" + device + "-" + ci] = Object.assign({
                                     id: row + "-" + device + "-" + ci,
@@ -33668,7 +33765,7 @@ object-assign
             }, {
                 key: "render",
                 value: function render() {
-                    var _this6 = this;
+                    var _this7 = this;
                     var _this$props$options2 = this.props.options, elements = _this$props$options2.elements, responsive_builder = _this$props$options2.responsive_builder;
                     var value = this.props.value;
                     var currentDevice = this.state.device === "desktop" ? "desktop" : "mobile";
@@ -33679,7 +33776,7 @@ object-assign
                         listeners: this.listeners,
                         onChange: function onChange(id, settingId, val) {
                             if (!id) {
-                                _this6.props.onChange(val, settingId);
+                                _this7.props.onChange(val, settingId);
                                 return;
                             }
                             var indexes = id.split("-");
@@ -33687,10 +33784,10 @@ object-assign
                             var device = indexes[1];
                             var col = Number(indexes[2]);
                             if (device === "all") {
-                                if (Array.isArray(_this6.props.value[row]["columns"][col]["settings"])) {
-                                    _this6.props.value[row]["columns"][col]["settings"] = {};
+                                if (Array.isArray(_this7.props.value[row]["columns"][col]["settings"])) {
+                                    _this7.props.value[row]["columns"][col]["settings"] = {};
                                 }
-                                _this6.props.onChange(immutability_helper__WEBPACK_IMPORTED_MODULE_8___default()(_this6.props.value, _defineProperty({}, row, {
+                                _this7.props.onChange(immutability_helper__WEBPACK_IMPORTED_MODULE_8___default()(_this7.props.value, _defineProperty({}, row, {
                                     columns: _defineProperty({}, col, {
                                         settings: _defineProperty({}, settingId, {
                                             $set: val
@@ -33698,28 +33795,28 @@ object-assign
                                     })
                                 })));
                             } else {
-                                if (Array.isArray(_this6.props.value[row][device]["columns"][col]["settings"])) {
-                                    _this6.props.value[row][device]["columns"][col]["settings"] = {};
+                                if (Array.isArray(_this7.props.value[row][device]["columns"][col]["settings"])) {
+                                    _this7.props.value[row][device]["columns"][col]["settings"] = {};
                                 }
-                                var newValue = immutability_helper__WEBPACK_IMPORTED_MODULE_8___default()(_this6.props.value, _defineProperty({}, row, _defineProperty({}, device, {
+                                var newValue = immutability_helper__WEBPACK_IMPORTED_MODULE_8___default()(_this7.props.value, _defineProperty({}, row, _defineProperty({}, device, {
                                     columns: _defineProperty({}, col, {
                                         settings: _defineProperty({}, settingId, {
                                             $set: val
                                         })
                                     })
                                 })));
-                                _this6.props.onChange(newValue);
+                                _this7.props.onChange(newValue);
                             }
                         },
                         getSettings: function getSettings(id) {
-                            if (id && _this6.listeners[id]) {
-                                return _this6.listeners[id].values;
+                            if (id && _this7.listeners[id]) {
+                                return _this7.listeners[id].values;
                             }
                             return undefined;
                         },
                         children: function children(_ref) {
                             var container = _ref.container, open = _ref.open;
-                            _this6.openPanel = open;
+                            _this7.openPanel = open;
                             var sortableElements = Object.keys(elements).map((function(e) {
                                 if (elements[e].device && elements[e].device !== currentDevice) {
                                     return null;
@@ -33782,7 +33879,7 @@ object-assign
         var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6);
         var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = __webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
         var _react_spring_web__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(180);
-        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(255);
+        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(254);
         var clsx__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(9);
         var _placement_row__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(324);
         var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(10);
@@ -34081,7 +34178,8 @@ object-assign
         var deep_equal__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(14);
         var deep_equal__WEBPACK_IMPORTED_MODULE_2___default = __webpack_require__.n(deep_equal__WEBPACK_IMPORTED_MODULE_2__);
         var _icons__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(277);
-        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(10);
+        var _utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(4);
+        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(10);
         function _typeof(obj) {
             "@babel/helpers - typeof";
             return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(obj) {
@@ -34203,39 +34301,39 @@ object-assign
                             settings: {}
                         } ];
                     }
-                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
                         className: "builder-row",
-                        children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+                        children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
                             className: "builder-row-actions",
-                            children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("button", {
+                            children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("button", {
                                 disabled: row.controls.length <= 0,
                                 type: "button",
                                 onClick: function onClick() {
                                     return _onClick(id);
                                 },
-                                children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
+                                children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
                                     className: "lotta-dashicon dashicons-admin-generic mr-4"
-                                }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
+                                }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
                                     children: row.label
                                 }) ]
                             })
-                        }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+                        }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
                             className: "builder-columns",
                             children: showColumns.map((function(column, colIndex) {
-                                var columnItems = column.elements || [];
+                                var columnItems = (0, _utils__WEBPACK_IMPORTED_MODULE_4__.sanitize_array_value)(column.elements);
                                 var sortableItems = columnItems.map((function(i) {
                                     return {
                                         id: i
                                     };
                                 }));
-                                return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+                                return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
                                     className: "builder-column",
                                     style: {
                                         width: Math.floor(1 / showColumns.length * 100 * 100) / 100 + "%"
                                     },
-                                    children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+                                    children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
                                         className: "builder-column-content",
-                                        children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(react_sortablejs__WEBPACK_IMPORTED_MODULE_1__.ReactSortable, {
+                                        children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(react_sortablejs__WEBPACK_IMPORTED_MODULE_1__.ReactSortable, {
                                             list: sortableItems,
                                             group: "builder-item",
                                             className: "builder-sortable-items",
@@ -34248,15 +34346,15 @@ object-assign
                                                 })));
                                             },
                                             children: columnItems.map((function(item) {
-                                                return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+                                                return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
                                                     "data-id": item,
                                                     className: "builder-item",
                                                     onClick: function onClick() {
                                                         return onElementClick(item);
                                                     },
-                                                    children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
+                                                    children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
                                                         children: (elements[item] || {}).label
-                                                    }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
+                                                    }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
                                                         className: "lotta-dashicon dashicons-no-alt",
                                                         onClick: function onClick(ev) {
                                                             ev.stopPropagation();
@@ -34265,34 +34363,34 @@ object-assign
                                                     }) ]
                                                 }, item);
                                             }))
-                                        }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+                                        }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
                                             className: "builder-column-actions",
-                                            children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+                                            children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
                                                 type: "button",
                                                 onClick: function onClick() {
                                                     return onSettingColumn(id, colIndex);
                                                 },
-                                                children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
+                                                children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
                                                     className: "lotta-dashicon dashicons-admin-generic"
                                                 })
                                             })
                                         }) ]
-                                    }), !isOffCanvas && (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+                                    }), !isOffCanvas && (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
                                         className: "builder-change-columns",
-                                        children: [ showColumns.length < row.maxColumns && (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+                                        children: [ showColumns.length < row.maxColumns && (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
                                             className: "builder-add-column",
                                             type: "button",
                                             onClick: function onClick() {
                                                 return onAddColumn(id, colIndex);
                                             },
-                                            children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_icons__WEBPACK_IMPORTED_MODULE_3__.PlusSolid, {})
-                                        }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+                                            children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_icons__WEBPACK_IMPORTED_MODULE_3__.PlusSolid, {})
+                                        }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
                                             className: "builder-remove-column",
                                             type: "button",
                                             onClick: function onClick() {
                                                 return onRemoveColumn(id, colIndex);
                                             },
-                                            children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_icons__WEBPACK_IMPORTED_MODULE_3__.CircleXMark, {})
+                                            children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_icons__WEBPACK_IMPORTED_MODULE_3__.CircleXMark, {})
                                         }) ]
                                     }) ]
                                 }, colIndex);
@@ -34310,6 +34408,7 @@ object-assign
             ensureBuilderValueStructure: () => ensureBuilderValueStructure,
             ensureRowValueStructure: () => ensureRowValueStructure
         });
+        var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
         function _toConsumableArray(arr) {
             return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
         }
@@ -34338,11 +34437,11 @@ object-assign
             return arr2;
         }
         function sanitizeRowData(value) {
-            var columns = value.columns || [];
+            var columns = (0, _utils__WEBPACK_IMPORTED_MODULE_0__.sanitize_array_value)(value.columns);
             var newColumns = [];
             columns.forEach((function(col) {
                 newColumns.push({
-                    elements: _toConsumableArray(col.elements || []),
+                    elements: _toConsumableArray((0, _utils__WEBPACK_IMPORTED_MODULE_0__.sanitize_array_value)(col.elements)),
                     settings: JSON.parse(JSON.stringify(col.settings || {}))
                 });
             }));
@@ -34381,7 +34480,7 @@ object-assign
         var _layers__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(278);
         var immutability_helper__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(279);
         var immutability_helper__WEBPACK_IMPORTED_MODULE_4___default = __webpack_require__.n(immutability_helper__WEBPACK_IMPORTED_MODULE_4__);
-        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(255);
+        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(254);
         var _icons__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(277);
         var underscore__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(70);
         var underscore__WEBPACK_IMPORTED_MODULE_7___default = __webpack_require__.n(underscore__WEBPACK_IMPORTED_MODULE_7__);
@@ -34996,7 +35095,7 @@ object-assign
         });
         var _components_state_popup__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(190);
         var clsx__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9);
-        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(255);
+        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(254);
         var _toggle__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(176);
         var _slider__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(174);
         var _index__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(5);
@@ -35167,6 +35266,212 @@ object-assign
     }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
         "use strict";
         __webpack_require__.r(__webpack_exports__);
+        __webpack_require__.d(__webpack_exports__, {
+            default: () => __WEBPACK_DEFAULT_EXPORT__
+        });
+        var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6);
+        var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = __webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
+        var clsx__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9);
+        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(10);
+        function _typeof(obj) {
+            "@babel/helpers - typeof";
+            return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(obj) {
+                return typeof obj;
+            } : function(obj) {
+                return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+            }, _typeof(obj);
+        }
+        function _classCallCheck(instance, Constructor) {
+            if (!(instance instanceof Constructor)) {
+                throw new TypeError("Cannot call a class as a function");
+            }
+        }
+        function _defineProperties(target, props) {
+            for (var i = 0; i < props.length; i++) {
+                var descriptor = props[i];
+                descriptor.enumerable = descriptor.enumerable || false;
+                descriptor.configurable = true;
+                if ("value" in descriptor) descriptor.writable = true;
+                Object.defineProperty(target, descriptor.key, descriptor);
+            }
+        }
+        function _createClass(Constructor, protoProps, staticProps) {
+            if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+            if (staticProps) _defineProperties(Constructor, staticProps);
+            Object.defineProperty(Constructor, "prototype", {
+                writable: false
+            });
+            return Constructor;
+        }
+        function _inherits(subClass, superClass) {
+            if (typeof superClass !== "function" && superClass !== null) {
+                throw new TypeError("Super expression must either be null or a function");
+            }
+            subClass.prototype = Object.create(superClass && superClass.prototype, {
+                constructor: {
+                    value: subClass,
+                    writable: true,
+                    configurable: true
+                }
+            });
+            Object.defineProperty(subClass, "prototype", {
+                writable: false
+            });
+            if (superClass) _setPrototypeOf(subClass, superClass);
+        }
+        function _setPrototypeOf(o, p) {
+            _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) {
+                o.__proto__ = p;
+                return o;
+            };
+            return _setPrototypeOf(o, p);
+        }
+        function _createSuper(Derived) {
+            var hasNativeReflectConstruct = _isNativeReflectConstruct();
+            return function _createSuperInternal() {
+                var Super = _getPrototypeOf(Derived), result;
+                if (hasNativeReflectConstruct) {
+                    var NewTarget = _getPrototypeOf(this).constructor;
+                    result = Reflect.construct(Super, arguments, NewTarget);
+                } else {
+                    result = Super.apply(this, arguments);
+                }
+                return _possibleConstructorReturn(this, result);
+            };
+        }
+        function _possibleConstructorReturn(self, call) {
+            if (call && (_typeof(call) === "object" || typeof call === "function")) {
+                return call;
+            } else if (call !== void 0) {
+                throw new TypeError("Derived constructors may only return object or undefined");
+            }
+            return _assertThisInitialized(self);
+        }
+        function _assertThisInitialized(self) {
+            if (self === void 0) {
+                throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+            }
+            return self;
+        }
+        function _isNativeReflectConstruct() {
+            if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+            if (Reflect.construct.sham) return false;
+            if (typeof Proxy === "function") return true;
+            try {
+                Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], (function() {})));
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+        function _getPrototypeOf(o) {
+            _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) {
+                return o.__proto__ || Object.getPrototypeOf(o);
+            };
+            return _getPrototypeOf(o);
+        }
+        function _defineProperty(obj, key, value) {
+            if (key in obj) {
+                Object.defineProperty(obj, key, {
+                    value,
+                    enumerable: true,
+                    configurable: true,
+                    writable: true
+                });
+            } else {
+                obj[key] = value;
+            }
+            return obj;
+        }
+        var FileUploader = function(_Component) {
+            _inherits(FileUploader, _Component);
+            var _super = _createSuper(FileUploader);
+            function FileUploader() {
+                var _this;
+                _classCallCheck(this, FileUploader);
+                for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+                    args[_key] = arguments[_key];
+                }
+                _this = _super.call.apply(_super, [ this ].concat(args));
+                _defineProperty(_assertThisInitialized(_this), "onSelect", (function() {
+                    var attachments = _this.frame.state().get("selection").toJSON();
+                    _this.props.onChange(attachments.map((function(_ref) {
+                        var id = _ref.id, url = _ref.url, title = _ref.title, filename = _ref.filename;
+                        return {
+                            id,
+                            url,
+                            title,
+                            filename
+                        };
+                    })));
+                    _this.frame.close();
+                }));
+                return _this;
+            }
+            _createClass(FileUploader, [ {
+                key: "initFrame",
+                value: function initFrame() {
+                    var _this2 = this;
+                    this.frame = wp.media({
+                        button: {
+                            text: "Select",
+                            close: false
+                        },
+                        states: [ new wp.media.controller.Library({
+                            title: "Select File",
+                            library: wp.media.query({
+                                type: this.props.options.mediaType || "*"
+                            }),
+                            multiple: this.props.options.multiple,
+                            date: false,
+                            priority: 20
+                        }) ]
+                    });
+                    this.frame.on("select", this.onSelect, this);
+                    this.frame.on("close", (function() {
+                        _this2.props.options.onFrameClose && _this2.props.options.onFrameClose();
+                    }));
+                }
+            }, {
+                key: "openFrame",
+                value: function openFrame() {
+                    this.initFrame();
+                    this.frame.setState("library").open();
+                    this.props.options.onFrameOpen && this.props.options.onFrameOpen();
+                }
+            }, {
+                key: "render",
+                value: function render() {
+                    var _this3 = this;
+                    var value = this.props.value;
+                    var emptyLabel = this.props.options.emptyLabel;
+                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
+                        className: (0, clsx__WEBPACK_IMPORTED_MODULE_1__["default"])("lotta-file-uploader"),
+                        children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("button", {
+                            type: "button",
+                            onClick: function onClick() {
+                                return _this3.openFrame();
+                            },
+                            className: "button lotta-upload-button",
+                            children: emptyLabel || "Select File"
+                        }), Array.isArray(value) && value.length > 0 && (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("ul", {
+                            className: "lotta-file-list",
+                            children: value.map((function(_ref2, index) {
+                                var id = _ref2.id, filename = _ref2.filename;
+                                return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("li", {
+                                    children: filename
+                                }, id);
+                            }))
+                        }) ]
+                    });
+                }
+            } ]);
+            return FileUploader;
+        }(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.Component);
+        const __WEBPACK_DEFAULT_EXPORT__ = FileUploader;
+    }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+        "use strict";
+        __webpack_require__.r(__webpack_exports__);
     }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
         "use strict";
         __webpack_require__.r(__webpack_exports__);
@@ -35293,7 +35598,7 @@ object-assign
         chunkLoadingGlobal.push = webpackJsonpCallback.bind(null, chunkLoadingGlobal.push.bind(chunkLoadingGlobal));
     })();
     __webpack_require__.O(undefined, [ 2, 3 ], (() => __webpack_require__(0)));
-    __webpack_require__.O(undefined, [ 2, 3 ], (() => __webpack_require__(330)));
-    var __webpack_exports__ = __webpack_require__.O(undefined, [ 2, 3 ], (() => __webpack_require__(331)));
+    __webpack_require__.O(undefined, [ 2, 3 ], (() => __webpack_require__(331)));
+    var __webpack_exports__ = __webpack_require__.O(undefined, [ 2, 3 ], (() => __webpack_require__(332)));
     __webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 })();

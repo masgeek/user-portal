@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator Module.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -10,7 +16,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0
  */
-
 abstract class Forminator_Module {
 
 	/**
@@ -38,8 +43,8 @@ abstract class Forminator_Module {
 	 * Forminator_Module constructor.
 	 *
 	 * @since 1.0
-	 * @param $id
-	 * @param $name
+	 * @param int    $id Module Id.
+	 * @param string $name Module name.
 	 */
 	public function __construct( $id, $name ) {
 		$this->id      = $id;
@@ -53,6 +58,8 @@ abstract class Forminator_Module {
 	}
 
 	/**
+	 * Initialize
+	 *
 	 * @since 1.0
 	 */
 	public function init() {}
@@ -140,16 +147,16 @@ abstract class Forminator_Module {
 	 * Get specific option from module options
 	 *
 	 * @since 1.0
-	 * @param $option
-	 * @param string $default
+	 * @param string $option Option key.
+	 * @param string $default_value Default value.
 	 *
 	 * @return mixed|string
 	 */
-	public function get_option( $option, $default = '' ) {
+	public function get_option( $option, $default_value = '' ) {
 		if ( isset( $this->options[ $option ] ) ) {
 			return $this->options[ $option ];
 		}
-		return $default;
+		return $default_value;
 	}
 
 	/**

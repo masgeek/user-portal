@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_CForm_Front_User_Login class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -13,16 +19,30 @@ add_action( 'forminator_cform_render_fields', array( 'Forminator_CForm_Front_Use
  */
 class Forminator_CForm_Front_User_Login extends Forminator_User {
 
+	/**
+	 * Remember cookie number
+	 *
+	 * @var int
+	 */
 	protected $remember_cookie_number;
 
+	/**
+	 * Remember cookie type
+	 *
+	 * @var string
+	 */
 	protected $remember_cookie_type;
 
 	/**
 	 * Form settings
-	 * array
+	 *
+	 * @var array
 	 */
 	public $settings;
 
+	/**
+	 * Forminator_CForm_Front_User_Login constructor
+	 */
 	public function __construct() {
 		parent::__construct();
 
@@ -36,9 +56,9 @@ class Forminator_CForm_Front_User_Login extends Forminator_User {
 	/**
 	 * Change cookie expiration
 	 *
-	 * @param int  $expiration
-	 * @param int  $user_id
-	 * @param bool $remember
+	 * @param int  $expiration Expiration.
+	 * @param int  $user_id User Id.
+	 * @param bool $remember Remember.
 	 *
 	 * @return int
 	 */
@@ -70,9 +90,9 @@ class Forminator_CForm_Front_User_Login extends Forminator_User {
 	/**
 	 * Process login
 	 *
-	 * @param $custom_form
-	 * @param Forminator_Form_Entry_Model $entry
-	 * @param $field_data_array
+	 * @param object                      $custom_form Custom form.
+	 * @param Forminator_Form_Entry_Model $entry Form Entry model.
+	 * @param array                       $field_data_array Field data.
 	 *
 	 * @return array
 	 */
@@ -132,14 +152,14 @@ class Forminator_CForm_Front_User_Login extends Forminator_User {
 
 		$defender_data = forminator_defender_compatibility();
 		if ( $defender_data['is_activated'] ) {
-			$sign_on = wp_authenticate( $username, $password );
+			$sign_on          = wp_authenticate( $username, $password );
 			$two_fa_component = new $defender_data['two_fa_component']();
 			if ( ! is_wp_error( $sign_on ) ) {
 				$available_providers = $two_fa_component->get_available_providers_for_user( $sign_on );
-				$token = uniqid();
+				$token               = uniqid();
 				// create and store a login token so we can query this user again.
 				update_user_meta( $sign_on->ID, 'defender_two_fa_token', $token );
-				$enable_otp       = $two_fa_component->is_user_enabled_otp( $sign_on->ID );
+				$enable_otp = $two_fa_component->is_user_enabled_otp( $sign_on->ID );
 				if ( $enable_otp && ! empty( $available_providers ) ) {
 					$auth_method = isset( Forminator_CForm_Front_Action::$prepared_data['auth_method'] ) ? Forminator_CForm_Front_Action::$prepared_data['auth_method'] : '';
 					if ( empty( $auth_method ) ) {
@@ -190,8 +210,8 @@ class Forminator_CForm_Front_User_Login extends Forminator_User {
 	 *
 	 * @since 1.15.1
 	 *
-	 * @param url    $url
-	 * @param string $action
+	 * @param string $url URL.
+	 * @param string $action Action.
 	 */
 	public function force_change_password( $url, $action ) {
 		if ( isset( $this->settings['enable-ajax'] ) && 'true' === $this->settings['enable-ajax'] ) {
@@ -207,7 +227,7 @@ class Forminator_CForm_Front_User_Login extends Forminator_User {
 	 * Get element ID for "Remember Me". There may be several checkboxes in the form.
 	 * "Remember Me" is the last form field. Before the submit button.
 	 *
-	 * @param Forminator_Form_Model $custom_form
+	 * @param Forminator_Form_Model $custom_form Form model.
 	 *
 	 * @return int
 	 */
@@ -233,8 +253,8 @@ class Forminator_CForm_Front_User_Login extends Forminator_User {
 	/**
 	 * Show/Hide the field Remember Me
 	 *
-	 * @param array $wrappers
-	 * @param int   $id
+	 * @param array $wrappers Wrappers.
+	 * @param int   $id Id.
 	 *
 	 * @return array
 	 */
@@ -242,17 +262,17 @@ class Forminator_CForm_Front_User_Login extends Forminator_User {
 		$custom_form = Forminator_Base_Form_Model::get_model( $id );
 
 		if ( isset( $custom_form->settings['form-type'] )
-			 && 'login' === $custom_form->settings['form-type']
-			 && isset( $custom_form->settings['remember-me'] )
-			 && 'true' === $custom_form->settings['remember-me']
-			 && ! empty( $wrappers )
+			&& 'login' === $custom_form->settings['form-type']
+			&& isset( $custom_form->settings['remember-me'] )
+			&& 'true' === $custom_form->settings['remember-me']
+			&& ! empty( $wrappers )
 		) {
 			$id = self::get_element_id_for_remember_me( $custom_form );
 
 			if ( isset( $custom_form->settings['remember-me-label'] ) && ! empty( $custom_form->settings['remember-me-label'] ) ) {
 				$label = trim( $custom_form->settings['remember-me-label'] );
 			} else {
-				$label = __( 'Remember Me', 'forminator' );
+				$label = esc_html__( 'Remember Me', 'forminator' );
 			}
 
 			$new_wrappers = array(
@@ -287,7 +307,7 @@ class Forminator_CForm_Front_User_Login extends Forminator_User {
 	/**
 	 * Show 2FA Nav
 	 *
-	 * @param $providers
+	 * @param array $providers Providers.
 	 *
 	 * @return string
 	 */

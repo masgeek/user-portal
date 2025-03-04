@@ -36,33 +36,21 @@
 }
 
 #ayg-table-api-key .ayg-ajax-status span {
-	margin: 0 7px;
+	margin: 0 0.5em;
 }
 
 #ayg-shortcode-builder {
-    display: -webkit-flex; /* Safari */
-    -webkit-flex-wrap: wrap; /* Safari 6.1+ */
-    display: flex;
-    flex-wrap: wrap;
-    margin: 0 -15px;
+    display: grid;
+	gap: 2em;
 }
 
-#ayg-shortcode-builder .ayg-left-col,
-#ayg-shortcode-builder .ayg-right-col {
-    width: 100%;
-}
-
-#ayg-shortcode-builder .ayg-col-content {
-	padding: 15px;
+#ayg-shortcode-builder .ayg-left-col .ayg-col-content {
+	margin-top: 2em;
 }
 
 @media only screen and (min-width: 768px) {
-	#ayg-shortcode-builder .ayg-left-col { 
-        width: 60%; 
-	}
-
-    #ayg-shortcode-builder .ayg-right-col { 
-        width: 40%; 
+	#ayg-shortcode-builder {
+		grid-template-columns: 3fr 2fr;
 	}
 }
 
@@ -76,8 +64,21 @@
 }
 
 #ayg-table-delete-cache .ayg-text-success {
-	line-height: 28px;
-	margin: 0 7px;
+	line-height: 30px;
+	margin: 0 0.5em;
+}
+
+#ayg-settings.pagination_type-more tr.previous_button_label,
+#ayg-settings.pagination_type-more tr.next_button_label {
+	display: none;
+}
+
+#ayg-settings.pagination_type-pager tr.more_button_label {
+	display: none;
+}
+
+#ayg-settings.player_type-youtube tr.player_color {
+	display: none;
 }
 
 /*----------------------------------------------------------------------------------------------
@@ -86,58 +87,43 @@
  *
  *--------------------------------------------------------------------------------------------*/
 .ayg-modal {
-    position: fixed;   
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0; 
-    top: 0;   
-    left: 0;
-    z-index: 9999;    
+	position: relative;  	
+	margin: 2em auto;
+	border-radius: 2px;
+	background-color: #fff;
+	padding: 1em;  
+	width: auto;
+	max-width: 640px; 
 }
 
-.ayg-modal-bg {
-    width: 100%;
-    height: 100%;
-    background-color: #000;
-    opacity: 0.9;
+.mfp-fade.mfp-bg {
+	-webkit-transition: all 0.15s ease-out;
+	   -moz-transition: all 0.15s ease-out;
+	        transition: all 0.15s ease-out;
+	opacity: 0;
 }
 
-.ayg-modal-content {
-    position: absolute;   
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0; 
-    top: 0;   
-    left: 0;    
-    overflow-y: auto;
-    z-index: 1;
+.mfp-fade.mfp-bg.mfp-ready {
+	opacity: 0.8;
 }
 
-.ayg-modal-body {
-    position: relative;    
-    width: 90%;
-    max-width: 540px;
-    margin: 50px auto;
-    padding: 15px;
-    background-color: #fff;
+.mfp-fade.mfp-bg.mfp-removing {
+	opacity: 0;
 }
 
-.ayg-modal-body .ayg-modal-close {    
-	position: absolute; 
-	width: 25px;
-	height: 25px;   
-    top: 15px;
-    right: 15px;
-    color: #999;
-	font-size: 25px;
-	text-align: center;
-    cursor: pointer;
+.mfp-fade.mfp-wrap .mfp-content {
+	-webkit-transition: all 0.15s ease-out;
+	-moz-transition: all 0.15s ease-out;
+			transition: all 0.15s ease-out;
+	opacity: 0;
 }
 
-.ayg-modal-body .ayg-modal-title {
-    margin: 0 25px 15px 0;
+.mfp-fade.mfp-wrap.mfp-ready .mfp-content {
+	opacity: 1;
+}
+
+.mfp-fade.mfp-wrap.mfp-removing .mfp-content {
+	opacity: 0;
 }
 
 /*----------------------------------------------------------------------------------------------
@@ -145,94 +131,136 @@
  *	Editor
  *
  *--------------------------------------------------------------------------------------------*/
-.ayg-editor-section-header {	
-	margin: 5px 0 0 0;
-	padding: 10px;
+.ayg-editor {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.ayg-editor .widefat {
+	max-width: 100%;
+}
+
+.ayg-editor .ayg-editor-section-header {
+	display: flex;
+	align-items: center;
+	gap: 0.5em;	
+	padding: 0.5em;
 	background: #e5e5e5;   
 	border: 1px solid #ccc; 
-	font-size: 1.1em;
-	font-weight: normal;
-	line-height: normal;
 	cursor: pointer;
 }
 
-.ayg-editor-section-header:hover {	
+.ayg-editor .ayg-editor-section-header:hover {	
 	background: #f9f9f9;
 }
 
-.ayg-editor-section-header .dashicons-before {
+.ayg-editor .ayg-editor-section-header .dashicons-before {
 	color: #006799;
-	line-height: 1.1em;
 }
 
-.ayg-editor-section-header .dashicons-plus {
-	display: inline-block;
+.ayg-editor .ayg-editor-section-header .dashicons-plus {
+	display: flex;
 }
 
-.ayg-editor-section-header .dashicons-minus {
+.ayg-editor .ayg-editor-section-header .dashicons-minus {
 	display: none;
 }
 
-.ayg-active .ayg-editor-section-header .dashicons-plus {
+.ayg-editor .ayg-active .ayg-editor-section-header .dashicons-plus {
 	display: none;
 }
 
-.ayg-active .ayg-editor-section-header .dashicons-minus {
-	display: inline-block;
+.ayg-editor .ayg-active .ayg-editor-section-header .dashicons-minus {
+	display: flex;
 }
 
-.ayg-editor-controls {
-	margin: -1px 0 0 0;
-	padding: 10px;
+.ayg-editor .ayg-editor-controls {
+	display: flex;
+	flex-direction: column;
+	gap: 1em;
+	margin-top: -1px;
+	padding: 1em;
 	background: #fff;
 	border: 1px solid #ccc;
 }
 
 .ayg-editor-control {
-	margin-bottom: 15px;
+	display: flex;
+	flex-direction: column;
+	gap: 0.25em;
 }
 
-.ayg-editor-control label {
-	display: block;
-	margin-bottom: 5px;
+.ayg-editor .ayg-editor-controls .ayg-editor-control label {
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+	line-height: 1.5;
+	font-weight: 500;
 }
 
-.ayg-editor-control .wp-picker-input-wrap label {
+.ayg-editor .ayg-editor-controls .ayg-editor-control label input[type="checkbox"] {
+	margin: 0;
+}
+
+.ayg-editor .ayg-editor-controls .ayg-editor-control .wp-picker-input-wrap label {
 	display: inline-block;
 }
 
-.ayg-editor-control-playlist,
-.ayg-editor-control-channel,
-.ayg-editor-control-username,
-.ayg-editor-control-search,
-.ayg-editor-control-video,
-.ayg-editor-control-videos,
-.ayg-editor-control-order,
-.ayg-editor-control-limit {
+.ayg-editor .ayg-editor-controls .ayg-editor-control .wp-picker-input-wrap label input[type="text"] {
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+.ayg-editor .ayg-editor-controls .ayg-editor-control .description {
+	margin: 0;
+	line-height: 1.5;
+	word-break: break-word;
+	font-size: 90%;
+	font-weight: normal;
+}
+
+.ayg-editor .ayg-editor-control-playlist,
+.ayg-editor .ayg-editor-control-channel,
+.ayg-editor .ayg-editor-control-username,
+.ayg-editor .ayg-editor-control-search,
+.ayg-editor .ayg-editor-control-video,
+.ayg-editor .ayg-editor-control-videos,
+.ayg-editor .ayg-editor-control-order,
+.ayg-editor .ayg-editor-control-limit {
+	display: none;
+}
+
+.ayg-editor-field-pagination_type-more .ayg-editor-control-previous_button_label,
+.ayg-editor-field-pagination_type-more .ayg-editor-control-next_button_label {
+	display: none;
+}
+
+.ayg-editor-field-pagination_type-pager .ayg-editor-control-more_button_label {
 	display: none;
 }
 
 .ayg-editor-field-type-playlist .ayg-editor-control-playlist {
-	display: block;
+	display: flex;
 }
 
 .ayg-editor-field-type-channel .ayg-editor-control-channel,
 .ayg-editor-field-type-livestream .ayg-editor-control-channel {
-	display: block;
+	display: flex;
 }
 
 .ayg-editor-field-type-username .ayg-editor-control-username {
-	display: block;
+	display: flex;
 }
 
 .ayg-editor-field-type-search .ayg-editor-control-search,
 .ayg-editor-field-type-search .ayg-editor-control-order,
 .ayg-editor-field-type-search .ayg-editor-control-limit {
-	display: block;
+	display: flex;
 }
 
 .ayg-editor-field-type-video .ayg-editor-control-video {
-	display: block;
+	display: flex;
 }
 
 .ayg-editor-field-type-video .ayg-editor-control-autoadvance {
@@ -253,7 +281,7 @@
 }
 
 .ayg-editor-field-type-videos .ayg-editor-control-videos {
-	display: block;
+	display: flex;
 }
 
 /*----------------------------------------------------------------------------------------------
@@ -261,12 +289,54 @@
  *	Block
  *
  *--------------------------------------------------------------------------------------------*/
-.ayg-block-panel label {
-	font-weight: 500;
+.automatic-youtube-gallery-block-panel .components-panel__row .components-base-control {
+	width: 100%;
 }
 
-.ayg-block-panel .components-select-control__input {
-    line-height: normal !important;
+.automatic-youtube-gallery-block-panel .components-panel__row .components-base-control label {
+	text-transform: capitalize;
+	font-size: 1.05em;
+	font-weight: normal;	
+}
+
+.automatic-youtube-gallery-block-panel .components-panel__row .components-range-control__wrapper {
+    flex: 1 1 100%;
+}
+
+.automatic-youtube-gallery-block-panel .components-panel__row .block-editor-panel-color-gradient-settings {	
+	padding-left: 0;
+	padding-right: 0;
+	width: 100%;
+}
+
+.wp-block-automatic-youtube-gallery-block .components-placeholder {
+	display: none;
+}
+
+.is-loading .wp-block-automatic-youtube-gallery-block {
+	opacity: 0.5;
+}
+
+.is-loading .wp-block-automatic-youtube-gallery-block .ayg {
+	margin-top: 1em;
+}
+
+.is-loading .wp-block-automatic-youtube-gallery-block .ayg-error {
+	display: none;
+}
+
+.automatic-youtube-gallery-block-spinner {
+	display: flex;
+	gap: 0.5em; 
+	align-items: center;
+	margin: 0;
+	padding: 0;
+	line-height: 1;
+}
+
+.automatic-youtube-gallery-block-spinner svg {
+	margin: 0;
+	padding: 0;
 }
 
 /*----------------------------------------------------------------------------------------------
@@ -274,37 +344,15 @@
  *	Widget
  *
  *--------------------------------------------------------------------------------------------*/
-.widget .ayg-editor {
-	margin-bottom: 15px;
+.widget-inside .ayg-editor {
+	margin-top: 1em;
 }
 
-.widget .ayg-editor .description {
-	padding: 5px 0 !important;
-	word-break: break-word; 
-}
-
-.branch-5-8 .widget .ayg-editor strong,
-.branch-5-9 .widget .ayg-editor strong,
-.branch-6 .widget .ayg-editor strong {
-	font-weight: 600;
-}
-
-.branch-5-8 .widget .ayg-editor .ayg-editor-section-header,
-.branch-5-9 .widget .ayg-editor .ayg-editor-section-header,
-.branch-6 .widget .ayg-editor .ayg-editor-section-header {
-	margin: 10px 0 0 0;
-	font-size: 14px;
-	font-weight: normal;
-}
-
-.branch-5-8 .widget .ayg-editor .ayg-editor-control,
-.branch-5-9 .widget .ayg-editor .ayg-editor-control,
-.branch-6 .widget .ayg-editor .ayg-editor-control {
-	margin-bottom: 7px;
-}
-
-.branch-5-8 .widget .ayg-editor .description,
-.branch-5-9 .widget .ayg-editor .description,
-.branch-6 .widget .ayg-editor .description {
-	margin: 0;
+/*----------------------------------------------------------------------------------------------
+ *
+ *	Elementor
+ *
+ *--------------------------------------------------------------------------------------------*/
+#elementor-controls .ayg-editor-section-header {
+	padding: 0.35em 0.5em;
 }

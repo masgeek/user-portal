@@ -1,4 +1,9 @@
 <?php
+/**
+ * The Forminator_Autofill_Provider_Abstract class.
+ *
+ * @package Forminator
+ */
 
 /**
  * Class Forminator_Autofill_Provider_Abstract
@@ -49,7 +54,7 @@ abstract class Forminator_Autofill_Provider_Abstract implements Forminator_Autof
 	 *
 	 * @since 1.0.5
 	 *
-	 * @param $attribute
+	 * @param string $attribute Attribute.
 	 *
 	 * @return mixed|string
 	 */
@@ -132,8 +137,8 @@ abstract class Forminator_Autofill_Provider_Abstract implements Forminator_Autof
 	 *
 	 * @since 1.0.5
 	 *
-	 * @param $providers
-	 * @param $field_slug
+	 * @param array  $providers Providers.
+	 * @param string $field_slug Field slug.
 	 *
 	 * @return mixed
 	 */

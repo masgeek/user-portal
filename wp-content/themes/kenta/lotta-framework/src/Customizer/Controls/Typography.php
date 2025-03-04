@@ -8,6 +8,13 @@ use LottaFramework\Customizer\Sanitizes;
 class Typography extends Control {
 
 	/**
+	 * Queued fonts
+	 *
+	 * @var array
+	 */
+	protected static $queue = [];
+
+	/**
 	 * Override default construct to enqueue curren typography by default
 	 *
 	 * @param string $id
@@ -16,27 +23,6 @@ class Typography extends Control {
 		parent::__construct( $id );
 
 		$this->enqueue();
-	}
-
-	/**
-	 * Queued fonts
-	 *
-	 * @var array
-	 */
-	protected static $queue = [];
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getType(): string {
-		return 'lotta-typography';
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getSanitize() {
-		return [ Sanitizes::class, 'typography' ];
 	}
 
 	/**
@@ -53,6 +39,40 @@ class Typography extends Control {
 	}
 
 	/**
+	 * Get queued typography
+	 *
+	 * @return array
+	 */
+	public static function getQueued() {
+		return self::$queue;
+	}
+
+	/**
+	 * Set queued typography
+	 *
+	 * @param $queue
+	 *
+	 * @return void
+	 */
+	public static function setQueued( $queue ) {
+		self::$queue = $queue;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getType(): string {
+		return 'lotta-typography';
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getSanitize() {
+		return [ Sanitizes::class, 'typography' ];
+	}
+
+	/**
 	 * Dequeue current typography
 	 *
 	 * @return $this
@@ -64,14 +84,5 @@ class Typography extends Control {
 		}
 
 		return $this;
-	}
-
-	/**
-	 * Get queued typography
-	 *
-	 * @return array
-	 */
-	public static function getQueued() {
-		return self::$queue;
 	}
 }

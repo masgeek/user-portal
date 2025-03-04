@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * The Forminator_Addon_Form_Settings_Abstract class.
+ *
+ * @package Forminator
+ */
 
 /**
  * Class Forminator_Addon_Form_Settings_Abstract
@@ -87,6 +91,11 @@ abstract class Forminator_Addon_Form_Settings_Abstract extends Forminator_Addon_
 	 */
 	protected $force_form_disconnected_reason = '';
 
+	/**
+	 * Module slug
+	 *
+	 * @var string
+	 */
 	protected static $module_slug = 'form';
 
 	/**
@@ -94,21 +103,26 @@ abstract class Forminator_Addon_Form_Settings_Abstract extends Forminator_Addon_
 	 *
 	 * @since 1.1
 	 *
-	 * @param Forminator_Addon_Abstract $addon
-	 * @param                           $form_id
+	 * @param Forminator_Addon_Abstract $addon Class Forminator_Addon_Abstract.
+	 * @param int                       $form_id Form Id.
 	 *
-	 * @throws Forminator_Addon_Exception
+	 * @throws Forminator_Addon_Exception When there is an addon error.
 	 */
 	public function __construct( Forminator_Addon_Abstract $addon, $form_id ) {
 		$this->addon   = $addon;
 		$this->form_id = $form_id;
 		$custom_form   = Forminator_Base_Form_Model::get_model( $this->form_id );
 		if ( ! $custom_form ) {
-			/* translators: ... */
-			throw new Forminator_Addon_Exception( sprintf( __( 'Form with id %d could not be found', 'forminator' ), $this->form_id ) );
+			/* translators: Form ID */
+			throw new Forminator_Addon_Exception( sprintf( esc_html__( 'Form with id %d could not be found', 'forminator' ), esc_html( $this->form_id ) ) );
 		}
 		$this->form_fields   = forminator_addon_format_form_fields( $custom_form );
 		$this->form_settings = forminator_addon_format_form_settings( $custom_form );
+
+		$this->_update_form_settings_error_message = esc_html__(
+			'The update to your settings for this form failed, check the form input and try again.',
+			'forminator'
+		);
 	}
 
 	/**
@@ -129,7 +143,7 @@ abstract class Forminator_Addon_Form_Settings_Abstract extends Forminator_Addon_
 	 *
 	 * @since   1.1
 	 *
-	 * @param $values
+	 * @param mixed $values Settings.
 	 *
 	 * @return mixed
 	 */
@@ -178,7 +192,7 @@ abstract class Forminator_Addon_Form_Settings_Abstract extends Forminator_Addon_
 	 * @see   before_save_form_settings_values
 	 * @since 1.1
 	 *
-	 * @param $values
+	 * @param mixed $values Form settings.
 	 */
 	final public function save_form_settings_values( $values ) {
 		$addon_slug = $this->addon->get_slug();
@@ -203,7 +217,7 @@ abstract class Forminator_Addon_Form_Settings_Abstract extends Forminator_Addon_
 	 * called when rendering tab on form settings
 	 * @since   1.1
 	 *
-	 * @param $values
+	 * @param mixed $values Form settings.
 	 *
 	 * @return mixed
 	 */
@@ -243,7 +257,7 @@ abstract class Forminator_Addon_Form_Settings_Abstract extends Forminator_Addon_
 	 *
 	 * @since 1.1
 	 *
-	 * @param $reason
+	 * @param string $reason Reason for disconnect.
 	 */
 	final public function force_form_disconnect( $reason ) {
 		$this->is_force_form_disconnected     = true;
@@ -252,7 +266,6 @@ abstract class Forminator_Addon_Form_Settings_Abstract extends Forminator_Addon_
 		$this->addon_form_settings = array();
 
 		$this->save_form_settings_values( $this->addon_form_settings );
-
 	}
 
 	/**
@@ -355,7 +368,7 @@ abstract class Forminator_Addon_Form_Settings_Abstract extends Forminator_Addon_
 	 *
 	 * @since 1.1
 	 *
-	 * @param array $submitted_data
+	 * @param array $submitted_data Submitted data.
 	 */
 	public function disconnect_form( $submitted_data ) {
 		$this->save_form_settings_values( array() );
@@ -384,7 +397,7 @@ abstract class Forminator_Addon_Form_Settings_Abstract extends Forminator_Addon_
 	 *
 	 * @since 1.2
 	 *
-	 * @param $message
+	 * @param string $message Message.
 	 *
 	 * @return array
 	 */
@@ -408,9 +421,9 @@ abstract class Forminator_Addon_Form_Settings_Abstract extends Forminator_Addon_
 	 *
 	 * @since 1.2
 	 *
-	 * @param      $multi_id
-	 * @param      $settings
-	 * @param bool     $replace
+	 * @param string $multi_id Multi Id.
+	 * @param array  $settings Settings.
+	 * @param bool   $replace Replace.
 	 */
 	public function save_multi_id_form_setting_values( $multi_id, $settings, $replace = false ) {
 		$this->addon_form_settings = $this->get_form_settings_values();
@@ -437,7 +450,7 @@ abstract class Forminator_Addon_Form_Settings_Abstract extends Forminator_Addon_
 	 *
 	 * @since 1.2
 	 *
-	 * @param $multi_id
+	 * @param string $multi_id Multi Id.
 	 *
 	 * @return bool
 	 */
@@ -452,13 +465,13 @@ abstract class Forminator_Addon_Form_Settings_Abstract extends Forminator_Addon_
 	 *
 	 * @since 1.2
 	 *
-	 * @param        $multi_id
-	 * @param        $key
-	 * @param mixed    $default
+	 * @param string $multi_id multi Id.
+	 * @param string $key Key.
+	 * @param mixed  $default_value Default value.
 	 *
 	 * @return mixed|string
 	 */
-	public function get_multi_id_form_settings_value( $multi_id, $key, $default = '' ) {
+	public function get_multi_id_form_settings_value( $multi_id, $key, $default_value = '' ) {
 		$this->addon_form_settings = $this->get_form_settings_values();
 		if ( isset( $this->addon_form_settings[ $multi_id ] ) ) {
 			$multi_settings = $this->addon_form_settings[ $multi_id ];
@@ -466,10 +479,10 @@ abstract class Forminator_Addon_Form_Settings_Abstract extends Forminator_Addon_
 				return $multi_settings[ $key ];
 			}
 
-			return $default;
+			return $default_value;
 		}
 
-		return $default;
+		return $default_value;
 	}
 
 	/**
@@ -543,11 +556,12 @@ abstract class Forminator_Addon_Form_Settings_Abstract extends Forminator_Addon_
 	/**
 	 * Executed when form settings imported
 	 *
-	 * default is save imported data to post_meta, override when needed
+	 * Default is save imported data to post_meta, override when needed
 	 *
 	 * @since 1.4
 	 *
-	 * @param $import_data
+	 * @param mixed $import_data Import data.
+	 * @throws Forminator_Addon_Exception When there is an addon error.
 	 */
 	public function import_data( $import_data ) {
 		$addon_slug = $this->addon->get_slug();
@@ -589,7 +603,6 @@ abstract class Forminator_Addon_Form_Settings_Abstract extends Forminator_Addon_
 			forminator_addon_maybe_log( $e->getMessage() );
 			// do nothing.
 		}
-
 	}
 
 	/**
@@ -611,5 +624,4 @@ abstract class Forminator_Addon_Form_Settings_Abstract extends Forminator_Addon_
 
 		return $address;
 	}
-
 }

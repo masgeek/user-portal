@@ -7873,10 +7873,19 @@ __webpack_require__.r(__webpack_exports__);
 
 jQuery(document).ready(function () {
   var starterSitesContainer = document.getElementById('kenta-starter-sites');
+  var root = null;
 
   if (starterSitesContainer) {
     (0,react_hash_route__WEBPACK_IMPORTED_MODULE_1__.routeSetup)(function () {
-      (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.render)( /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_starter_sites__WEBPACK_IMPORTED_MODULE_2__["default"], {}), starterSitesContainer);
+      if (_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createRoot) {
+        if (!root) {
+          root = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createRoot)(starterSitesContainer);
+        }
+
+        root.render( /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_starter_sites__WEBPACK_IMPORTED_MODULE_2__["default"], {}));
+      } else {
+        (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.render)( /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_starter_sites__WEBPACK_IMPORTED_MODULE_2__["default"], {}), starterSitesContainer);
+      }
     });
   }
 });

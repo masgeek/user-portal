@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_CForm_Front_User_Registration class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -10,9 +16,23 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Forminator_CForm_Front_User_Registration extends Forminator_User {
 
+	/**
+	 * User data
+	 *
+	 * @var array
+	 */
 	private $user_data = array();
+
+	/**
+	 * Mail sender
+	 *
+	 * @var string
+	 */
 	private $mail_sender;
 
+	/**
+	 * Forminator_CForm_Front_User_Registration constructor
+	 */
 	public function __construct() {
 		parent::__construct();
 
@@ -23,8 +43,6 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 			add_action( 'forminator_cform_user_registered', array( $this, 'create_site' ), 10, 4 );
 		}
 		add_filter( 'forminator_custom_registration_form_errors', array( $this, 'submit_errors' ), 11, 3 );
-		// Change text of thankyou-message for other activation methods: 'email' && 'manual'.
-		add_filter( 'forminator_custom_form_thankyou_message', array( $this, 'change_thankyou_message' ), 11, 2 );
 		// Change value of a field that is not saved in DB.
 		add_filter( 'forminator_custom_form_after_render_value', array( $this, 'change_field_value' ), 11, 4 );
 	}
@@ -32,10 +50,10 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 	/**
 	 * Change submitted data
 	 *
-	 * @param string $value
-	 * @param array  $custom_form
-	 * @param string $column_name
-	 * @param array  $data
+	 * @param string $value Field value.
+	 * @param array  $custom_form Custom form.
+	 * @param string $column_name Column name.
+	 * @param array  $data Data.
 	 *
 	 * @return string
 	 */
@@ -54,7 +72,7 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 	/**
 	 * Check activation method
 	 *
-	 * @param string $method
+	 * @param string $method Method.
 	 *
 	 * @return bool
 	 */
@@ -65,9 +83,9 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 	/**
 	 * Show submit_errors
 	 *
-	 * @param string $submit_errors
-	 * @param int    $form_id
-	 * @param array  $field_data_array
+	 * @param string $submit_errors Error message.
+	 * @param int    $form_id Form Id.
+	 * @param array  $field_data_array Field data.
 	 *
 	 * @return bool|string
 	 */
@@ -118,9 +136,7 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 	/**
 	 * Change submitted data
 	 *
-	 * @param string $new_value
-	 *
-	 * @return array
+	 * @param string $new_value New value.
 	 */
 	public function change_submitted_data( $new_value ) {
 		foreach ( Forminator_CForm_Front_Action::$prepared_data as $field_key => $field_value ) {
@@ -133,9 +149,9 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 	/**
 	 * Handle activation user
 	 *
-	 * @param array $user_data
-	 * @param array $custom_form
-	 * @param Forminator_Form_Entry_Model $entry
+	 * @param array                       $user_data User data.
+	 * @param array                       $custom_form Custom form.
+	 * @param Forminator_Form_Entry_Model $entry Form entry model.
 	 *
 	 * @return bool|void
 	 */
@@ -154,10 +170,10 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 		$this->change_submitted_data( $encrypted_password );
 
 		$meta = array(
-			'form_id'        => $entry->form_id,
-			'entry_id'       => $entry->entry_id,
+			'form_id'       => $entry->form_id,
+			'entry_id'      => $entry->entry_id,
 			'prepared_data' => Forminator_CForm_Front_Action::$prepared_data,
-			'user_data'      => $prepare_user_data,
+			'user_data'     => $prepare_user_data,
 		);
 
 		// Change default text of notifications for other activation methods: 'email' && 'manual'.
@@ -170,10 +186,11 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 		}
 
 		$option_create_site = forminator_get_property( $settings, 'site-registration' );
+		$site_data          = is_multisite() ? $this->get_site_data( $settings, 0, $user_data ) : array();
 		if ( is_multisite()
 			&& isset( $option_create_site )
 			&& 'enable' === $option_create_site
-			&& $site_data = $this->get_site_data( $settings, 0, $user_data )
+			&& $site_data
 		) {
 			if ( ! has_action( 'after_signup_site', 'wpmu_signup_blog_notification' ) ) {
 				add_action( 'after_signup_site', 'wpmu_signup_blog_notification', 10, 7 );
@@ -189,8 +206,7 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 
 			wpmu_signup_user( $user_data['user_login'], $user_data['user_email'], $meta );
 		}
-		$sql            = $wpdb->prepare( "SELECT activation_key FROM {$wpdb->base_prefix}signups WHERE user_login = %s ORDER BY registered DESC LIMIT 1", $user_data['user_login'] );
-		$activation_key = $wpdb->get_var( $sql );
+		$activation_key = $wpdb->get_var( $wpdb->prepare( "SELECT activation_key FROM {$wpdb->base_prefix}signups WHERE user_login = %s ORDER BY registered DESC LIMIT 1", $user_data['user_login'] ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 
 		// used for filtering on activation listing UI.
 		Forminator_CForm_User_Signups::add_signup_meta( $entry, 'activation_method', $settings['activation-method'] );
@@ -207,10 +223,10 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 	/**
 	 * Create user
 	 *
-	 * @param array                       $new_user_data
-	 * @param array                       $custom_form
-	 * @param Forminator_Form_Entry_Model $entry
-	 * @param bool                        $is_user_signon
+	 * @param array                       $new_user_data New user data.
+	 * @param array                       $custom_form Custom form.
+	 * @param Forminator_Form_Entry_Model $entry Form entry model.
+	 * @param bool                        $is_user_signon Is user sign-on.
 	 *
 	 * @return int|string|void|WP_Error
 	 */
@@ -220,7 +236,7 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 		$user_id = wp_insert_user( $new_user_data );
 		if ( is_wp_error( $user_id ) ) {
 
-			return __( 'Couldn&#8217;t register you&hellip; please contact us if you continue to have problems.', 'forminator' );
+			return esc_html__( 'Couldn&#8217;t register you&hellip; please contact us if you continue to have problems.', 'forminator' );
 		}
 
 		$settings = $custom_form->settings;
@@ -256,7 +272,7 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 	 * Check a pending activation for the specified user_login or user_email.
 	 *
 	 * @param string $key user_login or user_email.
-	 * @param string $value
+	 * @param string $value Value.
 	 *
 	 * @return bool
 	 */
@@ -272,12 +288,12 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 				$value = preg_replace( '/\s+/', '', sanitize_user( $value, true ) );
 			}
 
-			$result = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table_name} WHERE active=0 AND {$key}=%s", $value ) );
+			$result = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table_name} WHERE active=0 AND " . esc_sql( $key ) . '=%s', $value ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
 			if ( ! is_null( $result ) ) {
 				$diff = time() - mysql2date( 'U', $result->registered );
 				// If registered more than two days ago, cancel registration and delete this signup.
 				if ( $diff > 2 * DAY_IN_SECONDS ) {
-					return (bool) $wpdb->delete( $table_name, array( $key => $value ) );
+					return (bool) $wpdb->delete( $table_name, array( $key => $value ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 				} else {
 					return true;
 				}
@@ -290,14 +306,15 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 	/**
 	 * Validate registration mapping data
 	 *
-	 * @param $custom_form
-	 * @param $field_data_array
-	 * @param bool             $is_approve
+	 * @param object $custom_form Custom form.
+	 * @param array  $field_data_array Field data.
+	 * @param bool   $is_approve Is approve.
 	 *
 	 * @return array
 	 */
 	public function validate( $custom_form, $field_data_array, $is_approve = false ) {
 		$settings = $custom_form->settings;
+
 		// Field username.
 		$username = '';
 		if ( isset( $settings['registration-username-field'] ) && ! empty( $settings['registration-username-field'] ) ) {
@@ -311,7 +328,7 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 		// Username is valid, but has already pending activation.
 		if ( ! is_multisite() && $this->pending_activation_exists( 'user_login', $username ) ) {
 
-			return __( 'That username is currently reserved but may be available in a couple of days', 'forminator' );
+			return esc_html__( 'That username is currently reserved but may be available in a couple of days', 'forminator' );
 		}
 
 		// Field user email.
@@ -327,7 +344,7 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 		// Email is valid, but has already pending activation.
 		if ( ! is_multisite() && $this->pending_activation_exists( 'user_email', $user_email ) ) {
 
-			return __( 'That email address has already been used. Please check your inbox for an activation email. It will become available in a couple of days if you do nothing.', 'forminator' );
+			return esc_html__( 'That email address has already been used. Please check your inbox for an activation email. It will become available in a couple of days if you do nothing.', 'forminator' );
 		}
 
 		// Multisite validation.
@@ -354,6 +371,11 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 			}
 		}
 
+		// Check password length.
+		if ( 255 < mb_strlen( $password ) ) {
+			return esc_html__( 'User password may not be longer than 255 characters.', 'forminator' );
+		}
+
 		$new_user_data = array(
 			'user_login' => $username,
 			'user_pass'  => $password,
@@ -372,6 +394,10 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 		// Field website.
 		if ( isset( $settings['registration-website-field'] ) && ! empty( $settings['registration-website-field'] ) ) {
 			$new_user_data['user_url'] = $this->replace_value( $field_data_array, $settings['registration-website-field'] );
+
+			if ( 100 < mb_strlen( $new_user_data['user_url'] ) ) {
+				return esc_html__( 'User website URL may not be longer than 100 characters.', 'forminator' );
+			}
 		}
 
 		// Field user role.
@@ -388,15 +414,14 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 	/**
 	 * Process validation
 	 *
-	 * @param Forminator_Form_Model $custom_form
-	 * @param array                 $field_data_array
+	 * @param Forminator_Form_Model $custom_form Custom form.
+	 * @param array                 $field_data_array Field data.
 	 *
 	 * @return array|mixed
 	 */
 	public function process_validation( $custom_form, $field_data_array ) {
 		$user_data = $this->validate( $custom_form, $field_data_array );
 		if ( ! is_array( $user_data ) ) {
-
 			return $user_data;
 		}
 
@@ -408,8 +433,8 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 	/**
 	 * Process registration
 	 *
-	 * @param Forminator_Form_Model       $custom_form
-	 * @param Forminator_Form_Entry_Model $entry
+	 * @param Forminator_Form_Model       $custom_form Form model.
+	 * @param Forminator_Form_Entry_Model $entry Form Entry model.
 	 *
 	 * @return array|mixed
 	 */
@@ -439,7 +464,7 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 	/**
 	 * Validation for email fields
 	 *
-	 * @param string $email
+	 * @param string $email Email.
 	 *
 	 * @return array
 	 */
@@ -452,7 +477,7 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 		if ( $email ) {
 			if ( ! is_email( $email ) ) {
 				$data['result']  = false;
-				$data['message'] = __( 'This email address is not valid.', 'forminator' );
+				$data['message'] = esc_html__( 'This email address is not valid.', 'forminator' );
 
 				return $data;
 			}
@@ -460,13 +485,21 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 			// Throws an error if the email is already registered.
 			if ( email_exists( $email ) ) {
 				$data['result']  = false;
-				$data['message'] = __( 'This email address is already registered.', 'forminator' );
+				$data['message'] = esc_html__( 'This email address is already registered.', 'forminator' );
+
+				return $data;
+			}
+
+			// Check if email is within the character limit.
+			if ( 100 < mb_strlen( $email ) ) {
+				$data['result']  = false;
+				$data['message'] = esc_html__( 'User email may not be longer than 100 characters.', 'forminator' );
 
 				return $data;
 			}
 		} else {
 			$data['result']  = false;
-			$data['message'] = __( 'The email address can not be empty.', 'forminator' );
+			$data['message'] = esc_html__( 'The email address can not be empty.', 'forminator' );
 
 			return $data;
 		}
@@ -477,7 +510,7 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 	/**
 	 * Validation for username fields
 	 *
-	 * @param string $username
+	 * @param string $username User name.
 	 *
 	 * @return array
 	 */
@@ -490,7 +523,7 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 			// Throws an error if the username contains invalid characters.
 			if ( ! validate_username( $username ) ) {
 				$data['result']  = false;
-				$data['message'] = __( 'This username is invalid because it uses illegal characters. Please enter a valid username.', 'forminator' );
+				$data['message'] = esc_html__( 'This username is invalid because it uses illegal characters. Please enter a valid username.', 'forminator' );
 
 				return $data;
 			}
@@ -498,13 +531,21 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 			// Throws an error if the username already exists.
 			if ( username_exists( $username ) ) {
 				$data['result']  = false;
-				$data['message'] = __( 'This username is already registered.', 'forminator' );
+				$data['message'] = esc_html__( 'This username is already registered.', 'forminator' );
+
+				return $data;
+			}
+
+			// Check if username is greater than 60 characters.
+			if ( 60 < mb_strlen( $username ) ) {
+				$data['result']  = false;
+				$data['message'] = esc_html__( 'Username may not be longer than 60 characters.', 'forminator' );
 
 				return $data;
 			}
 		} else {
 			$data['result']  = false;
-			$data['message'] = __( 'The username can not be empty.', 'forminator' );
+			$data['message'] = esc_html__( 'The username can not be empty.', 'forminator' );
 
 			return $data;
 		}
@@ -512,6 +553,12 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 		return $data;
 	}
 
+	/**
+	 * Automatic login
+	 *
+	 * @param int $user_id User Id.
+	 * @return void
+	 */
 	private function automatic_login( $user_id ) {
 		wp_clear_auth_cookie();
 		wp_set_auth_cookie( $user_id );
@@ -521,9 +568,9 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 	/**
 	 * Validation for multi site
 	 *
-	 * @param array                 $validate
-	 * @param Forminator_Form_Model $custom_form
-	 * @param bool                  $is_approve
+	 * @param array                 $validate Validate.
+	 * @param Forminator_Form_Model $custom_form Form model.
+	 * @param bool                  $is_approve Is approve.
 	 *
 	 * @return array
 	 */
@@ -577,10 +624,10 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 	/**
 	 * Create site
 	 *
-	 * @param int                         $user_id
-	 * @param Forminator_Form_Model       $custom_form
-	 * @param Forminator_Form_Entry_Model $entry
-	 * @param string                      $password
+	 * @param int                         $user_id User Id.
+	 * @param Forminator_Form_Model       $custom_form Form model.
+	 * @param Forminator_Form_Entry_Model $entry Form entry model.
+	 * @param string                      $password Password.
 	 *
 	 * @return bool|int
 	 */
@@ -646,11 +693,11 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 		if ( isset( $setting['registration-password-field'] ) && 'auto' === $setting['registration-password-field'] ) {
 
 			$password  = $password . "\r\n";
-			$password .= '(' . __( 'This password was generated automatically, and it is recommended that you set a new password once you log in to your account.', 'forminator' ) . ")\r\n\r\n";
+			$password .= '(' . esc_html__( 'This password was generated automatically, and it is recommended that you set a new password once you log in to your account.', 'forminator' ) . ")\r\n\r\n";
 
 		} else {
 
-			$password  = __( 'Use the password that you submitted when registering your account, or set a new password at the link below.', 'forminator' ) . "\r\n";
+			$password  = esc_html__( 'Use the password that you submitted when registering your account, or set a new password at the link below.', 'forminator' ) . "\r\n";
 			$password .= '<' . $this->get_set_password_url( $user ) . ">\r\n\r\n";
 
 		}
@@ -668,8 +715,8 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 	/**
 	 * Get user data
 	 *
-	 * @param bool|int $user_id
-	 * @param array    $prepare_user_data
+	 * @param bool|int $user_id User Id.
+	 * @param array    $prepare_user_data Prepare user data.
 	 *
 	 * @return bool|array
 	 */
@@ -701,7 +748,7 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 	/**
 	 * Replace site data
 	 *
-	 * @param array $setting
+	 * @param array $setting Settings.
 	 * @return array
 	 */
 	private function replace_site_data( $setting ) {
@@ -711,6 +758,7 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 		$address      = forminator_get_property( $setting, 'site-registration-name-field' );
 		if ( isset( $submitted_data[ $address ] ) && ! empty( $submitted_data[ $address ] ) ) {
 			$blog_address = strtolower( $submitted_data[ $address ] );
+
 			/*
 			 * If the username and sitename is from the same field,
 			 * cleanup the blog_address so that only errors for username will show up
@@ -734,9 +782,9 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 	/**
 	 * Get site data
 	 *
-	 * @param array $setting
-	 * @param int   $user_id
-	 * @param array $prepare_user_data
+	 * @param array $setting Setting.
+	 * @param int   $user_id User Id.
+	 * @param array $prepare_user_data Prepare user data.
 	 *
 	 * @return array
 	 */
@@ -769,7 +817,7 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 	/**
 	 * Get custom user meta
 	 *
-	 * @param array $setting
+	 * @param array $setting Setting.
 	 *
 	 * @return array
 	 */
@@ -793,10 +841,10 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 	/**
 	 * Add user meta
 	 *
-	 * @param $user_id
-	 * @param $setting
-	 * @param $custom_form
-	 * @param $entry
+	 * @param int    $user_id User Id.
+	 * @param array  $setting Setting.
+	 * @param object $custom_form Custom form.
+	 * @param object $entry Entry.
 	 *
 	 * @return void
 	 */
@@ -813,7 +861,7 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 				continue;
 			}
 			if ( strpos( $meta_value, '{' ) !== false ) {
-				$meta_value = forminator_replace_form_data( $meta_value, $custom_form, $entry );
+				$meta_value = forminator_replace_form_data( $meta_value, $custom_form, $entry, false, false, true );
 				$meta_value = forminator_replace_variables( $meta_value, $setting['form_id'] );
 			}
 
@@ -824,8 +872,8 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 	/**
 	 * Change notifications
 	 *
-	 * @param string $activation_method
-	 * @param array  $notifications
+	 * @param string $activation_method Activation method.
+	 * @param array  $notifications Notifications.
 	 *
 	 * @return array
 	 */
@@ -843,32 +891,12 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 	}
 
 	/**
-	 * Change 'Thank you' message
-	 *
-	 * @param string                $message
-	 * @param Forminator_Form_Model $custom_form
-	 *
-	 * @return string
-	 */
-	public function change_thankyou_message( $message, $custom_form ) {
-		$settings = $custom_form->settings;
-		if ( ! empty( $settings['activation-method'] )
-			&& $this->check_activation_method( $settings['activation-method'] )
-			&& isset( $settings[ $settings['activation-method'] . '-thankyou-message' ] )
-		) {
-			$message = $settings[ $settings['activation-method'] . '-thankyou-message' ];
-		}
-
-		return $message;
-	}
-
-	/**
 	 * Get the set password url for the specified user.
 	 *
 	 * @global wpdb         $wpdb      WordPress database object for queries.
 	 * @global PasswordHash $wp_hasher Portable PHP password hashing framework instance.
 	 *
-	 * @param WP_User $user
+	 * @param WP_User $user User object.
 	 *
 	 * @return string
 	 */
@@ -900,13 +928,6 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 
 		$switched_locale = switch_to_locale( get_locale() );
 
-		/* Removed in 1.15.1, if no problem occurs in few months, we can delete this in 1.15.3?
-		$message  = sprintf( __( 'New user registration on your site %s:', 'forminator' ), $blogname ) . "\r\n\r\n";
-		$message .= sprintf( __( 'Username: %s', 'forminator' ), $username ) . "\r\n\r\n";
-		$message .= sprintf( __( 'Email: %s', 'forminator' ), $user->user_email ) . "\r\n";
-
-		$result = @wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] New User Registration', 'forminator' ), $blogname ), $message ); */
-
 		if ( $switched_locale ) {
 			restore_previous_locale();
 		}
@@ -917,26 +938,31 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 
 		$switched_locale = switch_to_locale( get_user_locale( $user ) );
 
-		$message  = sprintf( __( 'Dear %s,', 'forminator' ), $username ) . "\r\n\r\n";
-		$message .= sprintf( __( 'Your account on %s has been activated! Please find your login details below.', 'forminator' ), $blogname ) . "\r\n\r\n\r\n";
-		$message .= sprintf( __( 'Login page: %s', 'forminator' ), wp_login_url() ) . "\r\n\r\n";
-		$message .= sprintf( __( 'Username: %s', 'forminator' ), $username ) . "\r\n\r\n";
+		/* translators: 1. User name. */
+		$message = sprintf( esc_html__( 'Dear %s,', 'forminator' ), $username ) . "\r\n\r\n";
+		/* translators: 1. Blog name. */
+		$message .= sprintf( esc_html__( 'Your account on %s has been activated! Please find your login details below.', 'forminator' ), $blogname ) . "\r\n\r\n\r\n";
+		/* translators: 1. Login URL. */
+		$message .= sprintf( esc_html__( 'Login page: %s', 'forminator' ), wp_login_url() ) . "\r\n\r\n";
+		/* translators: 1. User name. */
+		$message .= sprintf( esc_html__( 'Username: %s', 'forminator' ), $username ) . "\r\n\r\n";
 
 		if ( empty( $plaintext_pass ) ) {
 
-			$message .= __( 'Password: Use the password that you submitted when registering your account, or set a new password at the link below.', 'forminator' ) . "\r\n";
+			$message .= esc_html__( 'Password: Use the password that you submitted when registering your account, or set a new password at the link below.', 'forminator' ) . "\r\n";
 			$message .= '<' . $this->get_set_password_url( $user ) . ">\r\n\r\n\r\n";
 
 		} else {
-
-			$message .= sprintf( __( 'Password: %s', 'forminator' ), $plaintext_pass ) . "\r\n";
-			$message .= '(' . __( 'This password was generated automatically, and it is recommended that you set a new password once you log in to your account.', 'forminator' ) . ")\r\n\r\n\r\n";
+			/* translators: 1. Password. */
+			$message .= sprintf( esc_html__( 'Password: %s', 'forminator' ), $plaintext_pass ) . "\r\n";
+			$message .= '(' . esc_html__( 'This password was generated automatically, and it is recommended that you set a new password once you log in to your account.', 'forminator' ) . ")\r\n\r\n\r\n";
 
 		}
+		/* translators: 1. Home URL. */
+		$message .= sprintf( esc_html__( 'This message was sent from %s', 'forminator' ), home_url() );
 
-		$message .= sprintf( __( 'This message was sent from %s', 'forminator' ), home_url() );
-
-		$result = wp_mail( $user->user_email, sprintf( __( '[%s] Account Activated', 'forminator' ), $blogname ), $message );
+		/* translators: 1. Blog name. */
+		$result = wp_mail( $user->user_email, sprintf( esc_html__( '[%s] Account Activated', 'forminator' ), $blogname ), $message );
 
 		if ( $switched_locale ) {
 			restore_previous_locale();
@@ -946,7 +972,7 @@ class Forminator_CForm_Front_User_Registration extends Forminator_User {
 	/**
 	 * Get conditional user role
 	 *
-	 * @param $settings
+	 * @param array $settings Settings.
 	 *
 	 * @return string
 	 */

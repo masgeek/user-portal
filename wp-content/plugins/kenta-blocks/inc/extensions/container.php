@@ -75,15 +75,14 @@ if ( ! function_exists( 'kenta_blocks_container_global_css' ) ) {
 	/**
 	 * Global css for container
 	 *
-	 * @param $attrs
-	 * @param $metadata
+	 * @param $block
 	 *
 	 * @return array
 	 */
-	function kenta_blocks_container_global_css( $attrs, $metadata ) {
+	function kenta_blocks_container_global_css( $block ) {
 		$css = array_merge(
-			kenta_blocks_css()->typography( kenta_blocks_block_attr( 'globalTypography', $attrs, $metadata ) ),
-			kenta_blocks_css()->colors( kenta_blocks_block_attr( 'globalColor', $attrs, $metadata ), array(
+			kenta_blocks_css()->typography( kb_get_block_attr( $block, 'globalTypography' ) ),
+			kenta_blocks_css()->colors( kb_get_block_attr( $block, 'globalColor' ), array(
 				'initial' => [
 					'color',
 					'--kenta-headings-color',
@@ -97,17 +96,17 @@ if ( ! function_exists( 'kenta_blocks_container_global_css' ) ) {
 			) )
 		);
 
-		if ( 'yes' == kenta_blocks_block_attr( 'overrideGlobalColorSettings', $attrs, $metadata ) ) {
+		if ( 'yes' == kb_get_block_attr( $block, 'overrideGlobalColorSettings' ) ) {
 			$css = array_merge( $css,
-				kenta_blocks_css()->colors( kenta_blocks_block_attr( 'globalPrimaryColor', $attrs, $metadata ), array(
+				kenta_blocks_css()->colors( kb_get_block_attr( $block, 'globalPrimaryColor' ), array(
 					'default' => '--kb-primary-color',
 					'active'  => '--kb-primary-active',
 				) ),
-				kenta_blocks_css()->colors( kenta_blocks_block_attr( 'globalAccentColor', $attrs, $metadata ), array(
+				kenta_blocks_css()->colors( kb_get_block_attr( $block, 'globalAccentColor' ), array(
 					'default' => '--kb-accent-color',
 					'active'  => '--kb-accent-active',
 				) ),
-				kenta_blocks_css()->colors( kenta_blocks_block_attr( 'globalBaseColor', $attrs, $metadata ), array(
+				kenta_blocks_css()->colors( kb_get_block_attr( $block, 'globalBaseColor' ), array(
 					'default' => '--kb-base-color',
 					'300'     => '--kb-base-300',
 					'200'     => '--kb-base-200',

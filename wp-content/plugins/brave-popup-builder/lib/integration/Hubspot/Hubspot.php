@@ -3,6 +3,9 @@ if ( ! class_exists( 'BravePop_Hubspot' ) ) {
 
    class BravePop_Hubspot {
 
+      protected $api_key;
+      protected $isAccessToken;
+
       function __construct() {
          $braveSettings = get_option('_bravepopup_settings');
          $integrations = $braveSettings && isset($braveSettings['integrations']) ? $braveSettings['integrations'] : array() ;
@@ -26,7 +29,7 @@ if ( ! class_exists( 'BravePop_Hubspot' ) ) {
 
          $body = wp_remote_retrieve_body( $response );
          $data = json_decode( $body );
-         //error_log(json_encode($response));
+         //error_log(wp_json_encode($response));
          if($data && isset($data->lists)){
             $lists = $data->lists;
             $finalLists = array();
@@ -39,8 +42,8 @@ if ( ! class_exists( 'BravePop_Hubspot' ) ) {
                   $finalLists[] = $listItem;
                }
             }
-            //error_log(json_encode($finalLists));
-            return json_encode($finalLists);
+            //error_log(wp_json_encode($finalLists));
+            return wp_json_encode($finalLists);
          }else{
             return false;
          }
@@ -86,7 +89,7 @@ if ( ! class_exists( 'BravePop_Hubspot' ) ) {
             'headers' => array(
                'content-type' => 'application/json',
             ),
-            'body' => json_encode(array(
+            'body' => wp_json_encode(array(
                'properties' => $contact
             ))
          );
@@ -110,12 +113,12 @@ if ( ! class_exists( 'BravePop_Hubspot' ) ) {
 
       public function add_to_list_action($email, $vid, $list_id, $userData){
          if(!$vid){ return false; }
-         $userToList = array( 'method' => 'POST', 'headers' => array( 'content-type' => 'application/json' ),'body' => json_encode(array( 'vids' => array($vid) )) );
+         $userToList = array( 'method' => 'POST', 'headers' => array( 'content-type' => 'application/json' ),'body' => wp_json_encode(array( 'vids' => array($vid) )) );
          if($this->isAccessToken && $userToList['headers']){   $userToList['headers']['Authorization'] = 'Bearer ' . $this->api_key;  }
          $listresponse = wp_remote_post( 'https://api.hubapi.com/contacts/v1/lists/'.$list_id.'/add'.(!$this->isAccessToken ? '?hapikey='.$this->api_key:''), $userToList );
          $listbody = wp_remote_retrieve_body( $listresponse );
          $listdata = json_decode( $listbody );
-         //error_log('#####ADD TO LIST RESPONSE: '.json_encode($listresponse));
+         //error_log('#####ADD TO LIST RESPONSE: '.wp_json_encode($listresponse));
 
          if($listdata && isset($listdata->updated)){
             $addedData = array(

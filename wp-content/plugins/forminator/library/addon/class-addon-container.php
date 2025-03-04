@@ -1,4 +1,9 @@
 <?php
+/**
+ * The Forminator_Addon_Container class.
+ *
+ * @package Forminator
+ */
 
 /**
  * Class Forminator_Addon_Container
@@ -9,15 +14,19 @@
 class Forminator_Addon_Container implements ArrayAccess, Countable, Iterator {
 
 	/**
+	 * Addons
+	 *
 	 * @since 1.1
-	 * @var Forminator_Addon_Abstract[]
+	 * @var Forminator_Integration[]
 	 */
 	private $addons = array();
 
 	/**
+	 * Offset exists
+	 *
 	 * @since 1.1
 	 *
-	 * @param mixed $offset
+	 * @param mixed $offset Offset.
 	 *
 	 * @return bool
 	 */
@@ -27,11 +36,13 @@ class Forminator_Addon_Container implements ArrayAccess, Countable, Iterator {
 	}
 
 	/**
+	 * Get offset
+	 *
 	 * @since 1.1
 	 *
-	 * @param mixed $offset
+	 * @param mixed $offset Offset.
 	 *
-	 * @return Forminator_Addon_Abstract|mixed|null
+	 * @return Forminator_Integration|mixed|null
 	 */
 	#[\ReturnTypeWillChange]
 	public function offsetGet( $offset ) {
@@ -43,10 +54,12 @@ class Forminator_Addon_Container implements ArrayAccess, Countable, Iterator {
 	}
 
 	/**
+	 * Set offset
+	 *
 	 * @since 1.1
 	 *
-	 * @param mixed $offset
-	 * @param mixed $value
+	 * @param mixed $offset Offset.
+	 * @param mixed $value Offset value.
 	 */
 	#[\ReturnTypeWillChange]
 	public function offsetSet( $offset, $value ) {
@@ -54,7 +67,9 @@ class Forminator_Addon_Container implements ArrayAccess, Countable, Iterator {
 	}
 
 	/**
-	 * @param mixed $offset
+	 * Unset offset
+	 *
+	 * @param mixed $offset Offset.
 	 */
 	#[\ReturnTypeWillChange]
 	public function offsetUnset( $offset ) {
@@ -86,6 +101,11 @@ class Forminator_Addon_Container implements ArrayAccess, Countable, Iterator {
 		return array_keys( $this->addons );
 	}
 
+	/**
+	 * To group array.
+	 *
+	 * @return array
+	 */
 	public function to_grouped_array() {
 		$addons = array();
 
@@ -96,7 +116,7 @@ class Forminator_Addon_Container implements ArrayAccess, Countable, Iterator {
 			// enable later when implemented.
 			// if ( ! $addon ) {.
 			// continue;.
-			// }
+			// }.
 			$addons[ $addon->get_slug() ] = $addon->to_array();
 		}
 
@@ -117,9 +137,6 @@ class Forminator_Addon_Container implements ArrayAccess, Countable, Iterator {
 			// force to offsetGet: enable when needed.
 			// in case will added hook.
 			$addon = $this[ $slug ];
-			// if ( ! $addon ) {.
-			// continue;.
-			// }
 
 			$addons[ $addon->get_slug() ] = $addon->to_array();
 		}

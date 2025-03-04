@@ -2,7 +2,7 @@
 
 namespace LottaFramework\Facades;
 
-use Illuminate\Contracts\Container\Container;
+use LottaFramework\Container\Container;
 
 /**
  * Taken and modified from: https://github.com/illuminate/support
@@ -49,15 +49,6 @@ abstract class Facade {
 	}
 
 	/**
-	 * Get the root object behind the facade.
-	 *
-	 * @return mixed
-	 */
-	public static function getFacadeRoot() {
-		return static::resolveFacadeInstance( static::getFacadeAccessor() );
-	}
-
-	/**
 	 * Get the registered name of the component.
 	 *
 	 * @return string
@@ -66,6 +57,15 @@ abstract class Facade {
 	 */
 	protected static function getFacadeAccessor() {
 		throw new \RuntimeException( 'Facade does not implement getFacadeAccessor method.' );
+	}
+
+	/**
+	 * Get the root object behind the facade.
+	 *
+	 * @return mixed
+	 */
+	public static function getFacadeRoot() {
+		return static::resolveFacadeInstance( static::getFacadeAccessor() );
 	}
 
 	/**

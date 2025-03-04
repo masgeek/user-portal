@@ -11,7 +11,7 @@
 
 // Build attributes		
 $source_type = sanitize_text_field( $attributes['type'] );
-		
+
 $params = array(
     'uid'                  => sanitize_text_field( $attributes['uid'] ),
     'post_id'              => (int) $attributes['post_id'],
@@ -52,25 +52,22 @@ if ( $params['total_pages'] <= 1 ) {
 
 $params = apply_filters( 'ayg_pagination_args', $params, $attributes );
 ?>
-
-<div class="ayg-pagination" data-params='<?php echo wp_json_encode( $params ); ?>'>
+<ayg-pagination class="ayg-pagination" data-params='<?php echo wp_json_encode( $params ); ?>'>
     <?php if ( 'pager' == $attributes['pagination_type'] ) : // pager ?>
-        <span class="ayg-pagination-prev">
-            <span class="ayg-btn ayg-pagination-prev-btn" data-type="previous" style="display: none;"><?php esc_html_e( 'Previous', 'automatic-youtube-gallery' ); ?></span>
-        </span>
-
-        <span class="ayg-pagination-info">
+        <div class="ayg-pagination-prev">
+            <button type="button" class="ayg-btn ayg-pagination-prev-btn" data-type="previous" style="display: none;"><?php echo esc_html( $attributes['previous_button_label'] ); ?></button>
+        </div>
+        <div class="ayg-pagination-info">
             <span class="ayg-pagination-current-page-number">1</span>
             <?php esc_html_e( 'of', 'automatic-youtube-gallery' ); ?>
             <span class="ayg-pagination-total-pages"><?php echo (int) $params['total_pages']; ?></span>
-        </span>
-
-        <span class="ayg-pagination-next">
-            <span class="ayg-btn ayg-pagination-next-btn" data-type="next"><?php esc_html_e( 'Next', 'automatic-youtube-gallery' ); ?></span>
-        </span>
+        </div>
+        <div class="ayg-pagination-next">
+            <button type="button" class="ayg-btn ayg-pagination-next-btn" data-type="next"><?php echo esc_html( $attributes['next_button_label'] ); ?></button>
+        </div>
     <?php else : // more ?>
-        <span class="ayg-pagination-next">
-            <span class="ayg-btn ayg-pagination-next-btn" data-type="more"><?php esc_html_e( 'Load More', 'automatic-youtube-gallery' ); ?></span>
-        </span>
+        <div class="ayg-pagination-next">
+            <button type="button" class="ayg-btn ayg-pagination-next-btn" data-type="more"><?php echo esc_html( $attributes['more_button_label'] ); ?></button>
+        </div>
     <?php endif; ?>
-</div>
+</ayg-pagination>

@@ -3,10 +3,34 @@
 namespace LottaFramework\Typography;
 
 use LottaFramework\Customizer\Controls\Typography;
+use LottaFramework\Facades\Css;
 use LottaFramework\Facades\CZ;
 use LottaFramework\Utils;
 
 class Fonts {
+
+	/**
+	 * Return custom fonts array
+	 *
+	 * @return mixed|void
+	 */
+	public static function custom_fonts() {
+		$fonts_array  = apply_filters( 'lotta_filter_custom_fonts', array() );
+		$custom_fonts = array();
+
+		foreach ( $fonts_array as $key => $font ) {
+			$src = $font['src'] ?? [];
+
+			$custom_fonts[ $font['id'] ] = array(
+				'f' => $font['family'],
+				's' => $font['stack'] ?? '',
+				'u' => is_array( $src ) ? $src : [],
+				'v' => $font['variants'] ?? '400',
+			);
+		}
+
+		return $custom_fonts;
+	}
 
 	/**
 	 * Return system fonts array
@@ -167,10 +191,15 @@ class Fonts {
 	 * @return array|mixed
 	 */
 	public static function addTypography( $fonts, $typography ) {
+		$custom = Fonts::custom_fonts();
 		$google = Fonts::google_fonts();
 
 		$family  = $typography['family'] ?? 'inherit';
 		$variant = $typography['variant'] ?? '400';
+
+		if ( isset( $custom[ $family ] ) ) {
+			$variant = $custom[ $family ]['v'] ?? '400';
+		}
 
 		if ( isset( $google[ $family ] ) ) {
 			$variants = $google[ $family ]['v'] ?? [];
@@ -240,17 +269,22 @@ class Fonts {
 
 		if ( $google_font_url !== '' ) {
 			wp_enqueue_style( $id, $google_font_url, array(), $version );
+		} else {
+			wp_register_style( $id, false );
+			wp_enqueue_style( $id );
 		}
+
+		wp_add_inline_style( $id, self::dynamic_font_face_css( $id ) );
 	}
 
 	/**
-	 * Get web font url
-	 * 
+	 * Get enqueued font list
+	 *
 	 * @param $id
-	 * 
-	 * @return string
+	 *
+	 * @return array|mixed
 	 */
-	public static function get_webfont_url( $id ) {
+	public static function get_font_list( $id ) {
 
 		$queued = apply_filters( $id, Typography::getQueued() );
 
@@ -260,11 +294,53 @@ class Fonts {
 			$font_list = self::addTypography( $font_list, CZ::get( $setting ) );
 		}
 
+		return $font_list;
+	}
+
+	/**
+	 * Get web font url
+	 *
+	 * @param $id
+	 *
+	 * @return string
+	 */
+	public static function get_webfont_url( $id ) {
+
+		$font_list = self::get_font_list( $id );
+
 		$web_font_url = self::google_fonts_url( $font_list );
 		if ( $web_font_url !== '' && Utils::app()->isSupport( 'local_webfonts' ) ) {
 			$web_font_url = wptt_get_webfont_url( $web_font_url );
 		}
 
 		return $web_font_url;
+	}
+
+	/**
+	 * Generate dynamic font face css
+	 *
+	 * @param $id
+	 *
+	 * @return mixed
+	 */
+	protected static function dynamic_font_face_css( $id ) {
+
+		$font_list    = self::get_font_list( $id );
+		$custom_fonts = self::custom_fonts();
+		$font_faces   = [];
+
+		foreach ( $font_list as $f => $args ) {
+			if ( isset( $custom_fonts[ $f ] ) ) {
+				$font = $custom_fonts[ $f ];
+
+				$font_faces[] = [
+					'font-weight' => $font['v'],
+					'font-family' => "'{$font['f']}'",
+					'src'         => $font['u'],
+				];
+			}
+		}
+
+		return Css::fontFaces( apply_filters( 'lotta_filter_dynamic_font_faces', $font_faces ) );
 	}
 }

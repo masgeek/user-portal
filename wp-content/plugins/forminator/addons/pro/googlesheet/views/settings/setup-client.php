@@ -1,4 +1,10 @@
 <?php
+/**
+ * Template for setup worksheet.
+ *
+ * @package Forminator
+ */
+
 // Defaults.
 $vars = array(
 	'token'               => '',
@@ -11,7 +17,11 @@ $vars = array(
 	'identifier'          => '',
 );
 
-/** @var array $template_vars */
+/**
+ * Template variables.
+ *
+ * @var array $template_vars
+ * */
 foreach ( $template_vars as $key => $val ) {
 	$vars[ $key ] = $val;
 } ?>
@@ -19,43 +29,36 @@ foreach ( $template_vars as $key => $val ) {
 <div class="forminator-integration-popup__header">
 
 	<h3 id="forminator-integration-popup__title" class="sui-box-title sui-lg" style="overflow: initial; white-space: normal; text-overflow: initial;">
-		<?php echo esc_html( sprintf( /* translators: ... */ __( 'Set Up %1$s Client', 'forminator' ), 'Google Sheets' ) ); ?>
+		<?php
+		printf(
+		/* translators: 1: Add-on name */
+			esc_html__( 'Set Up %1$s Client', 'forminator' ),
+			'Google Sheets'
+		);
+		?>
 	</h3>
 
 	<?php if ( ! empty( $vars['token'] ) ) : ?>
 		<p id="forminator-integration-popup__description" class="sui-description"><?php esc_html_e( 'Your Google Sheets account is already authorized. Edit info below to re-authorize.', 'forminator' ); ?></p>
 	<?php else : ?>
-        <p id="forminator-integration-popup__description" class="sui-description"><?php esc_html_e( 'Set up your Google Sheets oAuth 2.0 client by entering your credentials below.', 'forminator' ); ?></p>
+		<p id="forminator-integration-popup__description" class="sui-description"><?php esc_html_e( 'Set up your Google Sheets oAuth 2.0 client by entering your credentials below.', 'forminator' ); ?></p>
 		<p class="sui-description">
 			<?php if ( forminator_is_show_addons_documentation_link() ) { ?>
-                <?php echo sprintf(/* translators: ... */
+				<?php
+				printf(
+				/* Translators: 1. Opening <a> tag with link to generate credential, 2. closing <a> tag. */
 					esc_html__( '%1$sGuide to generate credentials%2$s.', 'forminator' ),
 					'<a href="https://wpmudev.com/docs/wpmu-dev-plugins/forminator/#google-sheets" target="_blank">',
 					'</a>'
 				);
-			} ?>
+			}
+			?>
 		</p>
 		<?php if ( ! empty( $vars['error_message'] ) ) : ?>
-			<div
-				role="alert"
-				class="sui-notice sui-notice-red sui-active"
-				style="display: block; text-align: left;"
-				aria-live="assertive"
-			>
-
-				<div class="sui-notice-content">
-
-					<div class="sui-notice-message">
-
-						<span class="sui-notice-icon sui-icon-info" aria-hidden="true"></span>
-
-						<p><?php echo esc_html( $vars['error_message'] ); ?></p>
-
-					</div>
-
-				</div>
-
-			</div>
+			<?php
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is already escaped.
+				echo Forminator_Admin::get_red_notice( esc_html( $vars['error_message'] ) );
+			?>
 		<?php endif; ?>
 	<?php endif ?>
 
@@ -86,7 +89,7 @@ foreach ( $template_vars as $key => $val ) {
 		<div class="sui-control-with-icon">
 
 			<input name="client_id"
-				placeholder="<?php echo esc_attr( __( 'Client ID', 'forminator' ) ); ?>"
+				placeholder="<?php esc_attr_e( 'Client ID', 'forminator' ); ?>"
 				value="<?php echo esc_attr( $vars['client_id'] ); ?>"
 				class="sui-form-control" />
 
@@ -107,7 +110,7 @@ foreach ( $template_vars as $key => $val ) {
 		<div class="sui-control-with-icon">
 
 			<input name="client_secret"
-				placeholder="<?php echo esc_attr( __( 'Client Secret', 'forminator' ) ); ?>"
+				placeholder="<?php esc_attr_e( 'Client Secret', 'forminator' ); ?>"
 				value="<?php echo esc_attr( $vars['client_secret'] ); ?>"
 				class="sui-form-control" />
 

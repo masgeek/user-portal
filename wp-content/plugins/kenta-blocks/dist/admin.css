@@ -14,7 +14,7 @@
 .components-button[class*=editor-block-list-item-kenta-blocks]:hover {
   color: var(--kb-admin-primary-color, #096dd9);
 }
-.components-button[class*=editor-block-list-item-kenta-blocks]::after {
+.components-button[class*=editor-block-list-item-kenta-blocks]::before {
   content: "KB";
   display: block;
   position: absolute;
@@ -291,7 +291,6 @@
   padding: 4px 8px;
   border-radius: var(--kb-admin-border-radius, 2px);
   box-sizing: border-box;
-  min-width: -webkit-max-content;
   min-width: -moz-max-content;
   min-width: max-content;
   font-size: 11px;

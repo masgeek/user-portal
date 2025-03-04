@@ -109,7 +109,7 @@
 		const newBlock = forminatorPrepareCloningBlock( firstBlock );
 		groupField.append( newBlock );
 
-		var pattern = new RegExp('((?:calculation|number|currency|radio|select|checkbox)-\\d+)', 'g');
+		var pattern = new RegExp('((?:calculation|number|slider|currency|radio|select|checkbox)-\\d+(?:-min|-max)?)', 'g');
 		var matches;
 
 		const names = newBlock.find('[name]');
@@ -140,7 +140,43 @@
 
 		let newBlock = baseBlock.clone();
 
-		newBlock.find( '.select2-container, .forminator-error-message' ).remove();
+		if (form.find('input[name="previous_draft_id"]').length > 0) {
+            newBlock.find('.forminator-input').attr('value', '');
+            newBlock.find('.forminator-textarea').empty();
+            newBlock.find('input[type="radio"], input[type="checkbox"]').each(function () {
+                $(this).attr('checked', false);
+            });
+
+            if (newBlock.find('.forminator-select2').length > 0) {
+                newBlock.find('.forminator-select2').each(function (index, value) {
+                    $(value).find('option:selected').attr('selected', false);
+                    $(value).find('option:first').attr('selected', 'selected');
+                });
+            }
+
+            if (newBlock.find('.forminator-rating').length > 0) {
+                newBlock.find('.forminator-rating').each(function (index, value) {
+                    $(value).find('option:selected').attr('selected', false);
+                    $(value).find('option:first').attr('selected', 'selected');
+                });
+            }
+
+            newBlock.find('.forminator-slider').each(function () {
+                let $element = $(this),
+                    $slide = $element.find('.forminator-slide'),
+                    $minRange = parseInt($slide.data('min')) || 0,
+                    $maxRange = parseInt($slide.data('max')) || 100;
+
+                if ('1' === $slide.attr('data-is-range')) {
+                    $slide.attr('data-value-max', $maxRange);
+                    $slide.attr('data-value', $minRange);
+                } else {
+                    $slide.attr('data-value', $minRange);
+                }
+            });
+        }
+
+		newBlock.find( '.select2-container, .forminator-error-message, .iti__country-container' ).remove();
 
 		// Cloning Rich-Text editors.
 		newBlock.find( '.wp-editor-wrap' ).each( function() {
@@ -148,6 +184,15 @@
 			textarea.css( 'display', 'block' );
 			$( this ).replaceWith( textarea );
 		} );
+
+		// Cloning Phone fields - material mode.
+		newBlock.find('.forminator-field-phone .forminator-input-with-phone').each(function() {
+			$(this).replaceWith($(this).contents().contents());
+		});
+		// Cloning Phone fields - other modes.
+		newBlock.find('.forminator-field-phone .forminator-phone').each(function() {
+			$(this).replaceWith($(this).contents());
+		});
 
 		// Cloning Singular File Upload.
 		newBlock.find( '.forminator-file-upload [data-empty-text]' ).each( function() {
@@ -167,7 +212,7 @@
 		});
 
 		// Remove selected files for Multiple Upload fields.
-		newBlock.find( '.forminator-uploaded-files.forminator-has-files' ).html('');
+		newBlock.find( '.forminator-uploaded-files.forminator-has-files, .forminator-slide' ).html('');
 
 		// Change id and name attributes.
 		let newHtml = newBlock.html().replace( /(id=|name=|for=|data-element=|wp.editor.initialize\()"([^"]+?)(\[\]|-multiselect-default-values|-label)?"/g, '$1"$2-' + newSuffix + '$3"' );
@@ -177,7 +222,7 @@
 		const regexp = new RegExp( `(forminator-field-upload-)([^"]+?)(-${formId})`, 'g' );
 		newHtml = newHtml.replace( regexp, '$1$2-' + newSuffix + '$3' );
 
-		newHtml = newHtml.replace( /hasDatepicker|forminator-has_error/g, '' );
+		newHtml = newHtml.replace( /hasDatepicker|forminator-has_error|forminator-input-with-phone/g, '' );
 
 		newHtml = forminatorUpdateCalculationFormulas( newHtml, newSuffix, baseBlock );
 

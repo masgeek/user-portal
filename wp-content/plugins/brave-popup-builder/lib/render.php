@@ -25,8 +25,13 @@ function bravepop_render_popup() {
 
    do_action( 'bravepop_before_render', array($filtered_popups) );
    
-   //error_log(json_encode($filtered_popups));
-   if($filtered_popups && count($filtered_popups) > 0){
+   //error_log(wp_json_encode($filtered_popups));
+   global $bravepop_settings;
+   $appSettings = isset($bravepop_settings['app_settings']) ? $bravepop_settings['app_settings'] : new stdClass();
+   $hideForAdmins = isset($appSettings->hideForAdmins) ? wp_json_encode($appSettings->hideForAdmins) : 'false'; 
+   $hiddenForAdmins = current_user_can('administrator') && $hideForAdmins === 'true' ? true : false;
+
+   if($filtered_popups && count($filtered_popups) > 0 && !$hiddenForAdmins){
       foreach($filtered_popups as $key=>$value) {
          $popupID = $value->id;
          $popupType = $value->type;
@@ -35,7 +40,7 @@ function bravepop_render_popup() {
          if($popupStatus === 'publish' ){
             //Check if Popup has active ABTest. If does, display a variation randomly
             $post_abtest = json_decode(get_post_meta( $popupID, 'popup_abtest', true ));
-            //error_log(json_encode($post_abtest));
+            //error_log(wp_json_encode($post_abtest));
             if(isset($post_abtest->active) && $post_abtest->active === true && count($post_abtest->items) > 0){
                $popupID = get_AbTest_Campaign($post_abtest, $popupID);
             }
@@ -66,7 +71,7 @@ function bravepop_get_current_page_popups(){
    global $bravepop_settings; global $bravepop_global;
    $currentPopups = isset($bravepop_settings['visibility']) ? $bravepop_settings['visibility'] : null;
    $pageInfo = bravepop_get_current_pageInfo();
-   //echo json_encode($currentPopups);
+   //echo wp_json_encode($currentPopups);
    $currentPageType = $pageInfo->type;
    $currentPageID = $pageInfo->pageID;
    $currentSingleType = $pageInfo->singleType;
@@ -82,9 +87,9 @@ function bravepop_get_current_page_popups(){
       ) );
       foreach ($allScheduledPopups as $key => $item) {   $popupStatusArray[$item->ID] = 'scheduled'; }
       foreach ($allPublishedPopups as $key => $item) {   $popupStatusArray[$item->ID] = $item->post_status; }
-      //error_log(json_encode($popupStatusArray));
+      //error_log(wp_json_encode($popupStatusArray));
 
-      //echo json_encode($currentPopups);
+      //echo wp_json_encode($currentPopups);
       foreach($currentPopups as $key=>$value) {
          $popupID = $value->id;
          $itemType = !empty($value->type) ? $value->type : 'popup' ;
@@ -110,7 +115,7 @@ function bravepop_get_current_page_popups(){
          }
 
  
-         //error_log( json_encode($placementType));
+         //error_log( wp_json_encode($placementType));
          if($placementType === 'sitewide'){
             $fit_popups[] = $popupData;
          }elseif ($currentPageType === 'front' && $placementType === 'front'){
@@ -230,14 +235,16 @@ function bravepop_get_current_page_popups(){
                }
          }elseif($placementType === 'custom' ){
             $current_page_link = (isset($_SERVER['HTTPS']) ? 'https' : 'http').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
-            //error_log( json_encode($current_page_link));
+            //error_log( wp_json_encode($current_page_link));
             if($current_page_link && isset($placement->urls) && count($placement->urls) > 0){
                foreach($placement->urls as $key=>$urlItem) {
-                  if(isset($urlItem->link) && ($current_page_link === $urlItem->link)){
-                     $fit_popups[] = $popupData;
-                  }
-                  if(isset($urlItem->link) && strpos($urlItem->link, "*") !== false && (strpos( $current_page_link, str_replace('*','', $urlItem->link) ) !== false)){
-                     $fit_popups[] = $popupData;
+                  if(!empty($urlItem)){
+                     if(isset($urlItem->link) && ($current_page_link === $urlItem->link)){
+                        $fit_popups[] = $popupData;
+                     }
+                     if(isset($urlItem->link) && strpos($urlItem->link, "*") !== false && (strpos( $current_page_link, str_replace('*','', $urlItem->link) ) !== false)){
+                        $fit_popups[] = $popupData;
+                     }
                   }
                }
             }
@@ -263,7 +270,7 @@ function bravepop_get_current_page_popups(){
          }
       }
    }
-   //error_log('$filtered_popups: '. json_encode($filtered_popups));
+   //error_log('$filtered_popups: '. wp_json_encode($filtered_popups));
 
    //Set Auto Embedded Content & Check if Popup has Ad blocker detection enabled.
    if(count($filtered_popups) > 0){
@@ -287,7 +294,7 @@ function bravepop_get_current_page_popups(){
       }
    }
 
-   // error_log(json_encode($filtered_popups));
+   // error_log(wp_json_encode($filtered_popups));
 
    $bravepop_global['current_popups'] = $filtered_popups;
    $filtered_popups = apply_filters( 'bravepop_loadable_campaigns', $filtered_popups );
@@ -376,7 +383,7 @@ function bravepop_get_current_pageInfo(){
    $pageInfo->type = $currentPageType;
    $pageInfo->pageID = $currentSingleID;
    $pageInfo->singleType = $currentSingleType;
-   //error_log(json_encode($pageInfo));
+   //error_log(wp_json_encode($pageInfo));
    return $pageInfo;
 }
 
@@ -419,6 +426,26 @@ function bravepop_exclude_pages($popups, $currentPageType, $currentSingleType, $
                }
                if(isset($urlItem->link) && strpos($urlItem->link, "*") !== false && (strpos( $current_page_link, str_replace('*','', $urlItem->link) ) !== false)){
                   unset($fit_popups[$key]);
+               }
+            }
+         }
+
+         //IF is Custom Post Type
+         if(isset($exclude->post_types) && is_array($exclude->post_types) && count($exclude->post_types) > 0 && is_singular($exclude->post_types)){
+            unset($fit_popups[$key]);
+         }
+         //IF is Custom Post Type Taxonomy
+         if(isset($exclude->post_types_taxes) && $currentPageType === 'tax' && in_array($currentSingleType, $exclude->post_types_taxes)){
+            unset($fit_popups[$key]);
+         }
+         //IF is Custom Posts
+         if(isset($exclude->cpt_posts) && ($currentPageType === 'single')){
+            global $post;
+            if(isset($post->ID)){
+               foreach ($exclude->cpt_posts as $key => $selectedCPT) {
+                  if(isset($selectedCPT->ID) && isset($selectedCPT->type) && $post->ID === $selectedCPT->ID && $selectedCPT->type === $currentSingleType){
+                     unset($fit_popups[$key]);
+                  }
                }
             }
          }

@@ -1,3 +1,11 @@
+<?php
+/**
+ * Policy text.
+ *
+ * @package Forminator
+ */
+
+?>
 <div class="wp-suggested-text">
 	<h2><?php esc_html_e( 'Which polls are collecting personal data?', 'forminator' ); ?></h2>
 	<p class="privacy-policy-tutorial">
@@ -54,13 +62,13 @@
 		?>
 	</p>
 	<p class="privacy-policy-tutorial">
-		<?php esc_html_e( 'By default Forminator Polls can be configured to connect with these third parties:' ); ?>
+		<?php esc_html_e( 'By default Forminator Polls can be configured to connect with these third parties:', 'forminator' ); ?>
 	</p>
 	<ul class="privacy-policy-tutorial">
-		<li><?php esc_html_e( 'Akismet. Enabled when you installed and configured Akismet on your site.' ); ?></li>
-		<li><?php esc_html_e( 'Google Drive. Enabled when you activated and set up Google Drive on Integrations settings.' ); ?></li>
-		<li><?php esc_html_e( 'Trello. Enabled when you activated and set up Trello on Integrations settings.' ); ?></li>
-		<li><?php esc_html_e( 'Slack. Enabled when you activated and set up Slack on Integrations settings.' ); ?></li>
+		<li><?php esc_html_e( 'Akismet. Enabled when you installed and configured Akismet on your site.', 'forminator' ); ?></li>
+		<li><?php esc_html_e( 'Google Drive. Enabled when you activated and set up Google Drive on Integrations settings.', 'forminator' ); ?></li>
+		<li><?php esc_html_e( 'Trello. Enabled when you activated and set up Trello on Integrations settings.', 'forminator' ); ?></li>
+		<li><?php esc_html_e( 'Slack. Enabled when you activated and set up Slack on Integrations settings.', 'forminator' ); ?></li>
 	</ul>
 	<p>
 		<strong class="privacy-policy-tutorial"><?php esc_html_e( 'Suggested text: ', 'forminator' ); ?></strong>

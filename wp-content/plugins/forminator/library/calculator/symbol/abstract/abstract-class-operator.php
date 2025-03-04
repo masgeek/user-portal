@@ -1,4 +1,9 @@
 <?php
+/**
+ * The Forminator_Calculator_Symbol_Operator_Abstract class.
+ *
+ * @package Forminator
+ */
 
 /**
  * This class is the base class for all symbols that are of the type "(binary) operator".
@@ -88,5 +93,4 @@ abstract class Forminator_Calculator_Symbol_Operator_Abstract extends Forminator
 	public function get_operates_binary() {
 		return $this->operates_binary;
 	}
-
 }

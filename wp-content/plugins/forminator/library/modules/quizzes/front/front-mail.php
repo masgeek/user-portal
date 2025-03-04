@@ -1,4 +1,9 @@
 <?php
+/**
+ * The Forminator_Quiz_Front_Mail class.
+ *
+ * @package Forminator
+ */
 
 /**
  * Forminator_Quiz_Front_Mail
@@ -44,8 +49,9 @@ class Forminator_Quiz_Front_Mail extends Forminator_Mail {
 	 *
 	 * @since 1.6.2
 	 *
-	 * @param Forminator_Quiz_Model       $quiz
-	 * @param Forminator_Form_Entry_Model $entry
+	 * @param Forminator_Quiz_Model       $quiz Quiz model.
+	 * @param Forminator_Form_Entry_Model $entry Form entry model.
+	 * @param array                       $final_res Final response.
 	 */
 	public function process_mail( $quiz, Forminator_Form_Entry_Model $entry, $final_res = array() ) {
 		forminator_maybe_log( __METHOD__ );
@@ -66,7 +72,7 @@ class Forminator_Quiz_Front_Mail extends Forminator_Mail {
 			Forminator_Front_Action::$prepared_data = array_merge( Forminator_Front_Action::$prepared_data, $lead_data );
 			foreach ( Forminator_Front_Action::$prepared_data as $element => $element_value ) {
 				if ( ! empty( $element_value ) && is_array( $element_value ) &&
-					 ( stripos( $element, 'time-' ) !== false || stripos( $element, 'date-' ) !== false ) ) {
+					( stripos( $element, 'time-' ) !== false || stripos( $element, 'date-' ) !== false ) ) {
 					foreach ( $element_value as $key => $value ) {
 						$key_value = $element . '-' . $key;
 						Forminator_Front_Action::$prepared_data[ $key_value ] = $value;
@@ -199,7 +205,7 @@ class Forminator_Quiz_Front_Mail extends Forminator_Mail {
 		 *
 		 * @since 1.6.2
 		 *
-		 * @param string                      $from_name
+		 * @param string                      $from_name Form name.
 		 * @param Forminator_Quiz_Model  $quiz  current quiz Model.
 		 * @param array                       $data  POST data.
 		 * @param Forminator_Form_Entry_Model $entry entry model.
@@ -339,6 +345,11 @@ class Forminator_Quiz_Front_Mail extends Forminator_Mail {
 	/**
 	 * Get Recipient
 	 *
+	 * @param string $recipient Recipient.
+	 * @param object $quiz Quiz model.
+	 * @param object $entry Entry model.
+	 * @param object $lead_model Lead model.
+	 *
 	 * @return string
 	 */
 	public function get_recipient( $recipient, $quiz, $entry, $lead_model ) {
@@ -355,18 +366,18 @@ class Forminator_Quiz_Front_Mail extends Forminator_Mail {
 	/**
 	 * Lead file attachment
 	 *
-	 * @param $lead_model
-	 * @param $entry
+	 * @param object $lead_model Lead model.
+	 * @param object $entry Entry model.
 	 *
 	 * @return array|mixed
 	 */
 	public function get_lead_file_attachment( $lead_model, $entry ) {
-		$files                 = array();
-		$form_fields           = $lead_model->get_fields();
+		$files       = array();
+		$form_fields = $lead_model->get_fields();
 		foreach ( $form_fields as $form_field ) {
-			$field_array    = $form_field->to_formatted_array();
-			$field_type     = $field_array['type'];
-			$field_id       = Forminator_Field::get_property( 'element_id', $field_array );
+			$field_array = $form_field->to_formatted_array();
+			$field_type  = $field_array['type'];
+			$field_id    = Forminator_Field::get_property( 'element_id', $field_array );
 			if ( 'upload' === $field_type &&
 					! in_array( $field_id, Forminator_CForm_Front_Action::$hidden_fields, true ) ) {
 				$field_slug = isset( $entry->meta_data[ $form_field->slug ] ) ? $entry->meta_data[ $form_field->slug ] : '';
@@ -388,8 +399,8 @@ class Forminator_Quiz_Front_Mail extends Forminator_Mail {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $routing
-	 * @param $quiz_model
+	 * @param array  $routing Routing.
+	 * @param object $quiz_model Quiz model.
 	 *
 	 * @return bool
 	 */
@@ -437,9 +448,9 @@ class Forminator_Quiz_Front_Mail extends Forminator_Mail {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $notification
-	 * @param $form_data
-	 * @param $quiz_model
+	 * @param array  $notification Notification.
+	 * @param array  $form_data Form data.
+	 * @param object $quiz_model Quiz model.
 	 *
 	 * @return bool
 	 */
@@ -488,7 +499,7 @@ class Forminator_Quiz_Front_Mail extends Forminator_Mail {
 					ARRAY_FILTER_USE_KEY
 				);
 
-				$is_correct  = self::is_correct_answer( $element_id, $form_data['answers'][ key( $question_id ) ], $quiz_model );
+				$is_correct             = self::is_correct_answer( $element_id, $form_data['answers'][ key( $question_id ) ], $quiz_model );
 				$is_condition_fulfilled = self::is_condition_fulfilled( $is_correct, $condition );
 
 			} elseif ( stripos( $element_id, 'result-' ) !== false ) {
@@ -503,7 +514,7 @@ class Forminator_Quiz_Front_Mail extends Forminator_Mail {
 			}
 
 			if ( $is_condition_fulfilled ) {
-				$condition_fulfilled ++;
+				++$condition_fulfilled;
 			}
 		}
 		// initialized as hidden.
@@ -522,5 +533,4 @@ class Forminator_Quiz_Front_Mail extends Forminator_Mail {
 			return false;
 		}
 	}
-
 }

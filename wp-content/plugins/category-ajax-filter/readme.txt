@@ -1,19 +1,19 @@
 === Category Ajax Filter ===
 Contributors: TrustyPlugins
 Donate link: https://www.buymeacoffee.com/jasveer
-Tags: Ajax Filter,Divi, Ajax posts, category posts ,Elementor,category-filter,category-ajax-filter,taxonomy-filter,custom-post-type-filter,post-type-filter,sidebar-filter
-Requires at least: 5.0
-Tested up to: 6.1
-Stable tag: 2.7
+Tags: Filter, elementor, divi, category-filter, post-filter
+Requires at least: 6.0
+Tested up to: 6.7
+Stable tag: 2.8.3
 Requires PHP: 7.0
-License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
+License: GPL3
+License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Filter blog posts/custom post types by custom taxonomy/category without page reload and with pagination too. It has different filter and post layouts.Easy to sort/filter and display posts on page with Ajax. It Support Divi, Elementor, WpBakery Page Builder. 
+Filter blog posts/custom post types by custom taxonomy/category without page reload and with pagination too. It has different filter and post layouts.
 
 == Description ==
 <h4>Support Elementor Builder</h4>
-Filter posts/custom post type's posts by category without reload the page. Select sepecific taxonomy and terms to show on the frontend. It uses ajax request to filter the posts with many pre-build layouts.Use awesome admin panel to control everything on the frontend like filter layouts, filter color combination, post layouts, post color combination, font size, font-family, pagination etc. Showcase for any type of posts/custom post types.
+Filter posts/custom post type's posts by category without reload the page. Select specific taxonomy and terms to show on the frontend. It uses ajax request to filter the posts with many pre-build layouts. Use awesome admin panel to control everything on the frontend like filter layouts, filter color combination, post layouts, post color combination, font size, font-family, pagination etc. Showcase for any type of posts/custom post types.
 <h4>Support Divi Builder</h4>
 Sort Posts/Custom post Types with Ajax functionality. Sort posts with Categories without page reload. It seamlessly loads the posts in a specific section without page reload and with pagination.
 
@@ -86,7 +86,8 @@ https://www.youtube.com/watch?v=uyEhRD0RiP0
 Yes. You can use it with any custom post type.
 
 = Is it compatible with Woo-Commerce too? =
-NO. Currently its not cpmpatible with Woo.
+  Yes. After release of 2.7.2 , CAF supports to woocommerce products too. But it will stay with his normal post layout funtionality.
+  It does not add price, add to cart etc field to the post layout. In the PRO version of CAF you can add price etc fields too with the custom code.
 
 = Whats included in its admin panel? =
 You can set specific filter layout, post layout, pagination, color combination and more options in your hand to look it beautiful.
@@ -103,6 +104,47 @@ Yes you can select specific terms of any taxonomy.
 3. screenshot-3.png
 
 == Changelog ==
+
+= 2.8.3 = (07/11/2024)
+* Sorting feature added at the admin settings panel.
+* vulnerability fixed mentioned by wordfence.
+ 
+
+= 2.8.2 = (20/05/2024)
+* Plugin scanned with 'plugin-check' and fixed all security warnings
+
+= 2.8.1 = (11/04/2024)
+* 'Read More' and 'All' String translation compatibility
+
+= 2.8 = (26/02/2024)
+* Enhancement [PRO version(8.8) will be removed as addon]
+* If using CAF PRO 8.8 , user can deactivate the free version.
+
+= 2.7.2.3 = (19/02/2024)
+* Bug Fixes [Duplicate declaration error of static variable]
+
+
+= 2.7.2.2 = (15/02/2024)
+* Fixed License error [compatibility with PRO]
+* Bug Fixes
+* Hooks Added [compatibility with PRO]
+
+= 2.7.2.1 = (20/06/2023)
+* Fixed Styling and Responsive Issues
+
+
+= 2.7.2 = (17/05/2023)
+* Added Support for WooCommerce
+
+= 2.7.1 = (17/05/2023)
+* Post Title New tab Link open [fix]
+* Post Description Font Syncing with PRO 
+
+
+= 2.7 = (2/05/2023)
+* Bug fixed 
+* Special Css Add Class Issue fixed
+
 = 2.6.7 = (18/01/2023)
 * New Pagination added in PRO [Compatible to 8.6.5 ] 
 

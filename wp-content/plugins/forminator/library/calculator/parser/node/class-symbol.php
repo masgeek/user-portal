@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * The Forminator_Calculator_Parser_Node_Symbol class.
+ *
+ * @package Forminator
+ */
 
 /**
  * A symbol node is a node in the syntax tree.
@@ -7,7 +11,6 @@
  * (parent nodes can have child nodes). A
  * symbol node represents a mathematical symbol.
  * Nodes are created by the parser.
- *
  */
 class Forminator_Calculator_Parser_Node_Symbol extends Forminator_Calculator_Parser_Node_Abstract {
 
@@ -39,8 +42,8 @@ class Forminator_Calculator_Parser_Node_Symbol extends Forminator_Calculator_Par
 	/**
 	 * SymbolNode constructor.
 	 *
-	 * @param Forminator_Calculator_Parser_Token    $token
-	 * @param Forminator_Calculator_Symbol_Abstract $symbol
+	 * @param Forminator_Calculator_Parser_Token    $token Forminator_Calculator_Parser_Token.
+	 * @param Forminator_Calculator_Symbol_Abstract $symbol Forminator_Calculator_Symbol_Abstract.
 	 */
 	public function __construct( $token, $symbol ) {
 
@@ -70,15 +73,15 @@ class Forminator_Calculator_Parser_Node_Symbol extends Forminator_Calculator_Par
 	 * Setter to remember that the node (or to be more precise the
 	 * symbol of the node) represents a unary operator
 	 *
-	 * @param bool $is_unary_operator
+	 * @param bool $is_unary_operator Is unary operator?.
 	 *
-	 * @throws Forminator_Calculator_Exception
+	 * @throws Forminator_Calculator_Exception When there is an Calculator error.
 	 */
 	public function set_is_unary_operator( $is_unary_operator = true ) {
 		if ( ! $this->symbol instanceof Forminator_Calculator_Symbol_Operator_Abstract ) {
 			throw new Forminator_Calculator_Exception(
 				'Error: Cannot mark node as unary operator, because symbol is not an operator but of type "' .
-				gettype( $this->get_symbol() ) . '"'
+				esc_html( gettype( $this->get_symbol() ) ) . '"'
 			);
 		}
 
@@ -94,5 +97,4 @@ class Forminator_Calculator_Parser_Node_Symbol extends Forminator_Calculator_Par
 	public function is_unary_operator() {
 		return $this->is_unary_operator;
 	}
-
 }

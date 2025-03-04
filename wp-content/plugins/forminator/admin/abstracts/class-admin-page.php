@@ -1,4 +1,10 @@
 <?php
+/**
+ * Forminator Admin Page
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -32,13 +38,15 @@ abstract class Forminator_Admin_Page {
 	protected $folder = '';
 
 	/**
+	 * Forminator_Admin_Page Constructor
+	 *
 	 * @since 1.0
 	 *
 	 * @param string $page_slug  Page slug.
-	 * @param string $folder
+	 * @param string $folder     Folder.
 	 * @param string $page_title Page title.
 	 * @param string $menu_title Menu title.
-	 * @param bool   $parent     Parent or not.
+	 * @param bool   $parent_page Parent or not.
 	 * @param bool   $render     Render the page.
 	 */
 	public function __construct(
@@ -46,27 +54,27 @@ abstract class Forminator_Admin_Page {
 		$folder,
 		$page_title,
 		$menu_title,
-		$parent = false,
+		$parent_page = false,
 		$render = true
 	) {
 		$this->page_slug = $page_slug;
 		$this->folder    = $folder;
 
-		if ( ! $parent ) {
+		if ( ! $parent_page ) {
 			$this->page_id = add_menu_page(
 				$page_title,
 				$menu_title,
-				forminator_get_admin_cap(),
+				forminator_get_permission( $page_slug ),
 				$page_slug,
 				$render ? array( $this, 'render' ) : null,
 				$this->get_menu_icon()
-            );
+			);
 		} else {
 			$this->page_id = add_submenu_page(
-				$parent,
+				$parent_page,
 				$page_title,
 				$menu_title,
-				forminator_get_admin_cap(),
+				forminator_get_permission( $page_slug ),
 				$page_slug,
 				$render ? array( $this, 'render' ) : null
 			);
@@ -79,7 +87,6 @@ abstract class Forminator_Admin_Page {
 		$this->init();
 
 		add_filter( 'removable_query_args', array( $this, 'remove_notice_params' ) );
-
 	}
 
 	/**
@@ -153,6 +160,7 @@ abstract class Forminator_Admin_Page {
 	public function remove_notice_params( $vars ) {
 		$vars[] = 'forminator_notice';
 		$vars[] = 'forminator_text_notice';
+		$vars[] = 'forminator_error_notice';
 
 		return $vars;
 	}
@@ -162,7 +170,7 @@ abstract class Forminator_Admin_Page {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $hook
+	 * @param string $hook Hook name.
 	 */
 	public function enqueue_scripts( $hook ) {
 		// Load admin scripts.
@@ -186,7 +194,7 @@ abstract class Forminator_Admin_Page {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $hook
+	 * @param string $hook Hook name.
 	 */
 	public function init_scripts( $hook ) {
 		// Init jquery ui.
@@ -200,6 +208,7 @@ abstract class Forminator_Admin_Page {
 	 */
 	protected function render_header() {
 		$this->show_css_warning();
+		$this->show_stripe_migration_notice();
 
 		if ( $this->template_exists( $this->folder . '/header' ) ) {
 			$this->template( $this->folder . '/header' );
@@ -219,8 +228,9 @@ abstract class Forminator_Admin_Page {
 	 */
 	protected function render_footer() {
 		$hide_footer = false;
-		$footer_text = sprintf(/* translators: ... */
-			__( 'Made with %s by WPMU DEV', 'wpmudev' ),
+		$footer_text = sprintf(
+		/* translators: %s: SUI Icon . */
+			esc_html__( 'Made with %s by WPMU DEV', 'forminator' ),
 			' <i class="sui-icon-heart"></i>'
 		);
 
@@ -322,13 +332,13 @@ abstract class Forminator_Admin_Page {
 	 *
 	 * @since 1.0
 	 *
-	 * @param       $path
-	 * @param array $args
-	 * @param bool  $echo
+	 * @param string $path Template path.
+	 * @param array  $args Arguments.
+	 * @param bool   $echo_content Echo.
 	 *
 	 * @return string
 	 */
-	public function template( $path, $args = array(), $echo = true ) {
+	public function template( $path, $args = array(), $echo_content = true ) {
 		$file    = forminator_plugin_dir() . "admin/views/$path.php";
 		$content = '';
 
@@ -349,7 +359,7 @@ abstract class Forminator_Admin_Page {
 			$content = ob_get_clean();
 		}
 
-		if ( $echo ) {
+		if ( $echo_content ) {
 			echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
@@ -361,7 +371,7 @@ abstract class Forminator_Admin_Page {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $path
+	 * @param string $path Template path.
 	 *
 	 * @return bool
 	 */
@@ -389,7 +399,7 @@ abstract class Forminator_Admin_Page {
 	 *
 	 * @since 1.0.2
 	 *
-	 * @param string $classes
+	 * @param string $classes Classes.
 	 *
 	 * @return string $classes
 	 */
@@ -406,13 +416,12 @@ abstract class Forminator_Admin_Page {
 
 		$classes .= $this->get_sui_body_class();
 
-		// if accessibility enabled add sui select accessible class
-		if(get_option( 'forminator_enable_accessibility', false )){
+		// if accessibility enabled add sui select accessible class.
+		if ( get_option( 'forminator_enable_accessibility', false ) ) {
 			$classes .= ' sui-elements-accessible';
 		}
 
 		return $classes;
-
 	}
 
 	/**
@@ -431,11 +440,12 @@ abstract class Forminator_Admin_Page {
 	 * @since 1.6
 	 *
 	 * @param string $fallback_redirect url if referer not found.
+	 * @param bool   $to_referer Referer.
 	 */
 	protected function maybe_redirect_to_referer( $fallback_redirect = '', $to_referer = true ) {
 		$referer = wp_get_referer();
 		$referer = ! empty( $referer ) ? $referer : wp_get_raw_referer();
-		$referer = remove_query_arg( array( 'export', 'delete', 'forminator_notice', 'forminator_text_notice' ), $referer );
+		$referer = remove_query_arg( array( 'export', 'delete', 'forminator_notice', 'forminator_text_notice', 'forminator_error_notice' ), $referer );
 
 		if ( $referer && $to_referer ) {
 			wp_safe_redirect( $referer );
@@ -509,13 +519,70 @@ abstract class Forminator_Admin_Page {
 	}
 
 	/**
+	 * Show migration notice for stripe
+	 *
+	 * @return void
+	 */
+	public function show_stripe_migration_notice() {
+		$active_forms = Forminator_Form_Model::model()->get_models_with_old_stripe();
+		if ( ! $active_forms ) {
+			return;
+		}
+		?>
+
+
+		<div
+			role="alert"
+			class="sui-notice sui-notice-yellow sui-active"
+			style="display: block; text-align: left;"
+			aria-live="assertive"
+		>
+
+			<div class="sui-notice-content">
+
+				<div class="sui-notice-message">
+
+					<span class="sui-notice-icon sui-icon-info" aria-hidden="true"></span>
+
+					<p>
+						<b><?php esc_html_e( 'Migrate to new Forminator Stripe field', 'forminator' ); ?></b>
+					</p>
+					<p>
+						<?php
+						$stripe_link = 'https://wpmudev.com/docs/wpmu-dev-plugins/forminator/#stripe-field';
+						printf(
+							/* Translators: 1. Opening <a> tag with link 2. closing <a> tag. */
+							esc_html__( 'You are using the Stripe simple card payment element, which is being deprecated by Stripe. %1$sLearn more%2$s. To ensure seamless transactions, update the Stripe field in the form(s) below to the new Stripe payment element.', 'forminator' ),
+							'<a href="' . esc_url( $stripe_link ) . '" target="_blank">',
+							'</a>'
+						);
+						?>
+					</p>
+
+					<?php foreach ( $active_forms as $form ) : ?>
+						<li>
+							<a href="<?php echo esc_url( admin_url( 'admin.php?page=forminator-cform-wizard&id=' . intval( $form['id'] ) ) ); ?>"
+								class="">
+								<?php echo esc_html( $form['title'] ); ?>
+								<i class="sui-icon-pencil" aria-hidden="true"></i>
+							</a>
+						</li>
+					<?php endforeach; ?>
+				</div>
+			</div>
+		</div>
+
+		<?php
+	}
+
+	/**
 	 * Show warning if frontend is loaded in https but the WordPress address url setting uses http only
 	 *
 	 * @since 1.15.1
 	 */
 	public function show_css_warning() {
-		$home_url        = parse_url( home_url() );
-		$site_url_option = parse_url( get_option( 'siteurl' ) ); // WordPress Address (URL).
+		$home_url        = wp_parse_url( home_url() );
+		$site_url_option = wp_parse_url( get_option( 'siteurl' ) ); // WordPress Address (URL).
 
 		if (
 			( 'https' === $home_url['scheme'] && 'https' === $site_url_option['scheme'] ) ||
@@ -523,21 +590,6 @@ abstract class Forminator_Admin_Page {
 		) {
 			return;
 		}
-
-		if ( is_multisite() && ! is_main_site() ) {
-
-			$fix_notice = esc_html__( 'Kindly contact your network administrator.', 'forminator' );
-
-		} else {
-
-			/* translators: %1$s, %2$s. are placeholders */
-			$fix_notice = sprintf(
-				esc_html__( 'To fix this, go to Network Admin > Sites and change each site\'s URL from "http://" to "https://". If you are unable to make the change through the WordPress interface, you may need to %1$schange the URL directly in the database%2$s.', 'forminator' ),
-				'<a href="https://wordpress.org/support/article/changing-the-site-url/#changing-the-url-directly-in-the-database" target="_blank">',
-				'</a>'
-			);
-		}
-
 		?>
 			<div
 				role="alert"
@@ -570,32 +622,32 @@ abstract class Forminator_Admin_Page {
 	private function get_menu_icon() {
 		ob_start();
 		?>
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M12.5067 1.79874H16.2222C16.6937 1.79874 17.1459 1.99053 17.4793 2.33187C17.8127 2.67321 18 3.13614 18 3.61887V18.1799C18 18.6626 17.8127 19.1255 17.4793 19.4669C17.1459 19.8082 16.6937 20 16.2222 20H3.77778C3.30628 20 2.85412 19.8082 2.52072 19.4669C2.18733 19.1255 2 18.6626 2 18.1799V3.61887C2 3.13614 2.18733 2.67321 2.52072 2.33187C2.85412 1.99053 3.30628 1.79874 3.77778 1.79874H7.49333C7.68017 1.27168 8.02098 0.816284 8.46946 0.494469C8.91793 0.172654 9.45234 0 10 0C10.5477 0 11.0821 0.172654 11.5305 0.494469C11.979 0.816284 12.3198 1.27168 12.5067 1.79874ZM10.4938 1.9521C10.3476 1.8521 10.1758 1.79874 10 1.79874C9.76425 1.79874 9.53817 1.89464 9.37147 2.0653C9.20477 2.23597 9.11111 2.46744 9.11111 2.7088C9.11111 2.8888 9.16323 3.06472 9.2609 3.21438C9.35858 3.36404 9.49741 3.48072 9.65983 3.5496C9.82225 3.61848 10.001 3.63648 10.1734 3.60137C10.3458 3.56625 10.5042 3.47958 10.6285 3.3523C10.7528 3.22503 10.8375 3.06286 10.8718 2.88633C10.9061 2.70979 10.8885 2.52682 10.8212 2.36053C10.754 2.19424 10.64 2.0521 10.4938 1.9521ZM3.77778 3.61887V18.1799H16.2222V3.61887H13.5556V5.43899H6.44444V3.61887H3.77778ZM6.44442 10.8987H13.5555C13.7913 10.8987 14.0174 10.9946 14.1841 11.1653C14.3508 11.3359 14.4444 11.5674 14.4444 11.8087C14.4444 12.0501 14.3508 12.2816 14.1841 12.4522C14.0174 12.6229 13.7913 12.7188 13.5555 12.7188H6.44442C6.20867 12.7188 5.98259 12.6229 5.8159 12.4522C5.6492 12.2816 5.55553 12.0501 5.55553 11.8087C5.55553 11.5674 5.6492 11.3359 5.8159 11.1653C5.98259 10.9946 6.20867 10.8987 6.44442 10.8987ZM13.5555 8.16849H6.44442C6.20867 8.16849 5.98259 8.26438 5.8159 8.43505C5.6492 8.60572 5.55553 8.83719 5.55553 9.07855C5.55553 9.31992 5.6492 9.55138 5.8159 9.72205C5.98259 9.89272 6.20867 9.98862 6.44442 9.98862H13.5555C13.7913 9.98862 14.0174 9.89272 14.1841 9.72205C14.3508 9.55138 14.4444 9.31992 14.4444 9.07855C14.4444 8.83719 14.3508 8.60572 14.1841 8.43505C14.0174 8.26438 13.7913 8.16849 13.5555 8.16849ZM10 13.6289H13.5556C13.7913 13.6289 14.0174 13.7248 14.1841 13.8954C14.3508 14.0661 14.4444 14.2976 14.4444 14.5389C14.4444 14.7803 14.3508 15.0118 14.1841 15.1824C14.0174 15.3531 13.7913 15.449 13.5556 15.449H10C9.76425 15.449 9.53817 15.3531 9.37148 15.1824C9.20478 15.0118 9.11111 14.7803 9.11111 14.5389C9.11111 14.2976 9.20478 14.0661 9.37148 13.8954C9.53817 13.7248 9.76425 13.6289 10 13.6289Z" fill="#F0F6FC"/>
-        </svg>
+		<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M12.5067 1.79874H16.2222C16.6937 1.79874 17.1459 1.99053 17.4793 2.33187C17.8127 2.67321 18 3.13614 18 3.61887V18.1799C18 18.6626 17.8127 19.1255 17.4793 19.4669C17.1459 19.8082 16.6937 20 16.2222 20H3.77778C3.30628 20 2.85412 19.8082 2.52072 19.4669C2.18733 19.1255 2 18.6626 2 18.1799V3.61887C2 3.13614 2.18733 2.67321 2.52072 2.33187C2.85412 1.99053 3.30628 1.79874 3.77778 1.79874H7.49333C7.68017 1.27168 8.02098 0.816284 8.46946 0.494469C8.91793 0.172654 9.45234 0 10 0C10.5477 0 11.0821 0.172654 11.5305 0.494469C11.979 0.816284 12.3198 1.27168 12.5067 1.79874ZM10.4938 1.9521C10.3476 1.8521 10.1758 1.79874 10 1.79874C9.76425 1.79874 9.53817 1.89464 9.37147 2.0653C9.20477 2.23597 9.11111 2.46744 9.11111 2.7088C9.11111 2.8888 9.16323 3.06472 9.2609 3.21438C9.35858 3.36404 9.49741 3.48072 9.65983 3.5496C9.82225 3.61848 10.001 3.63648 10.1734 3.60137C10.3458 3.56625 10.5042 3.47958 10.6285 3.3523C10.7528 3.22503 10.8375 3.06286 10.8718 2.88633C10.9061 2.70979 10.8885 2.52682 10.8212 2.36053C10.754 2.19424 10.64 2.0521 10.4938 1.9521ZM3.77778 3.61887V18.1799H16.2222V3.61887H13.5556V5.43899H6.44444V3.61887H3.77778ZM6.44442 10.8987H13.5555C13.7913 10.8987 14.0174 10.9946 14.1841 11.1653C14.3508 11.3359 14.4444 11.5674 14.4444 11.8087C14.4444 12.0501 14.3508 12.2816 14.1841 12.4522C14.0174 12.6229 13.7913 12.7188 13.5555 12.7188H6.44442C6.20867 12.7188 5.98259 12.6229 5.8159 12.4522C5.6492 12.2816 5.55553 12.0501 5.55553 11.8087C5.55553 11.5674 5.6492 11.3359 5.8159 11.1653C5.98259 10.9946 6.20867 10.8987 6.44442 10.8987ZM13.5555 8.16849H6.44442C6.20867 8.16849 5.98259 8.26438 5.8159 8.43505C5.6492 8.60572 5.55553 8.83719 5.55553 9.07855C5.55553 9.31992 5.6492 9.55138 5.8159 9.72205C5.98259 9.89272 6.20867 9.98862 6.44442 9.98862H13.5555C13.7913 9.98862 14.0174 9.89272 14.1841 9.72205C14.3508 9.55138 14.4444 9.31992 14.4444 9.07855C14.4444 8.83719 14.3508 8.60572 14.1841 8.43505C14.0174 8.26438 13.7913 8.16849 13.5555 8.16849ZM10 13.6289H13.5556C13.7913 13.6289 14.0174 13.7248 14.1841 13.8954C14.3508 14.0661 14.4444 14.2976 14.4444 14.5389C14.4444 14.7803 14.3508 15.0118 14.1841 15.1824C14.0174 15.3531 13.7913 15.449 13.5556 15.449H10C9.76425 15.449 9.53817 15.3531 9.37148 15.1824C9.20478 15.0118 9.11111 14.7803 9.11111 14.5389C9.11111 14.2976 9.20478 14.0661 9.37148 13.8954C9.53817 13.7248 9.76425 13.6289 10 13.6289Z" fill="#F0F6FC"/>
+		</svg>
 		<?php
 		$svg = ob_get_clean();
 
-		return 'data:image/svg+xml;base64,' . base64_encode( $svg );
+		return 'data:image/svg+xml;base64,' . base64_encode( $svg ); //phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Base64 encode the img content.
 	}
 
 	/**
-     * Forminator modules
+	 * Forminator modules
 	 */
 	public function populate_modules() {
 
 		$modules[] = array(
-			'name'  => __( 'Forms', 'forminator' ),
+			'name'  => esc_html__( 'Forms', 'forminator' ),
 			'model' => Forminator_Form_Model::model(),
 			'slug'  => 'form',
 		);
 		$modules[] = array(
-			'name'  => __( 'Polls', 'forminator' ),
+			'name'  => esc_html__( 'Polls', 'forminator' ),
 			'model' => Forminator_Poll_Model::model(),
 			'slug'  => 'poll',
 		);
 		$modules[] = array(
-			'name'  => __( 'Quizzes', 'forminator' ),
+			'name'  => esc_html__( 'Quizzes', 'forminator' ),
 			'model' => Forminator_Quiz_Model::model(),
 			'slug'  => 'quiz',
 		);
@@ -604,23 +656,26 @@ abstract class Forminator_Admin_Page {
 	}
 
 	/**
-     * Modules form type
-     *
+	 * Modules form type
+	 *
 	 * @return array
 	 */
-    public function modules_form_type() {
-	    $form_types = array();
-        $modules = $this->populate_modules();
-	    foreach ( $modules as $module ) {
-		    /** @var Forminator_Base_Form_Model $model */
-		    $model = $module['model'];
-		    $name  = $module['name'];
+	public function modules_form_type() {
+		$form_types = array();
+		$modules    = $this->populate_modules();
+		foreach ( $modules as $module ) {
+			/**
+			 * Forminator_Base_Form_Model
+			 *
+			 * @var Forminator_Base_Form_Model $model */
+			$model = $module['model'];
+			$name  = $module['name'];
 
-		    $form_types[ $model->get_post_type() ] = $name;
-	    }
+			$form_types[ $model->get_post_type() ] = $name;
+		}
 
-        return $form_types;
-    }
+		return $form_types;
+	}
 
 	/**
 	 * Get Form Model if current requested form_id available and matched form_type

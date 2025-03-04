@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Form_Model class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -15,6 +21,11 @@ class Forminator_Form_Model extends Forminator_Base_Form_Model {
 	 */
 	public static $module_slug = 'form';
 
+	/**
+	 * Post type
+	 *
+	 * @var string
+	 */
 	protected $post_type = 'forminator_forms';
 
 	/**
@@ -22,8 +33,8 @@ class Forminator_Form_Model extends Forminator_Base_Form_Model {
 	 *
 	 * @since 1.0
 	 *
-	 * @param      $id
-	 * @param bool $to_array
+	 * @param int  $id Id.
+	 * @param bool $to_array Return in array.
 	 *
 	 * @return array|null|Forminator_Form_Field_Model
 	 */
@@ -54,7 +65,7 @@ class Forminator_Form_Model extends Forminator_Base_Form_Model {
 	 *
 	 * @since 1.5
 	 *
-	 * @param string
+	 * @param string $type Field type.
 	 *
 	 * @return array
 	 */
@@ -81,7 +92,7 @@ class Forminator_Form_Model extends Forminator_Base_Form_Model {
 	 *
 	 * @since 1.5
 	 *
-	 * @param $id
+	 * @param string $id Wrapper Id.
 	 *
 	 * @return array|null
 	 */
@@ -94,7 +105,7 @@ class Forminator_Form_Model extends Forminator_Base_Form_Model {
 				return $wrapper;
 			}
 
-			$position ++;
+			++$position;
 		}
 
 		return null;
@@ -105,7 +116,7 @@ class Forminator_Form_Model extends Forminator_Base_Form_Model {
 	 *
 	 * @since 1.5
 	 *
-	 * @param $id
+	 * @param int $id Field Id.
 	 *
 	 * @return string|false
 	 */
@@ -118,7 +129,7 @@ class Forminator_Form_Model extends Forminator_Base_Form_Model {
 				return $field->form_id;
 			}
 
-			$counter ++;
+			++$counter;
 		}
 
 		return false;
@@ -129,7 +140,7 @@ class Forminator_Form_Model extends Forminator_Base_Form_Model {
 	 *
 	 * @since 1.5
 	 *
-	 * @param $wrapper_id
+	 * @param string $wrapper_id Wrapper Id.
 	 *
 	 * @return bool
 	 */
@@ -207,7 +218,7 @@ class Forminator_Form_Model extends Forminator_Base_Form_Model {
 	 * @return mixed
 	 */
 	public function get_form_settings() {
-		// If not using the new "submission-behaviour" setting, set it according to the previous settings
+		// If not using the new "submission-behaviour" setting, set it according to the previous settings.
 		if ( ! isset( $this->settings['submission-behaviour'] ) ) {
 			$redirect = ( isset( $this->settings['redirect'] ) && filter_var( $this->settings['redirect'], FILTER_VALIDATE_BOOLEAN ) );
 
@@ -286,7 +297,7 @@ class Forminator_Form_Model extends Forminator_Base_Form_Model {
 	 *
 	 * @since 1.7
 	 *
-	 * @param      $id
+	 * @param string $id Field Id.
 	 *
 	 * @return array|null
 	 */
@@ -298,6 +309,31 @@ class Forminator_Form_Model extends Forminator_Base_Form_Model {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Disable payments fields if payments are disabled
+	 *
+	 * @param array $fields Fields.
+	 * @return array
+	 */
+	protected static function disable_fields( $fields ) {
+		$disabled_fields = apply_filters( 'forminator_disabled_fields', array() );
+
+		if ( forminator_payments_disabled() ) {
+			$disabled_fields = array_merge( $disabled_fields, array( 'stripe', 'stripe-ocs', 'paypal' ) );
+		}
+
+		if ( $disabled_fields && $fields ) {
+			$fields = array_filter(
+				$fields,
+				function ( $field ) use ( $disabled_fields ) {
+					return empty( $field['type'] ) || ! in_array( $field['type'], $disabled_fields, true );
+				}
+			);
+		}
+
+		return $fields;
 	}
 
 	/**
@@ -344,7 +380,7 @@ class Forminator_Form_Model extends Forminator_Base_Form_Model {
 		$fields = $this->get_real_fields();
 		foreach ( $fields as $field ) {
 			$field_array = $field->to_formatted_array();
-			if ( isset( $field_array['type'] ) && 'stripe' === $field_array['type'] ) {
+			if ( isset( $field_array['type'] ) && ( 'stripe' === $field_array['type'] || 'stripe-ocs' === $field_array['type'] ) ) {
 				return $field;
 			}
 		}
@@ -362,7 +398,7 @@ class Forminator_Form_Model extends Forminator_Base_Form_Model {
 		$fields = $this->get_real_fields();
 		foreach ( $fields as $field ) {
 			$field = $field->to_formatted_array();
-			if ( isset( $field['type'] ) && in_array( $field['type'], array( 'paypal', 'stripe' ), true ) ) {
+			if ( isset( $field['type'] ) && in_array( $field['type'], array( 'paypal', 'stripe', 'stripe-ocs' ), true ) ) {
 				return true;
 			}
 		}

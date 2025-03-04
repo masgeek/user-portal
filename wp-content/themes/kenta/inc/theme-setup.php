@@ -70,57 +70,6 @@ function kenta_setup() {
 	// Add theme support for selective refresh for widgets.
 	add_theme_support( 'customize-selective-refresh-widgets' );
 
-	// Gutenberg editor color palette
-	if ( CZ::checked( 'kenta_color_palette_in_gutenberg' ) ) {
-		add_theme_support( 'editor-color-palette', array(
-			array(
-				'name'  => __( 'Primary Color', 'kenta' ),
-				'slug'  => 'kenta-primary',
-				'color' => 'var(--kenta-primary-color)'
-			),
-			array(
-				'name'  => __( 'Primary Active', 'kenta' ),
-				'slug'  => 'kenta-primary-active',
-				'color' => 'var(--kenta-primary-active)'
-			),
-			array(
-				'name'  => __( 'Accent Color', 'kenta' ),
-				'slug'  => 'kenta-accent',
-				'color' => 'var(--kenta-accent-color)'
-			),
-			array(
-				'name'  => __( 'Accent Active', 'kenta' ),
-				'slug'  => 'kenta-accent-active',
-				'color' => 'var(--kenta-accent-active)'
-			),
-			array(
-				'name'  => __( 'Base Color', 'kenta' ),
-				'slug'  => 'kenta-base',
-				'color' => 'var(--kenta-base-color)'
-			),
-			array(
-				'name'  => __( 'Base 50', 'kenta' ),
-				'slug'  => 'kenta-base-50',
-				'color' => 'var(--kenta-base-50)'
-			),
-			array(
-				'name'  => __( 'Base 100', 'kenta' ),
-				'slug'  => 'kenta-base-100',
-				'color' => 'var(--kenta-base-100)'
-			),
-			array(
-				'name'  => __( 'Base 200', 'kenta' ),
-				'slug'  => 'kenta-base-200',
-				'color' => 'var(--kenta-base-200)'
-			),
-			array(
-				'name'  => __( 'Base 300', 'kenta' ),
-				'slug'  => 'kenta-base-300',
-				'color' => 'var(--kenta-base-300)'
-			),
-		) );
-	}
-
 	// Starter Content
 	add_theme_support( 'starter-content', apply_filters( 'kenta_filter_starter_content', array(
 		'widgets'   => array(
@@ -195,6 +144,9 @@ function kenta_setup() {
 			),
 		),
 	) ) );
+
+	// theme.json support
+	remove_theme_support( 'block-templates' );
 }
 
 add_action( 'after_setup_theme', 'kenta_setup' );
@@ -240,6 +192,11 @@ function kenta_widgets_init() {
 
 add_action( 'widgets_init', 'kenta_widgets_init' );
 
+/**
+ * Register post meta
+ *
+ * @return void
+ */
 function kenta_register_meta_settings() {
 	$object_subtype = apply_filters( 'kenta_filter_meta_object_subtype', '' );
 
@@ -347,6 +304,7 @@ add_action( 'init', 'kenta_register_meta_settings' );
  */
 function kenta_enqueue_scripts() {
 	$suffix = defined( 'WP_DEBUG' ) && WP_DEBUG ? '' : '.min';
+	$ver    = defined( 'WP_DEBUG' ) && WP_DEBUG ? time() : KENTA_VERSION;
 
 	// Vendors
 	wp_enqueue_style( 'lotta-fontawesome' );
@@ -355,22 +313,27 @@ function kenta_enqueue_scripts() {
 		'kenta-style',
 		get_template_directory_uri() . '/dist/css/style' . $suffix . '.css',
 		array(),
-		KENTA_VERSION
+		$ver
 	);
+
+	$asset_file = get_template_directory() . '/dist/js/app.asset.php';
+	$asset      = array();
+	if ( file_exists( $asset_file ) ) {
+		$asset = require $asset_file;
+	}
 
 	wp_enqueue_script(
 		'kenta-script',
 		get_template_directory_uri() . '/dist/js/app' . $suffix . '.js',
-		array( 'jquery' ),
-		KENTA_VERSION,
+		$asset['dependencies'] ?? array(),
+		$asset['version'] ?? $ver,
 		true
 	);
-
 
 	kenta_enqueue_global_vars();
 	kenta_enqueue_dynamic_css();
 	kenta_enqueue_transparent_header_css();
-	Fonts::enqueue_scripts( 'kenta_fonts', KENTA_VERSION );
+	Fonts::enqueue_scripts( 'kenta_fonts', $ver );
 
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
 		wp_enqueue_script( 'comment-reply' );
@@ -379,20 +342,28 @@ function kenta_enqueue_scripts() {
 
 add_action( 'wp_enqueue_scripts', 'kenta_enqueue_scripts', 20 );
 
+/**
+ * Enqueue admin scripts & styles
+ *
+ * @return void
+ */
 function kenta_enqueue_admin_scripts() {
-	$suffix = defined( 'WP_DEBUG' ) && WP_DEBUG ? '' : '.min';
+	if ( is_customize_preview() ) {
+		return;
+	}
 
-	kenta_enqueue_global_vars();
-	kenta_enqueue_global_vars( ':root', 'admin' );
-	kenta_enqueue_admin_dynamic_css();
-
-	Fonts::enqueue_scripts( 'kenta_fonts', KENTA_VERSION );
+	$suffix     = defined( 'WP_DEBUG' ) && WP_DEBUG ? '' : '.min';
+	$asset_file = get_template_directory() . '/dist/js/admin.asset.php';
+	$asset      = array();
+	if ( file_exists( $asset_file ) ) {
+		$asset = require $asset_file;
+	}
 
 	wp_register_script(
 		'kenta-admin-script',
 		get_template_directory_uri() . '/dist/js/admin' . $suffix . '.js',
-		[ 'jquery' ],
-		KENTA_VERSION
+		$asset['dependencies'] ?? array(),
+		$asset['version'] ?? KENTA_VERSION
 	);
 
 	// Theme admin scripts
@@ -407,13 +378,21 @@ function kenta_enqueue_admin_scripts() {
 	wp_enqueue_style( 'kenta-admin-style' );
 
 	// Admin script
-	wp_localize_script( 'kenta-admin-script', 'KentaAdmin', [
-		'install_cmp_url' => esc_url( add_query_arg( array( 'action' => 'kenta_install_companion' ), admin_url( 'admin.php' ) ) ),
-	] );
+	wp_localize_script( 'kenta-admin-script', 'KentaAdmin', apply_filters( 'kenta_admin_localize_script', [
+		'install_cmp_url' => esc_url_raw( add_query_arg( array(
+			'action'   => 'kenta_install_companion',
+			'_wpnonce' => wp_create_nonce( 'kenta_install_companion' )
+		), admin_url( 'admin.php' ) ) ),
+	] ) );
 }
 
 add_action( 'admin_enqueue_scripts', 'kenta_enqueue_admin_scripts', 9999 );
 
+/**
+ * Add kenta theme settings panel & theme switch button in block editor
+ *
+ * @return void
+ */
 function kenta_enqueue_block_editor_assets() {
 	global $pagenow;
 
@@ -421,19 +400,70 @@ function kenta_enqueue_block_editor_assets() {
 		return;
 	}
 
+	kenta_enqueue_global_vars( [
+		'defaultScheme' => kenta_get_html_attributes( 'data-kenta-theme' ),
+	] );
+
 	$suffix = defined( 'WP_DEBUG' ) && WP_DEBUG ? '' : '.min';
+
+	$asset_file = get_template_directory() . '/dist/js/block-editor.asset.php';
+	$asset      = array();
+	if ( file_exists( $asset_file ) ) {
+		$asset = require $asset_file;
+	}
 
 	wp_register_script(
 		'kenta-block-editor-scripts',
 		get_template_directory_uri() . '/dist/js/block-editor' . $suffix . '.js',
-		[ 'wp-plugins', 'wp-edit-post', 'wp-element' ],
-		KENTA_VERSION
+		$asset['dependencies'] ?? array(),
+		$asset['version'] ?? KENTA_VERSION,
 	);
 
 	wp_enqueue_script( 'kenta-block-editor-scripts' );
 }
 
 add_action( 'enqueue_block_editor_assets', 'kenta_enqueue_block_editor_assets' );
+
+/**
+ * Enqueue user-generated content (blocks) assets for all blocks, editor only.
+ *
+ * @return void
+ * @since 1.4.0
+ */
+function kenta_block_editor_assets() {
+	Fonts::enqueue_scripts( 'kenta_fonts', KENTA_VERSION );
+}
+
+add_filter( 'enqueue_block_assets', 'kenta_block_editor_assets' );
+
+/**
+ * Enqueue user-generated content (blocks) styles for all blocks, editor only.
+ *
+ * @param $settings
+ *
+ * @return array
+ * @since 1.4.0
+ */
+function kenta_enqueue_block_editor_dynamic_css( $settings ) {
+
+	$css = kenta_global_css_vars( ':root', '', kenta_get_html_attributes( 'data-kenta-theme' ) );
+	$css .= kenta_block_editor_dynamic_css();
+
+	$settings['styles'][] = array(
+		'css'            => $css,
+		'__unstableType' => 'theme',
+		'source'         => 'kenta'
+	);
+
+	return $settings;
+}
+
+if ( class_exists( 'WP_Block_Editor_Context' ) ) {
+	// WP 5.8+
+	add_filter( 'block_editor_settings_all', 'kenta_enqueue_block_editor_dynamic_css' );
+} else {
+	add_filter( 'block_editor_settings', 'kenta_enqueue_block_editor_dynamic_css' );
+}
 
 /**
  * Enqueue scripts and styles for customizer.
@@ -454,6 +484,15 @@ function kenta_enqueue_customizer_scripts() {
 		array( 'lotta-customizer-script', 'customize-controls', 'jquery' ),
 		KENTA_VERSION
 	);
+
+	// Customer script
+	wp_localize_script( 'kenta-customizer-script', 'KentaCustomizer', apply_filters( 'kenta_customizer_localize_script', [
+		'theme'           => kenta_get_html_attributes( 'data-kenta-theme' ),
+		'call_to_actions' => apply_filters( 'kenta_customizer_call_to_actions', [
+			'#kenta_install_companion .button',
+			'#kenta_update_dynamic_css_cache .button',
+		] ),
+	] ) );
 }
 
 add_action( 'customize_controls_enqueue_scripts', 'kenta_enqueue_customizer_scripts', 10 );

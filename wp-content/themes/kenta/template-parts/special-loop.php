@@ -8,16 +8,21 @@
 use LottaFramework\Facades\CZ;
 use LottaFramework\Utils;
 
-$layout = 'no-sidebar';
+$sidebar = 'no-sidebar';
 
 if ( CZ::checked( 'kenta_archive_sidebar_section' ) ) {
-	$layout = CZ::get( 'kenta_archive_sidebar_layout' );
+	$sidebar = CZ::get( 'kenta_archive_sidebar_layout' );
 }
 
+$container_css = kenta_container_css( array(
+	'sidebar' => $sidebar,
+	'style'   => 'boxed',
+	'layout'  => 'narrow',
+	'css'     => [ 'kenta-posts-container' ]
+) );
 ?>
-
-<div class="<?php Utils::the_clsx( kenta_container_css( $layout, 'boxed', [ 'kenta-posts-container' ] ) ); ?>">
-    <div id="content" class="kenta-posts flex-grow max-w-full">
+<main class="<?php Utils::the_clsx( $container_css ); ?>">
+    <div id="content" class="kenta-posts flex-grow kenta-max-w-wide has-global-padding mx-auto w-full">
 		<?php kenta_render_posts_list(); ?>
     </div>
 
@@ -25,6 +30,6 @@ if ( CZ::checked( 'kenta_archive_sidebar_section' ) ) {
 	/**
 	 * Hook - kenta_action_sidebar.
 	 */
-	do_action( 'kenta_action_sidebar', $layout );
+	do_action( 'kenta_action_sidebar', $sidebar );
 	?>
-</div>
+</main>

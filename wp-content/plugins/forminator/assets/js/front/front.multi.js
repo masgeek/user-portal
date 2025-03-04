@@ -154,6 +154,9 @@
 
 			// Init small form for all type of form
 			this.small_form();
+
+			// trigger form added in the DOM
+			$(document).trigger('forminator:form:added')
 		},
 		init_custom_form: function ( form_selector ) {
 
@@ -190,18 +193,18 @@
 			//initiate pagination
 			this.init_pagination( form_selector );
 
-			// initiate payment if exist
-			var first_payment = $( form_selector ).find('div[data-is-payment="true"], input[data-is-payment="true"]').first();
-
 			if( self.settings.has_stripe ) {
-				var stripe_payment = $(this.element).find('.forminator-stripe-element').first();
+				var stripe_payment = $(this.element).find('.forminator-stripe-element[data-type="stripe-ocs"]').first();
+				if ( 1 > stripe_payment.length ) {
+					stripe_payment = $(this.element).find('.forminator-stripe-element').first();
+				}
 
 				if ( $( self.element ).is( ':visible' ) ) {
 					this.renderStripe( self, stripe_payment );
 				}
 
 				// Show Stripe on modal display.
-				$( document ).on( "hustle:module:displayed", function () {
+				$( document ).on( "forminator:form:added", function () {
 					self.renderStripe( self, stripe_payment );
 				});
 			}
@@ -263,7 +266,7 @@
 				self.maybeRemoveDuplicateFields( form_selector );
 			});
 
-			// We have to declate initialData here, after everything has been set initially, to prevent triggering change event.
+			// We have to declare initialData here, after everything has been set initially, to prevent triggering change event.
 			var initialData	= saveDraftExists ? this.$el.serializeArray() : '';
 			this.$el.find( ".forminator-field input, .forminator-row input[type=hidden], .forminator-field select, .forminator-field textarea, .forminator-field-signature").on( 'change input', function (e) {
 				if ( saveDraftExists && $saveDraft.hasClass( 'disabled' ) ) {
@@ -415,6 +418,10 @@
 				if ( self.settings.text_prev ) {
 					args.prev_button = self.settings.text_prev;
 				}
+				if ( self.settings.submit_class ) {
+					args.submitButtonClass = self.settings.submit_class;
+				}
+
 				$(self.element).forminatorFrontPagination(args);
 			});
 
@@ -538,6 +545,11 @@
 				is_material = form.is('.forminator-design--material'),
 				fields      = form.find('.forminator-field--phone');
 
+			if ( ! form.is('form') ) {
+				// For cloning phone fields inside group fields.
+				is_material = form.closest('form').is('.forminator-design--material');
+			}
+
 			fields.each(function () {
 
 				// Initialize intlTelInput plugin on each field with "format check" enabled and
@@ -545,18 +557,26 @@
 				var self              = this,
 					is_national_phone = $(this).data('national_mode'),
 					country           = $(this).data('country'),
-					validation        = $(this).data('validation');
+					validation        = $(this).data('validation'),
+					iti               = window.intlTelInput.getInstance(self);
 
 				if ('undefined' !== typeof (is_national_phone)) {
 
 					if (is_material) {
-						//$(this).unwrap('.forminator-input--wrap');
+						$(this).unwrap('.forminator-input--wrap');
+					}
+
+					// If it's already intialised then first destroy it and then reinit.
+					if ( iti ) {
+						iti.destroy();
 					}
 
 					var args = {
 						nationalMode: ('enabled' === is_national_phone) ? true : false,
 						initialCountry: 'undefined' !== typeof ( country ) ? country : 'us',
-						utilsScript: window.ForminatorFront.cform.intlTelInput_utils_script,
+						validationNumberTypes: null,
+						loadUtils: () => import(window.ForminatorFront.cform.intlTelInput_utils_script),
+						strictMode: true,
 					};
 
 					if ( 'undefined' !== typeof ( validation ) && 'standard' === validation ) {
@@ -565,24 +585,16 @@
 					// stop from removing country code.
 					if ( 'undefined' !== typeof ( validation ) && 'international' === validation ) {
 						args.autoHideDialCode = false;
+						args.separateDialCode = true;
 					}
 
-					var iti = $(this).intlTelInput(args);
-					if ( 'undefined' !== typeof ( validation )
-						&& 'international' === validation ) {
-						var dial_code = $(this).intlTelInput( 'getSelectedCountryData' ).dialCode,
-							country_code = '+' + dial_code;
-						if ( country_code !== $(this).val() ) {
-							var phone_value = $(this).val().trim().replace( dial_code, '' ).replace( '+', '' );
-								$(this).val( country_code + phone_value );
-						}
-					}
+					var iti = window.intlTelInput(self, args);
 
 					if ( 'undefined' !== typeof ( validation ) && 'standard' === validation ) {
 						// Reset country to default if changed and invalid previously.
 						$( this ).on( 'blur', function() {
 							if ( '' === $( self ).val() ) {
-								iti.intlTelInput( 'setCountry', country );
+								iti.setCountry( country );
 								form.validate().element( $( self ) );
 							}
 						});
@@ -603,6 +615,11 @@
 					if (is_material) {
 						//$(this).closest('.intl-tel-input.allow-dropdown').addClass('forminator-phone-intl').removeClass('intl-tel-input');
 						//$(this).wrap('<div class="forminator-input--wrap"></div>');
+
+						// Wrap Element
+						if (!$(this).parent().hasClass('forminator-input--wrap')) {
+							$(this).wrap('<div class="forminator-input--wrap"></div>');
+						}
 					}
 				}
 			});
@@ -624,7 +641,9 @@
 				textarea    = form.find( '.forminator-textarea' ),
 				select2     = form.find( '.forminator-select2' ),
 				multiselect = form.find( '.forminator-multiselect' ),
-				stripe		= form.find( '.forminator-stripe-element' )
+				stripe		= form.find( '.forminator-stripe-element' ),
+				slider		= form.find( '.forminator-slider' ),
+				rating      = form.find( '.forminator-rating' )
 				;
 
 			var isDefault  = ( form.attr( 'data-design' ) === 'default' ),
@@ -649,8 +668,16 @@
 				FUI.select2( select2.length );
 			}
 
+			if ( 'function' === typeof FUI.slider ) {
+				FUI.slider();
+			}
+
 			if ( multiselect.length ) {
 				FUI.multiSelectStates( multiselect );
+			}
+
+			if ( rating.length && 'function' === typeof FUI.rating ) {
+				FUI.rating( rating );
 			}
 
 			if ( form.hasClass( 'forminator-design--material' ) ) {
@@ -668,6 +695,10 @@
 
 				if ( stripe.length ) {
 					stripe.each( function() {
+						if ($(this).hasClass('forminator-stripe-payment-element')) {
+							return; // Skip to the next iteration
+						}
+
 						var field = $(this).closest('.forminator-field');
 						var label = field.find('.forminator-label');
 
@@ -932,20 +963,45 @@
 
 					if ($limit.length) {
 						if ($limit.data('limit')) {
-							var field_value = sanitize_text_field( $(this).val() );
 							if ($limit.data('type') !== "words") {
-								count = $( '<div>' + field_value + '</div>' ).text().length;
+								if ( $limit.data( 'editor' ) === 1 ) {
+									const content = $( this )
+											.val()
+											.replace( /<[^>]*>/g, '' ),
+										content_text = $( '<textarea/>' )
+											.html( content )
+											.text();
+									count = content_text.length;
+									const isCtrlPressed =
+											e.ctrlKey || e.metaKey; // Handle macOS Command key (metaKey).
+									const isSpecialKey =
+										[ 37, 38, 39, 40, 8, 46 ].indexOf(
+											e.keyCode
+										) !== -1;
+									// Allow to delete and backspace when limit is reached.
+									if (
+										count >= $limit.data( 'limit' ) &&
+										! isCtrlPressed &&
+										! isSpecialKey
+									) {
+										e.preventDefault();
+									}
+								} else {
+									count = $(this).val().length;
+								}
 							} else {
+								var fieldVal = sanitize_text_field( $(this).val() ),
+									field_value = fieldVal.replace( /<[^>]*>/g, '' );
 								count = field_value.trim().split(/\s+/).length;
 
-                                // Prevent additional words from being added when limit is reached.
-                                numwords = field_value.trim().split(/\s+/).length;
-                                if ( numwords >= $limit.data( 'limit' ) ) {
-                                    // Allow delete and backspace when limit is reached.
+								// Prevent additional words from being added when limit is reached.
+								numwords = field_value.trim().split(/\s+/).length;
+								if ( numwords >= $limit.data( 'limit' ) ) {
+									// Allow to delete and backspace when limit is reached.
 									if( e.which === 32 ) {
 										e.preventDefault();
 									}
-                                }
+								}
 							}
 							$limit.html(count + ' / ' + $limit.data('limit'));
 						}
@@ -987,6 +1043,7 @@
 					$( this ).change( function ( e ) {
 						this.value = parseFloat( this.value ).toFixed( decimals );
 					});
+					$( this ).trigger( 'change' );
 				}
 				/*
 				* If you need to retrieve the formatted (masked) value, you can use something like this:
@@ -1005,9 +1062,7 @@
 			});
 
 			// Fixes the 2nd number input bug: https://incsub.atlassian.net/browse/FOR-3033
-			form.find( 'input[type=number]' ).on( 'mouseover', function() {
-				$( this ).trigger( 'focus' );
-			}).on( 'mouseout', function() {
+			form.find( 'input[type=number]' ).on( 'mouseout', function() {
 				$( this ).trigger( 'blur' );
 			});
 		},
@@ -1199,7 +1254,6 @@
 		},
 
 		upload_field: function ( form_selector ) {
-
 			var self = this,
 			    form = $( form_selector )
 			;
@@ -1234,6 +1288,7 @@
 				self.toggle_file_input();
 			});
 
+			form.find( '.forminator-button-upload' ).off();
 			form.find( '.forminator-button-upload' ).on( 'click', function (e) {
 				e.preventDefault();
 
@@ -1436,14 +1491,21 @@
 
 				if ( 'undefined' !== typeof Stripe ) {
 
-					$( form.element ).forminatorFrontPayment({
+					let options= {
 						type: 'stripe',
 						paymentEl: stripe_payment,
 						paymentRequireSsl: form.settings.payment_require_ssl,
 						generalMessages: form.settings.general_messages,
 						has_loader: form.settings.has_loader,
 						loader_label: form.settings.loader_label,
-					});
+						stripe_depends: form.settings.stripe_depends,
+					};
+
+					if ( stripe_payment.data('is-ocs') ) {
+						$( form.element ).forminatorFrontStripe( options );
+					} else {
+						$( form.element ).forminatorFrontPayment( options );
+					}
 
 				// Retry checking for 30 seconds
 				} else if ( stripeLoadCounter < 300 ) {
@@ -1500,9 +1562,14 @@
 			var self = this;
 			if ( 'undefined' !== typeof DiviArea ) {
 				DiviArea.addAction( 'show_area', function( area ) {
-					self.init();
-					forminatorSignInit();
-					forminatorSignatureResize();
+					setTimeout(
+						function() {
+							self.init();
+							forminatorSignInit();
+							forminatorSignatureResize();
+						},
+						100
+					);
 				});
 			}
 		},
@@ -1555,9 +1622,15 @@
 	// hook from wp_editor tinymce
 	$(document).on('tinymce-editor-init', function (event, editor) {
 		var editor_id = editor.id,
-			$field = $('#' + editor_id ).closest('.forminator-col'),
-			$limit = $field.find('.forminator-description span')
+			$field = $('#' + editor_id ).closest('.forminator-col')
 		;
+
+		// Event listener to handle switching between Visual and Text tabs
+		$( document ).on( 'click', '.wp-switch-editor', function () {
+			setTimeout( function () {
+				$field.find( '#' + editor_id ).trigger( 'change' );
+			}, 100 ); // Small timeout to ensure editor is ready when switching
+		} );
 
 		// trigger editor change to save value to textarea,
 		// default wp tinymce textarea update only triggered when submit
@@ -1573,18 +1646,52 @@
 				editor.save();
 				$field.find( '#' + editor_id ).trigger( 'change' );
 			}
+		});
 
-			if ($limit.length) {
-				if ($limit.data('limit')) {
-					if ($limit.data('type') !== "words") {
-						count = editor.getContent({ format: 'text' }).length;
-					} else {
-						count = editor.getContent({ format: 'text' }).split(/\s+/).length;
-					}
-					$limit.html(count + ' / ' + $limit.data('limit'));
-				}
+		// Trigger onblur.
+		editor.on( 'blur', function () {
+			// only forminator
+			if (
+				-1 !== editor_id.indexOf( 'forminator-field-textarea-' ) ||
+				-1 !== editor_id.indexOf( 'forminator-field-post-content-' )
+			) {
+				$field.find( '#' + editor_id ).valid();
 			}
 		});
+
+		// Prevent typing when maximum characters/words is reached.
+		editor.on( 'keydown', function ( e ) {
+			let editor_id = editor.id,
+				field = $( '#' + editor_id ).closest( '.forminator-col' ),
+				limit = field.find( '.forminator-description span' ),
+				content = editor.getContent().replace( /<[^>]*>/g, '' );
+			if ( limit.length ) {
+				if ( limit.data( 'limit' ) ) {
+					content = $( '<div/>' ).html( content ).text();
+					const maxLength = limit.data( 'limit' );
+					const isCtrlPressed = e.ctrlKey || e.metaKey; // Handle macOS Command key (metaKey).
+					const isSpecialKey =
+						[ 37, 38, 39, 40, 8, 46 ].indexOf( e.keyCode ) !== -1;
+					if ( limit.data( 'type' ) !== 'words' ) {
+						if (
+							content.length >= maxLength &&
+							! isCtrlPressed &&
+							! isSpecialKey &&
+							e.keyCode !== 13
+						) {
+							e.preventDefault(); // Prevent any further typing.
+						}
+					} else {
+						const numberOfWords = content
+							.trim()
+							.split( /\s+/ ).length;
+						if ( numberOfWords >= maxLength && e.which === 32 ) {
+							e.preventDefault(); // Prevent any further typing.
+						}
+					}
+				}
+			}
+		} );
 
 		// Make the visual editor and html editor the same height
 		if ( $( '#' + editor.id + '_ifr' ).is( ':visible' ) ) {
@@ -1671,8 +1778,12 @@
 	 * @param {string} string
 	 */
 	function sanitize_text_field( string ) {
-		var str = String(string).replace(/[&\/\\#^+()$~%.'":*?<>{}!@]/g, '');
-		return str.trim();
+		if ( typeof string === 'string') {
+			var str = String(string).replace(/<\/?[^>]+(>|$)/g, '');
+			return str.trim();
+		}
+
+		return string;
 	}
 
 })(jQuery, window, document);
@@ -1750,6 +1861,7 @@ var forminatorDateUtil = {
         return (
             d.constructor === Date   ? d :
             d.constructor === Array  ? new Date( d[0], this.month_number( d[1] ), d[2] ) :
+            jQuery.isNumeric( d )    ? new Date( 1 * d ) :
             d.constructor === Number ? new Date( d ) :
             d.constructor === String ? new Date( d ) :
             typeof d === "object"    ? new Date( d.year, this.month_number( d.month ), d.date ) :

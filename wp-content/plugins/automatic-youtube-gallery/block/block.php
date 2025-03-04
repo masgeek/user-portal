@@ -56,28 +56,17 @@ class AYG_Block {
 			}
 		}
 
-		// Scripts
-		wp_enqueue_script(
-			'ayg-block-js',
-			plugins_url( '/block/dist/blocks.build.js', dirname( __FILE__ ) ),
-			array( 'wp-blocks', 'wp-i18n', 'wp-element' ),
-			filemtime( plugin_dir_path( __DIR__ ) . 'block/dist/blocks.build.js' ),
-			true
-		);
-
 		wp_localize_script( 
-			'ayg-block-js', 
-			'ayg_block',
+			'wp-block-editor', 
+			'ayg_block', 
 			array(
 				'options' => $fields,
 				'i18n'    => array(
-					'block_description' => __( 'Create automated YouTube galleries.', 'automatic-youtube-gallery' ),
-					'block_title'       => __( 'Automatic YouTube Gallery', 'automatic-youtube-gallery' ),					
-					'selected_color'    => __( 'Selected Color', 'automatic-youtube-gallery' ),
-					'spinner_message'   => __( 'Waiting to finish your block configuration. This delay is to avoid frequent YouTube API calls.', 'automatic-youtube-gallery' )
+					'selected_color' => __( 'Selected Color', 'automatic-youtube-gallery' ),
+					'is_loading'     => __( 'Loading...', 'automatic-youtube-gallery' )
 				)
-			)			
-		);
+			)
+		);	
 	}
 
 	/**
@@ -86,40 +75,41 @@ class AYG_Block {
 	 * @since 1.0.0
 	 */
 	public function register_block_type() {
-		// Hook the post rendering to the block
-		if ( function_exists( 'register_block_type' ) ) {			
-			$attributes = array(
-				'is_admin' => array(
-					'type' => 'boolean'
-				),
-				'uid' => array(
-					'type' => 'string'
-				)
-			);
-
-			$fields = ayg_get_editor_fields();
-
-			foreach ( $fields as $key => $section ) {
-				foreach ( $section['fields'] as $field ) {
-					$type = 'string';
-
-					if ( 'number' == $field['type'] ) {
-						$type = 'number';
-					} elseif ( 'checkbox' == $field['type'] ) {
-						$type = 'boolean';
-					}
-
-					$attributes[ $field['name'] ] = array(
-						'type' => $type
-					);
-				}
-			}
-
-			register_block_type( 'automatic-youtube-gallery/block', array(
-				'attributes'      => $attributes,
-				'render_callback' => array( $this, 'render_block' ),
-			));
+		if ( ! function_exists( 'register_block_type' ) ) {
+			return false;
 		}
+	
+		$attributes = array(
+			'is_admin' => array(
+				'type' => 'boolean'
+			),
+			'uid' => array(
+				'type' => 'string'
+			)
+		);
+
+		$fields = ayg_get_editor_fields();
+
+		foreach ( $fields as $key => $section ) {
+			foreach ( $section['fields'] as $field ) {
+				$type = 'string';
+
+				if ( 'number' == $field['type'] ) {
+					$type = 'number';
+				} elseif ( 'checkbox' == $field['type'] ) {
+					$type = 'boolean';
+				}
+
+				$attributes[ $field['name'] ] = array(
+					'type' => $type
+				);
+			}
+		}
+
+		register_block_type( __DIR__ . '/build', array(
+			'attributes'      => $attributes,
+			'render_callback' => array( $this, 'render_block' ),
+		) );
 	}
 
 	/**
@@ -130,21 +120,20 @@ class AYG_Block {
 	 * @return string       HTML output.
 	 */
 	public function render_block( $atts ) {
-		// If this is an autosave, our form has not been submitted, so we don't want to do anything
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-        	return;
-		}
-
 		if ( ! empty( $atts['is_admin'] ) ) {			
 			$atts['autoplay'] = false;
-			$atts['autoadvance'] = false;
 		}
 
 		if ( ! empty( $atts['uid'] ) ) {			
 			$atts['uid'] = md5( $atts['uid'] );
 		}
 
-		return ayg_build_gallery( $this->clean_attributes( $atts ) );
+		// Output
+		$output  = '<div ' . get_block_wrapper_attributes() . '>';
+		$output .= ayg_build_gallery( $this->clean_attributes( $atts ) );
+		$output .= '</div>';
+
+		return $output;
 	}
 
 	/**

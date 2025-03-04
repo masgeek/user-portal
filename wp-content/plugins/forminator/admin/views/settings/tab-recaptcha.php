@@ -1,10 +1,16 @@
 <?php
-$section                     = Forminator_Core::sanitize_text_field( 'section', 'dashboard' );
+/**
+ * Template admin/views/settings/tab-recaptcha.php
+ *
+ * @package Forminator
+ */
 
-$recaptcha_logo		= forminator_plugin_url() . 'assets/img/recaptcha_logo.png';
-$recaptcha_logo_2x	= forminator_plugin_url() . 'assets/img/recaptcha_logo@2x.png';
-$hcaptcha_logo		= forminator_plugin_url() . 'assets/img/hcaptcha_logo.png';
-$hcaptcha_logo_2x	= forminator_plugin_url() . 'assets/img/hcaptcha_logo@2x.png';
+$section = Forminator_Core::sanitize_text_field( 'section', 'dashboard' );
+
+$recaptcha_logo              = forminator_plugin_url() . 'assets/img/recaptcha_logo.png';
+$recaptcha_logo_2x           = forminator_plugin_url() . 'assets/img/recaptcha_logo@2x.png';
+$hcaptcha_logo               = forminator_plugin_url() . 'assets/img/hcaptcha_logo.png';
+$hcaptcha_logo_2x            = forminator_plugin_url() . 'assets/img/hcaptcha_logo@2x.png';
 $v2_captcha_key              = get_option( 'forminator_captcha_key', '' );
 $v2_captcha_secret           = get_option( 'forminator_captcha_secret', '' );
 $v2_invisible_captcha_key    = get_option( 'forminator_v2_invisible_captcha_key', '' );
@@ -14,11 +20,9 @@ $v3_captcha_secret           = get_option( 'forminator_v3_captcha_secret', '' );
 $captcha_language            = get_option( 'forminator_captcha_language', '' );
 $nonce                       = wp_create_nonce( 'forminator_save_popup_captcha' );
 
-$captcha_tab_saved		 	 = get_option( 'forminator_captcha_tab_saved', 'recaptcha' );
-$hcaptcha_key		 		 = get_option( 'forminator_hcaptcha_key', '' );
-$hcaptcha_secret 	 		 = get_option( 'forminator_hcaptcha_secret', '' );
-// $hcaptcha_noconflict 		 = get_option( 'forminator_hcaptcha_noconflict', true );
-// $hcaptcha_noconflict 		 = filter_var( $hcaptcha_noconflict, FILTER_VALIDATE_BOOLEAN );
+$captcha_tab_saved = get_option( 'forminator_captcha_tab_saved', 'recaptcha' );
+$hcaptcha_key      = get_option( 'forminator_hcaptcha_key', '' );
+$hcaptcha_secret   = get_option( 'forminator_hcaptcha_secret', '' );
 
 $new = true;
 ?>
@@ -100,12 +104,19 @@ $new = true;
 
 							<div class="sui-tabs-content">
 
-								<?php // TAB: Recaptcha ?>
+								<?php // TAB: Recaptcha. ?>
 								<div tabindex="1" role="tabpanel" id="g-recaptcha-tab" class="sui-tab-content <?php echo esc_attr( 'recaptcha' === $captcha_tab_saved ? 'active' : '' ); ?>" aria-labelledby="g-recaptcha-btn">
 
 									<span class="sui-settings-label"><?php esc_html_e( 'reCaptcha API Keys', 'forminator' ); ?></span>
 									<span class="sui-description" style="margin-bottom: 10px;">
-										<?php /* translators: ... */ printf( esc_html( __( 'Enter the API keys for each reCAPTCHA type you want to use in your forms. Note that each reCAPTCHA type requires a different set of API keys. %1$sGenerate API keys%2$s', 'forminator' ) ), '<a href="https://www.google.com/recaptcha/admin#list" target="_blank">', '</a>' ); ?>
+										<?php
+										printf(
+										/* Translators: 1. Opening <a> tag with link to Google recaptcha, 2. closing <a> tag. */
+											esc_html__( 'Enter the API keys for each reCAPTCHA type you want to use in your forms. Note that each reCAPTCHA type requires a different set of API keys. %1$sGenerate API keys%2$s', 'forminator' ),
+											'<a href="https://www.google.com/recaptcha/admin#list" target="_blank">',
+											'</a>'
+										);
+										?>
 									</span>
 
 									<div class="sui-tabs sui-side-tabs">
@@ -118,7 +129,7 @@ $new = true;
 
 										<div class="sui-tabs-content">
 
-											<?php // TAB: v2 Checkbox ?>
+											<?php // TAB: v2 Checkbox. ?>
 											<div tabindex="0" role="tabpanel" id="v2-checkbox-tab" class="sui-tab-content sui-tab-boxed active" aria-labelledby="v2-checkbox">
 
 												<span class="sui-description"><?php esc_html_e( 'Enter the API keys for reCAPTCHA v2 Checkbox type below:', 'forminator' ); ?></span>
@@ -156,7 +167,7 @@ $new = true;
 															<i class="sui-icon-loader sui-loading" aria-hidden="true"></i>
 														</p>
 													</div>
-													<span class="sui-description"><?php esc_html_e( "If you see any errors in the preview, make sure the key you've entered are valid, and you've listed your domain name while generating the keys.", 'forminator' ); ?></span>
+													<span class="sui-description"><?php esc_html_e( 'If you see any errors in the preview, make sure the key you\'ve entered are valid, and you\'ve listed your domain name while generating the keys.', 'forminator' ); ?></span>
 												</div>
 
 											</div>
@@ -201,7 +212,7 @@ $new = true;
 														</p>
 													</div>
 
-													<span class="sui-description"><?php esc_html_e( "If you see any errors in the preview, make sure the key you've entered are valid, and you've listed your domain name while generating the keys.", 'forminator' ); ?></span>
+													<span class="sui-description"><?php esc_html_e( 'If you see any errors in the preview, make sure the key you\'ve entered are valid, and you\'ve listed your domain name while generating the keys.', 'forminator' ); ?></span>
 												</div>
 
 											</div>
@@ -247,7 +258,7 @@ $new = true;
 														</p>
 													</div>
 
-													<span class="sui-description"><?php esc_html_e( "If you see any errors in the preview, make sure the key you've entered are valid, and you've listed your domain name while generating the keys.", 'forminator' ); ?></span>
+													<span class="sui-description"><?php esc_html_e( 'If you see any errors in the preview, make sure the key you\'ve entered are valid, and you\'ve listed your domain name while generating the keys.', 'forminator' ); ?></span>
 
 												</div>
 
@@ -259,18 +270,18 @@ $new = true;
 
 								</div>
 
-								<?php // TAB: HCaptcha ?>
+								<?php // TAB: HCaptcha. ?>
 								<div tabindex="1" role="tabpanel" id="hcaptcha-tab" class="sui-tab-content <?php echo esc_attr( 'hcaptcha' === $captcha_tab_saved ? 'active' : '' ); ?>" aria-labelledby="hcaptcha-btn">
 
 									<span class="sui-settings-label"><?php esc_html_e( 'hCaptcha API Keys', 'forminator' ); ?></span>
 									<span class="sui-description" style="margin-bottom: 10px;">
 										<?php
-											/* translators: ... */
-											printf(
-												esc_html( __( 'Enter your hCaptcha API keys below to enable hCaptcha option in your form’s CAPTCHA field. See %1$sinstructions%2$s on how to get your API Keys.', 'forminator' ) ),
-												'<a href="https://docs.hcaptcha.com/switch#get-your-hcaptcha-sitekey-and-secret-key" target="_blank">',
-												'</a>'
-											);
+										printf(
+										/* Translators: 1. Opening <a> tag with hCaptcha API key, 2. closing <a> tag. */
+											esc_html__( 'Enter your hCaptcha API keys below to enable hCaptcha option in your form’s CAPTCHA field. See %1$sinstructions%2$s on how to get your API Keys.', 'forminator' ),
+											'<a href="https://docs.hcaptcha.com/switch#get-your-hcaptcha-sitekey-and-secret-key" target="_blank">',
+											'</a>'
+										);
 										?>
 									</span>
 
@@ -300,30 +311,33 @@ $new = true;
 										/>
 									</div>
 
-									<?php // remove this for now, can be put back later when needed for noconflict
-									/* <div class="sui-form-field">
-										<label for="hcaptcha_noconflict" class="sui-checkbox">
-											<input
-												type="checkbox"
-												name="hcaptcha_noconflict"
-												id="hcaptcha_noconflict"
-												aria-labelledby="hcaptcha-noconflict-label"
-												value="true"
-												<?php echo checked( $hcaptcha_noconflict ); ?>
-											/>
-											<span aria-hidden="true"></span>
-											<span id="hcaptcha-noconflict-label">
-												<?php esc_html_e( 'Enable no-conflict mode', 'forminator' ); ?>
-												<button
-													class="sui-button-icon sui-tooltip sui-tooltip-top-center sui-tooltip-constrained"
-													style="--tooltip-width: 171px;height:20px;"
-													data-tooltip="Forcefully remove other CAPTCHA occurrences in order to prevent conflicts. Only enable this option if your site is having compatibility issues."
-												>
-													<span class="sui-icon-info" aria-hidden="true"></span>
-												</button>
-											</span>
-										</label>
-									</div> */
+									<?php
+									// remove this for now, can be put back later when needed for noconflict.
+									/**
+									// <div class="sui-form-field">
+									//  <label for="hcaptcha_noconflict" class="sui-checkbox">
+									//      <input
+									//          type="checkbox"
+									//          name="hcaptcha_noconflict"
+									//          id="hcaptcha_noconflict"
+									//          aria-labelledby="hcaptcha-noconflict-label"
+									//          value="true"
+									//          <?php echo checked( $hcaptcha_noconflict ); ?>
+									//      />
+									//      <span aria-hidden="true"></span>
+									//      <span id="hcaptcha-noconflict-label">
+									//          <?php esc_html_e( 'Enable no-conflict mode', 'forminator' ); ?>
+									//          <button
+									//              class="sui-button-icon sui-tooltip sui-tooltip-top-center sui-tooltip-constrained"
+									//              style="--tooltip-width: 171px;height:20px;"
+									//              data-tooltip="Forcefully remove other CAPTCHA occurrences in order to prevent conflicts. Only enable this option if your site is having compatibility issues."
+									//          >
+									//              <span class="sui-icon-info" aria-hidden="true"></span>
+									//          </button>
+									//      </span>
+									//  </label>
+									</div>
+									 */
 									?>
 
 									<div class="sui-form-field">

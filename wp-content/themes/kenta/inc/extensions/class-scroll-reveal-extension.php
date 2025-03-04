@@ -28,7 +28,7 @@ if ( ! class_exists( 'Kenta_Scroll_Reveal_Extension' ) ) {
 					wp_enqueue_script(
 						'scrollreveal',
 						get_template_directory_uri() . '/dist/vendor/scrollreveal/scrollreveal.min.js',
-						[ 'jquery' ],
+						[],
 						KENTA_VERSION
 					);
 

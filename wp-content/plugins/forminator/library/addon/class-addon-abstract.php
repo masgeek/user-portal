@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * The Forminator_Addon_Abstract class.
+ *
+ * @package Forminator
+ */
 
 /**
  * Class Forminator_Addon_Abstract
@@ -12,6 +16,12 @@
  * @since 1.1
  */
 abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
+	/**
+	 * Multi Id
+	 *
+	 * @var mixed
+	 */
+	public $multi_id;
 
 	/**
 	 * Slug will be used as identifier throughout forminator
@@ -42,7 +52,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	protected $_min_forminator_version;
 
 	/**
-	 * Full path the the Addon.
+	 * Full path the Addon.
 	 *
 	 * @since  1.1
 	 * @var string
@@ -109,7 +119,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	protected $_banner_x2;
 
 	/**
-	 * icon url that will be displayed on addon list
+	 * Icon url that will be displayed on addon list
 	 *
 	 * @since  1.1
 	 * @var string
@@ -303,6 +313,11 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 */
 	public $multi_global_id;
 
+	/**
+	 * Global id for new integrations
+	 *
+	 * @var string
+	 */
 	public $global_id_for_new_integrations;
 
 	/**
@@ -318,6 +333,16 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 * @var array
 	 */
 	private $steps = array();
+
+	/**
+	 * Nonce option name
+	 *
+	 * @var string
+	 */
+	const NONCE_OPTION_NAME = 'forminator_custom_nonce';
+
+	const DOMAIN       = 'https://wpmudev.com';
+	const REDIRECT_URI = 'https://wpmudev.com/api/forminator/v1/provider';
 
 	/**
 	 * Get this addon slug
@@ -378,6 +403,73 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 */
 	public function get_url() {
 		return $this->_url;
+	}
+
+	/**
+	 * Get redirect URL
+	 *
+	 * @param string $provider Provider.
+	 * @param string $action Action.
+	 * @param array  $params Params.
+	 * @return string
+	 */
+	public static function redirect_uri( $provider, $action, $params ) {
+		$params = wp_parse_args(
+			$params,
+			array(
+				'action'   => $action,
+				'provider' => $provider,
+			)
+		);
+
+		return add_query_arg( $params, self::REDIRECT_URI );
+	}
+
+	/**
+	 * Validates request callback from WPMU DEV
+	 *
+	 * @param string $provider Provider.
+	 * @return bool
+	 */
+	public static function validate_callback_request( $provider ) {
+		$wpnonce        = filter_input( INPUT_GET, 'wpnonce', FILTER_SANITIZE_SPECIAL_CHARS );
+		$domain         = filter_input( INPUT_GET, 'domain', FILTER_VALIDATE_URL );
+		$provider_input = filter_input( INPUT_GET, 'provider', FILTER_SANITIZE_SPECIAL_CHARS );
+
+		return ! empty( $wpnonce ) && self::verify_nonce( $wpnonce )
+			&& self::DOMAIN === $domain && $provider === $provider_input;
+	}
+
+	/**
+	 * Helper function to validate nonce value.
+	 *
+	 * @param string $nonce Nonce.
+	 *
+	 * @return bool
+	 */
+	private static function verify_nonce( $nonce ) {
+		return self::get_nonce_value() === $nonce;
+	}
+
+	/**
+	 * Helper function to generate unique none changeable nonce.
+	 *
+	 * @return string The unique nonce value.
+	 */
+	public static function get_nonce_value() {
+		$nonce = get_option( self::NONCE_OPTION_NAME );
+
+		if ( empty( $nonce ) ) {
+			/**
+			 * Generate the nonce value only once to avoid error response
+			 * when retrieving access token.
+			 */
+			$nonce = wp_generate_password( 40, false, false );
+
+			update_option( self::NONCE_OPTION_NAME, $nonce );
+		}
+
+		return $nonce;
 	}
 
 	/**
@@ -482,7 +574,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 * @return string
 	 */
 	public function get_promotion() {
-		return __( $this->_promotion, 'forminator' );
+		return __( $this->_promotion, 'forminator' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
 	}
 
 	/**
@@ -625,7 +717,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 * @since  1.1
 	 * @since  1.2 generate new multi_id to allow reference on wizard
 	 *
-	 * @param $form_id
+	 * @param int $form_id Form ID.
 	 *
 	 * @return array
 	 */
@@ -763,8 +855,8 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since   1.1
 	 *
-	 * @param $old_version
-	 * @param $new_version
+	 * @param string $old_version Old version.
+	 * @param string $new_version New version.
 	 *
 	 * @return bool
 	 */
@@ -810,7 +902,12 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 * @return string
 	 */
 	public function get_activation_error_message() {
-		return $this->_activation_error_message;
+		if ( ! empty( $this->_activation_error_message ) ) {
+			return $this->_activation_error_message;
+		}
+
+		/* translators: integration title */
+		return sprintf( esc_html__( 'Sorry but we failed to activate %s Integration, don\'t hesitate to contact us', 'forminator' ), $this->get_title() );
 	}
 
 	/**
@@ -820,7 +917,12 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 * @return string
 	 */
 	public function get_deactivation_error_message() {
-		return $this->_deactivation_error_message;
+		if ( ! empty( $this->_deactivation_error_message ) ) {
+			return $this->_deactivation_error_message;
+		}
+
+		/* translators: integration title */
+		return sprintf( esc_html__( 'Sorry but we failed to deactivate %s Integration, please try again', 'forminator' ), $this->get_title() );
 	}
 
 	/**
@@ -830,7 +932,11 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 * @return string
 	 */
 	public function get_update_settings_error_message() {
-		return $this->_update_settings_error_message;
+		if ( ! empty( $this->_update_settings_error_message ) ) {
+			return $this->_update_settings_error_message;
+		}
+
+		return esc_html__( 'Sorry, we failed to update settings, please check your form and try again', 'forminator' );
 	}
 
 
@@ -889,10 +995,10 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.1
 	 *
-	 * @param     $submitted_data
-	 * @param int            $form_id
-	 * @param int            $current_step
-	 * @param int            $step
+	 * @param array $submitted_data Submitted data.
+	 * @param int   $form_id Form ID.
+	 * @param int   $current_step Current step.
+	 * @param int   $step Step.
 	 *
 	 * @return array|mixed
 	 */
@@ -900,13 +1006,13 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 
 		$steps = $this->settings_wizards();
 		if ( ! is_array( $steps ) ) {
-			/* translators: ... */
-			return $this->get_empty_wizard( sprintf( __( 'No Settings available for %1$s', 'forminator' ), $this->get_title() ) );
+			/* translators: integration title */
+			return $this->get_empty_wizard( sprintf( esc_html__( 'No Settings available for %1$s', 'forminator' ), $this->get_title() ) );
 		}
 		$total_steps = count( $steps );
 		if ( $total_steps < 1 ) {
-			/* translators: ... */
-			return $this->get_empty_wizard( sprintf( __( 'No Settings available for %1$s', 'forminator' ), $this->get_title() ) );
+			/* translators: integration title */
+			return $this->get_empty_wizard( sprintf( esc_html__( 'No Settings available for %1$s', 'forminator' ), $this->get_title() ) );
 		}
 
 		if ( ! isset( $steps[ $step ] ) ) {
@@ -926,7 +1032,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 					$prev_step_is_completed = call_user_func( $steps[ $prev_step ]['is_completed'], $submitted_data );
 				}
 				if ( ! $prev_step_is_completed ) {
-					$step --;
+					--$step;
 
 					return $this->get_settings_wizard( $submitted_data, $form_id, $current_step, $step );
 				}
@@ -978,23 +1084,23 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.1
 	 *
-	 * @param     $submitted_data
-	 * @param int            $form_id
-	 * @param int            $current_step
-	 * @param int            $step
+	 * @param array $submitted_data Submitted data.
+	 * @param int   $form_id Form ID.
+	 * @param int   $current_step Current step.
+	 * @param int   $step Step.
 	 *
 	 * @return array|mixed
 	 */
 	final public function get_form_settings_wizard( $submitted_data, $form_id, $current_step = 0, $step = 0 ) {
 		$steps = $this->get_steps( $form_id );
 		if ( ! is_array( $steps ) ) {
-			/* translators: ... */
-			return $this->get_empty_wizard( sprintf( __( 'No Form Settings available for %1$s', 'forminator' ), $this->get_title() ) );
+			/* translators: integration title */
+			return $this->get_empty_wizard( sprintf( esc_html__( 'No Form Settings available for %1$s', 'forminator' ), $this->get_title() ) );
 		}
 		$total_steps = count( $steps );
 		if ( $total_steps < 1 ) {
-			/* translators: ... */
-			return $this->get_empty_wizard( sprintf( __( 'No Form Settings available for %1$s', 'forminator' ), $this->get_title() ) );
+			/* translators: integration title */
+			return $this->get_empty_wizard( sprintf( esc_html__( 'No Form Settings available for %1$s', 'forminator' ), $this->get_title() ) );
 		}
 
 		if ( ! isset( $steps[ $step ] ) ) {
@@ -1014,7 +1120,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 					$prev_step_is_completed = call_user_func( $steps[ $prev_step ]['is_completed'], $submitted_data );
 				}
 				if ( ! $prev_step_is_completed ) {
-					$step --;
+					--$step;
 
 					return $this->get_form_settings_wizard( $submitted_data, $form_id, $current_step, $step );
 				}
@@ -1080,7 +1186,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.1
 	 *
-	 * @param $form_id
+	 * @param int $form_id Form ID.
 	 *
 	 * @return array
 	 */
@@ -1115,7 +1221,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.1
 	 *
-	 * @param $form_id
+	 * @param int $form_id Form ID.
 	 *
 	 * @return array
 	 */
@@ -1148,27 +1254,27 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 * @since 1.1
 	 * @since 1.2 Refactor setup default values, rename `hasBack` to `has_back`
 	 *
-	 * @param     $steps
-	 * @param     $submitted_data
-	 * @param     $module_id
-	 * @param int            $step
+	 * @param array $steps Steps.
+	 * @param array $submitted_data Submitted data.
+	 * @param int   $module_id Module ID.
+	 * @param int   $step Step.
 	 *
 	 * @return array|mixed
 	 */
 	private function get_wizard( $steps, $submitted_data, $module_id, $step = 0 ) {
 		$total_steps = count( $steps );
 
-		// validate callback, when its empty or not callable, mark as no wizard.
+		// validate callback, when it's empty or not callable, mark as no wizard.
 		if ( ! isset( $steps[ $step ]['callback'] ) || ! is_callable( $steps[ $step ]['callback'] ) ) {
-			/* translators: ... */
-			return $this->get_empty_wizard( sprintf( __( 'No Settings available for %1$s', 'forminator' ), $this->get_title() ) );
+			/* translators: integration title */
+			return $this->get_empty_wizard( sprintf( esc_html__( 'No Settings available for %1$s', 'forminator' ), $this->get_title() ) );
 		}
 
 		$wizard = call_user_func( $steps[ $step ]['callback'], $submitted_data, $module_id );
 		// a wizard to be able to processed by our application need to has at least `html` which will be rendered or `redirect` which will be the url for redirect user to go to.
 		if ( ! isset( $wizard['html'] ) && ! isset( $wizard['redirect'] ) ) {
-			/* translators: ... */
-			return $this->get_empty_wizard( sprintf( __( 'No Settings available for %1$s', 'forminator' ), $this->get_title() ) );
+			/* translators: integration title */
+			return $this->get_empty_wizard( sprintf( esc_html__( 'No Settings available for %1$s', 'forminator' ), $this->get_title() ) );
 		}
 		$wizard['forminator_addon_current_step']  = $step;
 		$wizard['forminator_addon_count_step']    = $total_steps;
@@ -1215,21 +1321,20 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since   1.1
 	 *
-	 * @param $notice
+	 * @param string $notice Message.
 	 *
 	 * @return array
 	 */
 	protected function get_empty_wizard( $notice ) {
 
-		$empty_wizard_html  = '<div role="alert" class="sui-notice sui-notice-red sui-active" style="display: block;" aria-live-"assertive">';
-			$empty_wizard_html .= '<div class="sui-notice-content">';
-				$empty_wizard_html .= '<div class="sui-notice-message">';
+		$empty_wizard_html              = '<div role="alert" class="sui-notice sui-notice-red sui-active" style="display: block;" aria-live-"assertive">';
+			$empty_wizard_html         .= '<div class="sui-notice-content">';
+				$empty_wizard_html     .= '<div class="sui-notice-message">';
 					$empty_wizard_html .= '<span class="sui-notice-icon sui-icon-info" aria-hidden="true"></span>';
 					$empty_wizard_html .= '<p>' . esc_html( $notice ) . '</p>';
-				$empty_wizard_html .= '</div>';
-			$empty_wizard_html .= '</div>';
-		$empty_wizard_html .= '</div>';
-
+				$empty_wizard_html     .= '</div>';
+			$empty_wizard_html         .= '</div>';
+		$empty_wizard_html             .= '</div>';
 
 		/**
 		 * Filter html markup for empty wizard
@@ -1262,7 +1367,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since   1.1
 	 *
-	 * @param $values
+	 * @param mixed $values Settings.
 	 *
 	 * @return mixed
 	 */
@@ -1322,10 +1427,11 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 			global $wpdb;
 			foreach ( $types as $type ) {
 				$meta_key = 'forminator_addon_' . $this->get_slug() . '_' . $type . '_settings';
-				$results  = $wpdb->get_results( $wpdb->prepare( "SELECT post_id, meta_value FROM $wpdb->postmeta WHERE meta_key = %s", $meta_key ), ARRAY_A );
-				$results  = wp_list_pluck( $results, 'meta_value', 'post_id' );
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+				$results = $wpdb->get_results( $wpdb->prepare( "SELECT post_id, meta_value FROM $wpdb->postmeta WHERE meta_key = %s", $meta_key ), ARRAY_A );
+				$results = wp_list_pluck( $results, 'meta_value', 'post_id' );
 				foreach ( $results as $id => $value ) {
-					update_post_meta( $id, $meta_key . '_' . $this->multi_global_id, unserialize( $value ) );
+					update_post_meta( $id, $meta_key . '_' . $this->multi_global_id, maybe_unserialize( $value ) );
 					delete_post_meta( $id, $meta_key );
 				}
 			}
@@ -1350,7 +1456,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since   1.1
 	 *
-	 * @param $values
+	 * @param mixed $values Settings for save.
 	 *
 	 * @return mixed
 	 */
@@ -1366,7 +1472,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since   1.1
 	 *
-	 * @param $values
+	 * @param mixed $values Settings for save.
 	 */
 	final public function save_settings_values( $values ) {
 		$addon_slug = $this->get_slug();
@@ -1494,7 +1600,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since   1.1
 	 *
-	 * @param $form_id
+	 * @param int $form_id Form ID.
 	 *
 	 * @return bool
 	 */
@@ -1528,7 +1634,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since   1.1
 	 *
-	 * @param $form_id
+	 * @param int $form_id Form ID.
 	 *
 	 * @return boolean
 	 */
@@ -1548,6 +1654,8 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 * Get ClassName of addon Module Settings
 	 *
 	 * @see   Forminator_Addon_Settings_Abstract
+	 *
+	 * @param string $module_type Module type.
 	 *
 	 * @since 1.1
 	 * @return null|string
@@ -1578,9 +1686,10 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 * @since   1.1
 	 *
 	 * @param int    $module_id Module type.
-	 * @param string $module_type Moodule type.
+	 * @param string $module_type Module type.
 	 *
 	 * @return Forminator_Addon_Form_Settings_Abstract | null
+	 * @throws Forminator_Addon_Exception When there is an addon error.
 	 */
 	final public function get_addon_settings( $module_id, $module_type ) {
 		$class_name = $this->get_settings_class_name( $module_type );
@@ -1606,8 +1715,8 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.1
 	 *
-	 * @param $values
-	 * @param $form_id
+	 * @param mixed $values Settings.
+	 * @param int   $form_id Form ID.
 	 *
 	 * @return mixed
 	 */
@@ -1627,8 +1736,8 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.1
 	 *
-	 * @param $values
-	 * @param $form_id
+	 * @param mixed $values Settings.
+	 * @param int   $form_id Form ID.
 	 *
 	 * @return mixed
 	 */
@@ -1649,7 +1758,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.1
 	 *
-	 * @param $form_id
+	 * @param int $form_id Form ID.
 	 *
 	 * @return Forminator_Addon_Form_Hooks_Abstract|null
 	 */
@@ -1701,8 +1810,8 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 * 'is_close' : true if wizard should be closed
 	 * ]
 	 *
-	 * @param $submitted_data
-	 * @param $form_id
+	 * @param array $submitted_data Submitted data.
+	 * @param int   $form_id Form ID.
 	 *
 	 * @since   1.1
 	 * @return array
@@ -1713,7 +1822,6 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 			'html'       => '<p>Hello im from first step settings</p>',
 			'has_errors' => false,
 		);
-
 	}
 
 	/**
@@ -1742,9 +1850,9 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.1
 	 *
-	 * @param        $label
-	 * @param string $classes
-	 * @param string $tooltip
+	 * @param string $label Text for label.
+	 * @param string $classes Class names.
+	 * @param string $tooltip Content for tooltip.
 	 *
 	 * @return string
 	 */
@@ -1785,10 +1893,11 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.13
 	 *
-	 * @param        $url
-	 * @param        $label
-	 * @param string $classes
-	 * @param string $tooltip
+	 * @param string $url URL.
+	 * @param string $label Text for label.
+	 * @param string $target Target attribute.
+	 * @param string $classes Class names.
+	 * @param string $tooltip Content for tooltip.
 	 *
 	 * @return string
 	 */
@@ -1831,16 +1940,16 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.2
 	 *
-	 * @param $template
-	 * @param $params
+	 * @param string $template Template file path.
+	 * @param array  $params Template variables.
 	 *
 	 * @return string
 	 */
 	public static function get_template( $template, $params ) {
-		/** @noinspection PhpUnusedLocalVariableInspection */
+		/* @noinspection PhpUnusedLocalVariableInspection */
 		$template_vars = $params;
 		ob_start();
-		/** @noinspection PhpIncludeInspection */
+		/* @noinspection PhpIncludeInspection */
 		include $template;
 		$html = ob_get_clean();
 
@@ -1869,18 +1978,17 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 */
 	public function register_integration_sections() {
 		// callback must be public method on this class.
-		return array(// array('section_name', 'callback').
-		);
+		return array();
 	}
 
 	/**
 	 * Get Callback of section on integration page
 	 *
-	 * when section not provided, it will return all callbacks
+	 * When section not provided, it will return all callbacks
 	 *
 	 * @since 1.2
 	 *
-	 * @param string $section
+	 * @param string $section Requested section.
 	 *
 	 * @return array|null
 	 */
@@ -1908,7 +2016,6 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 		$callback = apply_filters( 'forminator_addon_' . $addon_slug . '_integration_section_callback', $callback, $section, $integration_sections );
 
 		return $callback;
-
 	}
 
 	/**
@@ -1916,7 +2023,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.2
 	 *
-	 * @param $form_id
+	 * @param int $form_id Form ID.
 	 *
 	 * @return array
 	 */
@@ -1948,8 +2055,8 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.6.1
 	 *
-	 * @param $values
-	 * @param $poll_id
+	 * @param mixed $values Poll settings.
+	 * @param int   $poll_id Poll Id.
 	 *
 	 * @return mixed
 	 */
@@ -1969,8 +2076,8 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.6.1
 	 *
-	 * @param $values
-	 * @param $poll_id
+	 * @param mixed $values Poll settings.
+	 * @param int   $poll_id Poll Id.
 	 *
 	 * @return mixed
 	 */
@@ -1993,10 +2100,10 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.6.1
 	 *
-	 * @param     $submitted_data
-	 * @param int            $poll_id
-	 * @param int            $current_step
-	 * @param int            $step
+	 * @param array $submitted_data Submitted data.
+	 * @param int   $poll_id Poll ID.
+	 * @param int   $current_step Current step.
+	 * @param int   $step Step.
 	 *
 	 * @return array|mixed
 	 */
@@ -2012,13 +2119,13 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 		$steps = array_merge( $settings_steps, $poll_settings_steps );
 
 		if ( ! is_array( $steps ) ) {
-			/* translators: ... */
-			return $this->get_empty_wizard( sprintf( __( 'No Poll Settings available for %1$s', 'forminator' ), $this->get_title() ) );
+			/* translators: integration title */
+			return $this->get_empty_wizard( sprintf( esc_html__( 'No Poll Settings available for %1$s', 'forminator' ), $this->get_title() ) );
 		}
 		$total_steps = count( $steps );
 		if ( $total_steps < 1 ) {
-			/* translators: ... */
-			return $this->get_empty_wizard( sprintf( __( 'No Poll Settings available for %1$s', 'forminator' ), $this->get_title() ) );
+			/* translators: integration title */
+			return $this->get_empty_wizard( sprintf( esc_html__( 'No Poll Settings available for %1$s', 'forminator' ), $this->get_title() ) );
 		}
 
 		if ( ! isset( $steps[ $step ] ) ) {
@@ -2038,7 +2145,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 					$prev_step_is_completed = call_user_func( $steps[ $prev_step ]['is_completed'], $submitted_data );
 				}
 				if ( ! $prev_step_is_completed ) {
-					$step --;
+					--$step;
 
 					return $this->get_poll_settings_wizard( $submitted_data, $poll_id, $current_step, $step );
 				}
@@ -2101,7 +2208,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.6.1
 	 *
-	 * @param $poll_id
+	 * @param int $poll_id Poll ID.
 	 *
 	 * @return array
 	 */
@@ -2136,7 +2243,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.6.1
 	 *
-	 * @param $poll_id
+	 * @param int $poll_id Poll Id.
 	 *
 	 * @return array
 	 */
@@ -2179,7 +2286,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 * @since  1.1
 	 * @since  1.2 generate new multi_id to allow reference on wizard
 	 *
-	 * @param $poll_id
+	 * @param int $poll_id Poll Id.
 	 *
 	 * @return array
 	 */
@@ -2226,7 +2333,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since   1.6.1
 	 *
-	 * @param $poll_id
+	 * @param int $poll_id Poll Id.
 	 *
 	 * @return boolean
 	 */
@@ -2244,7 +2351,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since   1.6.1
 	 *
-	 * @param $poll_id
+	 * @param int $poll_id Poll Id.
 	 *
 	 * @return bool
 	 */
@@ -2269,7 +2376,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.6.1
 	 *
-	 * @param $poll_id
+	 * @param int $poll_id Poll Id.
 	 *
 	 * @return array
 	 */
@@ -2301,7 +2408,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.6.1
 	 *
-	 * @param $poll_id
+	 * @param int $poll_id Poll Id.
 	 *
 	 * @return Forminator_Addon_Poll_Hooks_Abstract|null
 	 */
@@ -2334,8 +2441,8 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.6.2
 	 *
-	 * @param $values
-	 * @param $quiz_id
+	 * @param array $values Quiz settings.
+	 * @param int   $quiz_id Quiz Id.
 	 *
 	 * @return mixed
 	 */
@@ -2355,8 +2462,8 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.6.2
 	 *
-	 * @param $values
-	 * @param $quiz_id
+	 * @param array $values Quiz settings.
+	 * @param int   $quiz_id Quiz Id.
 	 *
 	 * @return mixed
 	 */
@@ -2379,10 +2486,10 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.6.2
 	 *
-	 * @param     $submitted_data
-	 * @param int            $quiz_id
-	 * @param int            $current_step
-	 * @param int            $step
+	 * @param array $submitted_data Submitted data.
+	 * @param int   $quiz_id Quiz Id.
+	 * @param int   $current_step Current Step.
+	 * @param int   $step Step.
 	 *
 	 * @return array|mixed
 	 */
@@ -2398,13 +2505,13 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 		$steps = array_merge( $settings_steps, $quiz_settings_steps );
 
 		if ( ! is_array( $steps ) ) {
-			/* translators: ... */
-			return $this->get_empty_wizard( sprintf( __( 'No Quiz Settings available for %1$s', 'forminator' ), $this->get_title() ) );
+			/* translators: integration title */
+			return $this->get_empty_wizard( sprintf( esc_html__( 'No Quiz Settings available for %1$s', 'forminator' ), $this->get_title() ) );
 		}
 		$total_steps = count( $steps );
 		if ( $total_steps < 1 ) {
-			/* translators: ... */
-			return $this->get_empty_wizard( sprintf( __( 'No Quiz Settings available for %1$s', 'forminator' ), $this->get_title() ) );
+			/* translators: integration title */
+			return $this->get_empty_wizard( sprintf( esc_html__( 'No Quiz Settings available for %1$s', 'forminator' ), $this->get_title() ) );
 		}
 
 		if ( ! isset( $steps[ $step ] ) ) {
@@ -2424,7 +2531,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 					$prev_step_is_completed = call_user_func( $steps[ $prev_step ]['is_completed'], $submitted_data );
 				}
 				if ( ! $prev_step_is_completed ) {
-					$step --;
+					--$step;
 
 					return $this->get_quiz_settings_wizard( $submitted_data, $quiz_id, $current_step, $step );
 				}
@@ -2487,7 +2594,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.6.2
 	 *
-	 * @param $quiz_id
+	 * @param int $quiz_id Quiz ID.
 	 *
 	 * @return array
 	 */
@@ -2522,7 +2629,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.6.2
 	 *
-	 * @param $quiz_id
+	 * @param int $quiz_id Quiz ID.
 	 *
 	 * @return array
 	 */
@@ -2564,7 +2671,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since  1.6.2
 	 *
-	 * @param $quiz_id
+	 * @param int $quiz_id Quiz ID.
 	 *
 	 * @return array
 	 */
@@ -2611,7 +2718,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since   1.6.2
 	 *
-	 * @param $quiz_id
+	 * @param int $quiz_id Quiz ID.
 	 *
 	 * @return boolean
 	 */
@@ -2626,7 +2733,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since   1.1
 	 *
-	 * @param $quiz_id
+	 * @param int $quiz_id Quiz ID.
 	 *
 	 * @return boolean
 	 */
@@ -2644,7 +2751,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since   1.6.2
 	 *
-	 * @param $quiz_id
+	 * @param int $quiz_id Quiz ID.
 	 *
 	 * @return bool
 	 */
@@ -2669,7 +2776,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.6.2
 	 *
-	 * @param $quiz_id
+	 * @param int $quiz_id Quiz ID.
 	 *
 	 * @return array
 	 */
@@ -2701,7 +2808,7 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 *
 	 * @since 1.6.2
 	 *
-	 * @param $quiz_id
+	 * @param int $quiz_id Quiz ID.
 	 *
 	 * @return Forminator_Addon_Quiz_Hooks_Abstract|null
 	 */
@@ -2736,7 +2843,52 @@ abstract class Forminator_Addon_Abstract implements Forminator_Addon_Interface {
 	 */
 	final public function connection_failed() {
 
-		/* translators: integration's title */
-		return sprintf( __( 'We couldn\'t connect to your %s account. Please resolve the errors below and try again.', 'forminator' ), $this->_title );
+		/* translators: integration title */
+		return sprintf( esc_html__( 'We couldn\'t connect to your %s account. Please resolve the errors below and try again.', 'forminator' ), $this->get_title() );
+	}
+
+	/**
+	 * Temp method to check if module connected.
+	 *
+	 * @param int    $module_id Module Id.
+	 * @param string $module_slug Module slug.
+	 * @param bool   $check_lead Check lead.
+	 *
+	 * @return bool
+	 */
+	public function is_module_connected( $module_id, $module_slug = 'form', $check_lead = false ) {
+		switch ( $module_slug ) {
+			case 'poll':
+				return $this->is_poll_connected( $module_id );
+			case 'quiz':
+				if ( $check_lead ) {
+					return $this->is_quiz_lead_connected( $module_id );
+				}
+				return $this->is_quiz_connected( $module_id );
+			default:
+				return $this->is_form_connected( $module_id );
+
+		}
+
+		return false;
+	}
+
+	/**
+	 * Temp method to get addon hooks object.
+	 *
+	 * @param int    $module_id Module Id.
+	 * @param string $module_type Module type.
+	 *
+	 * @return object
+	 */
+	final public function get_addon_hooks( $module_id, $module_type ) {
+		switch ( $module_type ) {
+			case 'poll':
+				return $this->get_addon_poll_hooks( $module_id );
+			case 'quiz':
+				return $this->get_addon_quiz_hooks( $module_id );
+			default:
+				return $this->get_addon_form_hooks( $module_id );
+		}
 	}
 }

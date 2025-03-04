@@ -72,6 +72,7 @@
 			}
 
 			this.load_ajax(param);
+			this.handleDiviPopup();
 
 		},
 		load_ajax: function (param) {
@@ -169,7 +170,7 @@
 			    message         = '',
 			    wrapper_message = null;
 
-			wrapper_message = this.$el.find('.forminator-response-message');
+			wrapper_message = $(html).find('.forminator-response-message');
 			if (wrapper_message.length) {
 				message = wrapper_message.get(0).outerHTML;
 			}
@@ -185,6 +186,10 @@
 				this.$el
 			    .replaceWith(html);
 			}
+
+			// Show form only after initialized ForminatorFront to avoid showing hidden fields.
+			let $element = $('#forminator-module-' + id + '[data-forminator-render=' + render_id + ']');
+			$element.hide();
 
 			if (message) {
 				$('#forminator-module-' + id + '[data-forminator-render=' + render_id + '] .forminator-response-message')
@@ -248,6 +253,7 @@
 
 					var script = {};
 					script.src = scripts[script_id].src;
+					script.async = scripts[ script_id ].async ?? true;
                     // Check if a paypal script is already loaded.
                     if ( script.src !== paypal_src ) {
                         scripts_to_load.push(script);
@@ -277,7 +283,7 @@
 
 			script.type   = 'text/javascript';
 			script.src    = script_props.src;
-			script.async  = true;
+			script.async  = script_props.async;
 			script.defer  = true;
 			script.onload = function () {
 				self.script_on_load();
@@ -339,7 +345,23 @@
 					forminatorFront.hide();
 				}
 			}
-		}
+		},
+
+		handleDiviPopup: function () {
+			var self = this;
+
+			if ( 'undefined' !== typeof DiviArea ) {
+				DiviArea.addAction( 'show_area', function( area ) {
+					var $form = area.find( '#' + self.element.id );
+
+					if ( 0 !== $form.length ) {
+						self.frontInitCalled = false;
+						self.init_front();
+						forminator_render_hcaptcha();
+					}
+				});
+			}
+		},
 	});
 
 	// A really lightweight plugin wrapper around the constructor,

@@ -1,4 +1,9 @@
 <?php
+/**
+ * The Forminator_Addon_Poll_Hooks_Abstract class.
+ *
+ * @package Forminator
+ */
 
 /**
  * Class Forminator_Addon_Poll_Hooks_Abstract
@@ -58,22 +63,22 @@ abstract class Forminator_Addon_Poll_Hooks_Abstract extends Forminator_Addon_Hoo
 	/**
 	 * Forminator_Addon_Poll_Hooks_Abstract constructor.
 	 *
-	 * @param Forminator_Addon_Abstract $addon
-	 * @param int                       $poll_id
+	 * @param Forminator_Addon_Abstract $addon Class Forminator_Addon_Abstract.
+	 * @param int                       $poll_id Poll Id.
 	 *
 	 * @since 1.6.1
-	 * @throws Forminator_Addon_Exception
+	 * @throws Forminator_Addon_Exception When there is an addon error.
 	 */
 	public function __construct( Forminator_Addon_Abstract $addon, $poll_id ) {
 		$this->addon   = $addon;
 		$this->poll_id = $poll_id;
 		$this->poll    = Forminator_Base_Form_Model::get_model( $this->poll_id );
 		if ( ! $this->poll ) {
-			/* translators: ... */
-			throw new Forminator_Addon_Exception( sprintf( __( 'Poll with id %d could not be found', 'forminator' ), $this->poll_id ) );
+			/* translators: Poll ID */
+			throw new Forminator_Addon_Exception( sprintf( esc_html__( 'Poll with id %d could not be found', 'forminator' ), esc_html( $this->poll_id ) ) );
 		}
 
-		$this->_submit_poll_error_message = __( 'Failed to submit poll because of an addon, please check your poll and try again' );
+		$this->_submit_poll_error_message = esc_html__( 'Failed to submit poll because of an addon, please check your poll and try again', 'forminator' );
 
 		// get poll settings instance to be available throughout cycle.
 		$this->poll_settings_instance = $this->addon->get_addon_settings( $this->poll_id, 'poll' );
@@ -194,7 +199,7 @@ abstract class Forminator_Addon_Poll_Hooks_Abstract extends Forminator_Addon_Hoo
 	 *
 	 * @since 1.6.1
 	 *
-	 * @param $submitted_data
+	 * @param array $submitted_data Submitted data.
 	 *
 	 * @return bool
 	 */
@@ -277,8 +282,8 @@ abstract class Forminator_Addon_Poll_Hooks_Abstract extends Forminator_Addon_Hoo
 	 *
 	 * @since          1.6.1
 	 *
-	 * @param array $submitted_data
-	 * @param array $current_entry_fields
+	 * @param array $submitted_data Submitted data.
+	 * @param array $current_entry_fields Current entry fields.
 	 *
 	 * @return array
 	 */
@@ -365,7 +370,7 @@ abstract class Forminator_Addon_Poll_Hooks_Abstract extends Forminator_Addon_Hoo
 	 *
 	 * @since 1.6.1
 	 *
-	 * @param Forminator_Form_Entry_Model $entry_model
+	 * @param Forminator_Form_Entry_Model $entry_model Form entry model.
 	 */
 	public function after_entry_saved( Forminator_Form_Entry_Model $entry_model ) {
 		$addon_slug             = $this->addon->get_slug();
@@ -533,8 +538,8 @@ abstract class Forminator_Addon_Poll_Hooks_Abstract extends Forminator_Addon_Hoo
 	 *
 	 * @since 1.6.1
 	 *
-	 * @param Forminator_Form_Entry_Model $entry_model
-	 * @param                             $addon_meta_data
+	 * @param Forminator_Form_Entry_Model $entry_model Form entry model.
+	 * @param array                       $addon_meta_data Addon meta.
 	 *
 	 * @return array
 	 */
@@ -643,8 +648,8 @@ abstract class Forminator_Addon_Poll_Hooks_Abstract extends Forminator_Addon_Hoo
 	 *
 	 * @since 1.6.1
 	 *
-	 * @param Forminator_Form_Entry_Model $entry_model
-	 * @param                             $addon_meta_data
+	 * @param Forminator_Form_Entry_Model $entry_model Form entry model.
+	 * @param array                       $addon_meta_data Addon meta data.
 	 */
 	public function on_before_delete_entry( Forminator_Form_Entry_Model $entry_model, $addon_meta_data ) {
 		$addon_slug             = $this->addon->get_slug();
@@ -704,16 +709,16 @@ abstract class Forminator_Addon_Poll_Hooks_Abstract extends Forminator_Addon_Hoo
 	 *
 	 * @since 1.6.1
 	 *
-	 * @param        $addon_meta_data
-	 * @param        $key
-	 * @param string          $default
+	 * @param array  $addon_meta_data Addon meta data.
+	 * @param string $key Key.
+	 * @param string $default_value Default value.
 	 *
 	 * @return string
 	 */
-	protected function get_from_addon_meta_data( $addon_meta_data, $key, $default = '' ) {
+	protected function get_from_addon_meta_data( $addon_meta_data, $key, $default_value = '' ) {
 		$addon_meta_datas = $addon_meta_data;
 		if ( ! isset( $addon_meta_data[0] ) || ! is_array( $addon_meta_data[0] ) ) {
-			return $default;
+			return $default_value;
 		}
 
 		$addon_meta_data = $addon_meta_data[0];
@@ -727,18 +732,18 @@ abstract class Forminator_Addon_Poll_Hooks_Abstract extends Forminator_Addon_Hoo
 					$addon_meta_data['name'] = 'status';
 
 					// add it on an array for next recursive process.
-					$meta_data[] = $this->get_from_addon_meta_data( array( $addon_meta_data ), $key, $default );
+					$meta_data[] = $this->get_from_addon_meta_data( array( $addon_meta_data ), $key, $default_value );
 				}
 
 				return implode( ', ', $meta_data );
 			}
 
-			return $default;
+			return $default_value;
 
 		}
 
 		if ( ! isset( $addon_meta_data['value'] ) || ! is_array( $addon_meta_data['value'] ) ) {
-			return $default;
+			return $default_value;
 		}
 		$status = $addon_meta_data['value'];
 		if ( isset( $status[ $key ] ) ) {
@@ -752,7 +757,6 @@ abstract class Forminator_Addon_Poll_Hooks_Abstract extends Forminator_Addon_Hoo
 			return $connection_name . $status[ $key ];
 		}
 
-		return $default;
+		return $default_value;
 	}
-
 }

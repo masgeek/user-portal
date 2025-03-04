@@ -1,4 +1,10 @@
 <?php
+/**
+ * Forminator Admin Import Ninja
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -45,18 +51,28 @@ class Forminator_Admin_Import_Ninja extends Forminator_Import_Mediator {
 		}
 
 		return false;
-
 	}
-	public function insert_pagination( $array, $insert, $position ) {
+
+	/**
+	 * Insert pagination
+	 *
+	 * @param mixed    $data The input array.
+	 * @param mixed    $insert Array to add.
+	 * @param int|null $position Position.
+	 * @return mixed
+	 */
+	public function insert_pagination( $data, $insert, $position ) {
 		/*
-		$array : The initial array i want to modify
+		$data : The initial array i want to modify
 		$insert : the new array i want to add, eg array('key' => 'value') or array('value')
 		$position : the position where the new array will be inserted into. Please mind that arrays start at 0
 		*/
-		return array_slice( $array, 0, $position, true ) + $insert + array_slice( $array, $position, null, true );
+		return array_slice( $data, 0, $position, true ) + $insert + array_slice( $data, $position, null, true );
 	}
 	/**
 	 * Insert form data
+	 *
+	 * @param int $id Form id.
 	 *
 	 * @since 1.7
 	 * @return array Form import message
@@ -153,7 +169,7 @@ class Forminator_Admin_Import_Ninja extends Forminator_Import_Mediator {
 			$tags[ "{$tag_key}" ] = "{$new_fields[$mkey]['element_id']}";
 
 			if ( isset( $page[ "{$tag_key}" ] ) && $page[ "{$tag_key}" ] < $page_total ) {
-				$mkey++;
+				++$mkey;
 				$element_key = $page[ "{$tag_key}" ];
 
 				$new_fields[ $mkey ] = array(
@@ -164,7 +180,7 @@ class Forminator_Admin_Import_Ninja extends Forminator_Import_Mediator {
 				);
 			}
 
-			$mkey++;
+			++$mkey;
 		}//endforeach fields import
 
 		$settings['use-admin-email'] = false;

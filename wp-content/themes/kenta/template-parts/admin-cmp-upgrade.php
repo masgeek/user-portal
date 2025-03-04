@@ -16,10 +16,10 @@ $dismiss_url = add_query_arg( array( 'kenta_dismiss' => 'upgrade_' . MIN_KENTA_C
 ?>
 
 <div data-dismiss-url="<?php echo esc_url( $dismiss_url ) ?>"
-     class="kenta-theme-notice notice notice-error is-dismissible">
+     class="kenta-theme-notice kenta-base-notice notice notice-error is-dismissible">
 
     <div class="kenta-theme-notice-logo">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 500 500">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 500 500">
             <defs>
                 <style>.a {
                         clip-path: url(#b);
@@ -35,8 +35,8 @@ $dismiss_url = add_query_arg( array( 'kenta_dismiss' => 'upgrade_' . MIN_KENTA_C
             </g>
         </svg>
     </div>
-    <div class="kcmp-upgrade-message">
-        <h1><?php esc_html_e( 'Your Kenta Companion Plugin needs to be upgraded!', 'kenta' ); ?></h1>
+    <div class="kcmp-upgrade-message kenta-theme-notice-content">
+        <h1><?php esc_html_e( 'Your Kenta Companion Plugin is outdated!', 'kenta' ); ?></h1>
         <p>
 			<?php
 			esc_html_e( 'The Kenta Companion Plugin you are using is not compatible with the current Kenta theme version, please update it to the latest version or some features will be broken.', 'kenta' );
@@ -46,8 +46,11 @@ $dismiss_url = add_query_arg( array( 'kenta_dismiss' => 'upgrade_' . MIN_KENTA_C
         <p>
 			<?php
 			echo sprintf(
-				esc_html__( 'Please navigate to %s to update your plugin.', 'kenta' ),
-				'<a href="' . esc_url( admin_url( 'plugins.php' ) ) . '">' . esc_html__( 'Plugins Page', 'kenta' ) . '</a>'
+				esc_html__( 'You can update it on the %s.', 'kenta' ),
+				'<a class="notice-action" href="' . esc_url( admin_url( 'plugins.php' ) ) . '">'
+				. '<i class="dashicons-before dashicons-admin-plugins"></i>'
+				. esc_html__( 'Plugins Page', 'kenta' )
+				. '</a>'
 			)
 			?>
         </p>

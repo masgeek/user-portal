@@ -24,7 +24,8 @@ use LottaFramework\Facades\CZ;
 <a class="skip-link screen-reader-text" href="#content">
 	<?php esc_html_e( 'Skip to content', 'kenta' ); ?>
 </a>
-<div class="<?php \LottaFramework\Utils::the_clsx( [
+<div data-sticky-container class="<?php \LottaFramework\Utils::the_clsx( [
 	'kenta-site-wrap'     => true,
 	'kenta-has-site-wrap' => CZ::checked( 'kenta_enable_site_wrap' ),
+	'z-[1]'               => true,
 ] ); ?>">

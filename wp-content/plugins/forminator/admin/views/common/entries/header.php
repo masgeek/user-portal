@@ -1,3 +1,12 @@
+<?php
+/**
+ * Template admin/views/common/entries/header.php
+ *
+ * @package Forminator
+ */
+
+?>
+
 <header class="sui-header">
 <h1 class="sui-header-title"><?php esc_html_e( 'Submissions', 'forminator' ); ?></h1>
 

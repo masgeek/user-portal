@@ -1,4 +1,10 @@
 <?php
+/**
+ * Template admin/views/common/popup/export.php
+ *
+ * @package Forminator
+ */
+
 $form_id = filter_input( INPUT_POST, 'id', FILTER_VALIDATE_INT );
 $slug    = $args['slug'];
 $_page   = 'forminator-' . forminator_get_prefix( $slug, 'c' );
@@ -34,15 +40,14 @@ $text_area_id = uniqid( 'export-text-' );
 
 				<p>
 					<?php
-					echo(
-					sprintf(
+					printf(
+					/* Translators: 1. Module slug, 2. Opening <strong> tag 3. Forminator version 4. closing <strong> tag, 5. Module slug */
 						esc_html__( 'You can import this %1$s in Forminator %2$s%3$s%4$s or above. The %5$s may break on a version lower than your install.', 'forminator' ),
 						esc_html( $slug ),
 						'<strong>',
 						esc_html( FORMINATOR_VERSION ),
 						'</strong>',
 						esc_html( $slug )
-					)
 					);
 					?>
 				</p>

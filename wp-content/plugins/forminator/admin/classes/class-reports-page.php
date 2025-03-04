@@ -1,4 +1,10 @@
 <?php
+/**
+ * Forminator Admin Report Page
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -39,7 +45,7 @@ class Forminator_Admin_Report_Page {
 	 */
 	public function __construct() {
 		// Include all necessary files.
-		$this->processRequest();
+		$this->process_request();
 	}
 
 	/**
@@ -47,7 +53,7 @@ class Forminator_Admin_Report_Page {
 	 *
 	 * @since 1.0
 	 */
-	public function processRequest() {
+	public function process_request() {
 		$action = Forminator_Core::sanitize_text_field( 'forminator_action' );
 		if ( ! $action ) {
 			return;
@@ -105,10 +111,11 @@ class Forminator_Admin_Report_Page {
 	/**
 	 * Get Reports data
 	 *
-	 * @param $form_id
-	 * @param $form_type
-	 * @param $start_date
-	 * @param $end_date
+	 * @param int    $form_id Form Id.
+	 * @param string $form_type Form type.
+	 * @param string $start_date Start date.
+	 * @param string $end_date End date.
+	 * @param string $range_type Range type.
 	 *
 	 * @return array
 	 */
@@ -122,14 +129,14 @@ class Forminator_Admin_Report_Page {
 			$module_time         = get_the_date( 'Y-m-d H:i:s', $form_id );
 			$previous_time       = ! empty( $range_type ) ? $range_type : 'This Month';
 			$previous_start_date = $this->forminator_previous_time( $previous_time, $start_date, $end_date );
-			$previous_end_date   = date( 'Y-m-d', strtotime( '-1 day', strtotime( $start_date ) ) );
+			$previous_end_date   = gmdate( 'Y-m-d', strtotime( '-1 day', strtotime( $start_date ) ) );
 			$reports             = array(
 				'start_date'       => $start_date,
 				'end_date'         => $end_date,
 				'previous_start'   => $previous_start_date,
 				'previous_end'     => $previous_end_date,
 				'last_entry_time'  => forminator_get_latest_entry_time_by_form_id( $form_id ),
-				'average_month'    => Forminator_Admin_Report_Page::forminator_montly_average( $module_time ),
+				'average_month'    => self::forminator_montly_average( $module_time ),
 				'previous_entries' => Forminator_Form_Entry_Model::count_report_entries( $form_id, $previous_start_date, $previous_end_date ),
 				'selected_entries' => Forminator_Form_Entry_Model::count_report_entries( $form_id, $start_date, $end_date ),
 				'total_entries'    => Forminator_Form_Entry_Model::count_report_entries( $form_id ),
@@ -144,18 +151,18 @@ class Forminator_Admin_Report_Page {
 			);
 
 			if ( 'quiz' === $module_slug ) {
-				$hasLead = false;
-				$model   = Forminator_Base_Form_Model::get_model( $form_id );
+				$has_lead = false;
+				$model    = Forminator_Base_Form_Model::get_model( $form_id );
 				if ( is_object( $model )
-				     && isset( $model->settings['hasLeads'] )
-				     && $model->settings['hasLeads']
+					&& isset( $model->settings['hasLeads'] )
+					&& $model->settings['hasLeads']
 				) {
-					$hasLead                   = $model->settings['hasLeads'];
+					$has_lead                  = $model->settings['hasLeads'];
 					$reports['total_leads']    = Forminator_Form_Entry_Model::count_leads( $form_id );
 					$reports['selected_leads'] = Forminator_Form_Entry_Model::count_leads( $form_id, $start_date, $end_date );
 					$reports['previous_leads'] = Forminator_Form_Entry_Model::count_leads( $form_id, $previous_start_date, $previous_end_date );
 				}
-				$reports['has_leads'] = $hasLead;
+				$reports['has_leads'] = $has_lead;
 			}
 
 			if ( self::has_live_payments( $form_id ) ) {
@@ -174,10 +181,9 @@ class Forminator_Admin_Report_Page {
 	}
 
 	/**
-	 * Get montly average
+	 * Get monthly average
 	 *
-	 * @param $start_date
-	 * @param $month_type
+	 * @param string $start_date Start date.
 	 *
 	 * @return mixed|void
 	 */
@@ -185,11 +191,11 @@ class Forminator_Admin_Report_Page {
 		$total_month = 0;
 		if ( ! empty( $start_date ) ) {
 			$start_date  = strtotime( trim( $start_date ) );
-			$end_date    = strtotime( date( 'Y/m/d' ) );
-			$start_year  = date( 'Y', $start_date );
-			$end_year    = date( 'Y', $end_date );
-			$start_month = date( 'm', $start_date );
-			$end_month   = date( 'm', $end_date );
+			$end_date    = strtotime( gmdate( 'Y/m/d' ) );
+			$start_year  = gmdate( 'Y', $start_date );
+			$end_year    = gmdate( 'Y', $end_date );
+			$start_month = gmdate( 'm', $start_date );
+			$end_month   = gmdate( 'm', $end_date );
 			$total_month = ( ( $end_year - $start_year ) * 12 ) + ( $end_month - $start_month );
 		}
 
@@ -199,7 +205,7 @@ class Forminator_Admin_Report_Page {
 	/**
 	 * Check payment
 	 *
-	 * @param $form_id
+	 * @param int $form_id Form Id.
 	 *
 	 * @return bool
 	 */
@@ -210,9 +216,25 @@ class Forminator_Admin_Report_Page {
 	}
 
 	/**
+	 * Check payment
+	 *
+	 * @param int $form_id Form Id.
+	 *
+	 * @return bool
+	 */
+	public static function has_payments( $form_id ) {
+		$model = Forminator_Base_Form_Model::get_model( $form_id );
+		if ( is_object( $model ) && $model->has_stripe_or_paypal() ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Get module slug
 	 *
-	 * @param $form_type
+	 * @param string $form_type Form type.
 	 *
 	 * @return string
 	 */
@@ -238,8 +260,8 @@ class Forminator_Admin_Report_Page {
 	/**
 	 * Report array
 	 *
-	 * @param $reports
-	 * @param $form_id
+	 * @param array $reports Reports.
+	 * @param int   $form_id Form Id.
 	 *
 	 * @return array[]
 	 */
@@ -348,11 +370,11 @@ class Forminator_Admin_Report_Page {
 	/**
 	 * Get payment report data
 	 *
-	 * @param $form_id
-	 * @param $start_date
-	 * @param $end_date
-	 * @param $previous_start
-	 * @param $previous_end
+	 * @param int    $form_id Form Id.
+	 * @param string $start_date Start date.
+	 * @param string $end_date End date.
+	 * @param string $previous_start Previous start date.
+	 * @param string $previous_end Previous end date.
 	 *
 	 * @return array
 	 */
@@ -361,7 +383,7 @@ class Forminator_Admin_Report_Page {
 			'selected_payment' => 0,
 			'previous_payment' => 0,
 			'stripe_payment'   => 0,
-			'paypal_payment'   => 0
+			'paypal_payment'   => 0,
 		);
 		$end_date     = $end_date . ' 23:59:00';
 		$payment_data = Forminator_Form_Entry_Model::payment_amount( $form_id, $previous_start, $end_date );
@@ -370,7 +392,7 @@ class Forminator_Admin_Report_Page {
 				$meta_value = maybe_unserialize( $data->meta_value );
 				if ( $data->date_created >= $start_date && $data->date_created <= $end_date ) {
 					$payments['selected_payment'] += $meta_value['amount'];
-					if ( 'stripe-1' === $data->meta_key ) {
+					if ( 'stripe-1' === $data->meta_key || 'stripe-ocs-1' === $data->meta_key ) {
 						$payments['stripe_payment'] += $meta_value['amount'];
 					}
 					if ( 'paypal-1' === $data->meta_key ) {
@@ -389,9 +411,9 @@ class Forminator_Admin_Report_Page {
 	/**
 	 * Chart data
 	 *
-	 * @param $form_id
-	 * @param $start_date
-	 * @param $end_date
+	 * @param int    $form_id Form Id.
+	 * @param string $start_date Start date.
+	 * @param string $end_date End date.
 	 *
 	 * @return array
 	 */
@@ -400,17 +422,17 @@ class Forminator_Admin_Report_Page {
 		$default_array = array();
 
 		if ( empty( $start_date ) ) {
-			$start_date = date( 'Y-m-01' );
+			$start_date = gmdate( 'Y-m-01' );
 		}
 		if ( empty( $end_date ) ) {
-			$end_date = date( 'Y-m-t' );
+			$end_date = gmdate( 'Y-m-t' );
 		}
 		$sdate = strtotime( $start_date );
 		$edate = strtotime( $end_date );
 
 		while ( $sdate <= $edate ) {
-			$default_date                   = date( 'Y-m-d', $sdate );
-			$days_array[]                   = date( 'M j, Y', $sdate );
+			$default_date                   = gmdate( 'Y-m-d', $sdate );
+			$days_array[]                   = gmdate( 'M j, Y', $sdate );
 			$default_array[ $default_date ] = 0;
 			$sdate                          = strtotime( '+1 day', $sdate );
 		}
@@ -429,44 +451,46 @@ class Forminator_Admin_Report_Page {
 		return array(
 			'monthDays'      => $days_array,
 			'submissions'    => $submissions_data,
-			'canvas_spacing' => intval( $canvas_spacing )
+			'canvas_spacing' => intval( $canvas_spacing ),
 		);
 	}
 
 	/**
 	 * Previous Time
 	 *
-	 * @param $time
-	 * @param $start_date
+	 * @param string $time Time.
+	 * @param string $start_date Start date.
+	 * @param string $end_date End date.
 	 *
 	 * @return false|string
 	 */
 	public function forminator_previous_time( $time, $start_date, $end_date ) {
 		switch ( $time ) {
 			case 'Today':
-				$previous_start_date = date( 'Y-m-d', strtotime( '-1 day', strtotime( $start_date ) ) );;
+				$previous_start_date = gmdate( 'Y-m-d', strtotime( '-1 day', strtotime( $start_date ) ) );
+
 				break;
 
 			case 'Last 7 Days':
-				$previous_start_date = date( 'Y-m-d', strtotime( '-7 day', strtotime( $start_date ) ) );
+				$previous_start_date = gmdate( 'Y-m-d', strtotime( '-7 day', strtotime( $start_date ) ) );
 				break;
 
 			case 'This Month':
-				$previous_start_date = date( 'Y-m-d', strtotime( 'first day of last month', strtotime( $start_date ) ) );
+				$previous_start_date = gmdate( 'Y-m-d', strtotime( 'first day of last month', strtotime( $start_date ) ) );
 				break;
 
 			case 'Last 30 Days':
-				$previous_start_date = date( 'Y-m-d', strtotime( '-30 day', strtotime( $start_date ) ) );
+				$previous_start_date = gmdate( 'Y-m-d', strtotime( '-30 day', strtotime( $start_date ) ) );
 				break;
 
 			case 'This Year':
-				$previous_start_date = date( 'Y-m-d', strtotime( 'last year January 1st', strtotime( $start_date ) ) );
+				$previous_start_date = gmdate( 'Y-m-d', strtotime( 'last year January 1st', strtotime( $start_date ) ) );
 				break;
 			case 'Custom':
 				$datediff            = strtotime( $end_date ) - strtotime( $start_date );
 				$total_days          = round( $datediff / ( 60 * 60 * 24 ) ) + 1;
 				$previous_days       = '-' . $total_days . 'day';
-				$previous_start_date = date( 'Y-m-d', strtotime( $previous_days, strtotime( $start_date ) ) );
+				$previous_start_date = gmdate( 'Y-m-d', strtotime( $previous_days, strtotime( $start_date ) ) );
 				break;
 
 			default:
@@ -479,8 +503,8 @@ class Forminator_Admin_Report_Page {
 	/**
 	 * Difference_calculate
 	 *
-	 * @param $selected
-	 * @param $previous
+	 * @param int $selected Selected.
+	 * @param int $previous Previous.
 	 *
 	 * @return float|int
 	 */
@@ -488,10 +512,10 @@ class Forminator_Admin_Report_Page {
 		$percent = 0;
 		if ( 0 < $previous && 0 < $selected ) {
 			if ( $previous < $selected ) {
-				// Increase percent
+				// Increase percent.
 				$percent_from = $selected - $previous;
 			} else {
-				// Decrease percent
+				// Decrease percent.
 				$percent_from = $previous - $selected;
 			}
 			$percent_value = ( $percent_from * 100 ) / $previous;
@@ -504,16 +528,16 @@ class Forminator_Admin_Report_Page {
 	/**
 	 * Get app link
 	 *
-	 * @param $module_id
-	 * @param $module_type
+	 * @param int    $module_id Module Id.
+	 * @param string $module_type Module type.
 	 *
 	 * @return string|void
 	 */
 	public function get_app_link_module_id( $module_id, $module_type ) {
 		switch ( $module_type ) {
 			case 'forminator_quizzes':
-				$quiz_model = Forminator_Base_Form_Model::get_model( $module_id );
-				$quiz_type = isset( $quiz_model->quiz_type ) ? $quiz_model->quiz_type : '';
+				$quiz_model  = Forminator_Base_Form_Model::get_model( $module_id );
+				$quiz_type   = isset( $quiz_model->quiz_type ) ? $quiz_model->quiz_type : '';
 				$wizard_slug = 'forminator-' . $quiz_type . '-wizard';
 				break;
 			case 'forminator_polls':
@@ -542,7 +566,7 @@ class Forminator_Admin_Report_Page {
 	/**
 	 * Get total forms
 	 *
-	 * @param $module
+	 * @param string $module Module type.
 	 *
 	 * @return int
 	 */

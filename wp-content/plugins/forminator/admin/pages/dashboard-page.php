@@ -1,4 +1,10 @@
 <?php
+/**
+ * Forminator Dashboard Page
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -28,6 +34,8 @@ class Forminator_Dashboard_Page extends Forminator_Admin_Page {
 	/**
 	 * Count modules
 	 *
+	 * @param string $status Status.
+	 *
 	 * @since 1.6
 	 * @return int
 	 */
@@ -51,7 +59,7 @@ class Forminator_Dashboard_Page extends Forminator_Admin_Page {
 	 *
 	 * @since 1.11
 	 *
-	 * @param $hook
+	 * @param string $hook Hook name.
 	 */
 	public function enqueue_scripts( $hook ) {
 		parent::enqueue_scripts( $hook );

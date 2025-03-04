@@ -64,6 +64,7 @@ $active_tab = in_array( $active_tab, array_keys( $tabs ) ) ? $active_tab : 'cust
         <div class="page-main">
             <div class="page-content">
 				<?php get_template_part( 'template-parts/admin', $active_tab ); ?>
+				<?php get_template_part( 'template-parts/admin', 'recommend-plugins' ); ?>
             </div>
             <div class="page-sidebar">
 				<?php get_template_part( 'template-parts/admin', 'sidebar' ); ?>

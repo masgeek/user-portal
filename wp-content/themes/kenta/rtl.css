@@ -51,22 +51,6 @@ body {
     margin-left: 0;
 }
 
-.kenta-no-sidebar [data-align="full"],
-.kenta-no-sidebar .alignfull {
-    margin-left: auto !important;
-    margin-right: calc(50% - 50vw) !important;
-}
-
-@media screen and (min-width: 1600px) {
-    .kenta-has-site-wrap .kenta-no-sidebar [data-align="full"],
-    .kenta-has-site-wrap .kenta-no-sidebar .alignfull {
-        width: var(--kenta-site-wrap-width, 1600px);
-        max-width: var(--kenta-site-wrap-width, 1600px);
-        margin-left: auto !important;
-        margin-right: calc(50% - var(--kenta-site-wrap-width, 1600px) / 2) !important;
-    }
-}
-
 /* Generic builder */
 .kenta-builder-column-desktop-dir-row > [data-builder-element],
 .kenta-builder-column-tablet-dir-row > [data-builder-element],
@@ -88,6 +72,27 @@ body {
     margin-right: 0.5em;
 }
 
+/* Socials Element  */
+.kenta-socials .kenta-social-link {
+    margin-right: 0;
+    margin-left: var(--kenta-social-icons-spacing, 0);
+}
+
+.kenta-socials .kenta-social-link:last-of-type {
+    margin-left: 0;
+}
+
+/* Logo Element  */
+.kenta-site-branding[data-logo="left"] .site-logo {
+    margin-right: 0;
+    margin-left: var(--logo-spacing);
+}
+
+.kenta-site-branding[data-logo="right"] .site-logo {
+    margin-left: 0;
+    margin-right: var(--logo-spacing);
+}
+
 /* Sidebars */
 @media (min-width: 1024px) {
     .kenta-right-sidebar .kenta-sidebar {
@@ -99,4 +104,17 @@ body {
         margin-right: auto;
         margin-left: var(--kenta-sidebar-gap, 0);
     }
+}
+
+/* Buttons */
+.woocommerce a.button .has-text-align-right,
+.kenta-button .has-text-align-right,
+.wp-block-button .has-text-align-right {
+    justify-content: flex-start;
+}
+
+.woocommerce a.button .has-text-align-left,
+.kenta-button .has-text-align-left,
+.wp-block-button .has-text-align-left {
+    justify-content: flex-end;
 }

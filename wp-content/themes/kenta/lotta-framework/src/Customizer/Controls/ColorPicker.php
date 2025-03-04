@@ -59,6 +59,23 @@ class ColorPicker extends Control {
 	}
 
 	/**
+	 * Set current color as css var in customizer
+	 *
+	 * @param $selector
+	 * @param $maps
+	 *
+	 * @return ColorPicker
+	 *
+	 * @since v2.0.15
+	 */
+	public function setCustomizerColors( $selector, $maps ) {
+		return $this->setOption( 'set_customizer_colors', [
+			'selector' => $selector,
+			'maps'     => $maps,
+		] );
+	}
+
+	/**
 	 * Shortcut for async colors value
 	 *
 	 * @param $selector

@@ -1,5 +1,11 @@
 <?php
 /**
+ * Forminator Protection
+ *
+ * @package Forminator
+ */
+
+/**
  * Class Forminator_Protection
  * Loas all protection modules if vailable
  */

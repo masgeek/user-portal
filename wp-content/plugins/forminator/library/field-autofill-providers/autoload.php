@@ -1,6 +1,8 @@
 <?php
 /**
  * Autoloaded available autofill by Forminator
+ *
+ * @package Forminator
  */
 
 $forminator_autofills = array(
@@ -35,12 +37,10 @@ foreach ( $forminator_autofills as $forminator_autofill ) {
 
 	// only include file if all required files exist.
 	foreach ( $required_files as $required_file ) {
-		/** @noinspection PhpIncludeInspection */
+		/* @noinspection PhpIncludeInspection */
 		require_once $required_file;
 	}
 
 	Forminator_Autofill_Loader::get_instance()->register( $forminator_autofill['class_name'] );
 
 }
-
-

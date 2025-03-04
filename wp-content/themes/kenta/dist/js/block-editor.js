@@ -1,24 +1,28 @@
 (() => {
-    var __webpack_modules__ = [ , , , , , , , , , , , , , , , , , module => {
+    var __webpack_modules__ = [ , module => {
         "use strict";
-        module.exports = window.wp.plugins;
+        module.exports = window["wp"]["domReady"];
+    }, , , , , , , , , , , , , , , , , , , , , module => {
+        "use strict";
+        module.exports = window["wp"]["plugins"];
     }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
         "use strict";
         __webpack_require__.r(__webpack_exports__);
         __webpack_require__.d(__webpack_exports__, {
             default: () => __WEBPACK_DEFAULT_EXPORT__
         });
-        var html_react_parser__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(19);
-        var _wordpress_edit_post__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(38);
+        var html_react_parser__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(24);
+        var _wordpress_edit_post__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(43);
         var _wordpress_edit_post__WEBPACK_IMPORTED_MODULE_1___default = __webpack_require__.n(_wordpress_edit_post__WEBPACK_IMPORTED_MODULE_1__);
-        var _wordpress_compose__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(39);
+        var _wordpress_compose__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(44);
         var _wordpress_compose__WEBPACK_IMPORTED_MODULE_2___default = __webpack_require__.n(_wordpress_compose__WEBPACK_IMPORTED_MODULE_2__);
-        var _wordpress_components__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(40);
+        var _wordpress_components__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(45);
         var _wordpress_components__WEBPACK_IMPORTED_MODULE_3___default = __webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__);
-        var _wordpress_data__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(41);
+        var _wordpress_data__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(46);
         var _wordpress_data__WEBPACK_IMPORTED_MODULE_4___default = __webpack_require__.n(_wordpress_data__WEBPACK_IMPORTED_MODULE_4__);
-        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(42);
-        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(54);
+        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(47);
+        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_5___default = __webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__);
+        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(48);
         function ownKeys(object, enumerableOnly) {
             var keys = Object.keys(object);
             if (Object.getOwnPropertySymbols) {
@@ -123,6 +127,11 @@
                                 }
                             }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.SelectControl, {
                                 label: (0, _wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Transparent Header", "kenta"),
+                                help: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("a", {
+                                    target: "_blank",
+                                    href: "https://kentatheme.com/docs/kenta-theme/header-footer-builder/transparent-header/",
+                                    children: (0, _wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Lean More About Transparent Header.", "kenta")
+                                }),
                                 value: props.meta["site-transparent-header"],
                                 options: [ {
                                     label: (0, _wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Inherit", "kenta"),
@@ -192,6 +201,7 @@
                             }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.SelectControl, {
                                 label: (0, _wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Content Spacing", "kenta"),
                                 value: props.meta["disable-content-area-spacing"],
+                                help: (0, _wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("There is a gap between the page content and the header or footer, if you don't want it you can disable it here.", "kenta"),
                                 options: [ {
                                     label: (0, _wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)("Inherit", "kenta"),
                                     value: "default"
@@ -250,16 +260,16 @@
             domToReact: () => domToReact,
             htmlToDOM: () => htmlToDOM
         });
-        var _index_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(20);
+        var _index_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(25);
         var domToReact = _index_js__WEBPACK_IMPORTED_MODULE_0__.domToReact;
         var htmlToDOM = _index_js__WEBPACK_IMPORTED_MODULE_0__.htmlToDOM;
         var attributesToProps = _index_js__WEBPACK_IMPORTED_MODULE_0__.attributesToProps;
         var Element = _index_js__WEBPACK_IMPORTED_MODULE_0__.Element;
         const __WEBPACK_DEFAULT_EXPORT__ = _index_js__WEBPACK_IMPORTED_MODULE_0__;
     }, (module, __unused_webpack_exports, __webpack_require__) => {
-        var domToReact = __webpack_require__(21);
-        var attributesToProps = __webpack_require__(23);
-        var htmlToDOM = __webpack_require__(31);
+        var domToReact = __webpack_require__(26);
+        var attributesToProps = __webpack_require__(28);
+        var htmlToDOM = __webpack_require__(36);
         htmlToDOM = typeof htmlToDOM.default === "function" ? htmlToDOM.default : htmlToDOM;
         var domParserOptions = {
             lowerCaseAttributeNames: false
@@ -277,13 +287,13 @@
         HTMLReactParser.domToReact = domToReact;
         HTMLReactParser.htmlToDOM = htmlToDOM;
         HTMLReactParser.attributesToProps = attributesToProps;
-        HTMLReactParser.Element = __webpack_require__(34).Element;
+        HTMLReactParser.Element = __webpack_require__(39).Element;
         module.exports = HTMLReactParser;
         module.exports["default"] = HTMLReactParser;
     }, (module, __unused_webpack_exports, __webpack_require__) => {
-        var React = __webpack_require__(22);
-        var attributesToProps = __webpack_require__(23);
-        var utilities = __webpack_require__(26);
+        var React = __webpack_require__(27);
+        var attributesToProps = __webpack_require__(28);
+        var utilities = __webpack_require__(31);
         var setStyleProp = utilities.setStyleProp;
         var canTextBeChildOfNode = utilities.canTextBeChildOfNode;
         function domToReact(nodes, options) {
@@ -366,10 +376,10 @@
         module.exports = domToReact;
     }, module => {
         "use strict";
-        module.exports = React;
+        module.exports = window["React"];
     }, (module, __unused_webpack_exports, __webpack_require__) => {
-        var reactProperty = __webpack_require__(24);
-        var utilities = __webpack_require__(26);
+        var reactProperty = __webpack_require__(29);
+        var utilities = __webpack_require__(31);
         module.exports = function attributesToProps(attributes) {
             attributes = attributes || {};
             var valueOnlyInputs = {
@@ -545,7 +555,7 @@
         [ "src", "href", "action", "formAction" ].forEach((function(attributeName) {
             properties[attributeName] = new PropertyInfoRecord(attributeName, STRING, false, attributeName.toLowerCase(), null, true, true);
         }));
-        var _require = __webpack_require__(25), CAMELCASE = _require.CAMELCASE, SAME = _require.SAME, possibleStandardNamesOptimized = _require.possibleStandardNames;
+        var _require = __webpack_require__(30), CAMELCASE = _require.CAMELCASE, SAME = _require.SAME, possibleStandardNamesOptimized = _require.possibleStandardNames;
         var ATTRIBUTE_NAME_START_CHAR = ":A-Z_a-z\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD";
         var ATTRIBUTE_NAME_CHAR = ATTRIBUTE_NAME_START_CHAR + "\\-.0-9\\u00B7\\u0300-\\u036F\\u203F-\\u2040";
         var isCustomAttribute = RegExp.prototype.test.bind(new RegExp("^(data|aria)-[" + ATTRIBUTE_NAME_CHAR + "]*$"));
@@ -1061,8 +1071,8 @@
             zoomAndPan: 1
         };
     }, (module, __unused_webpack_exports, __webpack_require__) => {
-        var React = __webpack_require__(22);
-        var styleToJS = __webpack_require__(27)["default"];
+        var React = __webpack_require__(27);
+        var styleToJS = __webpack_require__(32)["default"];
         function invertObject(obj, override) {
             if (!obj || typeof obj !== "object") {
                 throw new TypeError("First argument must be an object");
@@ -1140,8 +1150,8 @@
             };
         };
         exports.__esModule = true;
-        var style_to_object_1 = __importDefault(__webpack_require__(28));
-        var utilities_1 = __webpack_require__(30);
+        var style_to_object_1 = __importDefault(__webpack_require__(33));
+        var utilities_1 = __webpack_require__(35);
         function StyleToJS(style, options) {
             var output = {};
             if (!style || typeof style !== "string") {
@@ -1156,7 +1166,7 @@
         }
         exports["default"] = StyleToJS;
     }, (module, __unused_webpack_exports, __webpack_require__) => {
-        var parse = __webpack_require__(29);
+        var parse = __webpack_require__(34);
         function StyleToObject(style, iterator) {
             var output = null;
             if (!style || typeof style !== "string") {
@@ -1354,8 +1364,8 @@
         };
         exports.camelCase = camelCase;
     }, (module, __unused_webpack_exports, __webpack_require__) => {
-        var domparser = __webpack_require__(32);
-        var formatDOM = __webpack_require__(33).formatDOM;
+        var domparser = __webpack_require__(37);
+        var formatDOM = __webpack_require__(38).formatDOM;
         var DIRECTIVE_REGEX = /<(![a-zA-Z\s]+)>/;
         function HTMLDOMParser(html) {
             if (typeof html !== "string") {
@@ -1461,8 +1471,8 @@
         }
         module.exports = domparser;
     }, (__unused_webpack_module, exports, __webpack_require__) => {
-        var domhandler = __webpack_require__(34);
-        var constants = __webpack_require__(37);
+        var domhandler = __webpack_require__(39);
+        var constants = __webpack_require__(42);
         var CASE_SENSITIVE_TAG_NAMES = constants.CASE_SENSITIVE_TAG_NAMES;
         var Comment = domhandler.Comment;
         var Element = domhandler.Element;
@@ -1564,9 +1574,9 @@
             value: true
         });
         exports.DomHandler = void 0;
-        var domelementtype_1 = __webpack_require__(35);
-        var node_js_1 = __webpack_require__(36);
-        __exportStar(__webpack_require__(36), exports);
+        var domelementtype_1 = __webpack_require__(40);
+        var node_js_1 = __webpack_require__(41);
+        __exportStar(__webpack_require__(41), exports);
         var defaultOpts = {
             withStartIndices: false,
             withEndIndices: false,
@@ -1760,7 +1770,7 @@
             value: true
         });
         exports.cloneNode = exports.hasChildren = exports.isDocument = exports.isDirective = exports.isComment = exports.isText = exports.isCDATA = exports.isTag = exports.Element = exports.Document = exports.CDATA = exports.NodeWithChildren = exports.ProcessingInstruction = exports.Comment = exports.Text = exports.DataNode = exports.Node = void 0;
-        var domelementtype_1 = __webpack_require__(35);
+        var domelementtype_1 = __webpack_require__(40);
         var Node = function() {
             function Node() {
                 this.parent = null;
@@ -2103,762 +2113,23 @@
         exports.CASE_SENSITIVE_TAG_NAMES = [ "animateMotion", "animateTransform", "clipPath", "feBlend", "feColorMatrix", "feComponentTransfer", "feComposite", "feConvolveMatrix", "feDiffuseLighting", "feDisplacementMap", "feDropShadow", "feFlood", "feFuncA", "feFuncB", "feFuncG", "feFuncR", "feGaussainBlur", "feImage", "feMerge", "feMergeNode", "feMorphology", "feOffset", "fePointLight", "feSpecularLighting", "feSpotLight", "feTile", "feTurbulence", "foreignObject", "linearGradient", "radialGradient", "textPath" ];
     }, module => {
         "use strict";
-        module.exports = window.wp.editPost;
+        module.exports = window["wp"]["editPost"];
     }, module => {
         "use strict";
-        module.exports = window.wp.compose;
+        module.exports = window["wp"]["compose"];
     }, module => {
         "use strict";
-        module.exports = window.wp.components;
+        module.exports = window["wp"]["components"];
     }, module => {
         "use strict";
-        module.exports = window.wp.data;
-    }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-        "use strict";
-        __webpack_require__.r(__webpack_exports__);
-        __webpack_require__.d(__webpack_exports__, {
-            __: () => _default_i18n__WEBPACK_IMPORTED_MODULE_2__.__,
-            _n: () => _default_i18n__WEBPACK_IMPORTED_MODULE_2__._n,
-            _nx: () => _default_i18n__WEBPACK_IMPORTED_MODULE_2__._nx,
-            _x: () => _default_i18n__WEBPACK_IMPORTED_MODULE_2__._x,
-            createI18n: () => _create_i18n__WEBPACK_IMPORTED_MODULE_1__.createI18n,
-            defaultI18n: () => _default_i18n__WEBPACK_IMPORTED_MODULE_2__["default"],
-            getLocaleData: () => _default_i18n__WEBPACK_IMPORTED_MODULE_2__.getLocaleData,
-            hasTranslation: () => _default_i18n__WEBPACK_IMPORTED_MODULE_2__.hasTranslation,
-            isRTL: () => _default_i18n__WEBPACK_IMPORTED_MODULE_2__.isRTL,
-            resetLocaleData: () => _default_i18n__WEBPACK_IMPORTED_MODULE_2__.resetLocaleData,
-            setLocaleData: () => _default_i18n__WEBPACK_IMPORTED_MODULE_2__.setLocaleData,
-            sprintf: () => _sprintf__WEBPACK_IMPORTED_MODULE_0__.sprintf,
-            subscribe: () => _default_i18n__WEBPACK_IMPORTED_MODULE_2__.subscribe
-        });
-        var _sprintf__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(43);
-        var _create_i18n__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(46);
-        var _default_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(52);
-    }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-        "use strict";
-        __webpack_require__.r(__webpack_exports__);
-        __webpack_require__.d(__webpack_exports__, {
-            sprintf: () => sprintf
-        });
-        var memize__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(44);
-        var memize__WEBPACK_IMPORTED_MODULE_0___default = __webpack_require__.n(memize__WEBPACK_IMPORTED_MODULE_0__);
-        var sprintf_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(45);
-        var sprintf_js__WEBPACK_IMPORTED_MODULE_1___default = __webpack_require__.n(sprintf_js__WEBPACK_IMPORTED_MODULE_1__);
-        const logErrorOnce = memize__WEBPACK_IMPORTED_MODULE_0___default()(console.error);
-        function sprintf(format) {
-            try {
-                for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-                    args[_key - 1] = arguments[_key];
-                }
-                return sprintf_js__WEBPACK_IMPORTED_MODULE_1___default().sprintf(format, ...args);
-            } catch (error) {
-                if (error instanceof Error) {
-                    logErrorOnce("sprintf error: \n\n" + error.toString());
-                }
-                return format;
-            }
-        }
-    }, module => {
-        function memize(fn, options) {
-            var size = 0;
-            var head;
-            var tail;
-            options = options || {};
-            function memoized() {
-                var node = head, len = arguments.length, args, i;
-                searchCache: while (node) {
-                    if (node.args.length !== arguments.length) {
-                        node = node.next;
-                        continue;
-                    }
-                    for (i = 0; i < len; i++) {
-                        if (node.args[i] !== arguments[i]) {
-                            node = node.next;
-                            continue searchCache;
-                        }
-                    }
-                    if (node !== head) {
-                        if (node === tail) {
-                            tail = node.prev;
-                        }
-                        node.prev.next = node.next;
-                        if (node.next) {
-                            node.next.prev = node.prev;
-                        }
-                        node.next = head;
-                        node.prev = null;
-                        head.prev = node;
-                        head = node;
-                    }
-                    return node.val;
-                }
-                args = new Array(len);
-                for (i = 0; i < len; i++) {
-                    args[i] = arguments[i];
-                }
-                node = {
-                    args,
-                    val: fn.apply(null, args)
-                };
-                if (head) {
-                    head.prev = node;
-                    node.next = head;
-                } else {
-                    tail = node;
-                }
-                if (size === options.maxSize) {
-                    tail = tail.prev;
-                    tail.next = null;
-                } else {
-                    size++;
-                }
-                head = node;
-                return node.val;
-            }
-            memoized.clear = function() {
-                head = null;
-                tail = null;
-                size = 0;
-            };
-            if (false) {}
-            return memoized;
-        }
-        module.exports = memize;
-    }, (module, exports, __webpack_require__) => {
-        var __WEBPACK_AMD_DEFINE_RESULT__;
-        !function() {
-            "use strict";
-            var re = {
-                not_string: /[^s]/,
-                not_bool: /[^t]/,
-                not_type: /[^T]/,
-                not_primitive: /[^v]/,
-                number: /[diefg]/,
-                numeric_arg: /[bcdiefguxX]/,
-                json: /[j]/,
-                not_json: /[^j]/,
-                text: /^[^\x25]+/,
-                modulo: /^\x25{2}/,
-                placeholder: /^\x25(?:([1-9]\d*)\$|\(([^)]+)\))?(\+)?(0|'[^$])?(-)?(\d+)?(?:\.(\d+))?([b-gijostTuvxX])/,
-                key: /^([a-z_][a-z_\d]*)/i,
-                key_access: /^\.([a-z_][a-z_\d]*)/i,
-                index_access: /^\[(\d+)\]/,
-                sign: /^[+-]/
-            };
-            function sprintf(key) {
-                return sprintf_format(sprintf_parse(key), arguments);
-            }
-            function vsprintf(fmt, argv) {
-                return sprintf.apply(null, [ fmt ].concat(argv || []));
-            }
-            function sprintf_format(parse_tree, argv) {
-                var cursor = 1, tree_length = parse_tree.length, arg, output = "", i, k, ph, pad, pad_character, pad_length, is_positive, sign;
-                for (i = 0; i < tree_length; i++) {
-                    if (typeof parse_tree[i] === "string") {
-                        output += parse_tree[i];
-                    } else if (typeof parse_tree[i] === "object") {
-                        ph = parse_tree[i];
-                        if (ph.keys) {
-                            arg = argv[cursor];
-                            for (k = 0; k < ph.keys.length; k++) {
-                                if (arg == undefined) {
-                                    throw new Error(sprintf('[sprintf] Cannot access property "%s" of undefined value "%s"', ph.keys[k], ph.keys[k - 1]));
-                                }
-                                arg = arg[ph.keys[k]];
-                            }
-                        } else if (ph.param_no) {
-                            arg = argv[ph.param_no];
-                        } else {
-                            arg = argv[cursor++];
-                        }
-                        if (re.not_type.test(ph.type) && re.not_primitive.test(ph.type) && arg instanceof Function) {
-                            arg = arg();
-                        }
-                        if (re.numeric_arg.test(ph.type) && (typeof arg !== "number" && isNaN(arg))) {
-                            throw new TypeError(sprintf("[sprintf] expecting number but found %T", arg));
-                        }
-                        if (re.number.test(ph.type)) {
-                            is_positive = arg >= 0;
-                        }
-                        switch (ph.type) {
-                          case "b":
-                            arg = parseInt(arg, 10).toString(2);
-                            break;
-
-                          case "c":
-                            arg = String.fromCharCode(parseInt(arg, 10));
-                            break;
-
-                          case "d":
-                          case "i":
-                            arg = parseInt(arg, 10);
-                            break;
-
-                          case "j":
-                            arg = JSON.stringify(arg, null, ph.width ? parseInt(ph.width) : 0);
-                            break;
-
-                          case "e":
-                            arg = ph.precision ? parseFloat(arg).toExponential(ph.precision) : parseFloat(arg).toExponential();
-                            break;
-
-                          case "f":
-                            arg = ph.precision ? parseFloat(arg).toFixed(ph.precision) : parseFloat(arg);
-                            break;
-
-                          case "g":
-                            arg = ph.precision ? String(Number(arg.toPrecision(ph.precision))) : parseFloat(arg);
-                            break;
-
-                          case "o":
-                            arg = (parseInt(arg, 10) >>> 0).toString(8);
-                            break;
-
-                          case "s":
-                            arg = String(arg);
-                            arg = ph.precision ? arg.substring(0, ph.precision) : arg;
-                            break;
-
-                          case "t":
-                            arg = String(!!arg);
-                            arg = ph.precision ? arg.substring(0, ph.precision) : arg;
-                            break;
-
-                          case "T":
-                            arg = Object.prototype.toString.call(arg).slice(8, -1).toLowerCase();
-                            arg = ph.precision ? arg.substring(0, ph.precision) : arg;
-                            break;
-
-                          case "u":
-                            arg = parseInt(arg, 10) >>> 0;
-                            break;
-
-                          case "v":
-                            arg = arg.valueOf();
-                            arg = ph.precision ? arg.substring(0, ph.precision) : arg;
-                            break;
-
-                          case "x":
-                            arg = (parseInt(arg, 10) >>> 0).toString(16);
-                            break;
-
-                          case "X":
-                            arg = (parseInt(arg, 10) >>> 0).toString(16).toUpperCase();
-                            break;
-                        }
-                        if (re.json.test(ph.type)) {
-                            output += arg;
-                        } else {
-                            if (re.number.test(ph.type) && (!is_positive || ph.sign)) {
-                                sign = is_positive ? "+" : "-";
-                                arg = arg.toString().replace(re.sign, "");
-                            } else {
-                                sign = "";
-                            }
-                            pad_character = ph.pad_char ? ph.pad_char === "0" ? "0" : ph.pad_char.charAt(1) : " ";
-                            pad_length = ph.width - (sign + arg).length;
-                            pad = ph.width ? pad_length > 0 ? pad_character.repeat(pad_length) : "" : "";
-                            output += ph.align ? sign + arg + pad : pad_character === "0" ? sign + pad + arg : pad + sign + arg;
-                        }
-                    }
-                }
-                return output;
-            }
-            var sprintf_cache = Object.create(null);
-            function sprintf_parse(fmt) {
-                if (sprintf_cache[fmt]) {
-                    return sprintf_cache[fmt];
-                }
-                var _fmt = fmt, match, parse_tree = [], arg_names = 0;
-                while (_fmt) {
-                    if ((match = re.text.exec(_fmt)) !== null) {
-                        parse_tree.push(match[0]);
-                    } else if ((match = re.modulo.exec(_fmt)) !== null) {
-                        parse_tree.push("%");
-                    } else if ((match = re.placeholder.exec(_fmt)) !== null) {
-                        if (match[2]) {
-                            arg_names |= 1;
-                            var field_list = [], replacement_field = match[2], field_match = [];
-                            if ((field_match = re.key.exec(replacement_field)) !== null) {
-                                field_list.push(field_match[1]);
-                                while ((replacement_field = replacement_field.substring(field_match[0].length)) !== "") {
-                                    if ((field_match = re.key_access.exec(replacement_field)) !== null) {
-                                        field_list.push(field_match[1]);
-                                    } else if ((field_match = re.index_access.exec(replacement_field)) !== null) {
-                                        field_list.push(field_match[1]);
-                                    } else {
-                                        throw new SyntaxError("[sprintf] failed to parse named argument key");
-                                    }
-                                }
-                            } else {
-                                throw new SyntaxError("[sprintf] failed to parse named argument key");
-                            }
-                            match[2] = field_list;
-                        } else {
-                            arg_names |= 2;
-                        }
-                        if (arg_names === 3) {
-                            throw new Error("[sprintf] mixing positional and named placeholders is not (yet) supported");
-                        }
-                        parse_tree.push({
-                            placeholder: match[0],
-                            param_no: match[1],
-                            keys: match[2],
-                            sign: match[3],
-                            pad_char: match[4],
-                            align: match[5],
-                            width: match[6],
-                            precision: match[7],
-                            type: match[8]
-                        });
-                    } else {
-                        throw new SyntaxError("[sprintf] unexpected placeholder");
-                    }
-                    _fmt = _fmt.substring(match[0].length);
-                }
-                return sprintf_cache[fmt] = parse_tree;
-            }
-            if (true) {
-                exports.sprintf = sprintf;
-                exports.vsprintf = vsprintf;
-            }
-            if (typeof window !== "undefined") {
-                window["sprintf"] = sprintf;
-                window["vsprintf"] = vsprintf;
-                if (true) {
-                    !(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
-                        return {
-                            sprintf,
-                            vsprintf
-                        };
-                    }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-                }
-            }
-        }();
-    }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-        "use strict";
-        __webpack_require__.r(__webpack_exports__);
-        __webpack_require__.d(__webpack_exports__, {
-            createI18n: () => createI18n
-        });
-        var tannin__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
-        const DEFAULT_LOCALE_DATA = {
-            "": {
-                plural_forms(n) {
-                    return n === 1 ? 0 : 1;
-                }
-            }
-        };
-        const I18N_HOOK_REGEXP = /^i18n\.(n?gettext|has_translation)(_|$)/;
-        const createI18n = (initialData, initialDomain, hooks) => {
-            const tannin = new tannin__WEBPACK_IMPORTED_MODULE_0__["default"]({});
-            const listeners = new Set;
-            const notifyListeners = () => {
-                listeners.forEach((listener => listener()));
-            };
-            const subscribe = callback => {
-                listeners.add(callback);
-                return () => listeners.delete(callback);
-            };
-            const getLocaleData = function() {
-                let domain = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "default";
-                return tannin.data[domain];
-            };
-            const doSetLocaleData = function(data) {
-                var _tannin$data$domain;
-                let domain = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "default";
-                tannin.data[domain] = {
-                    ...tannin.data[domain],
-                    ...data
-                };
-                tannin.data[domain][""] = {
-                    ...DEFAULT_LOCALE_DATA[""],
-                    ...(_tannin$data$domain = tannin.data[domain]) === null || _tannin$data$domain === void 0 ? void 0 : _tannin$data$domain[""]
-                };
-                delete tannin.pluralForms[domain];
-            };
-            const setLocaleData = (data, domain) => {
-                doSetLocaleData(data, domain);
-                notifyListeners();
-            };
-            const addLocaleData = function(data) {
-                var _tannin$data$domain2;
-                let domain = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "default";
-                tannin.data[domain] = {
-                    ...tannin.data[domain],
-                    ...data,
-                    "": {
-                        ...DEFAULT_LOCALE_DATA[""],
-                        ...(_tannin$data$domain2 = tannin.data[domain]) === null || _tannin$data$domain2 === void 0 ? void 0 : _tannin$data$domain2[""],
-                        ...data === null || data === void 0 ? void 0 : data[""]
-                    }
-                };
-                delete tannin.pluralForms[domain];
-                notifyListeners();
-            };
-            const resetLocaleData = (data, domain) => {
-                tannin.data = {};
-                tannin.pluralForms = {};
-                setLocaleData(data, domain);
-            };
-            const dcnpgettext = function() {
-                let domain = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "default";
-                let context = arguments.length > 1 ? arguments[1] : undefined;
-                let single = arguments.length > 2 ? arguments[2] : undefined;
-                let plural = arguments.length > 3 ? arguments[3] : undefined;
-                let number = arguments.length > 4 ? arguments[4] : undefined;
-                if (!tannin.data[domain]) {
-                    doSetLocaleData(undefined, domain);
-                }
-                return tannin.dcnpgettext(domain, context, single, plural, number);
-            };
-            const getFilterDomain = function() {
-                let domain = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "default";
-                return domain;
-            };
-            const __ = (text, domain) => {
-                let translation = dcnpgettext(domain, undefined, text);
-                if (!hooks) {
-                    return translation;
-                }
-                translation = hooks.applyFilters("i18n.gettext", translation, text, domain);
-                return hooks.applyFilters("i18n.gettext_" + getFilterDomain(domain), translation, text, domain);
-            };
-            const _x = (text, context, domain) => {
-                let translation = dcnpgettext(domain, context, text);
-                if (!hooks) {
-                    return translation;
-                }
-                translation = hooks.applyFilters("i18n.gettext_with_context", translation, text, context, domain);
-                return hooks.applyFilters("i18n.gettext_with_context_" + getFilterDomain(domain), translation, text, context, domain);
-            };
-            const _n = (single, plural, number, domain) => {
-                let translation = dcnpgettext(domain, undefined, single, plural, number);
-                if (!hooks) {
-                    return translation;
-                }
-                translation = hooks.applyFilters("i18n.ngettext", translation, single, plural, number, domain);
-                return hooks.applyFilters("i18n.ngettext_" + getFilterDomain(domain), translation, single, plural, number, domain);
-            };
-            const _nx = (single, plural, number, context, domain) => {
-                let translation = dcnpgettext(domain, context, single, plural, number);
-                if (!hooks) {
-                    return translation;
-                }
-                translation = hooks.applyFilters("i18n.ngettext_with_context", translation, single, plural, number, context, domain);
-                return hooks.applyFilters("i18n.ngettext_with_context_" + getFilterDomain(domain), translation, single, plural, number, context, domain);
-            };
-            const isRTL = () => "rtl" === _x("ltr", "text direction");
-            const hasTranslation = (single, context, domain) => {
-                var _tannin$data, _tannin$data2;
-                const key = context ? context + "" + single : single;
-                let result = !!((_tannin$data = tannin.data) !== null && _tannin$data !== void 0 && (_tannin$data2 = _tannin$data[domain !== null && domain !== void 0 ? domain : "default"]) !== null && _tannin$data2 !== void 0 && _tannin$data2[key]);
-                if (hooks) {
-                    result = hooks.applyFilters("i18n.has_translation", result, single, context, domain);
-                    result = hooks.applyFilters("i18n.has_translation_" + getFilterDomain(domain), result, single, context, domain);
-                }
-                return result;
-            };
-            if (initialData) {
-                setLocaleData(initialData, initialDomain);
-            }
-            if (hooks) {
-                const onHookAddedOrRemoved = hookName => {
-                    if (I18N_HOOK_REGEXP.test(hookName)) {
-                        notifyListeners();
-                    }
-                };
-                hooks.addAction("hookAdded", "core/i18n", onHookAddedOrRemoved);
-                hooks.addAction("hookRemoved", "core/i18n", onHookAddedOrRemoved);
-            }
-            return {
-                getLocaleData,
-                setLocaleData,
-                addLocaleData,
-                resetLocaleData,
-                subscribe,
-                __,
-                _x,
-                _n,
-                _nx,
-                isRTL,
-                hasTranslation
-            };
-        };
-    }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-        "use strict";
-        __webpack_require__.r(__webpack_exports__);
-        __webpack_require__.d(__webpack_exports__, {
-            default: () => Tannin
-        });
-        var _tannin_plural_forms__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-        var DEFAULT_OPTIONS = {
-            contextDelimiter: "",
-            onMissingKey: null
-        };
-        function getPluralExpression(pf) {
-            var parts, i, part;
-            parts = pf.split(";");
-            for (i = 0; i < parts.length; i++) {
-                part = parts[i].trim();
-                if (part.indexOf("plural=") === 0) {
-                    return part.substr(7);
-                }
-            }
-        }
-        function Tannin(data, options) {
-            var key;
-            this.data = data;
-            this.pluralForms = {};
-            this.options = {};
-            for (key in DEFAULT_OPTIONS) {
-                this.options[key] = options !== undefined && key in options ? options[key] : DEFAULT_OPTIONS[key];
-            }
-        }
-        Tannin.prototype.getPluralForm = function(domain, n) {
-            var getPluralForm = this.pluralForms[domain], config, plural, pf;
-            if (!getPluralForm) {
-                config = this.data[domain][""];
-                pf = config["Plural-Forms"] || config["plural-forms"] || config.plural_forms;
-                if (typeof pf !== "function") {
-                    plural = getPluralExpression(config["Plural-Forms"] || config["plural-forms"] || config.plural_forms);
-                    pf = (0, _tannin_plural_forms__WEBPACK_IMPORTED_MODULE_0__["default"])(plural);
-                }
-                getPluralForm = this.pluralForms[domain] = pf;
-            }
-            return getPluralForm(n);
-        };
-        Tannin.prototype.dcnpgettext = function(domain, context, singular, plural, n) {
-            var index, key, entry;
-            if (n === undefined) {
-                index = 0;
-            } else {
-                index = this.getPluralForm(domain, n);
-            }
-            key = singular;
-            if (context) {
-                key = context + this.options.contextDelimiter + singular;
-            }
-            entry = this.data[domain][key];
-            if (entry && entry[index]) {
-                return entry[index];
-            }
-            if (this.options.onMissingKey) {
-                this.options.onMissingKey(singular, domain);
-            }
-            return index === 0 ? singular : plural;
-        };
-    }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-        "use strict";
-        __webpack_require__.r(__webpack_exports__);
-        __webpack_require__.d(__webpack_exports__, {
-            default: () => pluralForms
-        });
-        var _tannin_compile__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(49);
-        function pluralForms(expression) {
-            var evaluate = (0, _tannin_compile__WEBPACK_IMPORTED_MODULE_0__["default"])(expression);
-            return function(n) {
-                return +evaluate({
-                    n
-                });
-            };
-        }
-    }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-        "use strict";
-        __webpack_require__.r(__webpack_exports__);
-        __webpack_require__.d(__webpack_exports__, {
-            default: () => compile
-        });
-        var _tannin_postfix__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(50);
-        var _tannin_evaluate__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(51);
-        function compile(expression) {
-            var terms = (0, _tannin_postfix__WEBPACK_IMPORTED_MODULE_0__["default"])(expression);
-            return function(variables) {
-                return (0, _tannin_evaluate__WEBPACK_IMPORTED_MODULE_1__["default"])(terms, variables);
-            };
-        }
-    }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-        "use strict";
-        __webpack_require__.r(__webpack_exports__);
-        __webpack_require__.d(__webpack_exports__, {
-            default: () => postfix
-        });
-        var PRECEDENCE, OPENERS, TERMINATORS, PATTERN;
-        PRECEDENCE = {
-            "(": 9,
-            "!": 8,
-            "*": 7,
-            "/": 7,
-            "%": 7,
-            "+": 6,
-            "-": 6,
-            "<": 5,
-            "<=": 5,
-            ">": 5,
-            ">=": 5,
-            "==": 4,
-            "!=": 4,
-            "&&": 3,
-            "||": 2,
-            "?": 1,
-            "?:": 1
-        };
-        OPENERS = [ "(", "?" ];
-        TERMINATORS = {
-            ")": [ "(" ],
-            ":": [ "?", "?:" ]
-        };
-        PATTERN = /<=|>=|==|!=|&&|\|\||\?:|\(|!|\*|\/|%|\+|-|<|>|\?|\)|:/;
-        function postfix(expression) {
-            var terms = [], stack = [], match, operator, term, element;
-            while (match = expression.match(PATTERN)) {
-                operator = match[0];
-                term = expression.substr(0, match.index).trim();
-                if (term) {
-                    terms.push(term);
-                }
-                while (element = stack.pop()) {
-                    if (TERMINATORS[operator]) {
-                        if (TERMINATORS[operator][0] === element) {
-                            operator = TERMINATORS[operator][1] || operator;
-                            break;
-                        }
-                    } else if (OPENERS.indexOf(element) >= 0 || PRECEDENCE[element] < PRECEDENCE[operator]) {
-                        stack.push(element);
-                        break;
-                    }
-                    terms.push(element);
-                }
-                if (!TERMINATORS[operator]) {
-                    stack.push(operator);
-                }
-                expression = expression.substr(match.index + operator.length);
-            }
-            expression = expression.trim();
-            if (expression) {
-                terms.push(expression);
-            }
-            return terms.concat(stack.reverse());
-        }
-    }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-        "use strict";
-        __webpack_require__.r(__webpack_exports__);
-        __webpack_require__.d(__webpack_exports__, {
-            default: () => evaluate
-        });
-        var OPERATORS = {
-            "!": function(a) {
-                return !a;
-            },
-            "*": function(a, b) {
-                return a * b;
-            },
-            "/": function(a, b) {
-                return a / b;
-            },
-            "%": function(a, b) {
-                return a % b;
-            },
-            "+": function(a, b) {
-                return a + b;
-            },
-            "-": function(a, b) {
-                return a - b;
-            },
-            "<": function(a, b) {
-                return a < b;
-            },
-            "<=": function(a, b) {
-                return a <= b;
-            },
-            ">": function(a, b) {
-                return a > b;
-            },
-            ">=": function(a, b) {
-                return a >= b;
-            },
-            "==": function(a, b) {
-                return a === b;
-            },
-            "!=": function(a, b) {
-                return a !== b;
-            },
-            "&&": function(a, b) {
-                return a && b;
-            },
-            "||": function(a, b) {
-                return a || b;
-            },
-            "?:": function(a, b, c) {
-                if (a) {
-                    throw b;
-                }
-                return c;
-            }
-        };
-        function evaluate(postfix, variables) {
-            var stack = [], i, j, args, getOperatorResult, term, value;
-            for (i = 0; i < postfix.length; i++) {
-                term = postfix[i];
-                getOperatorResult = OPERATORS[term];
-                if (getOperatorResult) {
-                    j = getOperatorResult.length;
-                    args = Array(j);
-                    while (j--) {
-                        args[j] = stack.pop();
-                    }
-                    try {
-                        value = getOperatorResult.apply(null, args);
-                    } catch (earlyReturn) {
-                        return earlyReturn;
-                    }
-                } else if (variables.hasOwnProperty(term)) {
-                    value = variables[term];
-                } else {
-                    value = +term;
-                }
-                stack.push(value);
-            }
-            return stack[0];
-        }
-    }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-        "use strict";
-        __webpack_require__.r(__webpack_exports__);
-        __webpack_require__.d(__webpack_exports__, {
-            __: () => __,
-            _n: () => _n,
-            _nx: () => _nx,
-            _x: () => _x,
-            default: () => __WEBPACK_DEFAULT_EXPORT__,
-            getLocaleData: () => getLocaleData,
-            hasTranslation: () => hasTranslation,
-            isRTL: () => isRTL,
-            resetLocaleData: () => resetLocaleData,
-            setLocaleData: () => setLocaleData,
-            subscribe: () => subscribe
-        });
-        var _create_i18n__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(46);
-        var _wordpress_hooks__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(53);
-        var _wordpress_hooks__WEBPACK_IMPORTED_MODULE_1___default = __webpack_require__.n(_wordpress_hooks__WEBPACK_IMPORTED_MODULE_1__);
-        const i18n = (0, _create_i18n__WEBPACK_IMPORTED_MODULE_0__.createI18n)(undefined, undefined, _wordpress_hooks__WEBPACK_IMPORTED_MODULE_1__.defaultHooks);
-        const __WEBPACK_DEFAULT_EXPORT__ = i18n;
-        const getLocaleData = i18n.getLocaleData.bind(i18n);
-        const setLocaleData = i18n.setLocaleData.bind(i18n);
-        const resetLocaleData = i18n.resetLocaleData.bind(i18n);
-        const subscribe = i18n.subscribe.bind(i18n);
-        const __ = i18n.__.bind(i18n);
-        const _x = i18n._x.bind(i18n);
-        const _n = i18n._n.bind(i18n);
-        const _nx = i18n._nx.bind(i18n);
-        const isRTL = i18n.isRTL.bind(i18n);
-        const hasTranslation = i18n.hasTranslation.bind(i18n);
+        module.exports = window["wp"]["data"];
     }, module => {
         "use strict";
-        module.exports = window.wp.hooks;
+        module.exports = window["wp"]["i18n"];
     }, (module, __unused_webpack_exports, __webpack_require__) => {
         "use strict";
         if (false) {} else {
-            module.exports = __webpack_require__(55);
+            module.exports = __webpack_require__(49);
         }
     }, (__unused_webpack_module, exports, __webpack_require__) => {
         "use strict";
@@ -2872,8 +2143,8 @@
  */        if (true) {
             (function() {
                 "use strict";
-                var React = __webpack_require__(22);
-                var _assign = __webpack_require__(56);
+                var React = __webpack_require__(27);
+                var _assign = __webpack_require__(50);
                 var REACT_ELEMENT_TYPE = 60103;
                 var REACT_PORTAL_TYPE = 60106;
                 exports.Fragment = 60107;
@@ -3788,6 +3059,238 @@ object-assign
             }
             return to;
         };
+    }, module => {
+        "use strict";
+        module.exports = window["wp"]["element"];
+    }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+        "use strict";
+        __webpack_require__.r(__webpack_exports__);
+        __webpack_require__.d(__webpack_exports__, {
+            default: () => HeaderSettings
+        });
+        var _theme_switch__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53);
+        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
+        function HeaderSettings() {
+            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.Fragment, {
+                children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)(_theme_switch__WEBPACK_IMPORTED_MODULE_0__["default"], {})
+            });
+        }
+    }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+        "use strict";
+        __webpack_require__.r(__webpack_exports__);
+        __webpack_require__.d(__webpack_exports__, {
+            default: () => __WEBPACK_DEFAULT_EXPORT__
+        });
+        var html_react_parser__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(24);
+        var _wordpress_components__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(45);
+        var _wordpress_components__WEBPACK_IMPORTED_MODULE_1___default = __webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__);
+        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(47);
+        var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2___default = __webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__);
+        var _wordpress_icons__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(55);
+        var _wordpress_element__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(51);
+        var _wordpress_element__WEBPACK_IMPORTED_MODULE_3___default = __webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_3__);
+        var _wordpress_editor__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(54);
+        var _wordpress_editor__WEBPACK_IMPORTED_MODULE_4___default = __webpack_require__.n(_wordpress_editor__WEBPACK_IMPORTED_MODULE_4__);
+        var _wordpress_data__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(46);
+        var _wordpress_data__WEBPACK_IMPORTED_MODULE_5___default = __webpack_require__.n(_wordpress_data__WEBPACK_IMPORTED_MODULE_5__);
+        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(48);
+        function _toConsumableArray(arr) {
+            return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
+        }
+        function _nonIterableSpread() {
+            throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+        }
+        function _iterableToArray(iter) {
+            if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
+        }
+        function _arrayWithoutHoles(arr) {
+            if (Array.isArray(arr)) return _arrayLikeToArray(arr);
+        }
+        function ownKeys(object, enumerableOnly) {
+            var keys = Object.keys(object);
+            if (Object.getOwnPropertySymbols) {
+                var symbols = Object.getOwnPropertySymbols(object);
+                enumerableOnly && (symbols = symbols.filter((function(sym) {
+                    return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+                }))), keys.push.apply(keys, symbols);
+            }
+            return keys;
+        }
+        function _objectSpread(target) {
+            for (var i = 1; i < arguments.length; i++) {
+                var source = null != arguments[i] ? arguments[i] : {};
+                i % 2 ? ownKeys(Object(source), !0).forEach((function(key) {
+                    _defineProperty(target, key, source[key]);
+                })) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach((function(key) {
+                    Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+                }));
+            }
+            return target;
+        }
+        function _defineProperty(obj, key, value) {
+            if (key in obj) {
+                Object.defineProperty(obj, key, {
+                    value,
+                    enumerable: true,
+                    configurable: true,
+                    writable: true
+                });
+            } else {
+                obj[key] = value;
+            }
+            return obj;
+        }
+        function _slicedToArray(arr, i) {
+            return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
+        }
+        function _nonIterableRest() {
+            throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+        }
+        function _unsupportedIterableToArray(o, minLen) {
+            if (!o) return;
+            if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+            var n = Object.prototype.toString.call(o).slice(8, -1);
+            if (n === "Object" && o.constructor) n = o.constructor.name;
+            if (n === "Map" || n === "Set") return Array.from(o);
+            if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+        }
+        function _arrayLikeToArray(arr, len) {
+            if (len == null || len > arr.length) len = arr.length;
+            for (var i = 0, arr2 = new Array(len); i < len; i++) {
+                arr2[i] = arr[i];
+            }
+            return arr2;
+        }
+        function _iterableToArrayLimit(arr, i) {
+            var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
+            if (_i == null) return;
+            var _arr = [];
+            var _n = true;
+            var _d = false;
+            var _s, _e;
+            try {
+                for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) {
+                    _arr.push(_s.value);
+                    if (i && _arr.length === i) break;
+                }
+            } catch (err) {
+                _d = true;
+                _e = err;
+            } finally {
+                try {
+                    if (!_n && _i["return"] != null) _i["return"]();
+                } finally {
+                    if (_d) throw _e;
+                }
+            }
+            return _arr;
+        }
+        function _arrayWithHoles(arr) {
+            if (Array.isArray(arr)) return arr;
+        }
+        var ThemeSwitch = function ThemeSwitch() {
+            var getEditorSettings = (0, _wordpress_data__WEBPACK_IMPORTED_MODULE_5__.useSelect)((function(select) {
+                var _select = select(_wordpress_editor__WEBPACK_IMPORTED_MODULE_4__.store), getEditorSettings = _select.getEditorSettings;
+                return getEditorSettings;
+            }), []);
+            var _useDispatch = (0, _wordpress_data__WEBPACK_IMPORTED_MODULE_5__.useDispatch)(_wordpress_editor__WEBPACK_IMPORTED_MODULE_4__.store), updateEditorSettings = _useDispatch.updateEditorSettings;
+            var _useState = (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)("auto"), _useState2 = _slicedToArray(_useState, 2), currentTheme = _useState2[0], setCurrentTheme = _useState2[1];
+            var icons = {
+                auto: (0, html_react_parser__WEBPACK_IMPORTED_MODULE_0__["default"])('<svg width="24px" height="24px" xmlns="http://www.w3.org/2000/svg" viewBox="-100 -100 712 712"><path d="M512 256c0 .9 0 1.8 0 2.7c-.4 36.5-33.6 61.3-70.1 61.3H344c-26.5 0-48 21.5-48 48c0 3.4 .4 6.7 1 9.9c2.1 10.2 6.5 20 10.8 29.9c6.1 13.8 12.1 27.5 12.1 42c0 31.8-21.6 60.7-53.4 62c-3.5 .1-7 .2-10.6 .2C114.6 512 0 397.4 0 256S114.6 0 256 0S512 114.6 512 256zM128 288a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zm0-96a32 32 0 1 0 0-64 32 32 0 1 0 0 64zM288 96a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zm96 96a32 32 0 1 0 0-64 32 32 0 1 0 0 64z"/></svg>'),
+                light: (0, html_react_parser__WEBPACK_IMPORTED_MODULE_0__["default"])('<svg width="24px" height="24px" xmlns="http://www.w3.org/2000/svg" viewBox="-100 -100 712 712"><path d="M361.5 1.2c5 2.1 8.6 6.6 9.6 11.9L391 121l107.9 19.8c5.3 1 9.8 4.6 11.9 9.6s1.5 10.7-1.6 15.2L446.9 256l62.3 90.3c3.1 4.5 3.7 10.2 1.6 15.2s-6.6 8.6-11.9 9.6L391 391 371.1 498.9c-1 5.3-4.6 9.8-9.6 11.9s-10.7 1.5-15.2-1.6L256 446.9l-90.3 62.3c-4.5 3.1-10.2 3.7-15.2 1.6s-8.6-6.6-9.6-11.9L121 391 13.1 371.1c-5.3-1-9.8-4.6-11.9-9.6s-1.5-10.7 1.6-15.2L65.1 256 2.8 165.7c-3.1-4.5-3.7-10.2-1.6-15.2s6.6-8.6 11.9-9.6L121 121 140.9 13.1c1-5.3 4.6-9.8 9.6-11.9s10.7-1.5 15.2 1.6L256 65.1 346.3 2.8c4.5-3.1 10.2-3.7 15.2-1.6zM160 256a96 96 0 1 1 192 0 96 96 0 1 1 -192 0zm224 0a128 128 0 1 0 -256 0 128 128 0 1 0 256 0z"/></svg>'),
+                dark: (0, html_react_parser__WEBPACK_IMPORTED_MODULE_0__["default"])('<svg width="24px" height="24px" xmlns="http://www.w3.org/2000/svg" viewBox="-100 -100 584 712"><path d="M223.5 32C100 32 0 132.3 0 256S100 480 223.5 480c60.6 0 115.5-24.2 155.8-63.4c5-4.9 6.3-12.5 3.1-18.7s-10.1-9.7-17-8.5c-9.8 1.7-19.8 2.6-30.1 2.6c-96.9 0-175.5-78.8-175.5-176c0-65.8 36-123.1 89.3-153.3c6.1-3.5 9.2-10.5 7.7-17.3s-7.3-11.9-14.3-12.5c-6.3-.5-12.6-.8-19-.8z"/></svg>')
+            };
+            var icon = icons[currentTheme];
+            var handleThemeSwitch = function handleThemeSwitch(theme) {
+                setCurrentTheme(theme);
+                var current = document.querySelector("style#kenta-editor-color-theme");
+                if (current) {
+                    current.remove();
+                }
+                var css = "";
+                var id = "kenta-editor-color-theme";
+                if (theme !== "auto") {
+                    css = "\n            :root, .editor-styles-wrapper {\n                --kenta-transparent    : rgba(0, 0, 0, 0) !important;\n                --kenta-primary-color  : var(--kenta-".concat(theme, "-primary-color, var(--kenta-light-primary-color)) !important;\n                --kenta-primary-active : var(--kenta-").concat(theme, "-primary-active, var(--kenta-light-primary-active)) !important;\n                --kenta-accent-color   : var(--kenta-").concat(theme, "-accent-color, var(--kenta-light-accent-color)) !important;\n                --kenta-accent-active  : var(--kenta-").concat(theme, "-accent-active, var(--kenta-light-accent-active)) !important;\n                --kenta-base-color     : var(--kenta-").concat(theme, "-base-color, var(--kenta-light-base-color)) !important;\n                --kenta-base-100       : var(--kenta-").concat(theme, "-base-100, var(--kenta-light-base-100)) !important;\n                --kenta-base-200       : var(--kenta-").concat(theme, "-base-200, var(--kenta-light-base-200)) !important;\n                --kenta-base-300       : var(--kenta-").concat(theme, "-base-300, var(--kenta-light-base-300)) !important;\n            }\n            ");
+                }
+                if (getEditorSettings && updateEditorSettings) {
+                    var editorSettings = getEditorSettings();
+                    var otherStyles = editorSettings.styles.filter((function(_ref) {
+                        var _ref$id = _ref.id, styleId = _ref$id === void 0 ? "" : _ref$id;
+                        return styleId !== id;
+                    }));
+                    var style = {
+                        id,
+                        css,
+                        isGlobalStyles: true
+                    };
+                    updateEditorSettings(_objectSpread(_objectSpread({}, editorSettings), {}, {
+                        styles: [ style ].concat(_toConsumableArray(otherStyles))
+                    }));
+                } else {
+                    var styleEl = document.getElementById(id);
+                    if (!styleEl) {
+                        styleEl = document.createElement("style");
+                        styleEl.setAttribute("id", id);
+                    }
+                    styleEl.innerHTML = css;
+                    document.head.appendChild(styleEl);
+                }
+            };
+            return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.DropdownMenu, {
+                icon,
+                label: (0, _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Select theme scheme", "kenta"),
+                children: function children(_ref2) {
+                    var onClose = _ref2.onClose;
+                    return (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.Fragment, {
+                        children: (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.MenuGroup, {
+                            children: [ (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.MenuItem, {
+                                icon: currentTheme === "auto" ? _wordpress_icons__WEBPACK_IMPORTED_MODULE_7__["default"] : null,
+                                onClick: function onClick() {
+                                    return handleThemeSwitch("auto");
+                                },
+                                children: [ icons.auto, " ", (0, _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Theme", "kenta") ]
+                            }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.MenuItem, {
+                                icon: currentTheme === "light" ? _wordpress_icons__WEBPACK_IMPORTED_MODULE_7__["default"] : null,
+                                onClick: function onClick() {
+                                    return handleThemeSwitch("light");
+                                },
+                                children: [ icons.light, " ", (0, _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Light", "kenta") ]
+                            }), (0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.MenuItem, {
+                                icon: currentTheme === "dark" ? _wordpress_icons__WEBPACK_IMPORTED_MODULE_7__["default"] : null,
+                                onClick: function onClick() {
+                                    return handleThemeSwitch("dark");
+                                },
+                                children: [ icons.dark, " ", (0, _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)("Dark", "kenta") ]
+                            }) ]
+                        })
+                    });
+                }
+            });
+        };
+        const __WEBPACK_DEFAULT_EXPORT__ = ThemeSwitch;
+    }, module => {
+        "use strict";
+        module.exports = window["wp"]["editor"];
+    }, (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+        "use strict";
+        __webpack_require__.r(__webpack_exports__);
+        __webpack_require__.d(__webpack_exports__, {
+            default: () => __WEBPACK_DEFAULT_EXPORT__
+        });
+        var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(51);
+        var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = __webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
+        var _wordpress_primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(56);
+        var _wordpress_primitives__WEBPACK_IMPORTED_MODULE_1___default = __webpack_require__.n(_wordpress_primitives__WEBPACK_IMPORTED_MODULE_1__);
+        const check = (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_primitives__WEBPACK_IMPORTED_MODULE_1__.SVG, {
+            xmlns: "http://www.w3.org/2000/svg",
+            viewBox: "0 0 24 24"
+        }, (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_primitives__WEBPACK_IMPORTED_MODULE_1__.Path, {
+            d: "M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z"
+        }));
+        const __WEBPACK_DEFAULT_EXPORT__ = check;
+    }, module => {
+        "use strict";
+        module.exports = window["wp"]["primitives"];
     } ];
     var __webpack_module_cache__ = {};
     function __webpack_require__(moduleId) {
@@ -3841,13 +3344,46 @@ object-assign
     (() => {
         "use strict";
         __webpack_require__.r(__webpack_exports__);
-        var _wordpress_plugins__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(17);
+        var _wordpress_plugins__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(22);
         var _wordpress_plugins__WEBPACK_IMPORTED_MODULE_0___default = __webpack_require__.n(_wordpress_plugins__WEBPACK_IMPORTED_MODULE_0__);
-        var _admin_settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(18);
+        var _admin_settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(23);
+        var _wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(1);
+        var _wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_2___default = __webpack_require__.n(_wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_2__);
+        var _wordpress_data__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(46);
+        var _wordpress_data__WEBPACK_IMPORTED_MODULE_3___default = __webpack_require__.n(_wordpress_data__WEBPACK_IMPORTED_MODULE_3__);
+        var _wordpress_element__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(51);
+        var _wordpress_element__WEBPACK_IMPORTED_MODULE_4___default = __webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_4__);
+        var _admin_header_settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(52);
+        var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(48);
         (function(wp) {
             (0, _wordpress_plugins__WEBPACK_IMPORTED_MODULE_0__.registerPlugin)("kenta-theme-settings", {
                 render: _admin_settings__WEBPACK_IMPORTED_MODULE_1__["default"]
             });
         })(window.wp);
+        _wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_2___default()((function() {
+            if ("widgets" === window.pagenow || "customize" === window.pagenow) return;
+            var timeout = null;
+            var unsubscribe = (0, _wordpress_data__WEBPACK_IMPORTED_MODULE_3__.subscribe)((function() {
+                var settingsBar = document.querySelector(".edit-post-header__settings, .editor-header__settings");
+                if (!settingsBar) return;
+                var wrapper = document.createElement("div");
+                wrapper.classList.add("kenta-edit-post-header-settings");
+                if (!document.querySelector(".kenta-edit-post-header-settings")) {
+                    if (_wordpress_element__WEBPACK_IMPORTED_MODULE_4__.createRoot) {
+                        (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_4__.createRoot)(wrapper).render((0, 
+                        react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_admin_header_settings__WEBPACK_IMPORTED_MODULE_5__["default"], {}));
+                    } else {
+                        (0, _wordpress_element__WEBPACK_IMPORTED_MODULE_4__.render)((0, react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_admin_header_settings__WEBPACK_IMPORTED_MODULE_5__["default"], {}), wrapper);
+                    }
+                    settingsBar.prepend(wrapper);
+                }
+                if (timeout) clearTimeout(timeout);
+                timeout = setTimeout((function() {
+                    if (document.querySelector(".kenta-edit-post-header-settings")) {
+                        unsubscribe();
+                    }
+                }), 0);
+            }));
+        }));
     })();
 })();

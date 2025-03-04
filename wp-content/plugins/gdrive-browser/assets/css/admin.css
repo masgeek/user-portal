@@ -1,0 +1,86 @@
+.gdi-file-browser {
+    margin-top: 20px;
+}
+
+.gdi-navigation {
+    margin: 15px 0;
+}
+
+#gdi-connection-status {
+    margin-left: 10px;
+    line-height: 28px;
+}
+
+.gdi-success {
+    color: green;
+}
+
+.gdi-error {
+    color: red;
+}
+
+.gdi-upload-wrapper {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.gdi-file-name {
+    margin-left: 10px;
+    font-style: italic;
+}
+
+.gdi-file-input {
+    display: inline-block;
+}
+
+.gdi-upload-container {
+    margin-bottom: 15px;
+}
+
+.gdi-manual-entry {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.gdi-manual-entry summary {
+    cursor: pointer;
+    color: #0073aa;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+
+.gdi-manual-entry textarea {
+    margin-bottom: 5px;
+}
+
+.gdi-docs-panel {
+    background: #f7f7f7;
+    border-left: 4px solid #4285f4;
+    padding: 15px;
+    margin: 20px 0;
+}
+
+.gdi-docs-panel h3 {
+    margin-top: 0;
+    color: #4285f4;
+}
+
+.gdi-docs-panel h4 {
+    margin-bottom: 5px;
+}
+
+.gdi-docs-panel pre {
+    background: #fff;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    overflow: auto;
+}
+
+.gdi-docs-panel code {
+    background: #fff;
+    padding: 2px 5px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}

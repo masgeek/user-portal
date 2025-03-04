@@ -1,4 +1,10 @@
 <?php
+/**
+ * Forminator Admin Import Gravity
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -34,6 +40,8 @@ class Forminator_Admin_Import_Gravity extends Forminator_Import_Mediator {
 
 	/**
 	 * Insert form data
+	 *
+	 * @param int $id Form Id.
 	 *
 	 * @since 1.7
 	 * @return array Form import message
@@ -189,5 +197,4 @@ class Forminator_Admin_Import_Gravity extends Forminator_Import_Mediator {
 
 		return $import;
 	}
-
 }

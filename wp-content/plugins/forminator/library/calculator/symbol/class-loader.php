@@ -1,44 +1,49 @@
 <?php
+/**
+ * The Forminator_Calculator_Symbol_Loader class.
+ *
+ * @package Forminator
+ */
 
-require_once dirname( __FILE__ ) . '/abstract/abstract-class.php';
-require_once dirname( __FILE__ ) . '/abstract/abstract-class-constant.php';
-require_once dirname( __FILE__ ) . '/abstract/abstract-class-function.php';
-require_once dirname( __FILE__ ) . '/abstract/abstract-class-operator.php';
+// Include required files.
+require_once __DIR__ . '/abstract/abstract-class.php';
+require_once __DIR__ . '/abstract/abstract-class-constant.php';
+require_once __DIR__ . '/abstract/abstract-class-function.php';
+require_once __DIR__ . '/abstract/abstract-class-operator.php';
 
-require_once dirname( __FILE__ ) . '/class-number.php';
-require_once dirname( __FILE__ ) . '/class-separator.php';
+require_once __DIR__ . '/class-number.php';
+require_once __DIR__ . '/class-separator.php';
 
 
-require_once dirname( __FILE__ ) . '/brackets/class-opening-bracket.php';
-require_once dirname( __FILE__ ) . '/brackets/class-closing-bracket.php';
+require_once __DIR__ . '/brackets/class-opening-bracket.php';
+require_once __DIR__ . '/brackets/class-closing-bracket.php';
 
-require_once dirname( __FILE__ ) . '/constants/class-constant-pi.php';
+require_once __DIR__ . '/constants/class-constant-pi.php';
 
-require_once dirname( __FILE__ ) . '/operators/class-operator-addition.php';
-require_once dirname( __FILE__ ) . '/operators/class-operator-division.php';
-require_once dirname( __FILE__ ) . '/operators/class-operator-exponentiation.php';
-require_once dirname( __FILE__ ) . '/operators/class-operator-modulo.php';
-require_once dirname( __FILE__ ) . '/operators/class-operator-multiplication.php';
-require_once dirname( __FILE__ ) . '/operators/class-operator-subtraction.php';
+require_once __DIR__ . '/operators/class-operator-addition.php';
+require_once __DIR__ . '/operators/class-operator-division.php';
+require_once __DIR__ . '/operators/class-operator-exponentiation.php';
+require_once __DIR__ . '/operators/class-operator-modulo.php';
+require_once __DIR__ . '/operators/class-operator-multiplication.php';
+require_once __DIR__ . '/operators/class-operator-subtraction.php';
 
-require_once dirname( __FILE__ ) . '/functions/class-function-abs.php';
-require_once dirname( __FILE__ ) . '/functions/class-function-avg.php';
-require_once dirname( __FILE__ ) . '/functions/class-function-ceil.php';
-require_once dirname( __FILE__ ) . '/functions/class-function-days-between.php';
-require_once dirname( __FILE__ ) . '/functions/class-function-floor.php';
-require_once dirname( __FILE__ ) . '/functions/class-function-hours-between.php';
-require_once dirname( __FILE__ ) . '/functions/class-function-max.php';
-require_once dirname( __FILE__ ) . '/functions/class-function-min.php';
-require_once dirname( __FILE__ ) . '/functions/class-function-minutes-between.php';
-require_once dirname( __FILE__ ) . '/functions/class-function-months-between.php';
-require_once dirname( __FILE__ ) . '/functions/class-function-round.php';
-require_once dirname( __FILE__ ) . '/functions/class-function-seconds-between.php';
-require_once dirname( __FILE__ ) . '/functions/class-function-years-between.php';
+require_once __DIR__ . '/functions/class-function-abs.php';
+require_once __DIR__ . '/functions/class-function-avg.php';
+require_once __DIR__ . '/functions/class-function-ceil.php';
+require_once __DIR__ . '/functions/class-function-days-between.php';
+require_once __DIR__ . '/functions/class-function-floor.php';
+require_once __DIR__ . '/functions/class-function-hours-between.php';
+require_once __DIR__ . '/functions/class-function-max.php';
+require_once __DIR__ . '/functions/class-function-min.php';
+require_once __DIR__ . '/functions/class-function-minutes-between.php';
+require_once __DIR__ . '/functions/class-function-months-between.php';
+require_once __DIR__ . '/functions/class-function-round.php';
+require_once __DIR__ . '/functions/class-function-seconds-between.php';
+require_once __DIR__ . '/functions/class-function-years-between.php';
 
 
 /**
  * The symbol container manages an array with all symbol objects.
- *
  */
 class Forminator_Calculator_Symbol_Loader {
 
@@ -97,7 +102,6 @@ class Forminator_Calculator_Symbol_Loader {
 	 * creates objects of these classes and stores them.
 	 *
 	 * @return void
-	 * @throws \LengthException
 	 */
 	protected function prepare() {
 		$symbol_registry = $this->symbol_registry;
@@ -124,7 +128,7 @@ class Forminator_Calculator_Symbol_Loader {
 	 * Returns the symbol that has the given identifier.
 	 * Returns null if none is found.
 	 *
-	 * @param string $identifier
+	 * @param string $identifier Identifier.
 	 *
 	 * @return Forminator_Calculator_Symbol_Abstract|null
 	 */
@@ -148,7 +152,7 @@ class Forminator_Calculator_Symbol_Loader {
 	 * AbstractSymbol.
 	 * Notice: The parent type name will not be validated!
 	 *
-	 * @param string $parent_type_name
+	 * @param string $parent_type_name Parent type name.
 	 *
 	 * @return Forminator_Calculator_Symbol_Abstract[]
 	 */
@@ -163,5 +167,4 @@ class Forminator_Calculator_Symbol_Loader {
 
 		return $symbols;
 	}
-
 }

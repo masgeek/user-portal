@@ -38,7 +38,7 @@ if ( ! class_exists( 'BravePopup_Review_Notice' ) ) {
          <script>
             function bravePop_review_submit(action_type){
                var bravepop_review_request = new XMLHttpRequest();
-               bravepop_review_request.open('POST', '<?php echo admin_url( 'admin-ajax.php' ) ?>', true);
+               bravepop_review_request.open('POST', '<?php echo esc_url(admin_url( 'admin-ajax.php' )) ?>', true);
                bravepop_review_request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded' );
                bravepop_review_request.onload = function () {  
                   document.getElementById('bravepop-review-notice').style.display = 'none';
@@ -46,7 +46,7 @@ if ( ! class_exists( 'BravePopup_Review_Notice' ) ) {
                bravepop_review_request.onerror = function(error) {  console.log(error);   };
                
                var bravePopuReviewDataArray = [];
-               var bravepop_review_ajaxData = { security: '<?php echo wp_create_nonce( "bravepop-plugin-review" ); ?>', action: 'bravepop_review_ajax', type: action_type };
+               var bravepop_review_ajaxData = { security: '<?php echo esc_html(wp_create_nonce( "bravepop-plugin-review" )); ?>', action: 'bravepop_review_ajax', type: action_type };
                Object.keys(bravepop_review_ajaxData).forEach(function(element) {
                   bravePopuReviewDataArray.push(  encodeURIComponent(element) + "=" + encodeURIComponent(bravepop_review_ajaxData[element]) ) 
                });
@@ -66,10 +66,10 @@ if ( ! class_exists( 'BravePopup_Review_Notice' ) ) {
          ?>
          
             <div id="bravepop-review-notice" class="notice notice-success is-dismissible" style="margin-top:30px; font-weight: 600; font-size: 15px;">
-               <p style="font-size: 15px;"><?php echo $icon.' '.esc_html( $messages ); ?></p>
+               <p style="font-size: 15px;"><?php echo esc_html( $icon.' '.$messages ); ?></p>
                <p class="actions">
-                  <a id="bravepop-rate" onclick="bravePop_review_submit('rated')" href="https://wordpress.org/support/plugin/brave-popup-builder/reviews/#new-post" target="_blank" class="button button-primary bravepop-review-button"><span class="dashicons dashicons-yes" style="position: relative; top: 4px; margin-left: -8px; width: 20px; height: 20px;"></span> <?php echo $rateBtn;?></a>
-                  <a id="bravepop-no-rate" href="#" onclick="bravePop_review_submit('not_rated')" style="margin-left:10px"><?php echo $cancelBtn;?></a>
+                  <a id="bravepop-rate" onclick="bravePop_review_submit('rated')" href="https://wordpress.org/support/plugin/brave-popup-builder/reviews/#new-post" target="_blank" class="button button-primary bravepop-review-button"><span class="dashicons dashicons-yes" style="position: relative; top: 4px; margin-left: -8px; width: 20px; height: 20px;"></span> <?php echo esc_html($rateBtn);?></a>
+                  <a id="bravepop-no-rate" href="#" onclick="bravePop_review_submit('not_rated')" style="margin-left:10px"><?php echo esc_html($cancelBtn);?></a>
                </p>
             </div>
        <?php }

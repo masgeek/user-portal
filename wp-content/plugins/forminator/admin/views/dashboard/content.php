@@ -1,3 +1,11 @@
+<?php
+/**
+ * Template admin/views/dashboard/content.php
+ *
+ * @package Forminator
+ */
+
+?>
 <section class="wpmudev-dashboard-section">
 
 	<?php $this->template( 'dashboard/widgets/widget-resume' ); ?>
@@ -27,11 +35,15 @@
 	</div>
 
 	<?php
-	$notice_dismissed = get_option( 'forminator_dismiss_feature_1231', false );
+	$notice_dismissed = get_option( 'forminator_dismiss_feature_1380', false );
 	$version_upgraded = get_option( 'forminator_version_upgraded', false );
 
-	if ( ! $notice_dismissed && $version_upgraded && forminator_is_show_documentation_link() && ! isset( $_GET['createnew'] ) ) {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$show_popup = ! $notice_dismissed && $version_upgraded && forminator_is_show_documentation_link() && ! isset( $_GET['createnew'] );
+	$force      = filter_input( INPUT_GET, 'show-new-feature-notice', FILTER_VALIDATE_BOOLEAN );
+	if ( $show_popup || $force ) {
 		$this->template( 'dashboard/new-feature-notice' );
-	} ?>
+	}
+	?>
 
 </section>

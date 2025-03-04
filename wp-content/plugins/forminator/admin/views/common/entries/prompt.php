@@ -1,4 +1,10 @@
 <?php
+/**
+ * Template admin/views/common/entries/prompt.php
+ *
+ * @package Forminator
+ */
+
 if ( ! FORMINATOR_PRO ) {
 	$submission               = $args['submissions'];
 	$form_id                  = $this->form_id;
@@ -9,7 +15,7 @@ if ( ! FORMINATOR_PRO ) {
 	$min_submissions          = isset( $args['min_submissions'] ) ? $args['min_submissions'] : 10;
 	if ( ! $notice_dismissed && ! $notice_success ) {
 		if ( ( $min_submissions < $submission && 100 >= $submission && ! $submission_later )
-			 || ( 100 < $submission && ! $submission_later_dismiss ) ) { ?>
+			|| ( 100 < $submission && ! $submission_later_dismiss ) ) { ?>
 			<div
 				role="alert"
 				class="sui-notice sui-notice-purple sui-active forminator-rating-notice fui-notice-rate<?php echo forminator_is_show_branding() ? '' : ' fui-unbranded'; ?>"
@@ -28,7 +34,8 @@ if ( ! FORMINATOR_PRO ) {
 							<?php
 							if ( empty( $args['notice'] ) ) {
 								$milestone = ( 100 >= $submission ) ? $min_submissions : 100;
-								printf( esc_html__( "Hey, we noticed you just crossed %1\$s submissions%2\$s on this %3\$s - that's awesome! We have spent countless hours developing this free plugin for you, and we would really appreciate it if you could drop us a rating on wp.org to help us spread the word and boost our motivation.", 'forminator' ), '<strong> ' . (int) $milestone, '</strong>', esc_html( static::$module_slug ) );
+								/* Translators: 1. Opening <strong> tag with milestone value, 2. closing <strong> tag, 3. Module slug */
+								printf( esc_html__( 'Hey, we noticed you just crossed %1$s submissions%2$s on this %3$s - that\'s awesome! We have spent countless hours developing this free plugin for you, and we would really appreciate it if you could drop us a rating on wp.org to help us spread the word and boost our motivation.', 'forminator' ), '<strong> ' . (int) $milestone, '</strong>', esc_html( static::$module_slug ) );
 							} else {
 								echo wp_kses_post( $args['notice'] );
 							}
@@ -45,7 +52,6 @@ if ( ! FORMINATOR_PRO ) {
 									data-prop="<?php echo 100 > $submission ? 'forminator_submission_rating_later' : 'forminator_submission_rating_later_dismiss'; ?>"><?php esc_html_e( 'Maybe later', 'forminator' ); ?></button>
 
 							<a href="#" style="color: #888;"
-							data-prop="forminator_rating_dismissed"
 							data-prop="forminator_rating_dismissed"><?php esc_html_e( 'No Thanks', 'forminator' ); ?></a>
 						</p>
 

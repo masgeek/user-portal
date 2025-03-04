@@ -9,6 +9,13 @@ use LottaFramework\Utils;
 class Sanitizes {
 
 	/**
+	 * Return primitive value
+	 */
+	public static function primitive( $v ) {
+		return $v;
+	}
+
+	/**
 	 * Typography sanitization
 	 *
 	 * @param $value
@@ -23,21 +30,21 @@ class Sanitizes {
 			'fontSize'       => self::responsive_sanitize( [ self::class, 'slider' ], $value['fontSize'] ?? '', [
 				'options' => [
 					'units' => [
-						[ 'unit' => 'px', 'min' => 0, 'max' => 200 ],
-						[ 'unit' => 'pt', 'min' => 0, 'max' => 50 ],
-						[ 'unit' => 'em', 'min' => 0, 'max' => 50 ],
-						[ 'unit' => 'rem', 'min' => 0, 'max' => 50 ],
+						[ 'unit' => 'px', 'min' => 10, 'max' => 200 ],
+						[ 'unit' => 'pt', 'min' => 10, 'max' => 50 ],
+						[ 'unit' => 'em', 'min' => 0.5, 'max' => 50 ],
+						[ 'unit' => 'rem', 'min' => 0.5, 'max' => 50 ],
 					],
 				],
 			] ),
 			'lineHeight'     => self::responsive_sanitize( [ self::class, 'slider' ], $value['lineHeight'] ?? '', [
 				'options' => [
 					'units' => [
-						[ 'unit' => '', 'min' => 0, 'max' => 10 ],
-						[ 'unit' => 'px', 'min' => 0, 'max' => 100 ],
-						[ 'unit' => 'pt', 'min' => 0, 'max' => 100 ],
-						[ 'unit' => 'em', 'min' => 0, 'max' => 100 ],
-						[ 'unit' => 'rem', 'min' => 0, 'max' => 100 ],
+						[ 'unit' => '', 'min' => 1, 'max' => 10 ],
+						[ 'unit' => 'px', 'min' => 10, 'max' => 100 ],
+						[ 'unit' => 'pt', 'min' => 10, 'max' => 100 ],
+						[ 'unit' => 'em', 'min' => 1, 'max' => 100 ],
+						[ 'unit' => 'rem', 'min' => 1, 'max' => 100 ],
 					],
 				],
 			] ),
@@ -60,6 +67,49 @@ class Sanitizes {
 				'underline',
 				'line-through'
 			] ) ? $value['textDecoration'] ?? '' : '',
+		];
+	}
+
+	/**
+	 * Sanitize responsive control value
+	 *
+	 * @param $callback
+	 * @param $input
+	 * @param $args
+	 *
+	 * @return array
+	 */
+	public static function responsive_sanitize( $callback, $input, $args ): array {
+
+		$input = self::get_responsive_value( $input );
+
+		foreach ( $input as $dev => $value ) {
+			if ( $value !== Css::INITIAL_VALUE ) {
+				$input[ $dev ] = call_user_func( $callback, $value, $args );
+			} else {
+				$input[ $dev ] = $value;
+			}
+		}
+
+		return $input;
+	}
+
+	/**
+	 * Get responsive value
+	 *
+	 * @param $value
+	 *
+	 * @return array
+	 */
+	public static function get_responsive_value( $value ): array {
+		if ( is_array( $value ) && isset( $value['desktop'] ) ) {
+			return $value;
+		}
+
+		return [
+			'desktop' => $value,
+			'tablet'  => Css::INITIAL_VALUE,
+			'mobile'  => Css::INITIAL_VALUE,
 		];
 	}
 
@@ -104,6 +154,95 @@ class Sanitizes {
 			] ),
 			'color'      => self::rgba_color( $input['color'] ?? '' ),
 		];
+	}
+
+	/**
+	 * Slider sanitization
+	 *
+	 * @param $value
+	 * @param $args
+	 *
+	 * @return int
+	 */
+	public static function slider( $value, $args ) {
+
+		$options = $args['options'] ?? [];
+		$min     = $options['min'] ?? 0;
+		$max     = $options['max'] ?? 100;
+
+		if ( ! is_string( $value ) && ! is_numeric( $value ) ) {
+			return '';
+		}
+
+		$unit = preg_replace( [ '/[0-9]/', '/\-/', '/\./' ], '', $value );
+		if ( $unit === '' ) {
+			$unit = isset( $options['units'] )
+				? $options['units'][0]['unit']
+				: (
+				isset( $options['defaultUnit'] ) && $options['defaultUnit'] === false
+					? ''
+					: $options['defaultUnit'] ?? 'px'
+				);
+		}
+
+		if ( isset( $options['units'] ) ) {
+			foreach ( $options['units'] as $config ) {
+				if ( $config['unit'] === $unit ) {
+					$max = $config['max'] ?? $max;
+					$min = $config['min'] ?? $min;
+					break;
+				}
+			}
+		}
+
+		$number = floatval( $value );
+
+		if ( isset( $max ) && $number > $max ) {
+			$number = $max;
+		} elseif ( $number < $min ) {
+			$number = $min;
+		}
+
+		$number = number_format( (float) $number, 2, '.', '' );
+		if ( $number == (int) $number ) {
+			$number = (int) $number;
+		}
+
+		return ( is_numeric( $number ) ? $number : $min ) . $unit;
+	}
+
+	/**
+	 * RGBA color sanitization callback example.
+	 *
+	 * @param $color
+	 *
+	 * @return string|void
+	 */
+	public static function rgba_color( $color ) {
+		if ( $color === Css::INITIAL_VALUE ) {
+			return $color;
+		}
+
+		// css var
+		if ( false !== strpos( $color, 'var' ) ) {
+			return $color;
+		}
+
+		if ( empty( $color ) || is_array( $color ) ) {
+			return 'rgba(0,0,0,0)';
+		}
+
+		// If string does not start with 'rgba', then treat as hex
+		// sanitize the hex color and finally convert hex to rgba
+		if ( false === strpos( $color, 'rgba' ) ) {
+			return sanitize_hex_color( $color );
+		}
+
+		// By now we know the string is formatted as an rgba color so we need to further sanitize it.
+		$color = str_replace( ' ', '', $color );
+		sscanf( $color, 'rgba(%d,%d,%d,%f)', $red, $green, $blue, $alpha );
+
+		return 'rgba(' . $red . ',' . $green . ',' . $blue . ',' . $alpha . ')';
 	}
 
 	/**
@@ -176,6 +315,20 @@ class Sanitizes {
 			'url'           => esc_url( $image['url'] ?? '' ),
 			'x'             => number_format( (float) ( $image['x'] ?? 0 ), 2, '.', '' ),
 			'y'             => number_format( (float) ( $image['y'] ?? 0 ), 2, '.', '' )
+		];
+	}
+
+	/**
+	 * @param $file
+	 *
+	 * @return array
+	 */
+	public static function attachment_info( $file ) {
+		return [
+			'id'       => absint( $file['id'] ?? 0 ),
+			'url'      => esc_url( $file['url'] ?? '' ),
+			'title'    => sanitize_text_field( $file['title'] ?? '' ),
+			'filename' => sanitize_text_field( $file['filename'] ?? '' ),
 		];
 	}
 
@@ -353,61 +506,6 @@ class Sanitizes {
 	}
 
 	/**
-	 * Slider sanitization
-	 *
-	 * @param $value
-	 * @param $args
-	 *
-	 * @return int
-	 */
-	public static function slider( $value, $args ) {
-
-		$options = $args['options'] ?? [];
-		$min     = $options['min'] ?? 0;
-		$max     = $options['max'] ?? 100;
-
-		if ( ! is_string( $value ) && ! is_numeric( $value ) ) {
-			return '';
-		}
-
-		$unit = preg_replace( [ '/[0-9]/', '/\-/', '/\./' ], '', $value );
-		if ( $unit === '' ) {
-			$unit = isset( $options['units'] )
-				? $options['units'][0]['unit']
-				: (
-				isset( $options['defaultUnit'] ) && $options['defaultUnit'] === false
-					? ''
-					: $options['defaultUnit'] ?? 'px'
-				);
-		}
-
-		if ( isset( $options['units'] ) ) {
-			foreach ( $options['units'] as $config ) {
-				if ( $config['unit'] === $unit ) {
-					$max = $config['max'] ?? $max;
-					$min = $config['min'] ?? $min;
-					break;
-				}
-			}
-		}
-
-		$number = floatval( $value );
-
-		if ( isset( $max ) && $number > $max ) {
-			$number = $max;
-		} elseif ( $number < $min ) {
-			$number = $min;
-		}
-
-		$number = number_format( (float) $number, 2, '.', '' );
-		if ( $number == (int) $number ) {
-			$number = (int) $number;
-		}
-
-		return ( is_numeric( $number ) ? $number : $min ) . $unit;
-	}
-
-	/**
 	 * Palettes sanitization callback example.
 	 *
 	 * @param $input
@@ -424,40 +522,6 @@ class Sanitizes {
 		}
 
 		return $args['default'] ?? '';
-	}
-
-	/**
-	 * RGBA color sanitization callback example.
-	 *
-	 * @param $color
-	 *
-	 * @return string|void
-	 */
-	public static function rgba_color( $color ) {
-		if ( $color === Css::INITIAL_VALUE ) {
-			return $color;
-		}
-
-		// css var
-		if ( false !== strpos( $color, 'var' ) ) {
-			return $color;
-		}
-
-		if ( empty( $color ) || is_array( $color ) ) {
-			return 'rgba(0,0,0,0)';
-		}
-
-		// If string does not start with 'rgba', then treat as hex
-		// sanitize the hex color and finally convert hex to rgba
-		if ( false === strpos( $color, 'rgba' ) ) {
-			return sanitize_hex_color( $color );
-		}
-
-		// By now we know the string is formatted as an rgba color so we need to further sanitize it.
-		$color = str_replace( ' ', '', $color );
-		sscanf( $color, 'rgba(%d,%d,%d,%f)', $red, $green, $blue, $alpha );
-
-		return 'rgba(' . $red . ',' . $green . ',' . $blue . ',' . $alpha . ')';
 	}
 
 	/**
@@ -500,49 +564,6 @@ class Sanitizes {
 		return [
 			'library' => $library,
 			'value'   => sanitize_text_field( $input['value'] ?? '' ),
-		];
-	}
-
-	/**
-	 * Sanitize responsive control value
-	 *
-	 * @param $callback
-	 * @param $input
-	 * @param $args
-	 *
-	 * @return array
-	 */
-	public static function responsive_sanitize( $callback, $input, $args ): array {
-
-		$input = self::get_responsive_value( $input );
-
-		foreach ( $input as $dev => $value ) {
-			if ( $value !== Css::INITIAL_VALUE ) {
-				$input[ $dev ] = call_user_func( $callback, $value, $args );
-			} else {
-				$input[ $dev ] = $value;
-			}
-		}
-
-		return $input;
-	}
-
-	/**
-	 * Get responsive value
-	 *
-	 * @param $value
-	 *
-	 * @return array
-	 */
-	public static function get_responsive_value( $value ): array {
-		if ( is_array( $value ) && isset( $value['desktop'] ) ) {
-			return $value;
-		}
-
-		return [
-			'desktop' => $value,
-			'tablet'  => Css::INITIAL_VALUE,
-			'mobile'  => Css::INITIAL_VALUE,
 		];
 	}
 }

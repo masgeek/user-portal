@@ -1,15 +1,12 @@
-=== Forminator - Contact Form, Payment Form & Custom Form Builder ===
-Plugin Name: Forminator - Contact Form, Payment Form & Custom Form Builder
-Version: 1.23.3
-Author: WPMU DEV
-Author URI: https://wpmudev.com/
+=== Forminator Forms – Contact Form, Payment Form & Custom Form Builder ===
 Contributors: WPMUDEV
-Tags: forms, contact form, wordpress form plugin, payment form, custom form, form builder, paypal form wordpress, form maker, quiz, quiz builder, order form, stripe payments, paypal payments, stripe form, paypal form
-Requires at least: 5.2
-Tested up to: 6.2
-Stable tag: 1.23.3
-Requires PHP: 5.6.20
-License: GPL v2 - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+Tags: contact form, custom form, forms, payment form, WordPress form plugin
+Requires at least: 6.4
+Tested up to: 6.7
+Stable tag: 1.39.1
+Requires PHP: 7.4
+License: GPL v3
+License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
 Best WordPress form builder plugin. Create contact forms, payment forms & order forms with 1000+ integrations.
 
@@ -20,6 +17,10 @@ Best WordPress form builder plugin. Create contact forms, payment forms & order 
 It’s the magical WordPress form builder for, well, everyone!
 
 Forminator’s drag and drop visual builder makes it easy to setup and add forms to your WordPress website. Collect information, make your content interactive and generate more conversions with Forminator.
+
+**Unlock all form fields and premium addons from the start with [Forminator Pro](https://wpmudev.com/project/forminator-pro/?utm_source=wordpress.org&utm_medium=readme&utm_campaign=forminator-readme-above-the-fold&utm_content=forminator_pro).**
+
+Level up immediately with exclusive Pro features like Stripe subscription forms, dynamic PDF generation, and easy geolocation & autocomplete. [Learn more about Pro](https://wpmudev.com/project/forminator-pro/?utm_source=wordpress.org&utm_medium=readme&utm_campaign=forminator-readme-above-the-fold&utm_content=forminator_pro).
 
 [youtube https://www.youtube.com/watch?v=q2oBKNWTu5s&feature=youtu.be]
 
@@ -173,15 +174,17 @@ Love Forminator! WPMU DEV has some other awesome free plugins you should checkou
 
 == Frequently Asked Questions ==
 
-= Are there any limitations in the free version of Forminator? =
+= Why choose Forminator over WPForms? =
 
-Currently the free version and the Pro version on [WPMU DEV](https://wpmudev.com/project/forminator-pro/?utm_source=wordpress.org&utm_medium=readme&utm_campaign=forminator-readme&utm_content=wpmu_dev#trial) are exactly the same, aside from our “E-Signature” and “Stripe Subscriptions” features, which are pro only.
+Forminator offers more features and functionalities compared to WPForms, especially in its free version. While WPForms Lite has limited access to essential tools, Forminator offers over 20 form fields, conditional logic, and comprehensive spam protection.
+
+Additionally, Forminator provides payment integrations with both Stripe and Paypal, whereas WPForms Lite only integrates with Stripe. Forminator also supports a wider range of integrations, as well as quizzing and polling tools, advanced customization and styling options, and robust submission management. These features are available only in the pro version of WPForms.
 
 = Does Forminator include a Gutenberg block? =
 
 It sure does. Forminator is built to work in both the Gutenberg and ClassicPress editors.
 
-= Is Forminator GDPR Ready =
+= Is Forminator GDPR Ready? =
 
 Forminator makes it easy for you to comply with the GDPR and other local privacy regulations...all the tools are included but ultimately it is up to you to implement healthy privacy and data protection on your site. Do the right thing y'all.
 
@@ -205,6 +208,10 @@ Find out all you need to know by checking out our API documentation [here](https
 
 [https://wpmudev.com/docs/wpmu-dev-plugins/forminator/](https://wpmudev.com/docs/wpmu-dev-plugins/forminator/?utm_source=wordpress.org&utm_medium=readme&utm_campaign=forminator-readme&utm_content=docs_link)
 
+= How can I report security issues or bugs? =
+
+We take plugin security incredibly seriously; if you have a bug or vulnerability to report, you can do so through the Patchstack Vulnerability Disclosure Program. It’s fast, easy, and you will be notified when the issue is fixed. [Report a vulnerability](https://patchstack.com/database/vdp/forminator).
+
 == Screenshots ==
 
 1. Setup WordPress contact forms in seconds.
@@ -218,6 +225,457 @@ Find out all you need to know by checking out our API documentation [here](https
 9. Allow simple drag and drop multi-file uploads for users.
 
 == Changelog ==
+
+
+= 1.39.2 ( 2025-02-21 ) =
+
+- Fix: Security improvements
+
+
+= 1.39.1 ( 2025-01-28 ) =
+
+- Update readme information
+
+= 1.39.0 ( 2025-01-28 ) =
+
+- Enhancement: Phone field validation
+- Enhancement: Optimize DB queries and their execution frequency
+- Enhancement: Add block previews and update Forminator icon in Gutenberg editor
+- Enhancement: Migrate packages and build to support @wordpress/element and native React from WordPress
+- Enhancement: Remove deprecated classes from integrations
+- Enhancement: Improve method to fetch upload directory
+- New: Add submission date placeholder
+- New: Add filter to disable Cloud Template features
+- New: Add Filter to disable all payment-related features
+- Fix: Stripe Field doesn't load when Visibility Condition is set for Stripe Field with Live Mode
+- Fix: Link to Stripe Payment Methods goes to test dashboard
+- Fix: No error is displayed when Stripe Tax ID is invalid
+- Fix: Stripe field error in Course Enrollment Form
+- Fix: Incorrect country ordering if translation is applied
+- Fix: Certain long numbers are messed up when pushed to Google Sheet integration
+- Fix: When you input the form's name and hit the "Enter" button multiple times, it creates multiple forms
+- Fix: Phone field with international validation appears broken inside Group field
+- Fix: Form redirect behavior is not working properly
+- Fix: Modern multi-select style breaks other field Visibility Conditions
+- Fix: "Is before" and "Is after" conditions are not working as expected
+- Fix: Disable removal of dial code for International Validation
+- Fix: Double country flag when there is an error after form submission
+- Fix: Draft Submitted/Expired warning is not shown if form is loaded via Ajax
+- Fix: Import certain forms fails
+- Fix: iFrame is removed from HTML field
+- Fix: Country names don't appear properly in international phone field when using Colibri WP Theme
+- Fix: Signature field is not shown as full width when it is inserted after page break
+- Fix: Creating new form with Stripe field and without connecting it causes an error
+- Fix: Error Message for Password strength setting contains an HTML entity code
+- Fix: Select field options without value issue
+- Fix: Address label is not translated when {all_fields} is used in Email Notification
+- Fix: PHP notice on Submissions page
+- Fix: Fatal error when ActionScheduler tables are missing
+
+
+= 1.38.3 ( 2025-01-22 ) =
+
+- Fix: Security improvements
+
+
+= 1.38.2 ( 2025-01-13 ) =
+
+- Fix: Stripe field shows subscription terms on One Time plans
+- Fix: Phone field in Material Design has unnecessary space for the country flag
+
+
+= 1.38.1 ( 2024-12-24 ) =
+
+- Fix: Resolved an issue with the Forminator Elementor widget disappearing
+- Fix: Resolved a bug affecting country selection in the phone field on mobile devices
+
+
+= 1.38.0 ( 2024-12-18 ) =
+
+ - Enhancement: Add support for Stripe Dynamic Payment Methods
+ - Enhancement: Pass subscription ID in webhooks
+ - Enhancement: Improve Paypal Venmo integration
+ - Enhancement: Support for Stripe Subscriptions individual field tags
+ - Enhancement: Update get_entries() API method
+ - Fix: "Ready to go!" popup modal disappears after publishing the form
+ - Fix: Compatibility with Extra theme
+ - Fix: Wrong country flag on phone field
+ - Fix: Forms do not accept some file types even if they are allowed
+ - Fix: Deprecated notice when you connect Google Sheets
+ - Fix: The payment Receipt option does not work with subscriptions
+ - Fix: Empty screen appears when entering the name for Google sheet integration and then clicking on the "Enter" buttons
+ - Fix: Form Lifespan -> Expiry Date option does not work
+ - Fix: No warning message shows on imported form with subscription plan when stripe addon is disabled
+ - Fix: PHP error when a different WordPress language is selected
+ - Fix: Moving to the appearance tab in Poll throws console warnings
+ - Fix: PHP warning when submitting the registration form
+
+
+= 1.37.1 ( 2024-11-25 ) =
+
+- Fix: Conflict with Divi child themes
+- Fix: Calculation field does not work due to Number Formatting
+- Fix: Notice for _load_textdomain_just_in_time called incorrectly since WordPress v6.7
+
+
+= 1.37.0 ( 2024-11-19 ) =
+
+- Enhancement: New Basic Style mode for Forms
+- Enhancement: Add Use Theme Colors option
+- Fix: Low-level roles can create a Registration form
+- Fix: Security improvements
+- Fix: Incorrect access to Preset and Cloud templates for users on the Free plan
+- Fix: Low-level roles can Approve or Delete Users when manual approval is set for the registration form
+- Fix: PayPal payment cancellation fully prevents form submission with no option to re-try payment until the form is reloaded
+- Fix: Calculation error in the donation template when the "other" donation option is selected
+- Fix: Add missed settings for Appearance Presets
+- Fix: Syntax error in CSS file causing issues with Litespeed Cache plugin UCSS
+- Fix: Issue with creating the registration form
+- Fix: No calendar background when the Colibri WP theme is active
+- Fix: Upload file inline validation does not work for some file types
+- Fix: Signature UI is broken on the Submission page in some cases
+- Fix: All polls become inactive when there is more than 1 poll on a page and one of them is submitted
+- Fix: Add security notice for Registration Forms for administrator roles
+- Fix: Adding odd technical text on PDF files
+
+
+= 1.36.3 ( 2024-10-25 ) =
+
+- Fix: Phone fields issue
+
+
+= 1.36.2 ( 2024-10-23 ) =
+
+- Fix: Remove development dependencies from the plugin
+
+
+= 1.36.1 ( 2024-10-21 ) =
+
+- Fix: Security improvements
+
+
+= 1.36.0 ( 2024-10-09 ) =
+
+- Enhancement: Update Google Sheets integration library.
+- Enhancement: Update phone number validation library.
+- Fix: Improve compatibility with the Paid Memberships Pro plugin.
+- Fix: Resolve issue where Forminator reCaptcha fails when both Defender 2FA and reCaptcha are enabled on login form.
+- Fix: Correct CSS syntax error causing LiteSpeed Cache plugin's UCSS to break.
+- Fix: Address field preview issue when using the Full Site Editor and the Gutenberg Forminator Form block.
+- Fix: Resolve signature field display issue in full-width mode.
+- Fix: Prevent blank page on poll submission when "Display Results" is enabled and rendering is done via AJAX.
+- Fix: Escape unescaped characters in participant email titles for quizzes with leads enabled.
+- Fix: Ensure special characters are correctly counted in textarea fields when a character limit is set.
+- Fix: Resolve issue where number fields with comma separators caused URL redirects to fail.
+- Fix: Address conflicts between field conditions when switching between options.
+- Fix: Correct template translation issues.
+- Fix: Ensure redirects work properly based on date conditions.
+- Fix: Resolve custom spacing issue in the "None" design style.
+- Fix: Apply security improvements.
+
+= 1.35.1 ( 2024-09-17 ) =
+
+- Enhancement: Stripe API and PayPal secret key encryption
+- Fix: Security improvements
+
+= 1.35.0 ( 2024-09-02 ) =
+
+- Enhancement: Code improvements
+- Fix: Installatron on cPanel reverts Forminator Pro to Free
+- Fix: Issues with submitting PDF files and storing submissions in the database
+- Fix: Unpublished quiz does not display an error on submission
+- Fix: Submission fails when the Consent field is translated
+- Fix: Duplicated image when Custom Field is enabled
+- Fix: PayPal payment form issues with reCaptcha
+- Fix: Stripe field does not show if is hidden by CSS
+- Fix: Checkbox Links are not crawlable
+- Fix: If Required field validation is not checked first, the PayPal button does not work
+
+= 1.34.1 ( 2024-08-14 ) =
+
+- Fix: XSS vulnerabilities
+
+= 1.34.0 ( 2024-07-18 ) =
+
+ - Enhancement: Compatibility with WordPress 6.6
+ - Fix: Rating field Color section inconsistent
+ - Fix: Multi Select field is forced to have a default option
+ - Fix: Lifespan submissions limit ignored for quizzes until the page is refreshed
+ - Fix: PDF attached in Email Notification
+ - Fix: On the third page of pagination, it is not possible to access the previous page of the form list
+ - Fix: Clicking "Submit Deposit" fails when entering a valid zip code
+ - Fix: "Is Not" condition is not working with zero or null value
+ - Fix: Form embedded in Elementor popup showing duplicate buttons
+ - Fix: When submitting the paginated form, fields can be hidden based on the visibility condition
+
+= 1.33.0 ( 2024-07-10 ) =
+
+ - Enhancement: Stripe integration with new RAK Keys
+ - Fix: Border appears around the pagination form when clicking on any unfilled area or rating field
+ - Fix: Prefixes are not allowed in the Pakistani phone field
+ - Fix: Clicking the last dot of the pagination indicator skips required fields
+ - Fix: Custom required alert message does not appear in the Rating field
+ - Fix: Select field displays the first option instead of placeholder text
+ - Fix: When switching from Update Existing Template to New Template, the template name disappears from the selection.
+
+= 1.32.0 ( 2024-07-02 ) =
+
+ - New Feature: Add Preset and Cloud Form Templates
+ - New Feature: Add a Rating field
+ - Enhancement: Ability to choose a worksheet to send data to in a Google Sheet
+ - Enhancement: Add a modern multi-select option to the Select field
+ - Enhancement: Update Phone Number validation library
+ - Enhancement: Compatibility with Custom Field Suite plugin
+ - Fix: Incorrect state in PayPal billing details
+ - Fix: Visibility conditional logic for the submit button based on radio doesn't work on paged forms
+ - Fix: Issues with Group duplication and dragging
+ - Fix: Files stay on the server deleting submission files.
+ - Fix: Default HTML upload field is visible in Post Data featured image along with styled field
+ - Fix: Connected integrations are missing on the Integrations page for quizzes without leads
+ - Fix: Delay when dragging and dropping Forminator fields
+ - Fix: Issue when creating Preset
+ - Fix: Issues with form submission when the Name field is set to Required with prefill enabled.
+ - Fix: Textarea field width is not aligned with the other fields when placed on the 2nd column
+ - Fix: Colon removed from URL when using the Hidden field for redirect
+ - Fix: Submission_id in the Hidden field doesn't work in MailChimp integration
+ - Fix: Forminator doesn't show the menu selected when using Windows High Contrast Mode
+ - Fix: Captcha will not show on preview after the first try on Forms
+ - Fix: JS error when dragging and dropping fields in Forminator
+ - Fix: Issues with translating certain strings
+
+= 1.31.0 ( 2024-06-03 ) =
+
+ - Enhancement: Update Stripe library to the latest version
+ - Enhancement: Add the ability to align ReCaptcha to the right
+ - Enhancement: Prevent disabling calculation option on fields that are used in Calculations field formulas
+ - Fix: Workato Webhook does not connect
+ - Fix: Password is sent as plain text in Login form when using a webhook
+ - Fix: Some fields do not support HTML tags in the description
+ - Fix: Incorrect password on Forminator Login form for a specific password
+ - Fix: Conflicts with the Suremember plugin
+ - Fix: Stripe field is not showing on PopUp plugins
+ - Fix: International phone validation field prevents submission even if the field is optional
+ - Fix: Quiz Final Count message is erased even after saving
+ - Fix: Open the GDPR links in a new browser tab by default
+ - Fix: Form expands when loaded via Ajax while having conditionally visible fields
+ - Fix: Number field is not working for Stripe pre-filled postal code
+ - Fix: Pagination custom button text is not working if you start the form with a Slider field
+ - Fix: Post data field shows only the first Category and first tag in email notification when Multiple option is selected for tags and categories
+ - Fix: Replace statement_descriptor_suffix to fit the Stripe API
+ - Fix: Some Custom CSS classes in the PDF add-on are no longer working
+ - Fix: Slider values are not getting reset when a form is submitted
+ - Fix: Sorting submissions does not apply to exported CSV
+ - Fix: Upload field issue with WebP file type
+ - Fix: HTML Validation for select fields
+ - Fix: Can't assign Name field to username in User Login Form
+ - Fix: Escaping characters in redirect URL breaks form pre-population
+ - Fix: Contact Form 7 image file size limit is not imported
+ - Fix: Scheduled Exports in Submissions do not allow editing of the email on Forms
+ - Fix: Columns break when custom spacing value is set to 0
+ - Fix: Search bar on matching Hubspot fields isn't working
+ - Fix: Incorrect scrolling in paginated forms with long HTML field content on mobile devices
+
+
+= 1.30.2 ( 2024-04-30 ) =
+
+ - Fix: Temporarily support deprecated classes for integrations
+
+
+= 1.30.1 ( 2024-04-09 ) =
+
+ - Fix: Backward compatibility with Complianz plugin
+
+
+= 1.30.0 ( 2024-04-08 ) =
+
+ - New Feature: Integration with MailerLite
+ - Enhancement: Refactoring of all integrations
+ - Enhancement: Twitter rebranding
+ - Enhancement: UX improvements for Forminator addons
+ - Security Fix: Cross-Site Scripting (XSS) vulnerability
+ - Security Fix: SQL injection vulnerability
+ - Fix: Aweber integration not connecting when an identifier is added
+ - Fix: Replaced h4 tags with label tags for field labels
+ - Fix: HTML field displays 'undefined' if a field used inside HTML content is deleted
+ - Fix: Filter not functioning correctly for Draft/Complete form status during Export Submissions
+ - Fix: Sort Order filter not applied correctly during Export Submissions
+ - Fix: Submission Status in the submissions filter box not clearing
+ - Fix: Irrelevant submission status filter for quizzes on the Submissions page
+ - Fix: Black border appears when opening accordion on the Submissions page
+ - Fix: Disabling Paypal shipping address option not functioning
+ - Fix: Personality quiz returning incorrect personality in case of a tie in results
+ - Fix: Paginated form cannot be submitted if there is a Consent field on one of the pages and Draft is used
+ - Fix: Textarea label overlaps the default value when using the Material preset on forms
+ - Fix: Color issue on input fields in Safari
+
+= 1.29.3 ( 2024-04-08 ) =
+
+- Security Fix: Cross-Site Scripting (XSS) vulnerability
+
+
+
+= 1.29.2 ( 2024-03-07 ) =
+
+- Fix: Stripe doesn't work on some mobile devices
+
+
+= 1.29.1 ( 2024-03-05 ) =
+
+- Fix: XSS vulnerabilities
+
+
+= 1.29.0 ( 2024-01-30 ) =
+
+- New: Range slider
+- Fix: Email notification from Save and Continue feature does not support {all_fields} or individual fields
+- Fix: Embed URL receives the referrer URL instead of page URL when the form is not loading from Ajax
+- Fix: The export of Forminator submissions displays an incomplete URL for the uploaded files.
+- Fix: The total value of repeater field groups is not correctly reflected on email notifications
+- Fix: Add_form_field API fatal error in PHP 8.0+
+- Fix: The repeater field data in the email notification is missing and the submission shows incorrect data
+- Fix: If a visibility condition is configured on the Stripe field, payment plan conditions don't work
+- Fix: ActionScheduler crashes website due to outdated table structure
+- Fix: Form displays "This value must be greater than or equal to 1" error
+- Fix: The Number field decimal doesn't work on emails
+- Fix: When two users submit the form at once, limit submission doesn't work
+- Fix: Export missing field data
+- Fix: Required Checkbox triggers an error message on pagination
+- Fix: The manual approval of user registration forms doesn't work when the website URL is too long
+- Fix: Zapier WebHook integration missing upload field data
+- Fix: Upload timeout error
+
+= 1.28.1 ( 2023-12-18 ) =
+
+- Improvement: Hosting offer update
+- Improvement: Discount copy update
+
+= 1.28.0 ( 2023-11-13 ) =
+
+- New: MailJet Integration
+- New: User role permissions
+- Improvement: jQuery validation version update
+- Improvement: Compatibility with WordPress 6.4
+- Improvement: Randomize checkbox and radio button options
+- Fix: Improved handling of action scheduler
+- Fix: CSV exports and DB entries generated by spam submissions
+- Fix: Fatal error if php_uname() function is disabled on server
+- Fix: Check curl_init before loading the mix panel
+
+= 1.27.0 ( 2023-10-09 ) =
+
+- New: Usage Data tracking
+- Fix: Phone validation set to Croatia or other international formats prevents form submission
+- Fix: Resume message from Save and Continue display field tag name instead of typed text
+- Fix: Using merge tags in checkbox/radio fields results in an "Error! Invalid payment amount!" message
+- Fix: Hovering over number fields triggers the "Typing" action
+- Fix: The search field is not working when an additional field is added to a HubSpot form
+- Fix: Form submission fails when the Field Group repeater has "choice" fields and the PDF is attached to the email
+- Fix: Inline validation prevents PayPal submission in case of pre-submission errors
+- Fix: Stripe charges an incorrect amount for payments over 999 when using comma-formatted numbers
+
+= 1.26.0 ( 2023-09-13 ) =
+
+- New: Geolocation add-on that collects location information on form submission, and provides address auto-suggestion.
+
+= 1.25.2 ( 2023-08-23 ) =
+
+- Improvement: Discount copy update
+
+= 1.25.1 ( 2023-08-18 ) =
+
+- Improvement: Minor improvements in copy
+
+= 1.25.0 ( 2023-08-16 ) =
+
+- New: PDF Generator add-on in Pro Version
+
+= 1.24.6 ( 2023-07-06 ) =
+
+- Fix: Issues with Form Submission
+
+= 1.24.5 ( 2023-07-05 ) =
+
+- Improvement: PHP Compatibility
+
+= 1.24.4 ( 2023-07-03 ) =
+
+- Improvement: Hubspot URL Redirection
+- Improvement: Add notes for translations with placeholders
+- Improvement: Prevent XSS vulnerability in translations
+- Fix: Email displays incorrect currency when custom separators are used
+- Fix: Issues with the Country field on disabling and re-enabling
+- Fix: Stripe charges incorrect amount
+- Fix: Security improvements
+
+= 1.24.1 ( 2023-06-05 ) =
+
+- Improvement: Option to change the size of radio/checkbox images
+- Improvement: Add filter to change the upload path
+- Improvement: Phone field input validation
+- Improvement: Add alt text to images on quiz answers
+- Improvement: Added new notice that reports only data from live payments on the report page
+- Fix: Uploading a single file is prevented by the payments field, resulting in a 404 error
+- Fix: HTML field content is stripped of anchor tag target property
+- Fix: Conflict with Norebro theme
+- Fix: Dropdown styling in different languages
+- Fix: Delete Alert box design
+- Fix: Compatibility with PHP 8.1 and 8.2
+- Fix: Timepicker Field Default Minutes issues when the value is 0
+- Fix: The E-Signature label overlaps the placeholder when using the Material preset on Forms
+- Fix: Select input doesn't show the dropdown menu on the oxygen builder
+- Fix: Defender Masked login area does not work with Lost your password option in the login form
+- Fix: Google Lighthouse Aria labels
+- Fix: Defender login recaptcha verification fails with Forminator recaptcha
+- Fix: Incorrect Stripe charges if the field Visibility is hidden
+- Fix: Issues with form submission when 'Multiple' is selected in the Name field
+- Fix: Upload field mapped to the custom field does not include file URL in the post data field
+- Fix: Captcha language cannot be set back to Automatic after language is set on the captcha
+- Fix: Stripe's field meta does not display all address fields when changed on forms
+- Fix: Textarea does not recognize the max character limit when a field is required and rich-text editor is enabled on forms
+- Fix: URL redirection when the dynamic field value is used
+- Fix: The AJAX method can fail to upload multiple files if one of the files is invalid or the form was submitted too soon
+- Fix: Autofill is not allowing the form to be sent
+- Fix: Submission retention reset to Custom and 0 days
+- Fix: Unused/old CSS filling the server
+- Fix: Adding HTTP to email body URLs
+- Fix: Registration form default submissions text doesn't change after the edit
+- Fix: TinyMCE is not working in pagination when set to required and loaded using Ajax
+- Fix: Account registration successful message is not working for manual activation
+- Fix: ACF and file upload field in the registration form
+- Fix: The form added in the Elementor popup is not submitting
+- Fix: Issues with conditional logic
+- Fix: Form is not showing conflict with All in One SEO
+- Fix: Registration emails are not translated
+- Fix: Stripe 3D secure payment is not working with page reload
+- Fix: Uncaught Error: Call to a member function switch_to_locale() on null
+- Fix: UI issue on recipients tab on adding multiple recipients
+- Fix: Rich edit textarea values are stripped of HTML if post data custom fields have rich edit textarea
+- Fix: Submission filters are not applied to CSV export if the filter is user status for registration forms
+- Fix: Email address should be validated for email notification recipients
+- Fix: Power Automate webhook is not working
+- Fix: Form returns a validation error in the Phone number field when Faroes Islands is configured as the default country
+- Fix: Upload file button reloads the page when the form is placed in PopUp for the Divi plugin
+- Fix: If one text field is hidden with visibility based on a select field, both values are added to the post data custom field
+- Fix: When we submit a long lead form, the quiz is not focused
+- Fix: Unable to move the fields in post data custom fields
+- Fix: Site errors getting exported when a form is exported
+- Fix: Forminator always enqueues Roboto font
+- Fix: Conditions for the currency field should match other number fields
+- Fix: The multiple files upload via limit size is not working after removing exceeded files
+- Fix: Scheduled Exports returns "Invalid form type"
+- Fix: Section without a label is not separated in emails
+- Fix: Submit button does not appear if the user removes the submit text from the submit button
+- Fix: Translation issues with Forminator Pro refresh button text
+- Fix: The "Appearance" tab doesn't display the option to change color for the Consent field
+- Fix: No message displayed on form submission, when the lead generation form placement is set to 'Before showing results'
+- Fix: "Embed URL" in the hidden field is incorrect
+- Fix: In the Dashboard, the last submission time ignores polls and quizzes
+- Fix: On multisite, the WordPress Settings link is broken on the Reports Notifications Schedule tab
+- Fix: Aweber subscriber data getting overwritten for existing subscribers
+- Fix: 'Uncaught TypeError createRoot' console error on Form Editor
+- Fix: Submission behavior conditions not working as expected
+- Fix: Double submissions happen on clicking the Submit button twice quickly
+- Fix: Repeated items are missing when a draft is edited and saved again
 
 = 1.23.3 ( 2023-04-12 ) =
 
@@ -1744,7 +2202,7 @@ WPMU DEV is a premium supplier of quality WordPress plugins, services and suppor
 Don't forget to stay up to date on everything WordPress from the Internet's number one resource:
 [WPMU DEV Blog](https://wpmudev.com/?utm_source=wordpress.org&utm_medium=readme&utm_campaign=forminator-readme&utm_content=wpmu_dev_blog_link)
 
-Hey, one more thing... we hope you [enjoy our free offerings](http://profiles.wordpress.org/WPMUDEV/) as much as we've loved making them for you!
+Hey, one more thing... we hope you [enjoy our free offerings](https://profiles.wordpress.org/wpmudev/#content-plugins) as much as we've loved making them for you!
 
 == Contact and Credits ==
 

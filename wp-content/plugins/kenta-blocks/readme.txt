@@ -1,18 +1,18 @@
-=== Kenta Gutenberg Blocks – Responsive Blocks and block templates library for Gutenberg Editor ===
-Contributors: ibllex
-Tags: gutenberg, gutenberg blocks, block editor, blocks, block, editor, page builder
-Stable tag: 1.2.3
+=== Kenta Blocks – Responsive Blocks and block templates library ===
+Contributors: ibllex, wpmoose
+Tags: gutenberg blocks, block editor, page builder
+Stable tag: 1.4.4
 Requires at least: 5.6
-Tested up to: 6.1
-Requires PHP: 7.2
+Tested up to: 6.7
+Requires PHP: 7.4
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-The Swiss Army knife of Gutenberg page builders. Use Section / Column blocks to create any site layout. We also have unlimited colors, backgrounds, typography and more. All blocks are responsive. Always display perfectly and fully customize, whether desktop or mobile.
+Kenta Blocks is a set of responsive blocks with powerful options and pre-designed templates library.
 
 == Description ==
 
-Kenta Blocks has a set of responsive blocks with powerful options and pre-designed templates library. It takes full advantage of the WordPress editor's features. With the simple and easy-to-use interface, you can visually design any post and page, whether you are a beginner or a professional designer.
+Kenta Blocks is a set of responsive blocks with powerful options and pre-designed templates library.  It display perfectly and fully customize, whether desktop or mobile. It takes full advantage of the WordPress editor's features. With the simple and easy-to-use interface, you can visually design any post and page, whether you are a beginner or a professional designer.
 
 ### The Awesome Gutenberg blocks we have
 
@@ -29,22 +29,109 @@ Kenta Blocks has a set of responsive blocks with powerful options and pre-design
 * [**Row**](https://kentatheme.com/docs/kenta-blocks/blocks-guide/row-block-kb/) Core/row block enhancements, You can set padding, margin, shadows, background, borders and border radius for row.
 * [**Stack**](https://kentatheme.com/docs/kenta-blocks/blocks-guide/stack-block-kb/) Core/stack block enhancements, You can set padding, margin, shadows, background, borders and border radius for stack.
 * [**Slides**](https://kentatheme.com/docs/kenta-blocks/blocks-guide/slides-block-kb/) Display a carousel with any blocks in the slides, also known as sliders, slick, slideshow.
-
-== Frequently Asked Questions ==
-
-= Does it work with any WordPress theme?
-
-Yes! It works with any theme that has been created following the WordPress coding standards. But we made additional optimizations to the [**Kenta theme**](https://kentatheme.com/). If you are looking for a new theme then we strongly recommend you to try it.
-
-= Do I need coding skills to create a website using it?
-
-No! You can create amazing websites without touching a single line of code.
-
-= Do I need Gutenberg Editor to use Kenta Blocks?
-
-Absolutely Yes! Kenta Blocks has been created using the Gutenberg editor. So, it does not go well with classic editor or other page builder plugins.
+* [**Query Loop**](https://kentatheme.com/docs/kenta-blocks/blocks-guide/query-loop-block-kb/) An advanced block that allows displaying post types based on different query parameters and visual configurations.
+* [**Query Pagination**](https://kentatheme.com/docs/kenta-blocks/blocks-guide/query-pagination-block-kb/) Displays a paginated navigation to next/previous set of posts, when applicable.
+* [**Posts Grid**](https://kentatheme.com/docs/kenta-blocks/blocks-guide/posts-grid-block-kb/) Use a grid layout that contains the block elements used to render a post, like the title, date, featured image, content or excerpt, and more.
+* [**Posts Featured Image**](https://kentatheme.com/docs/kenta-blocks/blocks-guide/posts-featured-image-block-kb/) Display a post's featured image.
+* [**Posts Title**](https://kentatheme.com/docs/kenta-blocks/blocks-guide/post-title-block-kb/) Displays the title of a post, page, or any other content-type.
+* [**Posts Taxonomy**](https://kentatheme.com/docs/kenta-blocks/blocks-guide/post-taxonomy-block-kb/) Displays the taxonomy of a post, page, or any other content-type.
+* [**Posts Metas**](https://kentatheme.com/docs/kenta-blocks/blocks-guide/post-metas-block-kb/) Displays the author, date, comments information of a post or page.
+* [**Posts Excerpt**](https://kentatheme.com/docs/kenta-blocks/blocks-guide/post-excerpt-block-kb/) Display a post's excerpt.
 
 == Changelog ==
+
+= 1.4.4 =
+
+* Ref: Update Freemius SDK
+
+= 1.4.3 =
+
+* Ref: Update FontAwesome icons to latest version
+* Ref: Update Google Fonts to latest version
+* Ref: Update Freemius SDK
+* Ref: WP 6.7 compatible
+
+= 1.4.2 =
+
+* Fix: particles.js error
+
+= 1.4.1 =
+
+* Ref: Kenat 1.4.0 compatible
+* Ref: WP 6.6 compatible
+* Fix: Image (KB) block alignment error
+* Fix: Column (KB) block style error
+
+= 1.4.0 =
+
+* Fix: Security fix
+
+= 1.3.9 =
+
+* Ref: Add boxed container layout in group block
+* Ref: Add boxed container layout in stack block
+* Ref: Add boxed container layout in row block
+* Ref: Add vw/vh unit
+* Fix: Color picker error in global style section
+
+= 1.3.8 =
+
+* Ref: Only show opt-in notice for admins
+* Ref: PHP8.2 support
+
+= 1.3.7 =
+
+* Add: Particles effect in cover block (BETA)
+* Fix: Slides block not working in widgets area
+* Fix: Fixed the toolbar style error in old WP version
+
+= 1.3.6 =
+
+* Fix: Templates library style error in WP 6.3
+* Ref: SDK update
+* Ref: Update Query block
+* Add: WooCommerce blocks
+
+= 1.3.5 =
+
+* Ref: Update card preset style
+
+= 1.3.4 =
+
+* Add: Css position for image, icon, buttons, row, stack, group block
+* Add: Paragraph text shadow effect
+* Ref: Update Freemius SDK
+
+= 1.3.3 =
+
+* Add: Background clip option for Paragraph & Heading block
+* Add: New Posts Magazine & Posts List template
+* Add: 25/25/25/25 section template
+* Ref: Update max border width limit
+* Fix: Post Metas block edit error
+
+= 1.3.2 =
+
+* Fix: React render error in WP6.2
+* Fix: Background modal control width over the sidebar
+* Fix: Gradient editor not available in WP6.2
+
+= 1.3.1 =
+
+* Fix: Buttons block style error
+* Fix: Section block style error
+
+= 1.3.0 =
+
+* Add: New Query Loop (KB) block
+* Add: New Query Pagination (KB) block, which is a child of Query Loop block
+* Add: New Posts Grid (KB) block, which is a child of Query Loop block
+* Add: New Post Featured Image (KB) block
+* Add: New Post Title (KB) block
+* Add: New Post Taxonomy (KB) block
+* Add: New Post Metas (KB) block
+* Add: New Post Excerpt (KB) block
+* Add: Allows to set a link for a block(column/row/group/stack) and make it clickable (Beta)
 
 = 1.2.3 =
 

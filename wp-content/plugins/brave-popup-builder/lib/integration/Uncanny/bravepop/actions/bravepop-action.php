@@ -106,7 +106,7 @@ class BRAVEPOP_ACTION {
             if($alreadyLoaded === false){
                $customContent = json_decode(get_post_meta($popup_id, 'popup_data', true));
                $customContent->settings->trigger->triggerType = 'load';
-               new BravePop_Popup($popup_id, 'popup', false, false, json_encode($customContent) ); //insert the popup to the current page
+               new BravePop_Popup($popup_id, 'popup', false, false, wp_json_encode($customContent) ); //insert the popup to the current page
                $pop_key = array_search($popup_id, $uncanny_popups_actions_array);
                if($pop_key !== false){   unset($uncanny_popups_actions_array[$pop_key]);   }
                update_user_meta( $user_id, 'bravepop_uncanny_actions', $uncanny_popups_actions_array );

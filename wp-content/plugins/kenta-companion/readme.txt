@@ -1,10 +1,10 @@
 === Kenta Companion ===
-Contributors: ibllex
+Contributors: ibllex, wpmoose
 Tags: widget, widgets
-Stable tag: 1.1.7
+Stable tag: 1.3.1
 Requires at least: 5.4
-Tested up to: 6.1
-Requires PHP: 7.2
+Tested up to: 6.7
+Requires PHP: 7.4
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -13,6 +13,63 @@ License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Kenta Companion is an extension to the Kenta theme. It provides a lot of features and one-click demo import for Kenta Theme. Learn more: https://kentatheme.com/
 
 == Changelog ==
+
+= v1.3.1 =
+
+* Ref: Update Freemius SDK
+
+= v1.3.0 =
+
+* Ref: Update Freemius SDK
+* Ref: WP 6.7 support
+
+= v1.2.6 =
+
+* Fix: Container style error
+
+= v1.2.5 =
+
+* Add: More scroll to top button style option
+* Ref: Remove jQuery dependencies
+
+= v1.2.4 =
+
+* Fix: Widgets Area naming conflict
+* Ref: WP 6.5 support
+* Ref: Update Freemius SDK
+
+= v1.2.3 =
+
+* Ref: Kenta v1.3.0 compatible
+* Ref: Update notice appearance
+
+= v1.2.2 =
+
+* Add: Support customizer/dynamic cache
+* Fix: Don't load plugin on incompatible kenta version
+* Ref: Security update
+
+= v1.2.1 =
+
+* Add: Particles effect support
+* Ref: Kenta v1.2.5 compatible 
+
+= v1.2.0 =
+
+* Add: Custom fonts support (Premium)
+* Ref: Update Freemius SDK
+* Ref: WP6.3 support
+
+= v1.1.9 =
+
+* Add: Reset theme customizer options button
+* Ref: Update Freemius SDK
+* Ref: WP6.2 support
+
+= v1.1.8 =
+
+* Fix: SDK error
+* Ref: PHP8.1 compatible
 
 = v1.1.7 =
 

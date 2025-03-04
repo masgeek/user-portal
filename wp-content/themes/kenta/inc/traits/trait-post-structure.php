@@ -104,10 +104,10 @@ if ( ! trait_exists( 'Kenta_Post_Structure' ) ) {
 				'style'              => 'default',
 				'text-initial'       => 'var(--kenta-primary-color)',
 				'text-hover'         => 'var(--kenta-primary-active)',
-				'badge-text-initial' => 'var(--kenta-base-color)',
-				'badge-text-hover'   => 'var(--kenta-base-color)',
+				'badge-text-initial' => '#ffffff',
+				'badge-text-hover'   => '#ffffff',
 				'badge-bg-initial'   => 'var(--kenta-primary-color)',
-				'badge-bg-hover'     => 'var(--kenta-accent-color)',
+				'badge-bg-hover'     => 'var(--kenta-primary-active)',
 				'typography'         => [
 					'family'     => 'inherit',
 					'fontSize'   => '0.75rem',
@@ -312,12 +312,12 @@ if ( ! trait_exists( 'Kenta_Post_Structure' ) ) {
 				],
 				'typography' => [
 					'family'        => 'inherit',
-					'fontSize'      => [ 'desktop' => '0.65rem', 'tablet' => '0.65rem', 'mobile' => '0.65rem' ],
+					'fontSize'      => [ 'desktop' => '0.75rem', 'tablet' => '0.75rem', 'mobile' => '0.75rem' ],
 					'variant'       => '400',
 					'lineHeight'    => '1.5',
 					'textTransform' => 'capitalize',
 				],
-				'initial'    => 'var(--kenta-accent-color)',
+				'initial'    => 'var(--kenta-accent-active)',
 				'hover'      => 'var(--kenta-primary-color)',
 				'style'      => 'default',
 				'divider'    => 'divider-1',
@@ -330,6 +330,10 @@ if ( ! trait_exists( 'Kenta_Post_Structure' ) ) {
 					->setDefaultValue( $defaults['elements'] )
 					->addLayer( 'byline', __( 'Byline', 'kenta' ), apply_filters( 'kenta_byline_meta_controls', [], $id, $defaults ) )
 					->addLayer( 'published', __( 'Published Date', 'kenta' ), apply_filters( 'kenta_published_meta_controls', [
+						( new Toggle( 'kenta_' . $id . '_show_modified_date' ) )
+							->setLabel( __( 'Show modified date', 'kenta' ) )
+							->closeByDefault()
+						,
 						( new Text( 'kenta_' . $id . '_published_format' ) )
 							->setLabel( __( 'Date Format', 'kenta' ) )
 							->selectiveRefresh( ...$defaults['selective-refresh'] )

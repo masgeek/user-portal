@@ -26,10 +26,11 @@ $metadata = array(
 
 return array(
 	'metadata' => $metadata,
-	'css'      => function ( $id, $attrs, $css ) use ( $metadata ) {
+	'css'      => function ( $block, $css ) {
+		$id = kb_get_block_attr( $block, 'blockID' );
 
 		$css[".kb-spacer-$id"] = array(
-			'height' => kenta_blocks_block_attr( 'height', $attrs, $metadata )
+			'height' => kb_get_block_attr( $block, 'height' )
 		);
 
 		return $css;

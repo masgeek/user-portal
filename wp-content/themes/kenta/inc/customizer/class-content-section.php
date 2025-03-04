@@ -47,6 +47,8 @@ if ( ! class_exists( 'Kenta_Content_Section' ) ) {
 						'button-css-selective' => 'kenta-global-selective-css',
 						'preset'               => 'solid',
 						'preset-options'       => [
+							'ghost'   => __( 'Ghost', 'kenta' ),
+							'outline' => __( 'Outline', 'kenta' ),
 							'solid'   => __( 'Solid', 'kenta' ),
 							'invert'  => __( 'Invert', 'kenta' ),
 							'primary' => __( 'Primary', 'kenta' ),

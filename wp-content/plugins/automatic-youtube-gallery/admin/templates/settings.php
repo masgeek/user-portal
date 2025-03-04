@@ -10,7 +10,7 @@
  */
 ?>
 
-<div id="ayg-settings" class="wrap ayg-settings ayg-settings-theme-<?php echo esc_attr( $active_theme ); ?>">
+<div id="ayg-settings" class="wrap ayg-settings theme-<?php echo esc_attr( $active_theme ); ?> pagination_type-<?php echo esc_attr( $pagination_type ); ?> player_type-<?php echo esc_attr( $player_type ); ?>">
     <h2 class="nav-tab-wrapper">
 		<?php
 		$settings_url = admin_url( 'admin.php?page=automatic-youtube-gallery-settings' );

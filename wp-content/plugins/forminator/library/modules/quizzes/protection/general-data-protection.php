@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Quiz_General_Data_Protection class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -19,8 +25,11 @@ class Forminator_Quiz_General_Data_Protection extends Forminator_General_Data_Pr
 	 */
 	protected static $module_slug = 'quiz';
 
+	/**
+	 * Forminator_Quiz_General_Data_Protection constructor
+	 */
 	public function __construct() {
-		parent::__construct( __( 'Forminator Quizzes', 'forminator' ) );
+		parent::__construct( esc_html__( 'Forminator Quizzes', 'forminator' ) );
 	}
 
 	/**
@@ -32,7 +41,7 @@ class Forminator_Quiz_General_Data_Protection extends Forminator_General_Data_Pr
 	 */
 	public function get_privacy_message() {
 		ob_start();
-		include dirname( __FILE__ ) . '/policy-text.php';
+		include __DIR__ . '/policy-text.php';
 		$content = ob_get_clean();
 		$content = apply_filters( 'forminator_quiz_privacy_policy_content', $content );
 
@@ -67,11 +76,14 @@ class Forminator_Quiz_General_Data_Protection extends Forminator_General_Data_Pr
 		 */
 		$quizzes = Forminator_Quiz_Model::model()->get_all_models( $quiz_status );
 
-		/** @var Forminator_Quiz_Model[] $models */
+		/**
+		 * Forminator_Quiz_Model
+		 *
+		 * @var Forminator_Quiz_Model[] $models */
 		$models = isset( $quizzes['models'] ) && is_array( $quizzes['models'] ) ? $quizzes['models'] : array();
 
 		/**
-		 * walk through quizzes
+		 * Walk through quizzes
 		 */
 		foreach ( $models as $model ) {
 			if ( ! $model instanceof Forminator_Quiz_Model ) {

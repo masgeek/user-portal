@@ -3,7 +3,7 @@
 	#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-label[class*="forminator-floating-"] {
 		<?php if ( forminator_array_value_exists( $properties, 'input-placeholder' ) && !empty( $properties['input-placeholder'] ) ) { ?>
 			color: <?php echo $properties['input-placeholder'] ?>;
-		<?php } else { ?>
+		<?php } elseif ( forminator_can_apply_default_color( $properties ) ) { ?>
 			color: #888888;
 		<?php } ?>
 	}
@@ -11,7 +11,7 @@
 	#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-label:not([class*="forminator-floating-"]) {
 		<?php if ( forminator_array_value_exists( $properties, 'cform-label-color' ) && !empty( $properties['cform-label-color'] ) ) { ?>
 			color: <?php echo $properties['cform-label-color'] ?>;
-		<?php } else { ?>
+		<?php } elseif ( forminator_can_apply_default_color( $properties ) ) { ?>
 			color: #777771;
 		<?php } ?>
 	}
@@ -19,7 +19,7 @@
 	#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-label:not([class*="forminator-floating-"]) .forminator-required {
 		<?php if ( forminator_array_value_exists( $properties, 'cform-asterisk-color' ) && !empty( $properties['cform-asterisk-color'] ) ) { ?>
 			color: <?php echo $properties['cform-asterisk-color'] ?>;
-		<?php } else { ?>
+		<?php } elseif ( forminator_can_apply_default_color( $properties ) ) { ?>
 			color: #E04562;
 		<?php } ?>
 	}
@@ -27,7 +27,7 @@
 	#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-is_filled .forminator-label[class*="forminator-floating-"] {
 		<?php if ( forminator_array_value_exists( $properties, 'cform-label-color' ) && !empty( $properties['cform-label-color'] ) ) { ?>
 			color: <?php echo $properties['cform-label-color'] ?>;
-		<?php } else { ?>
+		<?php } elseif ( forminator_can_apply_default_color( $properties ) ) { ?>
 			color: #777771;
 		<?php } ?>
 	}
@@ -35,7 +35,7 @@
 	#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-is_active .forminator-label[class*="forminator-floating-"] {
 		<?php if ( forminator_array_value_exists( $properties, 'input-border-active' ) && !empty( $properties['input-border-active'] ) ) { ?>
 			color: <?php echo $properties['input-border-active'] ?>;
-		<?php } else { ?>
+		<?php } elseif ( forminator_can_apply_default_color( $properties ) ) { ?>
 			color: #17A8E3;
 		<?php } ?>
 	}
@@ -44,7 +44,7 @@
 	#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-is_active.forminator-has_error .forminator-label[class*="forminator-floating-"] {
 		<?php if ( forminator_array_value_exists( $properties, 'label-validation-color' ) && !empty( $properties['label-validation-color'] ) ) { ?>
 			color: <?php echo $properties['label-validation-color'] ?>;
-		<?php } else { ?>
+		<?php } elseif ( forminator_can_apply_default_color( $properties ) ) { ?>
 			color: #E04562;
 		<?php } ?>
 	}
@@ -53,7 +53,7 @@
 	#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-is_active .forminator-label[class*="forminator-floating-"] .forminator-required {
 		<?php if ( forminator_array_value_exists( $properties, 'cform-asterisk-color' ) && !empty( $properties['cform-asterisk-color'] ) ) { ?>
 			color: <?php echo $properties['cform-asterisk-color'] ?>;
-		<?php } else { ?>
+		<?php } elseif ( forminator_can_apply_default_color( $properties ) ) { ?>
 			color: #E04562;
 		<?php } ?>
 	}
@@ -62,12 +62,12 @@
 	#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-is_active.forminator-has_error .forminator-label[class*="forminator-floating-"] .forminator-required {
 		<?php if ( forminator_array_value_exists( $properties, 'label-validation-color' ) && !empty( $properties['label-validation-color'] ) ) { ?>
 			color: <?php echo $properties['label-validation-color'] ?>;
-		<?php } else { ?>
+		<?php } elseif ( forminator_can_apply_default_color( $properties ) ) { ?>
 			color: #E04562;
 		<?php } ?>
 	}
 
-<?php } else { ?>
+<?php } elseif ( forminator_can_apply_default_color( $properties ) ) { ?>
 
 	#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-label[class*="forminator-floating-"] {
 		color: #888888;

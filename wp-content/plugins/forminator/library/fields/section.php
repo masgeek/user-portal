@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Section class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -11,36 +17,43 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Forminator_Section extends Forminator_Field {
 
 	/**
+	 * Name
+	 *
 	 * @var string
 	 */
 	public $name = '';
 
 	/**
+	 * Slug
+	 *
 	 * @var string
 	 */
 	public $slug = 'section';
 
 	/**
+	 * Type
+	 *
 	 * @var string
 	 */
 	public $type = 'section';
 
 	/**
+	 * Position
+	 *
 	 * @var int
 	 */
 	public $position = 20;
 
 	/**
+	 * Options
+	 *
 	 * @var string
 	 */
 	public $options = array();
 
 	/**
-	 * @var string
-	 */
-	public $category = 'standard';
-
-	/**
+	 * Icon
+	 *
 	 * @var string
 	 */
 	public $icon = 'sui-icon-inlinecss';
@@ -53,7 +66,7 @@ class Forminator_Section extends Forminator_Field {
 	public function __construct() {
 		parent::__construct();
 
-		$this->name = __( 'Section', 'forminator' );
+		$this->name = esc_html__( 'Section', 'forminator' );
 	}
 
 	/**
@@ -64,7 +77,7 @@ class Forminator_Section extends Forminator_Field {
 	 */
 	public function defaults() {
 		return array(
-			'section_title'              => __( 'Form Section', 'forminator' ),
+			'section_title'              => esc_html__( 'Form Section', 'forminator' ),
 			'cform-section-border-style' => 'none',
 		);
 	}
@@ -74,7 +87,7 @@ class Forminator_Section extends Forminator_Field {
 	 *
 	 * @since 1.0.5
 	 *
-	 * @param array $settings
+	 * @param array $settings Settings.
 	 *
 	 * @return array
 	 */
@@ -90,7 +103,7 @@ class Forminator_Section extends Forminator_Field {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $field
+	 * @param array                  $field Field.
 	 * @param Forminator_Render_Form $views_obj Forminator_Render_Form object.
 	 *
 	 * @return mixed
@@ -143,7 +156,7 @@ class Forminator_Section extends Forminator_Field {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $content
+	 * @param string $content Content.
 	 *
 	 * @return mixed
 	 */

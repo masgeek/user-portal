@@ -3,6 +3,9 @@
 namespace LottaFramework\Facades;
 
 /**
+ * @method static settings() array
+ * @method static restore( array $settings )
+ * @method static reset()
  * @method static register( $args, bool $sub = false )
  * @method static get( string $id, array $settings = [] ) mixed
  * @method static checked( string $id ) bool

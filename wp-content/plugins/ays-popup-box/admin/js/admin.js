@@ -16,16 +16,25 @@
             cancelButtonColor: '#d33',
             confirmButtonText: 'Upgrade',
             cancelButtonText: 'Deactivate',
-            confirmButtonClass: 'ays-pb-upgrade-button'
+            confirmButtonClass: 'ays-pb-upgrade-button',
+            cancelButtonClass: 'ays-pb-cancel-button',
+            customClass: 'ays-pb-deactivate-popup',
         }).then((result) => {
 
             if( result.dismiss && result.dismiss == 'close' ){
                 return false;
             }
 
+            var wp_nonce = $(document).find('#popup_box_ajax_deactivate_plugin_nonce').val();
+
             var upgrade_plugin = false;
             if (result.value) upgrade_plugin = true;
-            var data = {action: 'deactivate_plugin_option_pb', upgrade_plugin: upgrade_plugin};
+            var data = {
+                action: 'deactivate_plugin_option_pb',
+                upgrade_plugin: upgrade_plugin,
+                _ajax_nonce: wp_nonce,
+            };
+
             $.ajax({
                 url: popup_box_ajax.ajax_url,
                 method: 'post',

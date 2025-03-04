@@ -1,16 +1,16 @@
 <?php
-
 /**
  * Callable function for Autofill related
+ *
+ * @package Forminator
  */
-
 
 /**
  * Build autofill providers from $slug_attributes array
  *
  * @since 1.0.5
  *
- * @param $slug_attributes
+ * @param array $slug_attributes Slug attributes.
  *
  * @return array
  */
@@ -19,11 +19,11 @@ function forminator_build_autofill_providers( $slug_attributes ) {
 }
 
 /**
- * init autofill provider by its slug
+ * Init autofill provider by its slug
  *
  * @since 1.0.5
  *
- * @param $provider_slug
+ * @param string $provider_slug provider slug.
  *
  * @return Forminator_Autofill_Provider_Abstract|null
  */

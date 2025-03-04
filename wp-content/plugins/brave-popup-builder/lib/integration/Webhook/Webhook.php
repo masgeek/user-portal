@@ -18,8 +18,8 @@ if ( ! class_exists( 'BravePop_Webhook' ) ) {
             $defaultKey = !$defaultKey && isset($field->placeholder) ? $field->placeholder : $defaultKey;
 
             $fieldKey = isset($field->uid) ? $field->uid : $defaultKey;
-            $fieldValue = isset($field->value) && is_string($field->value) && $field->value ? strip_tags($field->value) : '';
-            $fieldValue = isset($field->value) && is_array($field->value) && $field->value ? strip_tags(implode(", ", $field->value)) : $fieldValue;
+            $fieldValue = isset($field->value) && is_string($field->value) && $field->value ? wp_strip_all_tags($field->value) : '';
+            $fieldValue = isset($field->value) && is_array($field->value) && $field->value ? wp_strip_all_tags(implode(", ", $field->value)) : $fieldValue;
             
             if(isset($field->value) && is_array($field->value) && $field->type === 'input' && $field->validation === 'name'){
                $defaultKey2 = isset($field->secondLabel) ? $field->secondLabel : ''; 
@@ -37,7 +37,7 @@ if ( ! class_exists( 'BravePop_Webhook' ) ) {
          }
 
          if(!empty($current_user['username'])){
-            $finalData['registered_user'] = true;
+            $finalData['registered_user'] = "true";
             if(!empty($current_user['name'])){
                $finalData['registered_user_fullname'] = $current_user['name'];
             }
@@ -56,7 +56,7 @@ if ( ! class_exists( 'BravePop_Webhook' ) ) {
             'method' => 'POST',
             'timeout' => 10,
             'headers' => ($hooktype === 'integromat' || $hooktype === 'integrately'  || ($hooktype === 'custom' && $contentType === 'application/json' )) ? array(  'content-type' => 'application/json') : array(),
-            'body' => json_encode($finalData),
+            'body' => wp_json_encode($finalData),
             'data_format' => 'body',
          );
 
@@ -67,7 +67,7 @@ if ( ! class_exists( 'BravePop_Webhook' ) ) {
          $body = wp_remote_retrieve_body( $response );
          $data = json_decode( $body );
 
-         // error_log(json_encode( $body ));
+         // error_log(wp_json_encode( $body ));
          
          if($data && isset($data->id)){
             return $data->id; 

@@ -315,3 +315,200 @@ if ( ! function_exists( 'kenta_install_cmp_redirect_url' ) ) {
 		return add_query_arg( $args, admin_url( 'admin.php' ) ) . $hash;
 	}
 }
+
+if ( ! function_exists( 'kenta_blog_id' ) ) {
+	/**
+	 * Get blog id, support multisite
+	 *
+	 *
+	 * @param null $slug
+	 *
+	 * @return string
+	 */
+	function kenta_blog_id( $slug = null ) {
+		global $blog_id;
+
+		$prefix = ( is_multisite() && $blog_id > 1 ) ? 'kenta-blog-' . $blog_id : 'kenta-blog';
+
+		return $slug === null ? $prefix : $prefix . '-' . $slug;
+	}
+}
+
+if ( ! function_exists( 'kenta_current_loop' ) ) {
+	/**
+	 * @return string
+	 */
+	function kenta_current_loop() {
+		global $wp_query;
+		$loop = 'default';
+
+		if ( $wp_query->is_page ) {
+			$loop = is_front_page() ? 'front' : get_post_type();
+		} elseif ( $wp_query->is_home ) {
+			$loop = 'home';
+		} elseif ( $wp_query->is_single ) {
+			$loop = ( $wp_query->is_attachment ) ? 'attachment' : get_post_type();
+		} elseif ( $wp_query->is_category ) {
+			$loop = 'category';
+		} elseif ( $wp_query->is_tag ) {
+			$loop = 'tag';
+		} elseif ( $wp_query->is_tax ) {
+			$loop = 'tax';
+		} elseif ( $wp_query->is_archive ) {
+			if ( $wp_query->is_day ) {
+				$loop = 'day';
+			} elseif ( $wp_query->is_month ) {
+				$loop = 'month';
+			} elseif ( $wp_query->is_year ) {
+				$loop = 'year';
+			} elseif ( $wp_query->is_author ) {
+				$loop = 'author';
+			} else {
+				$loop = 'archive';
+			}
+		} elseif ( $wp_query->is_search ) {
+			$loop = 'search';
+		} elseif ( $wp_query->is_404 ) {
+			$loop = 'notfound';
+		}
+
+		return $loop;
+	}
+}
+
+if ( ! function_exists( 'kenta_current_option_type' ) ) {
+	/**
+	 * @return string
+	 */
+	function kenta_current_option_type() {
+		$post_type = 'archive';
+		if ( is_page() ) {
+			$post_type = 'pages';
+		}
+
+		if ( is_single() ) {
+			$post_type = 'single_post';
+		}
+
+		if ( is_front_page() && ! is_home() ) {
+			$post_type = 'homepage';
+		}
+
+		if ( kenta_is_woo_shop() ) {
+			$post_type = 'store';
+		}
+
+		return $post_type;
+	}
+}
+
+if ( ! function_exists( 'kenta_get_stylesheet_tag' ) ) {
+	/**
+	 * Get tag with stylesheet prefix
+	 *
+	 * @param $tag
+	 *
+	 * @return string
+	 * @since v1.2.8
+	 */
+	function kenta_get_stylesheet_tag( $tag ) {
+		return get_stylesheet() . '_' . $tag;
+	}
+}
+
+if ( ! function_exists( 'kenta_get_option' ) ) {
+	/**
+	 * @param $option
+	 * @param $default_value
+	 *
+	 * @return false|mixed|null
+	 * @since v1.2.8
+	 */
+	function kenta_get_option( $option, $default_value = false ) {
+		return get_option( kenta_get_stylesheet_tag( $option ), $default_value );
+	}
+}
+
+if ( ! function_exists( 'kenta_update_option' ) ) {
+	/**
+	 * @param $option
+	 * @param $value
+	 * @param null $autoload
+	 *
+	 * @return false|mixed|null
+	 * @since v1.2.8
+	 */
+	function kenta_update_option( $option, $value, $autoload = null ) {
+		return update_option( kenta_get_stylesheet_tag( $option ), $value, $autoload = null );
+	}
+}
+
+if ( ! function_exists( 'kenta_do_action' ) ) {
+	/**
+	 * @param $hook_name
+	 * @param ...$arg
+	 *
+	 * @return void
+	 * @since v1.2.8
+	 */
+	function kenta_do_action( $hook_name, ...$arg ) {
+		do_action( kenta_get_stylesheet_tag( $hook_name ), ...$arg );
+	}
+}
+
+if ( ! function_exists( 'kenta_add_action' ) ) {
+	/**
+	 * @param $hook_name
+	 * @param $callback
+	 * @param $priority
+	 * @param $accepted_args
+	 *
+	 * @return true|null
+	 * @since v1.2.8
+	 */
+	function kenta_add_action( $hook_name, $callback, $priority = 10, $accepted_args = 1 ) {
+		return add_action( kenta_get_stylesheet_tag( $hook_name ), $callback, $priority, $accepted_args );
+	}
+}
+
+if ( ! function_exists( 'kenta_apply_filters' ) ) {
+	/**
+	 * @param $hook_name
+	 * @param $value
+	 * @param ...$args
+	 *
+	 * @return mixed|null
+	 * @since v1.2.8
+	 */
+	function kenta_apply_filters( $hook_name, $value, ...$args ) {
+		return apply_filters( kenta_get_stylesheet_tag( $hook_name ), $value, ...$args );
+	}
+}
+
+if ( ! function_exists( 'kenta_add_filter' ) ) {
+	/**
+	 * @param $hook_name
+	 * @param $callback
+	 * @param $priority
+	 * @param $accepted_args
+	 *
+	 * @return true|null
+	 * @since v1.2.8
+	 */
+	function kenta_add_filter( $hook_name, $callback, $priority = 10, $accepted_args = 1 ) {
+		return add_filter( kenta_get_stylesheet_tag( $hook_name ), $callback, $priority, $accepted_args );
+	}
+}
+
+if ( ! function_exists( 'kenta_get_theme_version' ) ) {
+	/**
+	 * Get current theme version
+	 *
+	 * @return array|false|string
+	 */
+	function kenta_get_theme_version() {
+		$theme = wp_get_theme();
+
+		return $theme->get( 'Version' ) ?: KENTA_VERSION;
+	}
+}

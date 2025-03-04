@@ -12,7 +12,7 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: var(--kb-primary-color);
+  background: var(--kenta-primary-color);
   position: absolute;
   left: 0;
   top: 0;
@@ -56,6 +56,7 @@ nav.woocommerce-pagination .kenta-load-more-btn,
   background-color: var(--kenta-pagination-load-more-button-initial-color);
   color: var(--kenta-pagination-load-more-text-initial-color);
   transition: all ease 0.25s;
+  text-decoration: none;
 }
 .woocommerce-pagination .kenta-load-more-btn:hover,
 nav.woocommerce-pagination .kenta-load-more-btn:hover,
@@ -66,7 +67,9 @@ nav.woocommerce-pagination .kenta-load-more-btn:hover,
 .woocommerce-pagination .kenta-pagination-finish,
 nav.woocommerce-pagination .kenta-pagination-finish,
 .kenta-pagination .kenta-pagination-finish {
-  display: none;
+  visibility: hidden;
+  opacity: 0;
+  transition: all ease 0.5s;
 }
 
 .kenta-header-row {

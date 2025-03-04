@@ -24,7 +24,7 @@
 	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-signature .forminator-signature--placeholder {
 		<?php if ( forminator_array_value_exists( $properties, 'signature-placeholder' ) && !empty( $properties['signature-placeholder'] ) ) { ?>
 			color: <?php echo $properties['signature-placeholder'] ?>;
-		<?php } else { ?>
+		<?php } elseif ( forminator_can_apply_default_color( $properties ) ) { ?>
 			color: #888888;
 		<?php } ?>
 	}
@@ -69,9 +69,11 @@
 		background-color: #EDEDED !important;
 	}
 
-	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-signature .forminator-signature--placeholder {
-		color: #888888;
-	}
+	<?php if ( forminator_can_apply_default_color( $properties ) ) { ?>
+		.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-signature .forminator-signature--placeholder {
+			color: #888888;
+		}
+	<?php } ?>
 
 	/* STATE: Hover */
 

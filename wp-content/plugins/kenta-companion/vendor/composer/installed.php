@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'wpmoose/kenta-companion',
-        'pretty_version' => 'v1.1.7',
-        'version' => '1.1.7.0',
-        'reference' => '11227e74adf130adf05f8a0e956aff6a07d5290b',
+        'pretty_version' => 'v1.3.1',
+        'version' => '1.3.1.0',
+        'reference' => 'a1760c2b60dc667c304e4d28d1cbe41a9a54ee43',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -47,9 +47,9 @@
             'dev_requirement' => false,
         ),
         'wpmoose/kenta-companion' => array(
-            'pretty_version' => 'v1.1.7',
-            'version' => '1.1.7.0',
-            'reference' => '11227e74adf130adf05f8a0e956aff6a07d5290b',
+            'pretty_version' => 'v1.3.1',
+            'version' => '1.3.1.0',
+            'reference' => 'a1760c2b60dc667c304e4d28d1cbe41a9a54ee43',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -58,7 +58,7 @@
         'wpmoose/wp-dismissible-notice' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '7f541fc1f45c59ea9894acb9acfe716beb3c09ad',
+            'reference' => '77fe015fc4c91588619a82396b622be0409f823f',
             'type' => 'library',
             'install_path' => __DIR__ . '/../wpmoose/wp-dismissible-notice',
             'aliases' => array(

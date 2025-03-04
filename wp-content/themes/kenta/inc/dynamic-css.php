@@ -8,47 +8,275 @@ use LottaFramework\Facades\CZ;
 use LottaFramework\Utils;
 
 /**
- * Cache key
- *
- * @since 1.1.5
- */
-function kenta_dynamic_css_cache_key() {
-	return apply_filters( 'kenta_filter_dynamic_css_cache_key', 'kenta_dynamic_css' );
-}
-
-/**
- * Sets our dynamic CSS cache if it doesn't exist.
- *
- * If the theme version changed, bust the cache.
+ * Update our CSS cache when done saving Customizer options.
  *
  * @since 1.1.4
  */
-function kenta_set_dynamic_css_cache() {
-	if ( apply_filters( 'kenta_ignore_dynamic_css_cache', false ) || is_customize_preview() ) {
-		return;
+function kenta_reset_dynamic_css_cache() {
+	kenta_update_option( 'dynamic_css_assets', array() );
+}
+
+add_action( 'customize_save_after', 'kenta_reset_dynamic_css_cache' );
+
+/**
+ * If the assets folder writable
+ *
+ * @return bool
+ * @since v1.2.8
+ */
+function kenta_is_dynamic_css_assets_folder_writable() {
+	global $blog_id;
+	$current_loop = kenta_current_loop();
+
+	// Get the upload directory for this site.
+	$upload_dir = wp_get_upload_dir();
+	// If this is a multisite installation, append the blogid to the filename.
+	$css_blog_id = ( is_multisite() && $blog_id > 1 ) ? '_blog-' . $blog_id : null;
+
+	$file_name   = '/asset' . $css_blog_id . '-' . $current_loop . '.css';
+	$folder_path = $upload_dir['basedir'] . DIRECTORY_SEPARATOR . 'kenta';
+
+	// Does the folder exist?
+	if ( file_exists( $folder_path ) ) {
+		// Folder exists, but is the folder writable?
+		if ( ! is_writable( $folder_path ) ) {
+			// Folder is not writable.
+			// Does the file exist?
+			if ( ! file_exists( $folder_path . $file_name ) ) {
+				// File does not exist, therefore it can't be created
+				// since the parent folder is not writable.
+				return false;
+			} else {
+				// File exists, but is it writable?
+				if ( ! is_writable( $folder_path . $file_name ) ) {
+					// Nope, it's not writable.
+					return false;
+				}
+			}
+		} else {
+			// The folder is writable.
+			// Does the file exist?
+			if ( file_exists( $folder_path . $file_name ) ) {
+				// File exists.
+				// Is it writable?
+				if ( ! is_writable( $folder_path . $file_name ) ) {
+					// Nope, it's not writable.
+					return false;
+				}
+			}
+		}
+	} else {
+		// Can we create the folder?
+		// returns true if yes and false if not.
+		return wp_mkdir_p( $folder_path );
 	}
 
-	$cached_css     = get_option( kenta_dynamic_css_cache_key(), false );
-	$cached_version = get_option( kenta_dynamic_css_cache_key() . '_cached_version', '' );
-	if ( apply_filters( 'kenta_should_dynamic_css_re_cached', ! $cached_css || KENTA_VERSION !== $cached_version ) ) {
-		kenta_app()->instance( 'store.caching_css', true );
+	// all is well!
+	return true;
+}
 
-		$css = kenta_dynamic_css();
+/**
+ * Write dynamic css to file
+ *
+ * @return bool
+ * @since v1.2.8
+ */
+function kenta_make_dynamic_css_cache() {
+	$current_loop = kenta_current_loop();
 
-		update_option( kenta_dynamic_css_cache_key(), wp_strip_all_tags( $css ) );
-		update_option( kenta_dynamic_css_cache_key() . '_cached_version', esc_html( apply_filters( 'kenta_filter_cached_dynamic_css_version', KENTA_VERSION ) ) );
+	$raw_css = kenta_dynamic_css();
 
-		do_action( 'kenta_dynamic_css_cached', $css );
+	// Don't need to create assets file
+	if ( ! $raw_css ) {
+		return false;
+	}
+
+	// If we only have a little CSS/Scripts, we should inline it.
+	$css_size = strlen( $raw_css );
+	if ( $css_size < (int) apply_filters( 'kenta_assets_inline_length', 500 ) ) {
+		return false;
+	}
+
+	global $wp_filesystem;
+
+	// Initialize the WordPress filesystem.
+	if ( empty( $wp_filesystem ) ) {
+		require_once ABSPATH . '/wp-admin/includes/file.php';
+		WP_Filesystem();
+	}
+
+	// Take care of domain mapping.
+	if ( defined( 'DOMAIN_MAPPING' ) && DOMAIN_MAPPING ) {
+		if ( function_exists( 'domain_mapping_siteurl' ) && function_exists( 'get_original_url' ) ) {
+			$mapped_domain   = domain_mapping_siteurl( false );
+			$original_domain = get_original_url( 'siteurl' );
+
+			$raw_css = str_replace( $original_domain, $mapped_domain, $raw_css );
+		}
+	}
+
+	if ( ! is_writable( dirname( kenta_get_cached_dynamic_css( 'path' ) ) ) ) {
+		return false;
+	}
+
+	$chmod_file = 0644;
+
+	if ( defined( 'FS_CHMOD_FILE' ) ) {
+		$chmod_file = FS_CHMOD_FILE;
+	}
+
+	// write css
+	$css_file_path = kenta_get_cached_dynamic_css( 'path' );
+	if ( $raw_css && is_writable( $css_file_path ) || ( ! file_exists( $css_file_path ) ) ) {
+		// can't save css file
+		if ( ! $wp_filesystem->put_contents( $css_file_path, wp_strip_all_tags( $raw_css ), $chmod_file ) ) {
+			return false;
+		}
+	}
+
+	$option                  = kenta_get_option( 'dynamic_css_assets', array() );
+	$option[ $current_loop ] = true;
+	kenta_update_option( 'dynamic_css_assets', $option );
+
+	// Update the 'dynamic_css_time' option.
+	kenta_update_option( 'dynamic_css_time', time() );
+	kenta_update_option(
+		'dynamic_css_cached_version',
+		esc_html( kenta_apply_filters( 'dynamic_css_cached_version', kenta_get_theme_version() ) )
+	);
+
+	kenta_do_action( 'dynamic_css_cached', $raw_css, $current_loop );
+
+	// Success!
+	return true;
+}
+
+/**
+ *  Do we need to update the assets file?
+ *
+ * @return bool
+ * @since v1.2.8
+ */
+function kenta_should_update_dynamic_cache() {
+	$cached_version = kenta_get_option( 'dynamic_css_cached_version', '' );
+	if ( kenta_apply_filters( 'should_dynamic_css_re_cached', kenta_get_theme_version() !== $cached_version ) ) {
+		kenta_reset_dynamic_css_cache();
+
+		return true;
+	}
+
+	// If the CSS file does not exist then we definitely need to regenerate the CSS.
+	if ( ! file_exists( kenta_get_cached_dynamic_css( 'path' ) ) ) {
+		return true;
+	}
+
+	$current_loop = kenta_current_loop();
+	$option       = kenta_get_option( 'dynamic_css_assets', array() );
+
+	return ( ! isset( $option[ $current_loop ] ) || ! $option[ $current_loop ] ) ? true : false;
+
+}
+
+/**
+ * Get current dynamic css mode
+ *
+ * @return string|void
+ * @since v1.2.8
+ */
+function kenta_dynamic_css_mode() {
+	$using_cached_dynamic_css = kenta_apply_filters( 'using_cached_dynamic_css', CZ::checked( 'kenta_enable_customizer_cache' ) );
+	$mode                     = 'cached';
+
+	if (
+		! $using_cached_dynamic_css
+		||
+		( function_exists( 'is_customize_preview' ) && is_customize_preview() )
+		||
+		is_preview()
+		||
+		// AMP inlines all CSS, so inlining from the start improves CSS processing performance.
+		( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) ) {
+		return 'inline';
+	}
+
+	if ( kenta_should_update_dynamic_cache() ) {
+		// Only allow processing 1 file every 5 seconds.
+		$current_time = (int) time();
+		$last_time    = (int) kenta_get_option( 'dynamic_css_time' );
+		if ( 5 <= ( $current_time - $last_time ) ) {
+			// Attempt to write to the file.
+			$mode = ( kenta_is_dynamic_css_assets_folder_writable() && kenta_make_dynamic_css_cache() ) ? 'cached' : 'inline';
+
+			// Does again if the file exists.
+			if ( 'inline' !== $mode ) {
+				$mode = ( file_exists( kenta_get_cached_dynamic_css( 'path' ) ) ) ? 'cached' : 'inline';
+			}
+		}
+	}
+
+	return $mode;
+}
+
+/**
+ * Get cached dynamic css file path or uri
+ *
+ * @param $target
+ *
+ * @return string|void
+ * @since v1.2.8
+ */
+function kenta_get_cached_dynamic_css( $target = 'path' ) {
+
+	global $blog_id;
+	$current_loop = kenta_current_loop();
+
+	// Get the upload directory for this site.
+	$upload_dir = wp_get_upload_dir();
+	// If this is a multisite installation, append the blogid to the filename.
+	$css_blog_id = ( is_multisite() && $blog_id > 1 ) ? '_blog-' . $blog_id : null;
+
+	$file_name   = 'asset' . $css_blog_id . '-' . $current_loop . '.css';
+	$folder_path = $upload_dir['basedir'] . DIRECTORY_SEPARATOR . 'kenta';
+
+	// The complete path to the file.
+	$file_path = $folder_path . DIRECTORY_SEPARATOR . $file_name;
+	// Get the URL directory of the stylesheet.
+	$css_uri_folder = $upload_dir['baseurl'];
+	$css_uri        = trailingslashit( $css_uri_folder ) . 'kenta/' . $file_name;
+	// Take care of domain mapping.
+	if ( defined( 'DOMAIN_MAPPING' ) && DOMAIN_MAPPING ) {
+		if ( function_exists( 'domain_mapping_siteurl' ) && function_exists( 'get_original_url' ) ) {
+			$mapped_domain   = domain_mapping_siteurl( false );
+			$original_domain = get_original_url( 'siteurl' );
+			$css_uri         = str_replace( $original_domain, $mapped_domain, $css_uri );
+		}
+	}
+	$css_uri = set_url_scheme( $css_uri );
+
+	if ( 'path' === $target ) {
+		return $file_path;
+	} elseif ( 'url' === $target || 'uri' === $target ) {
+		$timestamp = ( file_exists( $file_path ) ) ? '?ver=' . filemtime( $file_path ) : '';
+
+		return $css_uri . $timestamp;
 	}
 }
 
 /**
  * Enqueue global css variables
  */
-function kenta_enqueue_global_vars( $selector = ':root', $suffix = '' ) {
-	wp_register_style( 'kenta-dynamic-vars' . $suffix, false );
-	wp_enqueue_style( 'kenta-dynamic-vars' . $suffix );
-	wp_add_inline_style( 'kenta-dynamic-vars' . $suffix, kenta_global_css_vars( $selector, $suffix ) );
+function kenta_enqueue_global_vars( $args = [] ) {
+	$args = wp_parse_args( $args, [
+		'defaultScheme' => '',
+		'selector'      => ':root',
+		'suffix'        => ''
+	] );
+
+	wp_register_style( 'kenta-dynamic-vars' . $args['suffix'], false );
+	wp_enqueue_style( 'kenta-dynamic-vars' . $args['suffix'] );
+	wp_add_inline_style( 'kenta-dynamic-vars' . $args['suffix'],
+		kenta_global_css_vars( $args['selector'], $args['suffix'], $args['defaultScheme'] )
+	);
 }
 
 /**
@@ -68,83 +296,93 @@ function kenta_enqueue_dynamic_css() {
 	wp_enqueue_style( 'kenta-preloader' );
 	wp_add_inline_style( 'kenta-preloader', kenta_preloader_css() );
 
-	// Set dynamic css cache
-	kenta_set_dynamic_css_cache();
-
-	//
-	// Check if we should use the cached dynamic CSS
-	//
-	// @since 1.1.4
-	//
-	$using_cached_dynamic_css = apply_filters( 'kenta_using_cached_dynamic_css', CZ::checked( 'kenta_enable_customizer_cache' ) );
-	if ( ! $using_cached_dynamic_css || ! get_option( kenta_dynamic_css_cache_key(), false ) || is_customize_preview() || apply_filters( 'kenta_ignore_dynamic_css_cache', false ) ) {
-		$css = kenta_dynamic_css();
+	if ( 'inline' === kenta_dynamic_css_mode() ) {
+		$dynamic_css = kenta_dynamic_css();
 	} else {
-		$css = get_option( kenta_dynamic_css_cache_key() );
+		$dynamic_css = '';
+		wp_enqueue_style(
+			'kenta-cached-dynamic-styles',
+			esc_url( kenta_get_cached_dynamic_css( 'uri' ) ),
+			[],
+			null
+		);
 	}
 
-	$css .= kenta_no_cache_dynamic_css();
+	$dynamic_css .= kenta_no_cache_dynamic_css();
 
 	wp_register_style( 'kenta-dynamic', false );
 	wp_enqueue_style( 'kenta-dynamic' );
-	wp_add_inline_style( 'kenta-dynamic', $css );
+	wp_add_inline_style( 'kenta-dynamic', $dynamic_css );
 }
-
-/**
- * Enqueue dynamic css for our theme editor
- */
-function kenta_enqueue_admin_dynamic_css() {
-	wp_register_style( 'kenta-admin-dynamic', false );
-	wp_enqueue_style( 'kenta-admin-dynamic' );
-	wp_add_inline_style( 'kenta-admin-dynamic', kenta_admin_dynamic_css() );
-}
-
-/**
- * Update our CSS cache when done saving Customizer options.
- *
- * @since 1.1.4
- */
-function kenta_update_dynamic_css_cache() {
-	if ( apply_filters( 'kenta_ignore_dynamic_css_cache', false ) ) {
-		return;
-	}
-
-	update_option( kenta_dynamic_css_cache_key(), false );
-}
-
-add_action( 'customize_save_after', 'kenta_update_dynamic_css_cache' );
 
 /**
  * Generate global css vars
  *
  * @return mixed
  */
-function kenta_global_css_vars( $selector, $suffix = '' ) {
+function kenta_global_css_vars( $selector, $suffix = '', $defaultScheme = '' ) {
 	$suffix = $suffix === '' ? '' : '-' . $suffix;
 
 	$vars = [
 		'--kenta-transparent' . $suffix => 'rgba(0, 0, 0, 0)',
 	];
 
-	/**
-	 * Palette
-	 */
-	$colors = apply_filters( 'kenta_content_color_vars', [
-		'kenta_primary_color' => [
-			'default' => 'kenta-primary-color',
-			'active'  => 'kenta-primary-active',
-		],
-		'kenta_accent_color'  => [
-			'default' => 'kenta-accent-color',
-			'active'  => 'kenta-accent-active',
-		],
-		'kenta_base_color'    => [
-			'default' => 'kenta-base-color',
-			'100'     => 'kenta-base-100',
-			'200'     => 'kenta-base-200',
-			'300'     => 'kenta-base-300',
-		],
+	if ( $defaultScheme !== '' ) {
+		$vars = [
+			'--kenta-transparent'    => 'rgba(0, 0, 0, 0)',
+			'--kenta-primary-color'  => "var(--kenta-{$defaultScheme}-primary-color, var(--kenta-light-primary-color))",
+			'--kenta-primary-active' => "var(--kenta-{$defaultScheme}-primary-active, var(--kenta-light-primary-active))",
+			'--kenta-accent-color'   => "var(--kenta-{$defaultScheme}-accent-color, var(--kenta-light-accent-color))",
+			'--kenta-accent-active'  => "var(--kenta-{$defaultScheme}-accent-active, var(--kenta-light-accent-active))",
+			'--kenta-base-color'     => "var(--kenta-{$defaultScheme}-base-color, var(--kenta-light-base-color))",
+			'--kenta-base-100'       => "var(--kenta-{$defaultScheme}-base-100, var(--kenta-light-base-100))",
+			'--kenta-base-200'       => "var(--kenta-{$defaultScheme}-base-200, var(--kenta-light-base-200))",
+			'--kenta-base-300'       => "var(--kenta-{$defaultScheme}-base-300, var(--kenta-light-base-300))",
+		];
+	}
 
+	foreach ( [ 'light', 'dark' ] as $scheme ) {
+		$prefix = ( $scheme === 'light' ) ? 'kenta' : "kenta_{$scheme}";
+
+		/**
+		 * Palette
+		 */
+		$global_colors = apply_filters( 'kenta_global_color_vars', [
+			"{$prefix}_primary_color" => [
+				'default' => "kenta-{$scheme}-primary-color",
+				'active'  => "kenta-{$scheme}-primary-active",
+			],
+			"{$prefix}_accent_color"  => [
+				'default' => "kenta-{$scheme}-accent-color",
+				'active'  => "kenta-{$scheme}-accent-active",
+			],
+			"{$prefix}_base_color"    => [
+				'default' => "kenta-{$scheme}-base-color",
+				'100'     => "kenta-{$scheme}-base-100",
+				'200'     => "kenta-{$scheme}-base-200",
+				'300'     => "kenta-{$scheme}-base-300",
+			],
+		] );
+
+		$presets = $scheme === 'light' ? kenta_color_presets() : kenta_dark_color_presets();
+		$preset  = $presets[ CZ::get( "{$prefix}_color_palettes" ) ] ?? [];
+
+		foreach ( $global_colors as $setting => $args ) {
+			$color = CZ::get( $setting );
+			foreach ( $args as $key => $var ) {
+				$preset_var_name = str_replace( "kenta-{$scheme}-", 'kenta-', rtrim( substr( $color[ $key ], strlen( 'var(--' ) ), ')' ) );
+				if ( Utils::str_starts_with( $color[ $key ], 'var' ) && isset( $preset[ $preset_var_name ] ) ) {
+					$vars[ '--' . $var . $suffix ] = $preset[ $preset_var_name ];
+					continue;
+				}
+
+				$vars[ '--' . $var . $suffix ] = $color[ $key ];
+			}
+		}
+	}
+
+	// Content colors
+	$content_colors = apply_filters( 'kenta_content_color_vars', [
 		'kenta_content_base_color'     => [
 			'initial' => 'kenta-content-base-color',
 		],
@@ -160,17 +398,9 @@ function kenta_global_css_vars( $selector, $suffix = '' ) {
 		],
 	] );
 
-	$palettes = Utils::array_path( CZ::getSettingArgs( 'kenta_color_palettes' ), 'options.palettes' );
-	$palette  = $palettes[ CZ::get( 'kenta_color_palettes' ) ] ?? [];
-
-	foreach ( $colors as $setting => $args ) {
+	foreach ( $content_colors as $setting => $args ) {
 		$color = CZ::get( $setting );
 		foreach ( $args as $key => $var ) {
-			if ( Utils::str_starts_with( $color[ $key ], 'var' ) && isset( $palette[ $var ] ) ) {
-				$vars[ '--' . $var . $suffix ] = $palette[ $var ];
-				continue;
-			}
-
 			$vars[ '--' . $var . $suffix ] = $color[ $key ];
 		}
 	}
@@ -260,16 +490,16 @@ function kenta_transparent_header_css() {
 	);
 
 	// site branding
-	$css['.kenta-transparent-header .kenta-site-branding .kenta-has-transparent-logo .kenta-transparent-logo']                                                     = [
+	$css['.kenta-transparent-header .kenta-site-branding .kenta-has-transparent-logo .kenta-transparent-logo']                                                                                         = [
 		'display' => 'inline-block',
 	];
-	$css['.kenta-transparent-header .kenta-site-branding .kenta-has-transparent-logo .kenta-logo']                                                                 = [
+	$css['.kenta-transparent-header .kenta-site-branding .kenta-has-transparent-logo .kenta-logo, .kenta-transparent-header .kenta-site-branding .kenta-has-transparent-logo .kenta-dark-scheme-logo'] = [
 		'display' => 'none',
 	];
-	$css['.kenta-transparent-header .kenta-site-branding .site-identity .site-title, .kenta-transparent-header .kenta-site-branding .site-identity .site-tagline'] =
+	$css['.kenta-transparent-header .kenta-site-branding .site-identity .site-title, .kenta-transparent-header .kenta-site-branding .site-identity .site-tagline']                                     =
 		Css::colors( CZ::get( 'kenta_trans_header_site_title_color' ), [
-			'initial' => '--text-color',
-			'hover'   => '--hover-color',
+			'initial' => '--kenta-link-initial-color',
+			'hover'   => '--kenta-link-hover-color',
 		] );
 
 	// Raw text
@@ -408,35 +638,10 @@ function kenta_preloader_css() {
 function kenta_no_cache_dynamic_css() {
 	$css = array();
 
-	$post_type = 'archive';
-	if ( is_page() ) {
-		$post_type = 'pages';
-	}
-
-	if ( is_single() ) {
-		$post_type = 'single_post';
-	}
-
-	if ( is_front_page() && ! is_home() ) {
-		$post_type = 'homepage';
-	}
-
-	if ( kenta_is_woo_shop() ) {
-		$post_type = 'store';
-	}
-
-	/**
-	 * Global site
-	 */
-	$content_container_type = kenta_get_current_post_meta( 'site-container-layout' );
-	if ( $content_container_type === 'default' ) {
-		$content_container_type = CZ::get( 'kenta_' . $post_type . '_container_layout' ) ?? 'normal';
-	}
-
+	$option_type   = kenta_current_option_type();
 	$site_wrap_css = [
-		'--kenta-max-w-content'        => $content_container_type === 'normal' ? 'auto' : CZ::get( 'kenta_' . $post_type . '_container_max_width' ),
 		'--kenta-content-area-spacing' => kenta_get_current_post_meta( 'disable-content-area-spacing' ) === 'yes'
-			? '0px' : CZ::get( "kenta_{$post_type}_content_spacing" ),
+			? '0px' : CZ::get( "kenta_{$option_type}_content_spacing" ),
 		'--wp-admin-bar-height'        => ( ! is_admin_bar_showing() || is_customize_preview() ) ? '0px' : [
 			'desktop' => '32px',
 			'tablet'  => '32px',
@@ -447,10 +652,118 @@ function kenta_no_cache_dynamic_css() {
 	// enable site wrap
 	$css['.kenta-site-wrap'] = $site_wrap_css;
 
-	// Posts, pages and store site background override
-	if ( $post_type === 'pages' || $post_type === 'single_post' || $post_type === 'store' ) {
-		$css[".kenta-{$post_type} .kenta-site-wrap"] = Css::background( CZ::get( 'kenta_' . $post_type . '_site_background' ) );
+	$css = apply_filters( 'kenta_filter_no_cache_dynamic_css', $css );
+
+	return Css::parse( $css );
+}
+
+/**
+ * Generate cached dynamic css
+ *
+ * @return mixed
+ */
+function kenta_dynamic_css() {
+
+	// Enqueue header & footer builder style manually
+	Kenta_Header_Builder::instance()->builder()->do( 'enqueue_frontend_scripts' );
+	Kenta_Footer_Builder::instance()->builder()->do( 'enqueue_frontend_scripts' );
+
+	$css = [
+		':root' => array_merge(
+			Css::typography( CZ::get( 'kenta_site_global_typography' ) ),
+			Css::filters( CZ::get( 'kenta_site_filters' ) )
+		),
+	];
+
+	$option_type = kenta_current_option_type();
+
+	/**
+	 * Global site
+	 */
+	$site_wrap_css = array_merge(
+		Css::typography( CZ::get( 'kenta_site_global_typography' ) ),
+		Css::background( CZ::get( 'kenta_site_background' ) )
+	);
+
+	// enable site wrap
+	if ( CZ::checked( 'kenta_enable_site_wrap' ) ) {
+		$css['.kenta-body'] = Css::background( CZ::get( 'kenta_site_body_background' ) );
+		$site_wrap_css      = array_merge( $site_wrap_css,
+			Css::shadow( CZ::get( 'kenta_site_wrap_shadow' ) ),
+			[ '--kenta-site-wrap-width' => '1600px', 'margin' => '0 auto' ]
+		);
 	}
+
+	$css['.kenta-site-wrap'] = $site_wrap_css;
+
+	// Posts, pages and store site background override
+	if ( $option_type === 'pages' || $option_type === 'single_post' || $option_type === 'store' ) {
+		$css[".kenta-{$option_type} .kenta-site-wrap"] = Css::background( CZ::get( 'kenta_' . $option_type . '_site_background' ) );
+	}
+
+	/**
+	 * override global colors in header
+	 */
+	$css['.kenta-site-header'] = array_merge(
+		Css::colors( CZ::get( 'kenta_header_primary_color' ), [
+			'default' => '--kenta-primary-color',
+			'active'  => '--kenta-primary-active',
+		] ),
+		Css::colors( CZ::get( 'kenta_header_accent_color' ), [
+			'default' => '--kenta-accent-color',
+			'active'  => '--kenta-accent-active',
+		] ),
+		Css::colors( CZ::get( 'kenta_header_base_color' ), [
+			'default' => '--kenta-base-color',
+			'100'     => '--kenta-base-100',
+			'200'     => '--kenta-base-200',
+			'300'     => '--kenta-base-300',
+		] )
+	);
+
+	// override global colors in footer
+	$css['.kenta-footer-area'] = array_merge(
+		Css::colors( CZ::get( 'kenta_footer_primary_color' ), [
+			'default' => '--kenta-primary-color',
+			'active'  => '--kenta-primary-active',
+		] ),
+		Css::colors( CZ::get( 'kenta_footer_accent_color' ), [
+			'default' => '--kenta-accent-color',
+			'active'  => '--kenta-accent-active',
+		] ),
+		Css::colors( CZ::get( 'kenta_footer_base_color' ), [
+			'default' => '--kenta-base-color',
+			'100'     => '--kenta-base-100',
+			'200'     => '--kenta-base-200',
+			'300'     => '--kenta-base-300',
+		] )
+	);
+
+	/**
+	 * Archive title
+	 */
+	$css['.kenta-archive-header']                      = array_merge(
+		[ 'text-align' => CZ::get( 'kenta_archive_header_alignment' ) ],
+		Css::background( CZ::get( 'kenta_archive_header_background' ) )
+	);
+	$css['.kenta-archive-header .container']           = Css::dimensions( CZ::get( 'kenta_archive_header_padding' ), 'padding' );
+	$css['.kenta-archive-header .archive-title']       = array_merge(
+		Css::typography( CZ::get( 'kenta_archive_title_typography' ) ),
+		Css::colors( CZ::get( 'kenta_archive_title_color' ), [
+			'initial' => 'color',
+		] )
+	);
+	$css['.kenta-archive-header .archive-description'] = array_merge(
+		Css::typography( CZ::get( 'kenta_archive_description_typography' ) ),
+		Css::colors( CZ::get( 'kenta_archive_description_color' ), [
+			'initial' => 'color',
+		] )
+	);
+
+	$css['.kenta-archive-header::after'] = array_merge(
+		[ 'opacity' => CZ::get( 'kenta_archive_header_overlay_opacity' ) ],
+		Css::background( CZ::get( 'kenta_archive_header_overlay' ) )
+	);
 
 	/**
 	 * Post card
@@ -485,6 +798,31 @@ function kenta_no_cache_dynamic_css() {
 				'--card-content-spacing'   => CZ::get( 'kenta_card_content_spacing' )
 			],
 			kenta_card_preset_style( CZ::get( 'kenta_card_style_preset' ) )
+		);
+	}
+
+	/**
+	 * Posts Pagination
+	 */
+	if ( CZ::checked( 'kenta_archive_pagination_section' ) ) {
+		$pagination_type = CZ::get( 'kenta_pagination_type' );
+		$pagination_css  = [];
+
+		if ( $pagination_type === 'numbered' || $pagination_type === 'prev-next' ) {
+			$pagination_css = array_merge(
+				Css::border( CZ::get( 'kenta_pagination_button_border' ), '--kenta-pagination-button-border' ),
+				Css::colors( CZ::get( 'kenta_pagination_button_color' ), [
+					'initial' => '--kenta-pagination-initial-color',
+					'active'  => '--kenta-pagination-active-color',
+					'accent'  => '--kenta-pagination-accent-color',
+				] ),
+				[ '--kenta-pagination-button-radius' => CZ::get( 'kenta_pagination_button_radius' ) ]
+			);
+		}
+
+		$css['.kenta-pagination'] = array_merge( $pagination_css,
+			Css::typography( CZ::get( 'kenta_pagination_typography' ) ),
+			[ 'justify-content' => CZ::get( 'kenta_pagination_alignment' ) ]
 		);
 	}
 
@@ -525,6 +863,58 @@ function kenta_no_cache_dynamic_css() {
 	}
 
 	/**
+	 * Sidebar
+	 */
+	$sidebar_style        = CZ::get( 'kenta_global_sidebar_sidebar-style' );
+	$widgets_style_preset = CZ::get( 'kenta_global_sidebar_widgets-style' );
+	$widgets_css          = $widgets_style_preset === 'custom' ? array_merge(
+		Css::background( CZ::get( 'kenta_global_sidebar_widgets-background' ) ),
+		Css::border( CZ::get( 'kenta_global_sidebar_widgets-border' ) ),
+		Css::shadow( CZ::get( 'kenta_global_sidebar_widgets-shadow' ) )
+	) : kenta_card_preset_style( $widgets_style_preset );
+
+	$widgets_css = array_merge(
+		$widgets_css,
+		Css::dimensions( CZ::get( 'kenta_global_sidebar_widgets-padding' ), 'padding' ),
+		Css::dimensions( CZ::get( 'kenta_global_sidebar_widgets-radius' ), 'border-radius' )
+	);
+
+	if ( $sidebar_style === 'style-1' ) {
+		$css[".kenta-sidebar .kenta-widget"] = $widgets_css;
+	}
+
+	// list icon style
+	if ( ! CZ::checked( 'kenta_global_sidebar_list-icon' ) ) {
+		$css[".kenta-sidebar .kenta-widget ul li"] = [
+			'--fa-display'     => 'none',
+			'--widget-list-pl' => '0',
+		];
+	}
+
+	$css[".kenta-sidebar"] = array_merge(
+		$sidebar_style === 'style-2' ? $widgets_css : [],
+		Css::typography( CZ::get( 'kenta_global_sidebar_content-typography' ) ),
+		Css::colors( CZ::get( 'kenta_global_sidebar_content-color' ), [
+			'text'    => '--kenta-widgets-text-color',
+			'initial' => '--kenta-widgets-link-initial',
+			'hover'   => '--kenta-widgets-link-hover',
+		] ),
+		[
+			'--kenta-sidebar-width'   => CZ::get( 'kenta_global_sidebar_width' ) ?? '27%',
+			'--kenta-sidebar-gap'     => CZ::get( 'kenta_global_sidebar_gap' ) ?? '24px',
+			'--kenta-widgets-spacing' => CZ::get( 'kenta_global_sidebar_widgets-spacing' ),
+		]
+	);
+
+	$css[".kenta-sidebar .widget-title"] = array_merge(
+		Css::typography( CZ::get( 'kenta_global_sidebar_title-typography' ) ),
+		Css::colors( CZ::get( 'kenta_global_sidebar_title-color' ), [
+			'initial'   => 'color',
+			'indicator' => '--kenta-heading-indicator',
+		] )
+	);
+
+	/**
 	 * Single post & page
 	 */
 	if ( is_single() || is_page() ) {
@@ -532,13 +922,20 @@ function kenta_no_cache_dynamic_css() {
 		$prefix       = 'kenta_' . $article_type;
 
 		// Article content
-		$content_preset                     = CZ::get( $prefix . '_content_style_preset' );
-		$css['.kenta-article-content-wrap'] = array_merge(
-			array(
-				'padding' => $content_preset === 'ghost' ? '' : '24px',
-			),
-			kenta_card_preset_style( $content_preset )
-		);
+		$content_preset = CZ::get( $prefix . '_content_style_preset' );
+		$sidebar_layout = kenta_get_sidebar_layout( $article_type );
+		if ( $sidebar_layout === 'no-sidebar' ) {
+			$css['.kenta-article-content-wrap'] = array_merge(
+				array(
+					'position' => 'relative',
+					'padding'  => $content_preset === 'ghost' ? '' : '24px',
+				)
+			);
+
+			$css['.kenta-article-content-wrap::before'] = kenta_card_preset_style( $content_preset );
+		} else {
+			$css['.kenta-article-content-wrap'] = kenta_card_preset_style( $content_preset );
+		}
 
 		// Article header
 		$css['.kenta-article-header'] = array_merge(
@@ -571,7 +968,7 @@ function kenta_no_cache_dynamic_css() {
 		// Article thumbnail
 		$css['.article-featured-image']     = Css::dimensions( CZ::get( "{$prefix}_featured_image_spacing" ), 'padding' );
 		$css['.article-featured-image img'] = array_merge(
-			[ 'height' => CZ::get( "{$prefix}_featured_image_height" ) ],
+			[ 'width' => '100%', 'height' => CZ::get( "{$prefix}_featured_image_height" ) ],
 			Css::shadow( CZ::get( "{$prefix}_featured_image_shadow" ) ),
 			Css::dimensions( CZ::get( "{$prefix}_featured_image_radius" ), 'border-radius' ),
 			Css::filters( CZ::get( "{$prefix}_featured_image_filter" ) )
@@ -662,177 +1059,6 @@ function kenta_no_cache_dynamic_css() {
 		$css = kenta_content_typography_css( '.kenta-article-content', $css );
 	}
 
-	$css = apply_filters( 'kenta_filter_no_cache_dynamic_css', $css );
-
-	return Css::parse( $css );
-}
-
-/**
- * Generate cached dynamic css
- *
- * @return mixed
- */
-function kenta_dynamic_css() {
-
-	$css = [
-		':root' => array_merge(
-			Css::typography( CZ::get( 'kenta_site_global_typography' ) ),
-			Css::filters( CZ::get( 'kenta_site_filters' ) )
-		),
-	];
-
-	/**
-	 * Global site
-	 */
-	$site_wrap_css = array_merge(
-		Css::typography( CZ::get( 'kenta_site_global_typography' ) ),
-		Css::background( CZ::get( 'kenta_site_background' ) )
-	);
-
-	// enable site wrap
-	if ( CZ::checked( 'kenta_enable_site_wrap' ) ) {
-		$css['.kenta-body'] = Css::background( CZ::get( 'kenta_site_body_background' ) );
-		$site_wrap_css      = array_merge( $site_wrap_css,
-			Css::shadow( CZ::get( 'kenta_site_wrap_shadow' ) ),
-			[ '--kenta-site-wrap-width' => '1600px', 'margin' => '0 auto' ]
-		);
-	}
-
-	$css['.kenta-site-wrap'] = $site_wrap_css;
-
-	/**
-	 * header
-	 */
-	$css['.kenta-site-header'] = array_merge(
-		Css::colors( CZ::get( 'kenta_header_primary_color' ), [
-			'default' => '--kenta-primary-color',
-			'active'  => '--kenta-primary-active',
-		] ),
-		Css::colors( CZ::get( 'kenta_header_accent_color' ), [
-			'default' => '--kenta-accent-color',
-			'active'  => '--kenta-accent-active',
-		] ),
-		Css::colors( CZ::get( 'kenta_header_base_color' ), [
-			'default' => '--kenta-base-color',
-			'100'     => '--kenta-base-100',
-			'200'     => '--kenta-base-200',
-			'300'     => '--kenta-base-300',
-		] )
-	);
-
-	// footer
-	$css['.kenta-footer-area'] = array_merge(
-		Css::colors( CZ::get( 'kenta_footer_primary_color' ), [
-			'default' => '--kenta-primary-color',
-			'active'  => '--kenta-primary-active',
-		] ),
-		Css::colors( CZ::get( 'kenta_footer_accent_color' ), [
-			'default' => '--kenta-accent-color',
-			'active'  => '--kenta-accent-active',
-		] ),
-		Css::colors( CZ::get( 'kenta_footer_base_color' ), [
-			'default' => '--kenta-base-color',
-			'100'     => '--kenta-base-100',
-			'200'     => '--kenta-base-200',
-			'300'     => '--kenta-base-300',
-		] )
-	);
-
-	/**
-	 * Archive title
-	 */
-	$css['.kenta-archive-header']                      = array_merge(
-		[ 'text-align' => CZ::get( 'kenta_archive_header_alignment' ) ],
-		Css::background( CZ::get( 'kenta_archive_header_background' ) )
-	);
-	$css['.kenta-archive-header .container']           = Css::dimensions( CZ::get( 'kenta_archive_header_padding' ), 'padding' );
-	$css['.kenta-archive-header .archive-title']       = array_merge(
-		Css::typography( CZ::get( 'kenta_archive_title_typography' ) ),
-		Css::colors( CZ::get( 'kenta_archive_title_color' ), [
-			'initial' => 'color',
-		] )
-	);
-	$css['.kenta-archive-header .archive-description'] = array_merge(
-		Css::typography( CZ::get( 'kenta_archive_description_typography' ) ),
-		Css::colors( CZ::get( 'kenta_archive_description_color' ), [
-			'initial' => 'color',
-		] )
-	);
-
-	$css['.kenta-archive-header::after'] = array_merge(
-		[ 'opacity' => CZ::get( 'kenta_archive_header_overlay_opacity' ) ],
-		Css::background( CZ::get( 'kenta_archive_header_overlay' ) )
-	);
-
-	/**
-	 * Posts Pagination
-	 */
-	if ( CZ::checked( 'kenta_archive_pagination_section' ) ) {
-		$pagination_type = CZ::get( 'kenta_pagination_type' );
-		$pagination_css  = [];
-
-		if ( $pagination_type === 'numbered' || $pagination_type === 'prev-next' ) {
-			$pagination_css = array_merge(
-				Css::border( CZ::get( 'kenta_pagination_button_border' ), '--kenta-pagination-button-border' ),
-				Css::colors( CZ::get( 'kenta_pagination_button_color' ), [
-					'initial' => '--kenta-pagination-initial-color',
-					'active'  => '--kenta-pagination-active-color',
-					'accent'  => '--kenta-pagination-accent-color',
-				] ),
-				[ '--kenta-pagination-button-radius' => CZ::get( 'kenta_pagination_button_radius' ) ]
-			);
-		}
-
-		$css['.kenta-pagination'] = array_merge( $pagination_css,
-			Css::typography( CZ::get( 'kenta_pagination_typography' ) ),
-			[ 'justify-content' => CZ::get( 'kenta_pagination_alignment' ) ]
-		);
-	}
-
-	/**
-	 * Sidebar
-	 */
-	$sidebar_style        = CZ::get( 'kenta_global_sidebar_sidebar-style' );
-	$widgets_style_preset = CZ::get( 'kenta_global_sidebar_widgets-style' );
-	$widgets_css          = $widgets_style_preset === 'custom' ? array_merge(
-		Css::background( CZ::get( 'kenta_global_sidebar_widgets-background' ) ),
-		Css::border( CZ::get( 'kenta_global_sidebar_widgets-border' ) ),
-		Css::shadow( CZ::get( 'kenta_global_sidebar_widgets-shadow' ) )
-	) : kenta_card_preset_style( $widgets_style_preset );
-
-	$widgets_css = array_merge(
-		$widgets_css,
-		Css::dimensions( CZ::get( 'kenta_global_sidebar_widgets-padding' ), 'padding' ),
-		Css::dimensions( CZ::get( 'kenta_global_sidebar_widgets-radius' ), 'border-radius' )
-	);
-
-	if ( $sidebar_style === 'style-1' ) {
-		$css[".kenta-sidebar .kenta-widget"] = $widgets_css;
-	}
-
-	$css[".kenta-sidebar"] = array_merge(
-		$sidebar_style === 'style-2' ? $widgets_css : [],
-		Css::typography( CZ::get( 'kenta_global_sidebar_content-typography' ) ),
-		Css::colors( CZ::get( 'kenta_global_sidebar_content-color' ), [
-			'text'    => '--kenta-widgets-text-color',
-			'initial' => '--kenta-widgets-link-initial',
-			'hover'   => '--kenta-widgets-link-hover',
-		] ),
-		[
-			'--kenta-sidebar-width'   => CZ::get( 'kenta_global_sidebar_width' ) ?? '27%',
-			'--kenta-sidebar-gap'     => CZ::get( 'kenta_global_sidebar_gap' ) ?? '24px',
-			'--kenta-widgets-spacing' => CZ::get( 'kenta_global_sidebar_widgets-spacing' ),
-		]
-	);
-
-	$css[".kenta-sidebar .widget-title"] = array_merge(
-		Css::typography( CZ::get( 'kenta_global_sidebar_title-typography' ) ),
-		Css::colors( CZ::get( 'kenta_global_sidebar_title-color' ), [
-			'initial'   => 'color',
-			'indicator' => '--kenta-heading-indicator',
-		] )
-	);
-
 	// Buttons
 	$button_selectors                         = [
 		'[type="submit"]',
@@ -845,8 +1071,6 @@ function kenta_dynamic_css() {
 		// article
 		'.kenta-article-content .wp-block-button',
 		'.kenta-article-content button',
-		'.kenta-prose .wp-block-button',
-		'.kenta-prose button'
 	];
 	$css[ implode( ',', $button_selectors ) ] = kenta_content_buttons_css();
 
@@ -872,21 +1096,26 @@ function kenta_dynamic_css() {
 }
 
 /**
- * Generate dynamic css for admin
+ * Generate dynamic css for block editor
+ *
+ * @param $root .editor-styles-wrapper | body
  *
  * @return mixed
+ * @since 1.4.0
  */
-function kenta_admin_dynamic_css() {
+function kenta_block_editor_dynamic_css( $root = ':root' ) {
 	$css = [];
 
-	$css['.editor-styles-wrapper'] = array_merge(
-		Css::background( CZ::get( 'kenta_site_background' ) )
+	$css[ $root ] = array_merge(
+		Css::background( CZ::get( 'kenta_site_background' ) ),
+		Css::typography( CZ::get( 'kenta_site_global_typography' ) ),
+		Css::filters( CZ::get( 'kenta_site_filters' ) )
 	);
 
-	$css['.editor-styles-wrapper .wp-block-button'] = kenta_content_buttons_css();
+	$css["{$root} .wp-block-button"] = kenta_content_buttons_css();
 
 	return Css::parse( apply_filters(
 		'kenta_filter_admin_dynamic_css',
-		kenta_content_typography_css( '.editor-styles-wrapper', $css )
+		kenta_content_typography_css( $root, $css )
 	) );
 }

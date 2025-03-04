@@ -111,6 +111,11 @@
 					$form.find('input, select, textarea, .forminator-field-signature').on( 'change', function() {
 						if ( self.is_data_valid() && self.is_form_valid() ) {
 							actions.enable();
+							if ( $target_message.hasClass('forminator-error') ) {
+								$target_message.html( '' ).attr( "aria-hidden", "true" );
+								// In case of payment failed error
+								$target_message.removeClass('forminator-show');
+							}
 						} else {
                             actions.disable();
                         }
@@ -149,7 +154,13 @@
 						$target_message.removeClass('forminator-accessible').addClass('forminator-error').html('').removeAttr( 'aria-hidden' );
 						$target_message.html('<label class="forminator-label--error"><span>' + generalMessage.form_has_error + '</span></label>');
 						self.focus_to_element($target_message);
-                    }
+                    } else {
+						$form.trigger( 'forminator:preSubmit:paypal', [ $target_message ] );
+						if ( $target_message.find( '.forminator-invalid-captcha' ).html() ) {
+							self.focus_to_element($target_message);
+							return false;
+						}
+					}
 
 					if ( paypalData.amount_type === 'variable' && paypalData.variable !== '' ) {
 						paypalData.amount = self.get_field_calculation( paypalData.variable );
@@ -206,7 +217,7 @@
 						self.focus_to_element($target_message);
 					}
 
-					$form.trigger('submit');
+					$form.trigger('submit.frontSubmit');
 				},
 
 				onCancel: function (data, actions) {
@@ -257,8 +268,7 @@
 			paypalConfig.amount_type = this.getPayPalData('amount_type') ? this.getPayPalData('amount_type') : 'fixed';
 			paypalConfig.variable = this.getPayPalData('variable') ? this.getPayPalData('variable') : '';
 			paypalConfig.height = this.getPayPalData('height') ? this.getPayPalData('height') : 55;
-			paypalConfig.shipping_address = this.getPayPalData('shipping_address') ? this.getPayPalData('shipping_address') : 55;
-
+			paypalConfig.shipping_address = this.getPayPalData('shipping_address') ? this.getPayPalData('shipping_address') : 'disable';
 			var	amountType = this.getPayPalData('amount_type');
 			if (amountType === 'fixed') {
 				paypalConfig.amount = this.getPayPalData('amount');
@@ -295,11 +305,14 @@
 							//find element by select name
 							$element = this.$el.find('select[name="' + element_id + '"]');
 							if ($element.length === 0) {
-								//find element by direct id (for name field mostly)
-								//will work for all field with element_id-[somestring]
-								$element = this.$el.find('#' + element_id);
-								if ( $element.length === 0 ) {
-									$element = this.$el.find('select[name=' + element_id + ']');
+								$element = this.$el.find('select[name="' + element_id + '[]"]');
+								if ($element.length === 0) {
+									//find element by direct id (for name field mostly)
+									//will work for all field with element_id-[somestring]
+									$element = this.$el.find('#' + element_id);
+									if ( $element.length === 0 ) {
+										$element = this.$el.find('select[name=' + element_id + ']');
+									}
 								}
 							}
 						}
@@ -377,7 +390,7 @@
 					value: paypalData.amount
 				}
 			}];
-			if ( 'disable' === shipping_address ) {
+			if ( 'enable' !== shipping_address ) {
 				paypal_data.application_context = {
 					shipping_preference: "NO_SHIPPING",
 				};

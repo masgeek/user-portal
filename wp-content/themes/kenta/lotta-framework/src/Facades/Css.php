@@ -7,6 +7,7 @@ namespace LottaFramework\Facades;
  * @method static tablet(): string
  * @method static mobile(): string
  * @method static parse( $css_output = [], $beauty = false ): string
+ * @method static fontFaces( $font_faces_input = [], $beauty = false ): string
  * @method static keyframes( $keyframes_output = [], $beauty = false ): string
  * @method static dimensions( $value, $selector = 'margin' ): array
  * @method static background( $background ): array

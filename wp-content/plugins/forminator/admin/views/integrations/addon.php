@@ -1,18 +1,24 @@
 <?php
-$empty_icon   = forminator_plugin_url() . 'assets/images/forminator-noicon.png';
-$empty_icon2x = forminator_plugin_url() . 'assets/images/forminator-noicon@2x.png';
+/**
+ * Template admin/views/integrations/addon.php
+ *
+ * @package Forminator
+ */
+
+$empty_icon   = forminator_plugin_url() . 'assets/images/forminator-summary.png';
+$empty_icon2x = forminator_plugin_url() . 'assets/images/forminator-summary@2x.png';
 if ( empty( $module_id ) ) {
 	$module_id = 0;
 }
 
-$show_action = false;
-$action      = 'forminator_addon_settings';
+$show_action  = false;
+$addon_action = 'forminator_addon_settings';
 
 $multi_id   = 0;
 $multi_name = false;
 
 if ( ! empty( $module_id ) ) {
-	$action = 'forminator_addon_module_settings';
+	$addon_action = 'forminator_addon_module_settings';
 	if ( ! empty( $addon[ 'is_' . $module_slug . '_settings_available' ] ) && true === $addon[ 'is_' . $module_slug . '_settings_available' ] ) {
 		$show_action = true;
 		if ( $addon[ 'is_allow_multi_on_' . $module_slug ] ) {
@@ -33,29 +39,26 @@ if ( ! empty( $module_id ) ) {
 			$activated = (bool) $addon[ 'is_' . $module_slug . '_connected' ];
 		}
 	}
-} else {
-
+} elseif ( ! empty( $addon['is_settings_available'] ) && true === $addon['is_settings_available'] ) {
 	// on integrations page.
-	if ( ! empty( $addon['is_settings_available'] ) && true === $addon['is_settings_available'] ) {
-		$is_integrations_page = true;
+	$is_integrations_page = true;
 
-		$show_action = true;
+	$show_action = true;
 
-		if ( $addon['is_connected'] ) {
-			$activated = true;
-		} else {
-			$activated = false;
-			$tooltip   = __( 'Connect App', 'forminator' );
-		}
+	if ( $addon['is_connected'] ) {
+		$activated = true;
+	} else {
+		$activated = false;
+		$tooltip   = esc_html__( 'Connect App', 'forminator' );
 	}
 }
 
 $icon_class_action = empty( $activated ) ? 'sui-icon-plus' : 'sui-icon-widget-settings-config';
 if ( empty( $tooltip ) ) {
 	if ( ! isset( $activated ) ) {
-		$tooltip = __( 'Configure Integration', 'forminator' );
+		$tooltip = esc_html__( 'Configure Integration', 'forminator' );
 	} else {
-		$tooltip = empty( $activated ) ? __( 'Activate App', 'forminator' ) : __( 'Configure App', 'forminator' );
+		$tooltip = empty( $activated ) ? esc_html__( 'Activate App', 'forminator' ) : esc_html__( 'Configure App', 'forminator' );
 	}
 }
 
@@ -64,7 +67,7 @@ $unique_id         = ! empty( $addon['global_id'] ) ? esc_attr( $addon['global_i
 if ( empty( $is_integrations_page ) && ! empty( $activated ) && 'form' === $module_slug ) {
 	$conditions_button = '<button class="sui-button sui-button-ghost conditions-integration"
 			data-title="' . esc_attr( $addon['title'] ) . '"  data-multi-id="' . $unique_id . '">' .
-		__( 'Conditions', 'forminator' ) . '</button>';
+		esc_html__( 'Conditions', 'forminator' ) . '</button>';
 }
 
 $action_available = false;
@@ -82,19 +85,20 @@ if ( 'webhook' === $addon['slug'] ) {
 }
 
 /**
- * force Disable pro tag y default
+ * Force Disable pro tag y default
  */
 $show_pro_info = false;
 
 $pro_url        = 'https://wpmudev.com';
 $pro_url_target = '_blank';
 
-// MULTI NAME (SAMPLE).
-// To be added in the table later when design is ready.
 /*
-<td><?php if ( ! empty( $multi_name ) ): ?>
-	<?php echo esc_html( $multi_name ); ?>
-<?php endif; ?></td>
+MULTI NAME (SAMPLE).
+// To be added in the table later when design is ready.
+
+// <td><?php if ( ! empty( $multi_name ) ): ?>
+// <?php echo esc_html( $multi_name ); ?>
+// <?php endif; ?></td>
 */ ?>
 
 <tr class="
@@ -148,7 +152,7 @@ $pro_url_target = '_blank';
 						<?php } ?>
 
 						<?php if ( $show_action ) : ?>
-							<?php echo $conditions_button; ?>
+							<?php echo $conditions_button; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>
 							<button class="sui-button-icon sui-tooltip sui-tooltip-top-right connect-integration"
 									data-tooltip="<?php echo esc_attr( $tooltip ); ?>"
 									data-slug="<?php echo esc_attr( $addon['slug'] ); ?>"
@@ -156,7 +160,7 @@ $pro_url_target = '_blank';
 									data-image="<?php echo esc_attr( $addon['image'] ); ?>"
 									data-imagex2="<?php echo esc_attr( $addon['image_x2'] ); ?>"
 									data-nonce="<?php echo esc_attr( wp_create_nonce( 'forminator_addon_action' ) ); ?>"
-									data-action="<?php echo esc_attr( $action ); ?>"
+									data-action="<?php echo esc_attr( $addon_action ); ?>"
 									data-<?php echo esc_attr( $module_slug ); ?>-id="<?php echo esc_attr( $module_id ); ?>"
 									data-multi-id="<?php echo esc_attr( $multi_id ); ?>">
 								<i class="<?php echo esc_attr( $icon_class_action ); ?>" aria-hidden="true"></i>
@@ -205,7 +209,7 @@ $pro_url_target = '_blank';
 				</span>
 
 				<?php if ( $show_action ) : ?>
-					<?php echo $conditions_button; ?>
+					<?php echo $conditions_button; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>
 				<button class="sui-button-icon sui-tooltip sui-tooltip-top-right connect-integration"
 						data-tooltip="<?php echo esc_attr( $tooltip ); ?>"
 						data-slug="<?php echo esc_attr( $addon['slug'] ); ?>"
@@ -213,7 +217,7 @@ $pro_url_target = '_blank';
 						data-image="<?php echo esc_attr( $addon['image'] ); ?>"
 						data-imagex2="<?php echo esc_attr( $addon['image_x2'] ); ?>"
 						data-nonce="<?php echo esc_attr( wp_create_nonce( 'forminator_addon_action' ) ); ?>"
-						data-action="<?php echo esc_attr( $action ); ?>"
+						data-action="<?php echo esc_attr( $addon_action ); ?>"
 						data-<?php echo esc_attr( $module_slug ); ?>-id="<?php echo esc_attr( $module_id ); ?>"
 						data-multi-global-id="<?php echo ! empty( $addon['global_id'] ) ? esc_attr( $addon['global_id'] ) : ''; ?>"
 						data-multi-id="<?php echo esc_attr( $multi_id ); ?>">

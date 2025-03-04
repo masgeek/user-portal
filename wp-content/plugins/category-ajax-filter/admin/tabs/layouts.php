@@ -54,17 +54,17 @@ $flayouts = apply_filters('tc_caf_filter_layouts', array($caf_admin_fliters, 'tc
 foreach ($flayouts as $key => $layout) {
     if ($caf_filter_layout == $key) {$selected = 'selected';} else { $selected = '';}
     if ($key == "0") {
-        echo '<optgroup label="' . $layout . '">';
+        echo '<optgroup label="' . esc_attr($layout) . '">';
     } else if ($key == "1") {
         echo "</optgroup>";
-        echo '<optgroup label="' . $layout . '">';
+        echo '<optgroup label="' . esc_attr($layout) . '">';
     } else if ($key == "2") {
         echo "</optgroup>";
-        echo '<optgroup label="' . $layout . '">';
+        echo '<optgroup label="' . esc_attr($layout) . '">';
     } else if ($key == "3") {
         echo "</optgroup>";
     } else {
-        echo '<option value="' . $key . '" ' . $selected . '>' . esc_attr($layout) . '</option>';
+        echo '<option value="' . esc_attr($key) . '" ' . esc_attr($selected) . '>' . esc_attr($layout) . '</option>';
     }
 }
 ?>
@@ -140,7 +140,7 @@ $playouts = apply_filters('tc_caf_post_layouts', array($caf_admin_fliters, 'tc_c
 	<?php
 foreach ($playouts as $key => $layout) {
     if ($caf_post_layout == $key) {$selected = 'selected';} else { $selected = '';}
-    echo '<option value="' . $key . '" ' . $selected . '>' . esc_attr($layout) . '</option>';
+    echo '<option value="' . esc_attr($key) . '" ' . esc_attr($selected) . '>' . esc_attr($layout) . '</option>';
 }
 ?>
  </select>

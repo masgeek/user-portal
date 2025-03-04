@@ -1,34 +1,75 @@
 <?php
+/**
+ * Forminator Slack
+ *
+ * @package Forminator
+ */
 
-require_once dirname( __FILE__ ) . '/class-forminator-addon-slack-exception.php';
-require_once dirname( __FILE__ ) . '/lib/class-forminator-addon-slack-wp-api.php';
+// Include addon-slack-wp-api.
+require_once __DIR__ . '/lib/class-forminator-addon-slack-wp-api.php';
 
 /**
- * Class Forminator_Addon_Slack
- * Slack Addon Main Class
+ * Class Forminator_Slack
+ * Slack Integration Main Class
  *
- * @since 1.0 Slack Addon
+ * @since 1.0 Slack Integration
  */
-final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
+final class Forminator_Slack extends Forminator_Integration {
 
 	/**
+	 * Forminator_Slack Instance
+	 *
 	 * @var self|null
 	 */
-	private static $_instance = null;
+	protected static $instance = null;
 
-	protected $_slug                   = 'slack';
-	protected $_version                = FORMINATOR_ADDON_SLACK_VERSION;
+	/**
+	 * Slug
+	 *
+	 * @var string
+	 */
+	protected $_slug = 'slack';
+
+	/**
+	 * Slack version
+	 *
+	 * @var string
+	 */
+	protected $_version = FORMINATOR_ADDON_SLACK_VERSION;
+
+	/**
+	 * Forminator minimum version
+	 *
+	 * @var string
+	 */
 	protected $_min_forminator_version = '1.1';
-	protected $_short_title            = 'Slack';
-	protected $_title                  = 'Slack';
-	protected $_url                    = 'https://wpmudev.com';
-	protected $_full_path              = __FILE__;
 
-	protected $_form_settings = 'Forminator_Addon_Slack_Form_Settings';
-	protected $_form_hooks    = 'Forminator_Addon_Slack_Form_Hooks';
+	/**
+	 * Short title
+	 *
+	 * @var string
+	 */
+	protected $_short_title = 'Slack';
 
+	/**
+	 * Title
+	 *
+	 * @var string
+	 */
+	protected $_title = 'Slack';
+
+	/**
+	 * Token
+	 *
+	 * @var string
+	 */
 	private $_token = '';
 
+	/**
+	 * Error message
+	 *
+	 * @var string
+	 */
 	private $_auth_error_message = '';
 
 	const TARGET_TYPE_PUBLIC_CHANNEL  = 'public_channel';
@@ -36,145 +77,35 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 	const TARGET_TYPE_DIRECT_MESSAGE  = 'direct_message';
 
 	/**
-	 * @var null|Forminator_Addon_Slack_Wp_Api
+	 * Slack API
+	 *
+	 * @var null|Forminator_Slack_Wp_Api
 	 */
 	private static $_api = null;
 
-	protected $_poll_settings = 'Forminator_Addon_Slack_Poll_Settings';
-	protected $_poll_hooks    = 'Forminator_Addon_Slack_Poll_Hooks';
-
-	protected $_quiz_settings = 'Forminator_Addon_Slack_Quiz_Settings';
-	protected $_quiz_hooks    = 'Forminator_Addon_Slack_Quiz_Hooks';
-
+	/**
+	 * Position
+	 *
+	 * @var int
+	 */
 	protected $_position = 4;
 
 	/**
-	 * Forminator_Addon_Slack constructor.
+	 * Forminator_Slack constructor.
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 */
 	public function __construct() {
 		// late init to allow translation.
-		$this->_description                = __( 'Get awesome by your form.', 'forminator' );
-		$this->_activation_error_message   = __( 'Sorry but we failed to activate Slack Integration, don\'t hesitate to contact us', 'forminator' );
-		$this->_deactivation_error_message = __( 'Sorry but we failed to deactivate Slack Integration, please try again', 'forminator' );
-
-		$this->_update_settings_error_message = __(
-			'Sorry, we failed to update settings, please check your form and try again',
-			'forminator'
-		);
-
-		$this->_icon     = forminator_addon_slack_assets_url() . 'icons/slack.png';
-		$this->_icon_x2  = forminator_addon_slack_assets_url() . 'icons/slack@2x.png';
-		$this->_image    = forminator_addon_slack_assets_url() . 'img/slack.png';
-		$this->_image_x2 = forminator_addon_slack_assets_url() . 'img/slack@2x.png';
+		$this->_description = esc_html__( 'Get awesome by your form.', 'forminator' );
 
 		add_filter( 'forminator_addon_slack_api_request_headers', array( $this, 'default_filter_api_headers' ), 1, 4 );
 	}
 
 	/**
-	 * Get Instance
-	 *
-	 * @since 1.0 Slack Addon
-	 * @return self|null
-	 */
-	public static function get_instance() {
-		if ( is_null( self::$_instance ) ) {
-			self::$_instance = new self();
-		}
-
-		return self::$_instance;
-	}
-
-	/**
-	 * Override on is_connected
-	 *
-	 * @since 1.0 Slack Addon
-	 *
-	 * @return bool
-	 */
-	public function is_connected() {
-		try {
-			// check if its active.
-			if ( ! $this->is_active() ) {
-				throw new Forminator_Addon_Slack_Exception( __( 'Slack is not active', 'forminator' ) );
-			}
-
-			// if user completed api setup.
-			$is_connected = false;
-
-			$setting_values = $this->get_settings_values();
-			// if user completed api setup.
-			if ( isset( $setting_values['token'] ) && ! empty( $setting_values['token'] ) ) {
-				$is_connected = true;
-			}
-		} catch ( Forminator_Addon_Slack_Exception $e ) {
-			$is_connected = false;
-		}
-
-		/**
-		 * Filter connected status of Slack
-		 *
-		 * @since 1.0
-		 *
-		 * @param bool $is_connected
-		 */
-		$is_connected = apply_filters( 'forminator_addon_slack_is_connected', $is_connected );
-
-		return $is_connected;
-	}
-
-	/**
-	 * Check if Slack is connected with current form
-	 *
-	 * @since 1.0 Slack Addon
-	 *
-	 * @param $form_id
-	 *
-	 * @return bool
-	 */
-	public function is_form_connected( $form_id ) {
-		try {
-			$form_settings_instance = null;
-			if ( ! $this->is_connected() ) {
-				throw new Forminator_Addon_Slack_Exception( __( ' Slack is not connected', 'forminator' ) );
-			}
-
-			$form_settings_instance = $this->get_addon_settings( $form_id, 'form' );
-			if ( ! $form_settings_instance instanceof Forminator_Addon_Slack_Form_Settings ) {
-				throw new Forminator_Addon_Slack_Exception( __( 'Invalid Form Settings of Slack', 'forminator' ) );
-			}
-
-			// Mark as active when there is at least one active connection.
-			if ( false === $form_settings_instance->find_one_active_connection() ) {
-				throw new Forminator_Addon_Slack_Exception( __( 'No active Slack connection found in this form', 'forminator' ) );
-			}
-
-			$is_form_connected = true;
-
-		} catch ( Forminator_Addon_Slack_Exception $e ) {
-			$is_form_connected = false;
-		}
-
-		/**
-		 * Filter connected status of Slack with the form
-		 *
-		 * @since 1.0
-		 *
-		 * @param bool                                      $is_form_connected
-		 * @param int                                       $form_id                Current Form ID.
-		 * @param Forminator_Addon_Slack_Form_Settings|null $form_settings_instance Instance of form settings, or null when unavailable.
-		 *
-		 */
-		$is_form_connected = apply_filters( 'forminator_addon_slack_is_form_connected', $is_form_connected, $form_id, $form_settings_instance );
-
-		return $is_form_connected;
-	}
-
-	/**
 	 * Override settings available,
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 * @return bool
 	 */
 	public function is_settings_available() {
@@ -182,33 +113,9 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 	}
 
 	/**
-	 * Flag show full log on entries
-	 *
-	 * @since 1.0 Slack Addon
-	 * @return bool
-	 */
-	public static function is_show_full_log() {
-		$show_full_log = false;
-		if ( defined( 'FORMINATOR_ADDON_SLACK_SHOW_FULL_LOG' ) && FORMINATOR_ADDON_SLACK_SHOW_FULL_LOG ) {
-			$show_full_log = true;
-		}
-
-		/**
-		 * Filter Flag show full log on entries
-		 *
-		 * @since  1.2
-		 *
-		 * @params bool $show_full_log
-		 */
-		$show_full_log = apply_filters( 'forminator_addon_slack_show_full_log', $show_full_log );
-
-		return $show_full_log;
-	}
-
-	/**
 	 * Flag to enable delete chat
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 * @return bool
 	 */
 	public static function enable_delete_chat() {
@@ -232,7 +139,7 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 	/**
 	 * Allow multiple connection on one form
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 * @return bool
 	 */
 	public function is_allow_multi_on_form() {
@@ -242,7 +149,7 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 	/**
 	 * Settings wizard
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 * @return array
 	 */
 	public function settings_wizards() {
@@ -265,9 +172,9 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 	/**
 	 * Authorize Access wizard
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 *
-	 * @param $submitted_data
+	 * @param array $submitted_data Submitted Data.
 	 *
 	 * @return array
 	 */
@@ -330,12 +237,12 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 			$client_secret = isset( $submitted_data['client_secret'] ) ? $submitted_data['client_secret'] : '';
 
 			if ( empty( $client_id ) ) {
-				$template_params['client_id_error'] = __( 'Please input valid Client ID', 'forminator' );
+				$template_params['client_id_error'] = esc_html__( 'Please input valid Client ID', 'forminator' );
 				$has_errors                         = true;
 			}
 
 			if ( empty( $client_secret ) ) {
-				$template_params['client_secret_error'] = __( 'Please input valid Client Secret', 'forminator' );
+				$template_params['client_secret_error'] = esc_html__( 'Please input valid Client Secret', 'forminator' );
 				$has_errors                             = true;
 			}
 
@@ -351,7 +258,7 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 
 					$this->save_settings_values( $settings_values );
 
-				} catch ( Forminator_Addon_Slack_Exception $e ) {
+				} catch ( Forminator_Integration_Exception $e ) {
 					$template_params['error_message'] = $e->getMessage();
 					$has_errors                       = true;
 				}
@@ -370,7 +277,7 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 	/**
 	 * Setup client id is complete
 	 *
-	 * @param $submitted_data
+	 * @param array $submitted_data Submitted Data.
 	 *
 	 * @return bool
 	 */
@@ -388,7 +295,7 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 	/**
 	 * Authorize Access wizard
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 * @return array
 	 */
 	public function authorize_access() {
@@ -415,6 +322,11 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 		);
 	}
 
+	/**
+	 * Authorize access is completed.
+	 *
+	 * @return bool
+	 */
 	public function authorize_access_is_completed() {
 		return true;
 	}
@@ -422,16 +334,14 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 	/**
 	 * Wait Authorize Access wizard
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 * @return array
 	 */
 	public function wait_authorize_access() {
-		$template         = forminator_addon_slack_dir() . 'views/settings/wait-authorize.php';
-		$template_success = forminator_addon_slack_dir() . 'views/settings/success-authorize.php';
-		$template_error   = forminator_addon_slack_dir() . 'views/settings/error-authorize.php';
-		$buttons          = array();
-		$token            = $this->get_client_access_token();
-		$is_poll          = true;
+		$template       = forminator_addon_slack_dir() . 'views/settings/wait-authorize.php';
+		$template_error = forminator_addon_slack_dir() . 'views/settings/error-authorize.php';
+		$token          = $this->get_client_access_token();
+		$is_poll        = false;
 
 		$template_params = array(
 			'token'    => $token,
@@ -441,15 +351,9 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 		$has_errors = false;
 
 		if ( $token ) {
-			$buttons['close'] = array(
-				'markup' => self::get_button_markup( esc_html__( 'Close', 'forminator' ), 'forminator-addon-close forminator-integration-popup__close' ),
-			);
-			$is_poll          = false;
-
-			$template = $template_success;
+			$html = $this->success_authorize();
 		} elseif ( $this->_auth_error_message ) {
 			$template_params['error_message'] = $this->_auth_error_message;
-			$is_poll                          = false;
 			$has_errors                       = true;
 
 			$setting_values = $this->get_settings_values();
@@ -460,12 +364,14 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 				$this->_auth_error_message = '';
 			}
 
-			$template = $template_error;
+			$html = self::get_template( $template_error, $template_params );
+		} else {
+			$is_poll = true;
+			$html    = self::get_template( $template, $template_params );
 		}
 
 		return array(
-			'html'       => self::get_template( $template, $template_params ),
-			'buttons'    => $buttons,
+			'html'       => $html,
 			'is_poll'    => $is_poll,
 			'redirect'   => false,
 			'has_errors' => $has_errors,
@@ -475,23 +381,19 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 	/**
 	 * Authorized Callback
 	 *
-	 * @since 1.0 Slack Addon
-	 *
-	 * @param $submitted_data
-	 *
+	 * @since 1.0 Slack Integration
 	 * @return bool
 	 */
-	public function is_authorized( $submitted_data ) {
+	public function is_authorized() {
 		$setting_values = $this->get_settings_values();
 
-		// check api_key and and api_url set up.
-		return isset( $setting_values['token'] ) && ! empty( $setting_values['token'] );
+		return ! empty( $setting_values['token'] );
 	}
 
 	/**
 	 * Get Client ID
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 * @return string
 	 */
 	public function get_client_id() {
@@ -522,7 +424,7 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 	/**
 	 * Get Client secret
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 * @return string
 	 */
 	public function get_client_secret() {
@@ -553,7 +455,7 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 	/**
 	 * Get Access Token
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 * @return string
 	 */
 	public function get_client_access_token() {
@@ -584,7 +486,7 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 	/**
 	 * Get slack settings while app is being connected
 	 *
-	 * @since 1.18 Slack Addon
+	 * @since 1.18 Slack Integration
 	 *
 	 * @return array
 	 */
@@ -601,7 +503,7 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 	/**
 	 * Register a page for redirect url of Slack auth
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 *
 	 * @return array
 	 */
@@ -617,10 +519,10 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 	 * @return string
 	 */
 	public function get_auth_url() {
-		$base_authorize_url = Forminator_Addon_Slack_Wp_Api::AUTHORIZE_URL;
+		$base_authorize_url = Forminator_Slack_Wp_Api::AUTHORIZE_URL;
 		$client_id          = $this->get_client_id();
 		$redirect_url       = rawurlencode( forminator_addon_integration_section_admin_url( $this, 'authorize', false ) );
-		$scopes             = Forminator_Addon_Slack_Wp_Api::$oauth_scopes;
+		$scopes             = Forminator_Slack_Wp_Api::$oauth_scopes;
 
 		/**
 		 * Filter OAuth Scopes
@@ -659,11 +561,12 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 	/**
 	 * Slack Authorize Page
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 *
-	 * @param $query_args
+	 * @param array $query_args Arguments.
 	 *
 	 * @return string
+	 * @throws Forminator_Integration_Exception Throws Integration Exception.
 	 */
 	public function authorize_page_callback( $query_args ) {
 		$settings        = $this->get_settings_values();
@@ -679,7 +582,7 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 				$token = '';
 
 				// prefer new instance.
-				$api           = Forminator_Addon_Slack_Wp_Api::get_instance( uniqid() );
+				$api           = Forminator_Slack_Wp_Api::get_instance( uniqid() );
 				$redirect_uri  = forminator_addon_integration_section_admin_url( $this, 'authorize', false );
 				$token_request = $api->get_access_token( $code, $redirect_uri );
 
@@ -688,26 +591,26 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 				}
 
 				if ( empty( $token ) ) {
-					throw new Forminator_Addon_Slack_Exception( __( 'Failed to get token', 'forminator' ) );
+					throw new Forminator_Integration_Exception( esc_html__( 'Failed to get token', 'forminator' ) );
 				}
 
 				if ( ! $this->is_active() ) {
-					$activated = Forminator_Addon_Loader::get_instance()->activate_addon( $this->_slug );
+					$activated = Forminator_Integration_Loader::get_instance()->activate_addon( $this->_slug );
 					if ( ! $activated ) {
-						$last_message = Forminator_Addon_Loader::get_instance()->get_last_error_message();
-						throw new Forminator_Addon_Slack_Exception( $last_message );
+						$last_message = Forminator_Integration_Loader::get_instance()->get_last_error_message();
+						throw new Forminator_Integration_Exception( $last_message );
 					}
 				}
 
 				$settings['token'] = $token;
 				$this->save_settings_values( $settings );
 				$template_params['is_close'] = true;
-			} catch ( Exception $e ) {
+			} catch ( Forminator_Integration_Exception $e ) {
 				// catch all exception.
 				$template_params['error_message'] = $e->getMessage();
 			}
 		} else {
-			$template_params['error_message'] = __( 'Failed to get authorization code.', 'forminator' );
+			$template_params['error_message'] = esc_html__( 'Failed to get authorization code.', 'forminator' );
 			// todo : translate $query_args[error].
 			$settings['auth_error_message'] = $template_params['error_message'];
 			$this->save_settings_values( $settings );
@@ -720,12 +623,11 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 	/**
 	 * Get API Instance
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 *
-	 * @param null|string $access_token
+	 * @param null|string $access_token Access token.
 	 *
-	 * @return Forminator_Addon_Slack_Wp_Api|null
-	 * @throws Forminator_Addon_Slack_Wp_Api_Exception
+	 * @return Forminator_Slack_Wp_Api|null
 	 */
 	public function get_api( $access_token = null ) {
 		if ( is_null( self::$_api ) ) {
@@ -733,7 +635,7 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 				$access_token = $this->get_client_access_token();
 			}
 
-			$api        = Forminator_Addon_Slack_Wp_Api::get_instance( $access_token );
+			$api        = Forminator_Slack_Wp_Api::get_instance( $access_token );
 			self::$_api = $api;
 		}
 
@@ -743,9 +645,9 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 	/**
 	 * Before get Setting Values
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 *
-	 * @param $values
+	 * @param array $values Setting to save.
 	 *
 	 * @return mixed
 	 */
@@ -764,16 +666,16 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 	/**
 	 * Default filter for header
 	 *
-	 * its add / change Authorization header
+	 * Its add / change Authorization header
 	 * - on get access token it uses Basic realm of encoded client id and secret
-	 * - on web API request it uses Bearer realm of access token which default of @see Forminator_Addon_Slack_Wp_Api
+	 * - on web API request it uses Bearer realm of access token which default of @see Forminator_Slack_Wp_Api
 	 *
-	 * @since 1.0 Slack Addon
+	 * @since 1.0 Slack Integration
 	 *
-	 * @param $headers
-	 * @param $verb
-	 * @param $path
-	 * @param $args
+	 * @param array  $headers Headers.
+	 * @param string $verb HTTP request type.
+	 * @param string $path Request path.
+	 * @param array  $args Arguments.
 	 *
 	 * @return array
 	 */
@@ -788,56 +690,6 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 	}
 
 	/**
-	 * Flag for check if and addon connected to a poll(poll settings such as list id completed)
-	 *
-	 * Please apply necessary WordPress hook on the inheritance class
-	 *
-	 * @since   1.6.1
-	 *
-	 * @param $poll_id
-	 *
-	 * @return boolean
-	 */
-	public function is_poll_connected( $poll_id ) {
-		try {
-			$poll_settings_instance = null;
-			if ( ! $this->is_connected() ) {
-				throw new Forminator_Addon_Slack_Exception( 'Slack is not connected' );
-			}
-
-			$poll_settings_instance = $this->get_addon_settings( $poll_id, 'poll' );
-			if ( ! $poll_settings_instance instanceof Forminator_Addon_Slack_Poll_Settings ) {
-				throw new Forminator_Addon_Slack_Exception( 'Invalid Poll Settings of Slack' );
-			}
-
-			// Mark as active when there is at least one active connection.
-			if ( false === $poll_settings_instance->find_one_active_connection() ) {
-				throw new Forminator_Addon_Slack_Exception( 'No active Slack connection found in this poll' );
-			}
-
-			$is_poll_connected = true;
-
-		} catch ( Forminator_Addon_Slack_Exception $e ) {
-
-			$is_poll_connected = false;
-		}
-
-		/**
-		 * Filter connected status Slack with the poll
-		 *
-		 * @since 1.6.1
-		 *
-		 * @param bool                                      $is_poll_connected
-		 * @param int                                       $poll_id                Current Poll ID.
-		 * @param Forminator_Addon_Slack_Poll_Settings|null $poll_settings_instance Instance of poll settings, or null when unavailable.
-		 *
-		 */
-		$is_poll_connected = apply_filters( 'forminator_addon_slack_is_poll_connected', $is_poll_connected, $poll_id, $poll_settings_instance );
-
-		return $is_poll_connected;
-	}
-
-	/**
 	 * Allow multiple connection on one poll
 	 *
 	 * @since 1.6.1
@@ -845,56 +697,6 @@ final class Forminator_Addon_Slack extends Forminator_Addon_Abstract {
 	 */
 	public function is_allow_multi_on_poll() {
 		return true;
-	}
-
-	/**
-	 * Flag for check if and addon connected to a quiz(quiz settings such as list id completed)
-	 *
-	 * Please apply necessary WordPress hook on the inheritance class
-	 *
-	 * @since   1.6.2
-	 *
-	 * @param $quiz_id
-	 *
-	 * @return boolean
-	 */
-	public function is_quiz_connected( $quiz_id ) {
-		try {
-			$quiz_settings_instance = null;
-			if ( ! $this->is_connected() ) {
-				throw new Forminator_Addon_Slack_Exception( 'Slack is not connected' );
-			}
-
-			$quiz_settings_instance = $this->get_addon_settings( $quiz_id, 'quiz' );
-			if ( ! $quiz_settings_instance instanceof Forminator_Addon_Slack_Quiz_Settings ) {
-				throw new Forminator_Addon_Slack_Exception( 'Invalid Quiz Settings of Slack' );
-			}
-
-			// Mark as active when there is at least one active connection.
-			if ( false === $quiz_settings_instance->find_one_active_connection() ) {
-				throw new Forminator_Addon_Slack_Exception( 'No active Slack connection found in this quiz' );
-			}
-
-			$is_quiz_connected = true;
-
-		} catch ( Forminator_Addon_Slack_Exception $e ) {
-
-			$is_quiz_connected = false;
-		}
-
-		/**
-		 * Filter connected status Slack with the quiz
-		 *
-		 * @since 1.6.1
-		 *
-		 * @param bool                                      $is_quiz_connected
-		 * @param int                                       $quiz_id                Current Quiz ID.
-		 * @param Forminator_Addon_Slack_Quiz_Settings|null $quiz_settings_instance Instance of Quiz settings, or null when unavailable.
-		 *
-		 */
-		$is_quiz_connected = apply_filters( 'forminator_addon_slack_is_quiz_connected', $is_quiz_connected, $quiz_id, $quiz_settings_instance );
-
-		return $is_quiz_connected;
 	}
 
 	/**

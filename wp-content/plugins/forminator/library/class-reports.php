@@ -1,4 +1,10 @@
 <?php
+/**
+ * Forminator Reports
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -22,7 +28,7 @@ class Forminator_Reports {
 	private static $instance = null;
 
 	/**
-	 * report instance
+	 * Report instance
 	 *
 	 * @var null
 	 */
@@ -48,7 +54,7 @@ class Forminator_Reports {
 	 */
 	public function __construct() {
 
-		add_action( 'wp_footer', array( &$this, 'schedule_reports' ) );
+		add_action( 'init', array( &$this, 'schedule_reports' ) );
 		add_action( 'forminator_process_report', array( &$this, 'process_report' ) );
 	}
 
@@ -58,13 +64,11 @@ class Forminator_Reports {
 	 * @since 1.0
 	 */
 	public function schedule_reports() {
-		if ( ! wp_next_scheduled( 'forminator_process_report' ) ) {
-			wp_schedule_event( time(), 'every_minute', 'forminator_process_report' );
-		}
+		forminator_set_recurring_action( 'forminator_process_report', MINUTE_IN_SECONDS );
 	}
 
 	/**
-	 * process report.
+	 * Process report.
 	 *
 	 * @since 1.20.0
 	 */
@@ -84,7 +88,7 @@ class Forminator_Reports {
 
 			$report_schedule = $report_value['schedule'];
 			$last_sent       = strtotime( $report->date_updated );
-			$current_time    = current_time( 'timestamp' );
+			$current_time    = current_time( 'timestamp' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested -- We are using the current timestamp based on the site's timezone.
 			// check the next sent.
 			$next_sent = null;
 			$frequency = ! empty( $report_schedule['frequency'] ) ? $report_schedule['frequency'] : 'daily';
@@ -115,8 +119,8 @@ class Forminator_Reports {
 	/**
 	 * Get monthly report
 	 *
-	 * @param $last_sent
-	 * @param $settings
+	 * @param string $last_sent Last sent date.
+	 * @param array  $settings Settings.
 	 *
 	 * @return false|string
 	 */
@@ -136,7 +140,7 @@ class Forminator_Reports {
 	/**
 	 * Send out an email report.
 	 *
-	 * @param $options
+	 * @param array $options Options.
 	 *
 	 * @since 1.20.0
 	 *
@@ -163,6 +167,7 @@ class Forminator_Reports {
 				'reports'   => $report_data,
 			);
 
+			$email_subject = sanitize_text_field( $this->get_subject() );
 			$email_content = self::report_email_html( $params );
 
 			// Change nl to br.
@@ -174,7 +179,7 @@ class Forminator_Reports {
 				'Content-Type: text/html; charset=UTF-8',
 			);
 
-			$mail_sent = wp_mail( $recipient['email'], $this->get_subject(), $email_content, $headers );
+			$mail_sent = wp_mail( $recipient['email'], $email_subject, $email_content, $headers );
 		}
 
 		return $mail_sent;
@@ -196,7 +201,7 @@ class Forminator_Reports {
 	/**
 	 * Email HTML
 	 *
-	 * @param $params
+	 * @param array $params Params.
 	 *
 	 * @return mixed|string
 	 */
@@ -205,9 +210,9 @@ class Forminator_Reports {
 	}
 
 	/**
-	 * email report data
+	 * Email report data
 	 *
-	 * @param $settings
+	 * @param array $settings Settings.
 	 *
 	 * @return array
 	 */
@@ -221,11 +226,11 @@ class Forminator_Reports {
 			$method     = 'get_' . $module;
 			$modules    = Forminator_API::$method( null, 1, 999, 'publish' );
 			$module_ids = array_map(
-                function ( $ar ) {
-                    return $ar->id;
-                },
-                $modules
-            );
+				function ( $ar ) {
+					return $ar->id;
+				},
+				$modules
+			);
 		}
 		if ( ! empty( $module_ids ) ) {
 			foreach ( $module_ids as $m => $module_id ) {
@@ -247,11 +252,11 @@ class Forminator_Reports {
 					$sum_value    = null;
 					if ( ! empty( $payment_data ) ) {
 						$payment_value = array_map(
-                            function ( $payment ) {
-                                return maybe_unserialize( $payment->meta_value );
-                            },
-                            $payment_data
-                        );
+							function ( $payment ) {
+								return maybe_unserialize( $payment->meta_value );
+							},
+							$payment_data
+						);
 
 						$sum_value = ! empty( $payment_value ) ? array_sum( array_column( $payment_value, 'amount' ) ) : 0;
 

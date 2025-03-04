@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Poll_Admin class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -12,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Forminator_Poll_Admin extends Forminator_Admin_Module {
 
 	/**
-	 * module objects
+	 * Module objects
 	 *
 	 * @var array
 	 */
@@ -28,7 +34,7 @@ class Forminator_Poll_Admin extends Forminator_Admin_Module {
 		$this->page         = 'forminator-poll';
 		$this->page_edit    = 'forminator-poll-wizard';
 		$this->page_entries = 'forminator-poll-view';
-		$this->dir          = dirname( __FILE__ );
+		$this->dir          = __DIR__;
 	}
 
 	/**
@@ -37,16 +43,16 @@ class Forminator_Poll_Admin extends Forminator_Admin_Module {
 	 * @since 1.0
 	 */
 	public function add_menu_pages() {
-		new Forminator_Poll_Page( $this->page, 'poll/list', __( 'Polls', 'forminator' ), __( 'Polls', 'forminator' ), 'forminator' );
-		new Forminator_Poll_New_Page( $this->page_edit, 'poll/wizard', __( 'Edit Poll', 'forminator' ), __( 'New Poll', 'forminator' ), 'forminator' );
-		new Forminator_Poll_View_Page( $this->page_entries, 'poll/entries', __( 'Submissions:', 'forminator' ), __( 'View Poll', 'forminator' ), 'forminator' );
+		new Forminator_Poll_Page( $this->page, 'poll/list', esc_html__( 'Polls', 'forminator' ), esc_html__( 'Polls', 'forminator' ), 'forminator' );
+		new Forminator_Poll_New_Page( $this->page_edit, 'poll/wizard', esc_html__( 'Edit Poll', 'forminator' ), esc_html__( 'New Poll', 'forminator' ), 'forminator' );
+		new Forminator_Poll_View_Page( $this->page_entries, 'poll/entries', esc_html__( 'Submissions:', 'forminator' ), esc_html__( 'View Poll', 'forminator' ), 'forminator' );
 	}
 
 	/**
 	 * Pass module defaults to JS
 	 *
 	 * @since 1.0
-	 * @param $data
+	 * @param array $data Data.
 	 *
 	 * @return mixed
 	 */
@@ -115,101 +121,103 @@ class Forminator_Poll_Admin extends Forminator_Admin_Module {
 	 * Localize modules
 	 *
 	 * @since 1.0
-	 * @param $data
+	 * @param array $data Data.
 	 *
 	 * @return mixed
 	 */
 	public function add_l10n_strings( $data ) {
 
 		$data['polls'] = array(
-			'poll'                           => __( 'Poll', 'forminator' ),
+			'poll'                           => esc_html__( 'Poll', 'forminator' ),
 
 			// Appearance » Poll results behavior.
-			'poll_results_behav'             => __( 'Poll results behavior', 'forminator' ),
-			'link_on'                        => __( 'Link on poll', 'forminator' ),
-			'show_after'                     => __( 'Show after voted', 'forminator' ),
-			'not_show'                       => __( 'Do not show', 'forminator' ),
+			'poll_results_behav'             => esc_html__( 'Poll results behavior', 'forminator' ),
+			'link_on'                        => esc_html__( 'Link on poll', 'forminator' ),
+			'show_after'                     => esc_html__( 'Show after voted', 'forminator' ),
+			'not_show'                       => esc_html__( 'Do not show', 'forminator' ),
 
 			// Appearance » Poll results style.
-			'poll_results_style'             => __( 'Poll results style', 'forminator' ),
-			'chart_bar'                      => __( 'Bar chart', 'forminator' ),
-			'chart_pie'                      => __( 'Pie chart', 'forminator' ),
+			'poll_results_style'             => esc_html__( 'Poll results style', 'forminator' ),
+			'chart_bar'                      => esc_html__( 'Bar chart', 'forminator' ),
+			'chart_pie'                      => esc_html__( 'Pie chart', 'forminator' ),
 
 			// Appearance » Submission.
-			'submission'                     => __( 'Submission', 'forminator' ),
-			'submission_notice'              => __( 'Enable AJAX to prevent refresh while submitting poll data.', 'forminator' ),
-			'enable_ajax'                    => __( 'Enable AJAX', 'forminator' ),
+			'submission'                     => esc_html__( 'Submission', 'forminator' ),
+			'submission_notice'              => esc_html__( 'Enable AJAX to prevent refresh while submitting poll data.', 'forminator' ),
+			'enable_ajax'                    => esc_html__( 'Enable AJAX', 'forminator' ),
 
 			// Appearance » Poll votes count.
-			'poll_votes_count'               => __( 'Poll votes count', 'forminator' ),
-			'show_votes'                     => __( 'Show number of votes', 'forminator' ),
-			'poll_votes_count_description'   => __( 'Enable this option to display number of votes on Bar Chart results.', 'forminator' ),
+			'poll_votes_count'               => esc_html__( 'Poll votes count', 'forminator' ),
+			'show_votes'                     => esc_html__( 'Show number of votes', 'forminator' ),
+			'poll_votes_count_description'   => esc_html__( 'Enable this option to display number of votes on Bar Chart results.', 'forminator' ),
 
 			// Appearance » Poll votes limit.
-			'poll_votes_limit'               => __( 'Poll votes limit', 'forminator' ),
-			'enable_limit'                   => __( 'Allow same visitor to vote more than once', 'forminator' ),
-			'how_long'                       => __( 'How long before user can vote again', 'forminator' ),
+			'poll_votes_limit'               => esc_html__( 'Poll votes limit', 'forminator' ),
+			'enable_limit'                   => esc_html__( 'Allow same visitor to vote more than once', 'forminator' ),
+			'how_long'                       => esc_html__( 'How long before user can vote again', 'forminator' ),
 
 			// Appearance » Poll privacy.
-			'poll_privacy'                   => __( 'Poll privacy', 'forminator' ),
-			'how_long_privacy'               => __( 'How long will you retain user IP address', 'forminator' ),
-			'enable_ip_address_retention'    => __( 'Enable IP address retention', 'forminator' ),
+			'poll_privacy'                   => esc_html__( 'Poll privacy', 'forminator' ),
+			'how_long_privacy'               => esc_html__( 'How long will you retain user IP address', 'forminator' ),
+			'enable_ip_address_retention'    => esc_html__( 'Enable IP address retention', 'forminator' ),
 
 			// Appearance » Poll design.
-			'poll_design'                    => __( 'Poll design', 'forminator' ),
-			'poll_design_description'        => __( "Choose a pre-made style for your poll and further customize it's appearance", 'forminator' ),
-			'customize_poll_colors'          => __( 'Customize poll colors', 'forminator' ),
-			'customize_poll_container'       => __( 'Customize poll container', 'forminator' ),
-			'enable_box_shadow'              => __( 'Add box shadow to your poll container', 'forminator' ),
+			'poll_design'                    => esc_html__( 'Poll design', 'forminator' ),
+			'poll_design_description'        => esc_html__( 'Choose a pre-made style for your poll and further customize it\'s appearance', 'forminator' ),
+			'customize_poll_colors'          => esc_html__( 'Customize poll colors', 'forminator' ),
+			'customize_poll_container'       => esc_html__( 'Customize poll container', 'forminator' ),
+			'enable_box_shadow'              => esc_html__( 'Add box shadow to your poll container', 'forminator' ),
 
 			// Appearance » Customize poll colors.
-			'poll_container'                 => __( 'Poll container', 'forminator' ),
-			'poll_content'                   => __( 'Poll content', 'forminator' ),
-			'description_color'              => __( 'Description color', 'forminator' ),
-			'question_color'                 => __( 'Question color', 'forminator' ),
-			'poll_answer'                    => __( 'Poll answer', 'forminator' ),
-			'custom_answer'                  => __( 'Custom answer', 'forminator' ),
-			'poll_button'                    => __( 'Poll button', 'forminator' ),
-			'poll_link'                      => __( 'Poll link', 'forminator' ),
+			'poll_container'                 => esc_html__( 'Poll container', 'forminator' ),
+			'poll_content'                   => esc_html__( 'Poll content', 'forminator' ),
+			'description_color'              => esc_html__( 'Description color', 'forminator' ),
+			'question_color'                 => esc_html__( 'Question color', 'forminator' ),
+			'poll_answer'                    => esc_html__( 'Poll answer', 'forminator' ),
+			'custom_answer'                  => esc_html__( 'Custom answer', 'forminator' ),
+			'poll_link'                      => esc_html__( 'Poll link', 'forminator' ),
+
+			// Appearance » Customize Radio and Checkbox Image Size.
+			'field-image-size'               => 'custom',
 
 			// CLEAN-UP (OLD).
-			'add_answer'                     => __( 'Add Answer', 'forminator' ),
-			'answer_placeholder'             => __( 'Enter poll answer', 'forminator' ),
-			'custom_input_placeholder_label' => __( 'Custom input placeholder', 'forminator' ),
-			'custom_input_placeholder'       => __( 'Type placeholder here...', 'forminator' ),
-			'add_custom_field'               => __( 'Add custom input field', 'forminator' ),
-			'remove_custom_field'            => __( 'Remove custom input field', 'forminator' ),
-			'delete_answer'                  => __( 'Delete answer', 'forminator' ),
-			'details'                        => __( 'Details', 'forminator' ),
-			'appearance'                     => __( 'Appearance', 'forminator' ),
-			'preview'                        => __( 'Preview', 'forminator' ),
-			'details_title'                  => __( 'Details', 'forminator' ),
-			'poll_title'                     => __( 'Title', 'forminator' ),
-			'poll_desc'                      => __( 'Description', 'forminator' ),
-			'poll_question'                  => __( 'Question', 'forminator' ),
-			'poll_button'                    => __( 'Button label', 'forminator' ),
-			'poll_title_placeholder'         => __( 'Enter title', 'forminator' ),
-			'poll_desc_placeholder'          => __( 'Enter description', 'forminator' ),
-			'poll_question_placeholder'      => __( 'Enter question title', 'forminator' ),
-			'poll_button_placeholder'        => __( 'E.g. Vote', 'forminator' ),
-			'appearance_title'               => __( 'Poll Appearance', 'forminator' ),
+			'add_answer'                     => esc_html__( 'Add Answer', 'forminator' ),
+			'answer_placeholder'             => esc_html__( 'Enter poll answer', 'forminator' ),
+			'custom_input_placeholder_label' => esc_html__( 'Custom input placeholder', 'forminator' ),
+			'custom_input_placeholder'       => esc_html__( 'Type placeholder here...', 'forminator' ),
+			'add_custom_field'               => esc_html__( 'Add custom input field', 'forminator' ),
+			'remove_custom_field'            => esc_html__( 'Remove custom input field', 'forminator' ),
+			'delete_answer'                  => esc_html__( 'Delete answer', 'forminator' ),
+			'details'                        => esc_html__( 'Details', 'forminator' ),
+			'appearance'                     => esc_html__( 'Appearance', 'forminator' ),
+			'preview'                        => esc_html__( 'Preview', 'forminator' ),
+			'details_title'                  => esc_html__( 'Details', 'forminator' ),
+			'poll_title'                     => esc_html__( 'Title', 'forminator' ),
+			'poll_desc'                      => esc_html__( 'Description', 'forminator' ),
+			'poll_question'                  => esc_html__( 'Question', 'forminator' ),
+			'poll_button'                    => esc_html__( 'Button label', 'forminator' ),
+			'poll_title_placeholder'         => esc_html__( 'Enter title', 'forminator' ),
+			'poll_desc_placeholder'          => esc_html__( 'Enter description', 'forminator' ),
+			'poll_question_placeholder'      => esc_html__( 'Enter question title', 'forminator' ),
+			'poll_button_placeholder'        => esc_html__( 'E.g. Vote', 'forminator' ),
+			'appearance_title'               => esc_html__( 'Poll Appearance', 'forminator' ),
 
-			'validate_form_name'             => __( 'Form name cannot be empty! Please pick a name for your poll.', 'forminator' ),
-			'validate_form_question'         => __( 'Poll question cannot be empty! Please add questions for your poll.', 'forminator' ),
-			'validate_form_answers'          => __( 'Poll answers cannot be empty! Please add answers to your poll.', 'forminator' ),
-			'back'                           => __( 'Back', 'forminator' ),
-			'cancel'                         => __( 'Cancel', 'forminator' ),
-			'continue'                       => __( 'Continue', 'forminator' ),
-			'finish'                         => __( 'Finish', 'forminator' ),
+			'validate_form_name'             => esc_html__( 'Form name cannot be empty! Please pick a name for your poll.', 'forminator' ),
+			'validate_form_question'         => esc_html__( 'Poll question cannot be empty! Please add questions for your poll.', 'forminator' ),
+			'validate_form_answers'          => esc_html__( 'Poll answers cannot be empty! Please add answers to your poll.', 'forminator' ),
+			'back'                           => esc_html__( 'Back', 'forminator' ),
+			'cancel'                         => esc_html__( 'Cancel', 'forminator' ),
+			'continue'                       => esc_html__( 'Continue', 'forminator' ),
+			'finish'                         => esc_html__( 'Finish', 'forminator' ),
 
-			'poll_title_desc'                => __( "This name won't be displayed on your poll, but will help you to identify it.", 'forminator' ),
-			'poll_question_desc'             => __( 'This is the question you will be asking to users.', 'forminator' ),
+			'poll_title_desc'                => esc_html__( 'This name won\'t be displayed on your poll, but will help you to identify it.', 'forminator' ),
+			'poll_question_desc'             => esc_html__( 'This is the question you will be asking to users.', 'forminator' ),
 
-			'answer_color'                   => __( 'Answer (font color)', 'forminator' ),
-			'button_styles'                  => __( 'Button styles', 'forminator' ),
-			'results_link'                   => __( 'Results link', 'forminator' ),
-			'results_link_hover'             => __( 'Results link (hover)', 'forminator' ),
-			'results_link_active'            => __( 'Results link (active)', 'forminator' ),
+			'answer_color'                   => esc_html__( 'Answer (font color)', 'forminator' ),
+			'button_styles'                  => esc_html__( 'Button styles', 'forminator' ),
+			'results_link'                   => esc_html__( 'Results link', 'forminator' ),
+			'results_link_hover'             => esc_html__( 'Results link (hover)', 'forminator' ),
+			'results_link_active'            => esc_html__( 'Results link (active)', 'forminator' ),
 		);
 
 		return $data;
@@ -220,7 +228,8 @@ class Forminator_Poll_Admin extends Forminator_Admin_Module {
 	 *
 	 * @since 1.14
 	 *
-	 * @param $name
+	 * @param string $name Form name.
+	 * @param array  $settings Settings.
 	 *
 	 * @return array[]
 	 */
@@ -234,8 +243,8 @@ class Forminator_Poll_Admin extends Forminator_Admin_Module {
 					'admin-email-recipients' => array(
 						get_option( 'admin_email' ),
 					),
-					'admin-email-title'      => __( 'New Poll submission for {poll_name}', 'forminator' ),
-					'admin-email-editor'     => __(
+					'admin-email-title'      => esc_html__( 'New Poll submission for {poll_name}', 'forminator' ),
+					'admin-email-editor'     => esc_html__(
 						'You have a new poll submission: <br/><br/>{poll_answer}<br/><br/>Current results: <br/>{poll_result} <br/>---<br/> This message was sent from {site_url}.',
 						'forminator'
 					),
@@ -243,6 +252,7 @@ class Forminator_Poll_Admin extends Forminator_Admin_Module {
 				'akismet-protection' => true,
 				'formName'           => $name,
 				'version'            => FORMINATOR_VERSION,
+				'store_submissions'  => '1',
 			),
 			$settings
 		);
@@ -252,11 +262,14 @@ class Forminator_Poll_Admin extends Forminator_Admin_Module {
 	 * Create quiz module
 	 *
 	 * @since 1.14
-	 *
-	 * @return no return
 	 */
 	public function create_module() {
 		if ( ! $this->is_admin_wizard() || self::is_edit() ) {
+			return;
+		}
+
+		$nonce = Forminator_Core::sanitize_text_field( 'create_nonce' );
+		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'forminator_create_module' ) ) {
 			return;
 		}
 
@@ -264,6 +277,10 @@ class Forminator_Poll_Admin extends Forminator_Admin_Module {
 		$status = Forminator_Poll_Model::STATUS_DRAFT;
 
 		$id = self::create( $name, $status );
+
+		if ( is_wp_error( $id ) ) {
+			return;
+		}
 
 		$wizard_url = admin_url( 'admin.php?page=forminator-poll-wizard&id=' . $id );
 
@@ -319,7 +336,7 @@ class Forminator_Poll_Admin extends Forminator_Admin_Module {
 	 * @param string $title Name.
 	 * @param string $status Status.
 	 * @param object $template Template.
-	 * @return int post ID
+	 * @return WP_Error post ID
 	 */
 	public static function update( $id, $title, $status, $template ) {
 		if ( is_null( $id ) || $id <= 0 ) {
@@ -334,7 +351,7 @@ class Forminator_Poll_Admin extends Forminator_Admin_Module {
 			$action     = 'update';
 
 			if ( ! is_object( $form_model ) ) {
-				return new WP_Error( 'forminator_model_not_exist', __( "Poll model doesn't exist", 'forminator' ) );
+				return new WP_Error( 'forminator_model_not_exist', esc_html__( 'Poll model doesn\'t exist', 'forminator' ) );
 			}
 
 			if ( empty( $status ) ) {
@@ -362,12 +379,18 @@ class Forminator_Poll_Admin extends Forminator_Admin_Module {
 			$form_model->add_field( $field_model );
 		}
 
-		$settings             = self::validate_settings( $template->settings );
+		$settings                    = self::validate_settings( $template->settings );
+		$settings['previous_status'] = get_post_status( $id );
+
 		$form_model->settings = $settings;
 		$form_model->status   = $status;
 
 		// Save data.
 		$id = $form_model->save();
+
+		if ( is_wp_error( $id ) ) {
+			return $id;
+		}
 
 		/**
 		* Action called after poll saved to database

@@ -7,22 +7,17 @@ if (!defined('ABSPATH')) {
 <div class="selectcont caf-filter-container">
 <?php
 if ($terms_sel) {
-
-    if (class_exists("TC_CAF_PRO")) {
-        $trm1 = implode(',', $terms_sel_tax);
-    } else {
         $trm1 = implode(',', $terms_sel);
-    }
     echo '<div class="selectcont">
 	<ul class="dropdown">
     <li class="init" value="1000"><span>';
-    echo apply_filters('tc_caf_add_custom_span_before_filter', array($caf_filter, 'tc_caf_add_custom_span_before_filter'), $id);
+    echo esc_html(apply_filters('tc_caf_add_custom_span_before_filter', array($caf_filter, 'tc_caf_add_custom_span_before_filter'), $id));
     echo '</span><span class="result">';
-    echo apply_filters('tc_caf_add_custom_list_before_filter', array($caf_filter, 'tc_caf_add_custom_list_before_filter'), $id);
+    echo esc_html(apply_filters('tc_caf_add_custom_list_before_filter', array($caf_filter, 'tc_caf_add_custom_list_before_filter'), $id));
     echo '</span><span class="arrow-down"><i class="fa fa-angle-down" aria-hidden="true"></i></span><span class="arrow-up" style="display: none;"><i class="fa fa-angle-up" aria-hidden="true"></i></span><ul>';
     if ($caf_all_ed == 'enable') {
         echo '<li><a href="#" data-id="' . esc_attr($trm1) . '" data-main-id="flt" class="caf-mb-3 active dfl" data-target-div="data-target-div' . esc_attr($b) . '">';
-        echo apply_filters('tc_caf_add_custom_list_before_filter', 'tc_caf_add_custom_list_before_filter', $id);
+        echo esc_html(apply_filters('tc_caf_add_custom_list_before_filter', 'tc_caf_add_custom_list_before_filter', $id));
         echo '</a></li>';
     }
     $terms_sel = apply_filters('tc_caf_filter_order_by', $terms_sel, $id);
@@ -35,15 +30,8 @@ if ($terms_sel) {
             }
         }
         if ($term_data) {
-            if (class_exists("TC_CAF_PRO")) {
-                $data_id = esc_attr($term_data->taxonomy) . "___" . esc_attr($term_data->term_id);
-            } else {
                 $data_id = esc_attr($term_data->term_id);
-            }
             echo "<li class='caf-mb-3'><a href='#' data-id='" . esc_attr($data_id) . "' data-main-id='flt' data-target-div='data-target-div" . esc_attr($b) . "'>";
-            if (class_exists("TC_CAF_PRO") && $ic && $ic != 'undefined') {
-                echo "<i class='$ic caf-front-ic'></i>";
-            }
             echo esc_html($term_data->name) . "</a></li>";
         }
     }

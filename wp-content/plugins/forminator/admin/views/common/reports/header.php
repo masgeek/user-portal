@@ -1,3 +1,11 @@
+<?php
+/**
+ * Template admin/views/common/reports/header.php
+ *
+ * @package Forminator
+ */
+
+?>
 <header class="sui-header">
 <h1 class="sui-header-title"><?php esc_html_e( 'Reports', 'forminator' ); ?></h1>
 

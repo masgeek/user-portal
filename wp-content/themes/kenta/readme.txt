@@ -1,10 +1,10 @@
 === Kenta ===
-Contributors: ibllex
+Contributors: ibllex, wpmoose
 Author: WP Moose
 Requires at least: WordPress 5.4+
-Tested up to: WordPress 6.1
-Requires PHP: 7.2
-Stable tag: 1.1.9
+Tested up to: WordPress 6.7
+Requires PHP: 7.4
+Stable tag: 1.4.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: blog, portfolio, e-commerce, grid-layout, one-column, two-columns, three-columns, four-columns, left-sidebar, right-sidebar, block-styles, custom-background, custom-colors, custom-header, custom-logo, custom-menu, editor-style, featured-image-header, featured-images, footer-widgets, full-width-template, rtl-language-support, sticky-post, threaded-comments, theme-options, translation-ready, wide-blocks
@@ -47,6 +47,158 @@ GPL v2 - src/lotta-framework/LICENSE
 Credits - src/lotta-framework/README.md
 
 == Changelog ==
+
+= 1.4.4 =
+
+* Add: Show last modified date option in post header metas
+* Ref: Update Fontawesome icons to the latest version
+* Ref: Update Google Fonts list to the latest version
+
+= 1.4.3 =
+
+* Fix: Posts grid layout error
+* Fix: Archive header alignment error
+
+= 1.4.2 =
+
+* Ref: Smaller welcome screen
+* Ref: Alignment layout
+* Fix: Figure element max-width style error
+* Fix: Button text alignment error
+
+= 1.4.1 =
+
+* Ref: Update lotta-framework
+* Fix: Text color override in post header not working
+* Fix: Layout shift on mobile
+* Fix: Translation error
+* Fix: Script error when scroll to top is disabled
+
+= 1.4.0 =
+
+* Add: More scroll to top button style option
+* Ref: Update lotta-framework
+* Ref: WP 6.6 compatible
+* Ref: Remove jQuery dependencies
+* Ref: Better Gutenberg integration
+
+= 1.3.3 =
+
+* Add: Add post template type
+* Ref: Update pre element style
+* Ref: Update lotta-framework
+* Fix: Layout error
+* Fix: WooCommerce error with customizer cache
+* Fix: Underline error in WordPress v6.6
+
+= 1.3.1 =
+
+* Fix: Widgets Area naming conflict
+* Fix: Widgets Area style error
+
+= 1.3.0 =
+
+* Add: Block editor color theme switch
+* Ref: Update color control preview & dark mode preview support
+* Ref: Security update
+* Ref: New admin welcome panel
+* Fix: Customize cache error
+
+= 1.2.9.1 =
+
+* Fix: Button style error
+
+= 1.2.9 =
+
+* Ref: Remove edit link after post
+* Ref: Update editor style
+
+= 1.2.8 =
+
+* Pref: Improves load performance
+* Add: Dynamic css and customizer cache
+* Add: Prose style post setting
+* Add: Allow show/hide icon before the widget list
+* Ref: Table style for mobile
+* Ref: Featured image default height
+* Ref: PHP8.2 compatible
+* Ref: Security update
+* Fix: Posts navigation style error on mobile
+
+= 1.2.7.1 =
+
+* Ref: Update theme hooks for new child-theme
+
+= 1.2.7 =
+
+* Add: New theme.json file and appearance tools
+* Ref: Update socials block style
+* Ref: Update copyright text
+
+= 1.2.6 =
+
+* Ref: WordPress 6.4 ready
+* Ref: Update Fontawesome icons
+* Ref: Update lotta-framework
+
+= 1.2.5 =
+
+* Ref: Move background options from color section to background section
+* Ref: Add a link to the Dark Mode color preset in the color section
+* Ref: Adjusting button shadow colors
+* Add: Particles effect in header row
+* Add: Particles effect in site background
+* Add: Particles effect in post/page featured image
+* Fix: Colors sync error in customizer
+* Fix: Sticky header offset error while admin bar showing
+* Fix: Color mode error in multisite
+
+= 1.2.4 =
+
+* Ref: Kenta Companion Plugin v1.2.0 ready
+* Ref: Update lotta-framework
+
+= 1.2.3 =
+
+* Fix: Admin bar overlapping the sticky header
+* Fix: Long menu style error
+* Add: Blogs page title editable in free version
+* Ref: Update WooCommerce elements style
+* Ref: Hide cart element in the checkout page
+* Ref: Update cart header element shadow style for dark mode
+* Ref: Update calendar widget style
+
+= 1.2.2 =
+
+* Add: More color preset
+* Add: More card preset style
+* Ref: Update list widgets style
+
+= 1.2.1 =
+
+* Fix: Header elements style error in RTL mode
+* Ref: Update lotta-framework
+* Ref: Add admin localize filters
+* Ref: Make logo options responsive
+* Ref: Update blocks max width in the editor
+
+= 1.2.0 =
+
+* Add: Dark mode and theme switch element
+* Add: Logo for dark mode
+* Add: Sticky header support
+
+= 1.1.11 =
+
+* Fix: Gradient background is not available in WP6.2
+* Ref: WP6.2 customizer error
+* Ref: Update lotta-framework
+
+= 1.1.10 =
+
+* Add: Z-index option in header & footer row
+* Ref: WP6.2 compatible
+* Ref: PHP8.1 compatible
 
 = 1.1.9 =
 

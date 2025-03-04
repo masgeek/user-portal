@@ -1,4 +1,10 @@
 <?php
+/**
+ * Template admin/views/settings/tab-submissions.php
+ *
+ * @package Forminator
+ */
+
 $section = Forminator_Core::sanitize_text_field( 'section', 'dashboard' );
 $nonce   = wp_create_nonce( 'forminator_save_privacy_settings' );
 ?>

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Template admin/views/dashboard/promote-free-plan.php
+ *
+ * @package Forminator
+ */
+
 $banner_1x = forminator_plugin_url() . 'assets/images/promote-free-plan.png';
 $banner_2x = forminator_plugin_url() . 'assets/images/promote-free-plan@2x.png';
 ?>

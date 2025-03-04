@@ -1,3 +1,11 @@
+<?php
+/**
+ * Template admin/views/settings/tab-import.php
+ *
+ * @package Forminator
+ */
+
+?>
 <?php $section = Forminator_Core::sanitize_text_field( 'section', 'dashboard' ); ?>
 
 <div class="sui-box" data-nav="import" style="<?php echo esc_attr( 'import' !== $section ? 'display: none;' : '' ); ?>">

@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Group class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -44,13 +50,6 @@ class Forminator_Group extends Forminator_Field {
 	public $options = array();
 
 	/**
-	 * Category
-	 *
-	 * @var string
-	 */
-	public $category = 'standard';
-
-	/**
 	 * Icon CSS class
 	 *
 	 * @var string
@@ -63,7 +62,7 @@ class Forminator_Group extends Forminator_Field {
 	public function __construct() {
 		parent::__construct();
 
-		$this->name = __( 'Field Group', 'forminator' );
+		$this->name = esc_html__( 'Field Group', 'forminator' );
 	}
 
 	/**
@@ -73,7 +72,7 @@ class Forminator_Group extends Forminator_Field {
 	 */
 	public function defaults() {
 		return array(
-			'field_label' => __( 'Field Group', 'forminator' ),
+			'field_label' => esc_html__( 'Field Group', 'forminator' ),
 			'is_repeater' => 'true',
 		);
 	}
@@ -101,7 +100,8 @@ class Forminator_Group extends Forminator_Field {
 	 * @return mixed
 	 */
 	public function markup( $field, $views_obj ) {
-		$wrappers = $views_obj::get_grouped_wrappers( $field['element_id'] );
+		$name     = self::get_property( 'element_id', $field );
+		$wrappers = $views_obj::get_grouped_wrappers( $name );
 		$options  = self::prepare_field_options( $field );
 		$html     = '';
 
@@ -112,10 +112,11 @@ class Forminator_Group extends Forminator_Field {
 			);
 		}
 
-		if ( ! empty( $field['description'] ) ) {
+		$description = self::get_property( 'description', $field );
+		if ( ! empty( $description ) ) {
 			$html .= sprintf(
 				'<span class="forminator-description forminator-repeater-description">%s</span>',
-				esc_html( $field['description'] )
+				self::esc_description( $description, $name )
 			);
 		}
 
@@ -123,14 +124,16 @@ class Forminator_Group extends Forminator_Field {
 
 		$i = 1;
 		do {
+			$html .= '<div class="forminator-grouped-fields" data-options="' . esc_attr( wp_json_encode( $options ) ) . '">';
+
 			if ( 1 < $i ) {
 				$wrappers = array_map(
-					function( $wrapper ) use ( $i ) {
+					function ( $wrapper ) use ( $i ) {
 						if ( empty( $wrapper['fields'] ) ) {
 							return $wrapper;
 						}
 						$wrapper['fields'] = array_map(
-							function( $field ) use ( $i ) {
+							function ( $field ) use ( $i ) {
 								$field['group_suffix'] = '-' . $i;
 								return $field;
 							},
@@ -140,8 +143,9 @@ class Forminator_Group extends Forminator_Field {
 					},
 					$wrappers
 				);
+
+				$html .= '<input name="' . esc_attr( $name ) . '-copies[]" type="hidden" value="' . intval( $i ) . '" />';
 			}
-			$html .= '<div class="forminator-grouped-fields" data-options="' . esc_attr( wp_json_encode( $options ) ) . '">';
 			$html .= $views_obj->render_wrappers( $wrappers );
 
 			if ( $options['is_repeater'] && ( 'custom' !== $options['min_type'] || 'custom' !== $options['max_type']
@@ -149,7 +153,7 @@ class Forminator_Group extends Forminator_Field {
 				$html .= self::render_action_buttons( $options );
 			}
 			$html .= '</div>';
-		} while ( ! empty( $views_obj->draft_data[ $field['element_id'] . '-copies' ] ) && $views_obj->draft_data[ $field['element_id'] . '-copies' ]['value'] >= ( ++$i ) );
+		} while ( ! empty( $views_obj->draft_data[ $name . '-copies' ] ) && $views_obj->draft_data[ $name . '-copies' ]['value'] >= ( ++$i ) );
 
 		$html .= '</div>';
 
@@ -184,8 +188,8 @@ class Forminator_Group extends Forminator_Field {
 			'max_type'            => $max_limit_type,
 			'min'                 => $min,
 			'max'                 => $max,
-			'add_text'            => empty( $field['add_action_text'] ) ? __( 'Add item', 'forminator' ) : $field['add_action_text'],
-			'remove_text'         => empty( $field['remove_action_text'] ) ? __( 'Remove item', 'forminator' ) : $field['remove_action_text'],
+			'add_text'            => empty( $field['add_action_text'] ) ? esc_html__( 'Add item', 'forminator' ) : $field['add_action_text'],
+			'remove_text'         => empty( $field['remove_action_text'] ) ? esc_html__( 'Remove item', 'forminator' ) : $field['remove_action_text'],
 			'action_element_type' => empty( $field['action_element_type'] ) ? 'button' : $field['action_element_type'],
 		);
 	}
@@ -202,7 +206,7 @@ class Forminator_Group extends Forminator_Field {
 
 		if ( 'icon' === $options['action_element_type'] ) {
 			// Icons.
-			$html .= '<button class="forminator-repeater-action-icon forminator-repeater-add"><span class="forminator-icon-add" aria-hidden="true"></span><span class="sui-screen-reader-text">'. esc_html( $options['add_text'] ) .'</span></button>';
+			$html .= '<button class="forminator-repeater-action-icon forminator-repeater-add"><span class="forminator-icon-add" aria-hidden="true"></span><span class="sui-screen-reader-text">' . esc_html( $options['add_text'] ) . '</span></button>';
 			$html .= '<button class="forminator-repeater-action-icon forminator-repeater-remove"><span class="forminator-icon-remove" aria-hidden="true"></span><span class="sui-screen-reader-text">' . esc_html( $options['remove_text'] ) . '</span></button>';
 		} elseif ( 'link' === $options['action_element_type'] ) {
 			// Links.

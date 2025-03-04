@@ -1,5 +1,14 @@
 <?php
-/** @var Forminator_Quiz_Renderer $this */
+/**
+ * Template admin/views/quiz/entries/content.php
+ *
+ * @package Forminator
+ */
+
+/**
+ * Forminator_Quiz_Renderer
+ *
+ *  @var Forminator_Quiz_Renderer $this */
 $plugin_path       = forminator_plugin_url();
 $count             = $this->filtered_total_entries();
 $entries_per_page  = $this->get_per_page();
@@ -7,38 +16,22 @@ $is_filter_enabled = $this->is_filter_box_enabled();
 $total_page        = ceil( $count / $entries_per_page );
 $submissions       = $this->get_total_entries();
 ?>
-<?php if ( $this->error_message() ) : ?>
-	<div
-		role="alert"
-		class="sui-notice sui-notice-red sui-active"
-		style="display: block; text-align: left;"
-		aria-live="assertive"
-	>
+<?php
+if ( $this->error_message() ) {
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is already escaped.
+	echo Forminator_Admin::get_red_notice( esc_html( $this->error_message() ) );
+}
+?>
 
-		<div class="sui-notice-content">
+<?php if ( $this->total_entries() > 0 ) : ?>
 
-			<div class="sui-notice-message">
+	<form method="get" class="sui-box fui-listings-pagination fui-box-entries forminator-entries-actions">
 
-				<span class="sui-notice-icon sui-icon-info" aria-hidden="true"></span>
-
-				<p><?php echo esc_html( $this->error_message() ); ?></p>
-
-			</div>
-
-		</div>
-
-	</div>
-<?php endif; ?>
-
-<?php if ( $count > 0 ) : ?>
-
-	<form method="get" class="sui-box fui-box-entries forminator-entries-actions">
-
-		<div class="fui-pagination-entries sui-pagination-wrap">
+		<div class="fui-pagination-mobile fui-pagination-entries sui-pagination-wrap">
 			<?php $this->paginate(); ?>
 		</div>
 
-		<div class="sui-box fui-box-entries">
+		<div class="fui-pagination-desktop sui-box fui-box-entries">
 
 			<fieldset class="forminator-entries-nonce">
 				<?php wp_nonce_field( 'forminatorQuizEntries', 'forminatorEntryNonce' ); ?>

@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Widget class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -18,8 +24,8 @@ class Forminator_Widget extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			'forminator_widget',
-			__( 'Forminator Widget', 'forminator' ),
-			array( 'description' => __( 'Forminator Widget', 'forminator' ) )
+			esc_html__( 'Forminator Widget', 'forminator' ),
+			array( 'description' => esc_html__( 'Forminator Widget', 'forminator' ) )
 		);
 	}
 
@@ -28,8 +34,8 @@ class Forminator_Widget extends WP_Widget {
 	 *
 	 * @since 1.0
 	 *
-	 * @param array $args
-	 * @param array $instance
+	 * @param array $args Arguments.
+	 * @param array $instance Instance.
 	 */
 	public function widget( $args, $instance ) {
 
@@ -51,17 +57,17 @@ class Forminator_Widget extends WP_Widget {
 			switch ( $instance['form_type'] ) {
 				case 'form':
 					if ( isset( $instance['form_id'] ) && ! empty( $instance['form_id'] ) ) {
-						echo forminator_form( $instance['form_id'], false );
+						echo forminator_form( $instance['form_id'], false ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content loaded from template file.
 					}
 					break;
 				case 'poll':
 					if ( isset( $instance['poll_id'] ) && ! empty( $instance['poll_id'] ) ) {
-						echo forminator_poll( $instance['poll_id'], false );
+						echo forminator_poll( $instance['poll_id'], false ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content loaded from template file.
 					}
 					break;
 				case 'quiz':
 					if ( isset( $instance['quiz_id'] ) && ! empty( $instance['quiz_id'] ) ) {
-						echo forminator_quiz( $instance['quiz_id'], false );
+						echo forminator_quiz( $instance['quiz_id'], false ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content loaded from template file.
 					}
 					break;
 				default:
@@ -145,7 +151,7 @@ class Forminator_Widget extends WP_Widget {
 			</label>
 			<select class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'form_id' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'form_id' ) ); ?>">
 				<?php
-				// Add default to prevent issues in some plugins
+				// Add default to prevent issues in some plugins.
 				echo '<option value="">' . esc_html__( 'Choose a form', 'forminator' ) . '</option>';
 
 				$modules = Forminator_API::get_forms( null, 1, 999, Forminator_Form_Model::STATUS_PUBLISH );
@@ -168,7 +174,7 @@ class Forminator_Widget extends WP_Widget {
 			</label>
 			<select class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'poll_id' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'poll_id' ) ); ?>">
 				<?php
-				// Add default to prevent issues in some plugins
+				// Add default to prevent issues in some plugins.
 				echo '<option value="">' . esc_html__( 'Choose a poll', 'forminator' ) . '</option>';
 
 				$modules = Forminator_API::get_polls( null, 1, 999, Forminator_Poll_Model::STATUS_PUBLISH );
@@ -191,7 +197,7 @@ class Forminator_Widget extends WP_Widget {
 			</label>
 			<select class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'quiz_id' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'quiz_id' ) ); ?>">
 				<?php
-				// Add default to prevent issues in some plugins
+				// Add default to prevent issues in some plugins.
 				echo '<option value="">' . esc_html__( 'Choose a quiz', 'forminator' ) . '</option>';
 
 				$modules = Forminator_API::get_quizzes( null, 1, 999, Forminator_Quiz_Model::STATUS_PUBLISH );
@@ -261,13 +267,5 @@ class Forminator_Widget extends WP_Widget {
 	}
 }
 
-/**
- * Register widget
- *
- * @since 1.0
- */
-function forminator_widget_register_widget() {
-	register_widget( 'forminator_widget' );
-}
-
-add_action( 'widgets_init', 'forminator_widget_register_widget' );
+// Functions.
+require_once plugin_dir_path( __FILE__ ) . 'functions.php';

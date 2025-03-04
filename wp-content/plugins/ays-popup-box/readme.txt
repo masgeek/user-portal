@@ -1,10 +1,10 @@
-﻿=== Popup box ===
+﻿=== Popup Box - Create Countdown, Coupon, Video, Contact Form Popups ===
 Contributors: ays-pro
 Donate link: https://ays-pro.com/wordpress/popup-box
-Tags: popup, popups, exit popup, pop up, wordpress popup, marketing, lead generation, modal, modal popup
+Tags: popup, popups, exit popup, pop up, modal
 Requires at least: 4.0
-Tested up to: 6.2
-Stable tag: 3.4.9
+Tested up to: 6.7.2
+Stable tag: 5.1.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -23,7 +23,7 @@ Popup everything you want! Create informative and promotional popups all in one 
 
 *In this short video, you can find a quick overview of how to create a popup in WordPress.*
 
-https://www.youtube.com/watch?v=KhsVClP3dxU
+https://www.youtube.com/watch?v=Ofk1mxUF-9g
 
 == Best free WordPress popup plugin ==
 
@@ -73,58 +73,20 @@ https://www.youtube.com/watch?v=KhsVClP3dxU
 * After visiting x pages (available in [Pro version](https://ays-pro.com/wordpress/popup-box))
 * Scrolling to elements (available in [Pro version](https://ays-pro.com/wordpress/popup-box))
 
+**What  WordPress Popup Plugin Offers**
+
 Create newsletter subscription forms and collect your target audience for the next marketing campaign. Impressive, right? Moreover, you can add popup videos, yes no popups, iframe elements and so much more using this modal survey plugin. [Export and import](https://ays-pro.com/blog/how-to-export-import-existing-popups-in-wordpress) your popups in seconds. 
 
 You can have an unlimited number of popups on your website and there can be different popups on different pages of your website. Use [pop-up custom HTML](https://ays-pro.com/blog/how-to-create-a-cta-on-custom-content-popup-with-basic-html) and add new opportunities to your WordPress modal. Other benefits are animation effects and you can have your favorite popup animation effect. And one more great thing! You control every single feature taking into account what you and your website visitors want! This Popup maker plugin is free for a lifetime and comfortable for usage.
 
-Now, more details about the general description and styles. Reveal all the advantages and benefits of our **Popup maker** popup plugin for WordPress just now!
+= 3RD PARTY OR EXTERNAL SERVICE DISCLAIMER =
 
-* **Show in all pages** – you can control whether a popup appears on all pages of the website. If not, then you can choose the exact pages.
-* **Popup box content** – as mentioned above, you'll be able to add elements from another WordPress plugin and if you want to, you just have to put a Shortcode. Yes, it's a shortcode popup plugin. Here are some of the elements you can have: *Image popup*, *Countdown popup*, *HTML popup*, *Video popup*, *Subscription popup*, *Contact popup*, *Social popup*, *Iframe popup*, *Facebook page popup*, *Google map popup*,*Form popup*. Anything can design your modal form or popup form. If you want to create something by yourself, then select Custom content and write.
-* **Appear popup box when** – popup box appears on click or without a click.
-* **Action button for open popup box** – after clicking on which button the box will appear.
-* **Popup box title** – here you can write an attractive and interesting title for the popup box.
-* **Popup box description** – here you can write the main text you want to transfer to your audience/website visitors/customers.
-* **Width** – is the total width of the box. You write the number in pixels.
-* **Height** – is the total height of the box. You write the number in pixels.
-So according to selected sizes, you can have a full-screen popup.
-* **Autoclose from seconds** – here you select in how many seconds the box closes automatically.
-* **Show promoter every 'X' minutes** – here you select after how many minutes the box will appear in order not to disturb the visitors in an uncontrolled way.
-* **Delay opening (ms)** – here you can select that the popup box appears X milliseconds after the page opens, not instantly.
-* **Scroll from top (px)** – popup box appears depending on the scroll volume.
-* **Custom CSS** – as mentioned above, put your code, and add something new.
-* **Box view theme** – this is the overall appearance/template of your box.
-* **Box background color** – this is the color of the template. The popup overlay has a different color.
-* **Popup box text color** – this is the color of the written text.
-* **Popup box border size** – you can select the border's thickness in pixels.
-* **Popup box border color** – you can select the border color.
-* **Popup box border-radius** – this is for conveying curvature to the corners of the box. 
-* **Box show in effect** – how the box will pop up.
-* **Box show out effect** – how the box will close.
+The plugin uses the Facebook SDK (https://developers.facebook.com/docs/javascript) to display Facebook-type popups.
 
-You will be able to preview the changes before saving them.
+IT DOES NOT SEND ANY DATA AND WE DO NOT COLLECT INFORMATION FROM THE REQUEST
 
-== Why us? What advantages does popup box offer? ==
+The privacy policy for Facebook can be found at this URL: https://www.facebook.com/policy.php
 
-1. You can create popups of an **unlimited number**.
-1. You can have **different popup boxes for different pages** on one website.
-1. You can write **your own codes** and have an HTML popup.
-1. You can [write shortcodes](https://ays-pro.com/blog/how-to-use-wordpress-shortcodes-with-popup-box) to **use features** from other WordPress plugins as well.
-1. You can **control** how often, how, and on which pages the popup box will appear.
-1. You can create a **subscription form** WordPress
-1. You can have the best type of **online advertising** using the best popup plugin for WordPress.
-1. You will get **support** related to our popup generator whenever needed.
-1. You will get **a great mix of features**. Other plugins don’t have all these features, they just contain a few of them and will make your virtual environment less flexible.
-
-All these points are available with our popup builder. Display pop up with this popup plugin in WordPress.[Get Started with the Popup Box plugin](https://www.youtube.com/watch?v=Puecfcp7JEs&) and make your user experience even better. 
-
-== How important this WordPress popup can be nowadays in the marketing world? ==
-* Lead is the most effective way to draw the attention of your visitors/customers and we offer to do it in a professional way.
-* You don't just put a text or image on your website, you make people read, see and become interested!
-* Popup boxes make businesses develop because they make people be aware, want, and buy! They will like your product/service and there's no second option.
-* You don't want your visitors/customers to be disturbed on your website, right? We care about it! Control how the popup box will appear – simply pop up ? after scrolling ? Onclick popup ?
-* Add Subscriptions, FB Likebox, and much more options as you wish.
-* Just know one thing – this popup generator will help you sell more, and have better statistics and content clients who are not disturbed by a boring modal window. Get your professional pop up ad creator.
 
 **Popup Box Free Features**
 
@@ -172,14 +134,100 @@ All these points are available with our popup builder. Display pop up with this 
 * ConvertKit Integration
 * Sendinblue Integration
 * MailerLite Integration
+* Coupon Popup
+* Countdown Popup
+* Cookie Popup
+* Exit Intent Popup
+* Woocommerce Product Popup
+* After Visiting X Pages Trigger
+* Inactivity Trigger
+* Scrolling To Element Trigger
 
+Now, more details about the general description and styles. Reveal all the advantages and benefits of our **Popup maker** popup plugin for WordPress just now!
 
+* **Show in all pages** – you can control whether a popup appears on all pages of the website. If not, then you can choose the exact pages.
+* **Popup box content** – as mentioned above, you'll be able to add elements from another WordPress plugin and if you want to, you just have to put a Shortcode. Yes, it's a shortcode popup plugin. Here are some of the elements you can have: *Image popup*, *Countdown popup*, *HTML popup*, *Video popup*, *Subscription popup*, *Contact popup*, *Social popup*, *Iframe popup*, *Facebook page popup*, *Google map popup*,*Form popup*. Anything can design your modal form or popup form. If you want to create something by yourself, then select Custom content and write.
+* **Appear popup box when** – popup box appears on click or without a click.
+* **Action button for open popup box** – after clicking on which button the box will appear.
+* **Popup box title** – here you can write an attractive and interesting title for the popup box.
+* **Popup box description** – here you can write the main text you want to transfer to your audience/website visitors/customers.
+* **Width** – is the total width of the box. You write the number in pixels.
+* **Height** – is the total height of the box. You write the number in pixels.
+So according to selected sizes, you can have a full-screen popup.
+* **Autoclose from seconds** – here you select in how many seconds the box closes automatically.
+* **Show promoter every 'X' minutes** – here you select after how many minutes the box will appear in order not to disturb the visitors in an uncontrolled way.
+* **Delay opening (ms)** – here you can select that the popup box appears X milliseconds after the page opens, not instantly.
+* **Scroll from top (px)** – popup box appears depending on the scroll volume.
+* **Custom CSS** – as mentioned above, put your code, and add something new.
+* **Box view theme** – this is the overall appearance/template of your box.
+* **Box background color** – this is the color of the template. The popup overlay has a different color.
+* **Popup box text color** – this is the color of the written text.
+* **Popup box border size** – you can select the border's thickness in pixels.
+* **Popup box border color** – you can select the border color.
+* **Popup box border-radius** – this is for conveying curvature to the corners of the box. 
+* **Box show in effect** – how the box will pop up.
+* **Box show out effect** – how the box will close.
+
+You will be able to preview the changes before saving them.
+
+**[PRO](https://ays-pro.com/wordpress/popup-box)|[DEMO](https://ays-demo.com/popup-box-plugin-pro-demo/)|[DOCUMENTATION](https://ays-pro.com/wordpress-popup-box-plugin-user-manual)**
+
+== Why us? What advantages does popup box offer? ==
+
+1. You can create popups of an **unlimited number**.
+1. You can have **different popup boxes for different pages** on one website.
+1. You can write **your own codes** and have an HTML popup.
+1. You can [write shortcodes](https://ays-pro.com/blog/how-to-use-wordpress-shortcodes-with-popup-box) to **use features** from other WordPress plugins as well.
+1. You can **control** how often, how, and on which pages the popup box will appear.
+1. You can create a **subscription form** WordPress
+1. You can have the best type of **online advertising** using the best popup plugin for WordPress.
+1. You will get **support** related to our popup generator whenever needed.
+1. You will get **a great mix of features**. Other plugins don't have all these features, they just contain a few of them and will make your virtual environment less flexible.
+
+All these points are available with our popup builder. Display pop up with this popup plugin in WordPress.[Get Started with the Popup Box plugin](https://www.youtube.com/watch?v=Puecfcp7JEs&) and make your user experience even better. 
+
+== Set Limitation | Choose how to Open/Close Popup | Customize the Style ==
+
+WordPress Popup plugin has the flexibility to allow you to add limitations to your popups. If you want to display your popup only for the exact amount times or display once per user, you have a chance to do it. The **Limitation tab** in the popup builder plugin is open to give you the power to filter the audience.  
+
+Besides adding the limitations you can take control of your popups and decide how popups open or close. 
+
+Customize the style of your popups with the various features available in the plugin. Choose a template, set the dimensions and you are ready to go with your responsive and engaging popups. 
+
+== How important this WordPress popup can be nowadays in the marketing world? ==
+* Lead is the most effective way to draw the attention of your visitors/customers and we offer to do it in a professional way.
+* You don't just put a text or image on your website, you make people read, see and become interested!
+* Popup boxes make businesses develop because they make people be aware, want, and buy! They will like your product/service and there's no second option.
+* You don't want your visitors/customers to be disturbed on your website, right? We care about it! Control how the popup box will appear – simply pop up ? after scrolling ? Onclick popup ?
+* Add Subscriptions, FB Likebox, and much more options as you wish.
+* Just know one thing – this popup generator will help you sell more, and have better statistics and content clients who are not disturbed by a boring modal window. Get your professional pop up ad creator.
 
 Aside from getting the best modal plugin WordPress, you will also become a part of our big community, which means, amazing customer support and constantly updated versions.
 
-By the way, we have also created [WordPress Survey plugin](https://ays-pro.com/wordpress/survey-maker?utm_source=wordpress&utm_medium=ays-plugins&utm_campaign=popup).
+By the way, we have also created [WordPress Survey plugin](https://ays-pro.com/wordpress/survey-maker).
+
+**New Chart Builder plugin:** Create static and dynamic charts for your WordPress website using our [WordPress Chart plugin](https://wordpress.org/plugins/chart-builder/). Transfer your data into charts easily.
 
 Don't forget, in case of any problems or upcoming questions feel free to contact us via the following [FREE SUPPORT FORUM](https://wordpress.org/support/plugin/ays-popup-box/).
+
+**Other plugins from Ays Pro Team**
+
+* [Quiz Maker](https://wordpress.org/plugins/quiz-maker/) for creating advanced quizzes and exams easily and quickly.
+* [Survey Maker](https://wordpress.org/plugins/survey-maker/) for collecting data and analyze it.  
+* [Poll Maker](https://wordpress.org/plugins/poll-maker/) for creating powerful and interactive polls. 
+* [Secure Copy Content Protection](https://wordpress.org/plugins/secure-copy-content-protection/) to protect web content from being plagiarized.
+* [Chartify](https://wordpress.org/plugins/chart-builder/) to build both static and dynamic charts, graphs and diagrams. 
+* [Easy Form](https://wordpress.org/plugins/easy-form/) to create various forms for your website. 
+* [AI ChatBot](https://wordpress.org/plugins/ays-chatgpt-assistant/) to generate high-quality content for your blog, and finding the answer to any questions in seconds.
+* [Personal Dictionary](https://wordpress.org/plugins/personal-dictionary/) to create and organize their vocabulary lists, study and memorize the words.
+* [Photo Gallery](https://wordpress.org/plugins/gallery-photo-gallery/) for displaying responsive image gallery with awesome layout options.
+* [FAQ Builder](https://wordpress.org/plugins/faq-builder-ays/) to display Frequently Asked Questions on your website with a beautiful accordion. 
+* [Image Slider](https://wordpress.org/plugins/ays-slider/) give the aility to grab your audience's attention with amazing and entertaining slideshows.
+* [Random Posts and Pages Widget](https://wordpress.org/plugins/ays-random-posts-and-pages/) for creating internal links and encouraging visitor engagement on your website.
+* [Popup Like box](https://wordpress.org/plugins/ays-facebook-popup-likebox/) to promote your Facebook page and add number of Likes.
+* [Advanced Related Posts](https://wordpress.org/plugins/advanced-related-posts/) allows you to show a related posts list on your website after a post or via a widget.
+* [Portfolio Responsive Gallery](https://wordpress.org/plugins/portfolio-responsive-gallery/) to showcase beautiful image galleries on your WordPress websites.
+
 
 == Screenshots ==
 
@@ -268,9 +316,621 @@ Simply and effortlessly! Either you are switching from the free to pro, or the l
 **Contact us**!  Either write on our [FREE support forum](https://wordpress.org/support/plugin/ays-popup-box/) or reach out to use with our [contact form](https://ays-pro.com/contact). Either way, our helpful customer care specialists will contact back you quickly and will do their best to satisfy all your needs.
 
 = 13. Can I customize the popup the way I want? =
-This is not even a question! Surely, you can customize the best popups the way you wish. Choose one of our premade themes, change the background color, image, text, and everything that you can think of. Can’t find anything of your taste? You are free to add your **custom CSS code** to get your preferred design.
+This is not even a question! Surely, you can customize the best popups the way you wish. Choose one of our premade themes, change the background color, image, text, and everything that you can think of. Can't find anything of your taste? You are free to add your **custom CSS code** to get your preferred design.
+
+= 14. I am using a Cache plugin. What should I know in terms of plugin functionalities? =
+
+Please make sure the cache **is not generated** on the page where the plugin is enabled, before contacting the Support Team.
+**Clear all the caches.**
+If you are using a Cache plugin, then make sure that it does not store a strong cache and that the webpage where the plugin is enabled does not become static(HTML).
+Check whether the **Deactivate PHP cache** is ticked from the settings of the cache plugin or not.
+If yes, then please **deactivate it.** 
+
+No matter whether you are a guest or a logged-in user. The code works in the same way in both cases.
+
+The same is about the mobile version.
+You can disable the cache-generating process by deactivating the option from the cache plugin (if it has one).
+After clearing the caches, try to check the case with either the **Incognito mode** or **another browser/device.**
+
 
 == Changelog ==
+
+= 5.1.7 =
+* Added: Time-based scheduling feature for popups
+* Tested: Compatible up to 6.7.2
+
+= 5.1.6 =
+* Improved: Code correction on the front-end and admin dashboard
+
+= 5.1.5 =
+* Fixed: Responsive issue on mobile the Popups page
+
+= 5.1.4 =
+* Added: Header background color mobile option
+
+= 5.1.3 =
+* Added: Global Collapse/Expand functionality on the Popups page
+
+= 5.1.2 =
+* Improved: The Popups page design
+
+= 5.1.1 =
+* Improved: Top banner styles on the admin dashboard
+
+= 5.1.0 =
+* Added: Content padding mobile option
+
+= 5.0.9 =
+* Added: Logo image shape option for notification popup
+
+= 5.0.8 =
+* Fixed: Some styles on the admin dashboard
+* Updated: POT file
+
+= 5.0.7 =
+* Fixed: Issue connected to the popup background image
+* Improved: Some changes on the admin dashboard 
+
+= 5.0.6 =
+* Improved: Some changes on the admin dashboard
+
+= 5.0.5 =
+* Added: Logo image sizing option for notification popup
+
+= 5.0.4 =
+* Improved: Some changes on the admin dashboard
+
+= 5.0.3 =
+* Fixed: Sorting issue on the popup list tables
+* Fixed: Some style issues on the front end
+
+= 5.0.2 =
+* Fixed: Some issues on the front end
+* Updated: POT file
+
+= 5.0.1 =
+* Improved: Some changes on the admin dashboard
+* Tested: Compatible up to 6.7.1
+
+= 5.0.0 =
+* Added: Mobile min-width option for notification popup logo
+
+= 4.9.9 =
+* Fixed: Some styles on the admin dashboard
+* Fixed: JS issues on the front end
+
+= 4.9.8 =
+* Fixed: Security issue connected to the plugin deactivation
+
+= 4.9.7 =
+* Added: Mobile max-width option for notification popup logo
+* Tested: Compatible up to 6.7
+
+= 4.9.6 =
+* Added: Mobile width option for notification popup logo
+
+= 4.9.5 =
+* Added: Button letter spacing on mobile option for notification popup type
+
+= 4.9.4 =
+* Added: Button font weight on mobile option for notification popup type
+
+= 4.9.3 =
+* Added: Button font size on mobile option for notification popup type
+
+= 4.9.2 =
+* Fixed: Issue connected to the autoclose on video completion option
+* Updated: POT file
+
+= 4.9.1 =
+* Added: Transition option for notification popup button
+
+= 4.9.0 =
+* Added: Max-height option for notification popup logo
+
+= 4.8.9 =
+* Added: Min-height option for notification popup logo
+
+= 4.8.8 =
+* Added: Width by pixels option for notification popup logo
+
+= 4.8.7 =
+* Added: Min-width by percentage option for notification popup logo
+
+= 4.8.6 =
+* Added: Max-width by percentage option for notification popup logo
+
+= 4.8.5 =
+* Improved: Styles on the admin dashboard
+* Updated: POT file
+
+= 4.8.4 =
+* Added: Min-width option for notification popup logo
+
+= 4.8.3 =
+* Added: Width option for notification popup logo
+
+= 4.8.2 =
+* Fixed: Security issue on the admin dashboard
+* Improved: Styles on the admin dashboard
+
+= 4.8.1 =
+* Added: Max-width option for notification popup logo
+
+= 4.8.0 =
+* Added: Font weight option for notification popup button
+* Tested: Compatible up to 6.6.2
+
+= 4.7.9 =
+* Added: Button hover text option for notification popup type
+
+= 4.7.8 =
+* Added: Text decoration option for notification popup button
+* Fixed: Security issue connected to the change creation date option
+
+= 4.7.7 =
+* Added: Text transformation option for notification popup button
+
+= 4.7.6 =
+* Improved: Styles on the admin dashboard
+* Updated: POT file
+
+= 4.7.5 =
+* Added: Expand/Collapse functionality for popup options on the Popups page
+
+= 4.7.4 =
+* Added: Redirect to the new tab option for notification popup logo
+* Fixed: Style issue on the admin dashboard
+
+= 4.7.3 =
+* Improved: Styles on the admin dashboard
+
+= 4.7.2 =
+* Added: Logo redirect URL option for notification popup type
+* Fixed: Some styles on the front end
+
+= 4.7.1 =
+* Added: Logo option for notification popup type
+
+= 4.7.0 =
+* Added: Automatic activation/installation of the plugin on the Our Products submenu
+
+= 4.6.9 =
+* Fixed: Some issues on PRO Features page
+* Updated: POT file
+
+= 4.6.8 =
+* Fixed: Some style issues on the admin dashboard
+
+= 4.6.7 =
+* Added: Confirmation Box before deleting the popup categories
+* Fixed: Some style issues on the admin dashboard
+
+= 4.6.6 =
+* Fixed: Some style issues on the admin dashboard
+* Fixed: Issue connected to the popup categories list table search box
+* Tested: Compatible up to 6.6.1
+
+= 4.6.5 =
+* Added: Button letter spacing option for notification popup type
+
+= 4.6.4 =
+* Fixed: Popup displaying conflict with Elementor
+* Fixed: Popup duplication issue
+
+= 4.6.3 =
+* Fixed: Translation issues on the admin dashboard
+* Updated: POT file
+
+= 4.6.2 =
+* Fixed: Issues connected to the popups list table search box
+* Tested: Compatible up to 6.6
+
+= 4.6.1 =
+* Added: Button text hover color option for notification popup type
+
+= 4.6.0 =
+* Fixed: Some issues on the popups list table
+
+= 4.5.9 =
+* Fixed: Filters conflict on the popups list table
+* Improved: Plugin performance on the admin dashboard
+
+= 4.5.8 =
+* Added: Button background hover color option for notification popup type
+* Fixed: Some style issues on the front end
+* Tested: Compatible up to 6.5.5
+
+= 4.5.7 =
+* Added: Box shadow option for notification popup type
+
+= 4.5.6 =
+* Added: Redirect to the new tab option for image popup type
+
+= 4.5.5 =
+* Improved: Some Styles on the admin dashboard
+
+= 4.5.4 =
+* Added: Redirect to the new tab option for notification popup type
+
+= 4.5.3 =
+* Added: Use small header option for Facebook popup type
+* Fixed: Some issues on the admin dashboard
+* Tested: Compatible up to 6.5.4
+
+= 4.5.2 =
+* Fixed: Some responsive style issues on the admin dashboard
+* Updated: POT file
+
+= 4.5.1 =
+* Added: Button padding option for notification popup type
+
+= 4.5.0 =
+* Added: Button border style option for notification popup type
+* Fixed: JS issue connected to the facebook popup type
+
+= 4.4.9 =
+* Fixed: JS issue on the admin dashboard
+
+= 4.4.8 =
+* Added: Button border color option for notification popup type
+
+= 4.4.7 =
+* Added: Button border width option for notification popup type
+
+= 4.4.6 =
+* Added: Button font size option for notification popup type
+
+= 4.4.5 =
+* Added: Button border radius option for notification popup type
+* Fixed: JS issue on the front page
+
+= 4.4.4 =
+* Improved: Footer style on the admin dashboard
+
+= 4.4.3 =
+* Fixed: Some styles on the admin dashboard
+* Tested: Compatible up to 6.5.3
+
+= 4.4.2 =
+* Fixed: Some styles on the admin dashboard
+
+= 4.4.1 =
+* Added: Exclude the animation CSS file option on the General Settings Page
+
+= 4.4.0 =
+* Fixed: Some styles on the admin dashboard
+* Updated: POT file
+
+= 4.3.9 =
+* Added: Button text color option for notification popup type
+
+= 4.3.8 =
+* Added: Button background color option for notification popup type
+
+= 4.3.7 =
+* Added: Option to define mobile width by pixels
+* Fixed: Security issue connected to the change the author of the current popup option
+
+= 4.3.6 =
+* Added: Notification popup type
+
+= 4.3.5 =
+* Fixed: Issue related to the text layout
+* Fixed: JS issue on the admin dashboard
+* Tested: Compatible up to 6.5.2
+
+= 4.3.4 =
+* Added: Hide FB page cover photo option
+
+= 4.3.3 =
+* Added: Facebook popup type
+
+= 4.3.2 =
+* Added: Redirect URL option for image popup
+* Fixed: PHP issue on the front page
+
+= 4.3.1 =
+* Added: Image popup type
+
+= 4.3.0 =
+* Added: Current popup page link message variable
+* Tested: Compatible up to 6.5
+
+= 4.2.9 =
+* Fixed: Some styles on the admin dashboard
+
+= 4.2.8 =
+* Added: Popup conversions count on the popups list table
+
+= 4.2.7 =
+* Fixed: Some styles on the admin dashboard
+* Updated: POT file
+
+= 4.2.6 =
+* Improved: Styles on the admin dashboard
+
+= 4.2.5 =
+* Fixed: Security issue on the admin dashboard
+
+= 4.2.4 =
+* Added: Popup views count on the popups list table
+
+= 4.2.3 =
+* Fixed: Some issue on the front page
+* Improved: Styles on the admin dashboard
+
+= 4.2.2 =
+* Fixed: Issue connected to the open popup on click trigger
+* Improved: Styles on the admin dashboard
+
+= 4.2.1 =
+* Added: Popup max-height option
+
+= 4.2.0 =
+* Added: Italian language support
+* Added: French language support
+* Added: Dutch language support
+* Fixed: Translation issue on the admin page
+
+= 4.1.9 =
+* Added: Background gradient on mobile option
+
+= 4.1.8 =
+* Added: Suboption to customize mobile settings for the background image sizing option
+* Fixed: Translation problem on the admin dashboard
+
+= 4.1.7 =
+* Added: Suboption to customize mobile settings for the background image position option
+
+= 4.1.6 =
+* Added: Suboption to customize mobile settings for the background image option
+
+= 4.1.5 =
+* Fixed: Security issue on the admin dashboard
+* Fixed: Issue connected to the close Popup by pressing ESC option
+* Tested: Compatible up to 6.4.3
+
+= 4.1.4 =
+* Fixed: Some style issues on the admin dashboard
+* Fixed: Some issues connected to the reset styles option
+
+= 4.1.3 =
+* Fixed: Issue connected to the close button image option
+* Updated: POT file
+
+= 4.1.2 =
+* Added: Title text shadow on mobile option
+
+= 4.1.1 =
+* Added: Box shadow on mobile option
+
+= 4.1.0 =
+* Fixed: Issue connected to the CSS selector for trigger click option
+* Fixed: Some style issues on the admin dashboard
+
+= 4.0.9 =
+* Added: Suboption to customize mobile settings for the border radius option
+
+= 4.0.8 =
+* Added: Suboption to customize mobile settings for the border width option
+* Fixed: Some issues on the front page
+
+= 4.0.7 =
+* Added: Suboption to customize mobile settings for the border style option
+
+= 4.0.6 =
+* Added: Suboption to customize mobile settings for the border color option
+
+= 4.0.5 =
+* Added: Suboption to customize mobile settings for the overlay color option
+
+= 4.0.4 =
+* Added: Suboption to customize mobile settings for the background color option
+* Fixed: Issue connected to the background image option
+
+= 4.0.3 =
+* Added: Suboption to customize mobile settings for the display content option
+
+= 4.0.2 =
+* Fixed: Images sanitizing problem on the admin/front page
+* Updated: POT file
+
+= 4.0.1 =
+* Added: Suboption to customize mobile settings for the opening animation option
+
+= 4.0.0 =
+* Fixed: Display for certain user roles and display for guests options conflict
+* Fixed: Some styles on the admin dashboard
+* Tested: Compatible up to 6.4.2
+
+= 3.9.9 =
+* Added: Suboption to customize mobile settings for the closing animation option
+
+= 3.9.8 =
+* Added: Confirmation box for unsaved changes on the admin dashboard
+* Fixed: PHP issue on the front page
+
+= 3.9.7 =
+* Added: Suboption to customize mobile settings for the closing animation speed option
+
+= 3.9.6 =
+* Added: Suboption to customize mobile settings for the opening animation speed option
+
+= 3.9.5 =
+* Added: Suboption to customize mobile settings for the dismiss ad text option
+
+= 3.9.4 =
+* Added: Suboption to customize mobile settings for the hide timer option
+* Fixed: Some styles on the admin dashboard
+
+= 3.9.3 =
+* Fixed: Popup duplication issue
+* Fixed: Issue connected to the show scrolbar option
+* Updated: POT file
+
+= 3.9.2 =
+* Added: Current date message variable
+
+= 3.9.1 =
+* Added: Current popup author email message variable
+
+= 3.9.0 =
+* Fixed: Some styles issues on the front page
+* Improved: Add new button on the list tables page
+
+= 3.8.9 =
+* Added: Suboption to customize mobile settings for the disable page scrolling option
+* Fixed: Some styles on the admin dashboard
+* Tested: Compatible up to 6.4.1
+
+= 3.8.8 =
+* Fixed: PHP error on the front page
+
+= 3.8.7 =
+* Fixed: Security issues on the admin dashboard
+
+= 3.8.6 =
+* Fixed: Issue connected to the disable page scrolling option
+* Fixed: Security issues on the plugins page
+* Tested: Compatible up to 6.4
+
+= 3.8.5 =
+* Added: Suboption to customize mobile settings for the disable popup scrolling option
+
+= 3.8.4 =
+* Added: Suboption to customize mobile settings for the enable blured overlay option
+* Improved: Styles on the admin dashboard
+
+= 3.8.3 =
+* Fixed: Issue connected to the hide close button option
+* Fixed: Some styles on the admin dashboard
+
+= 3.8.2 =
+* Fixed: Issue connected to the close button position option
+* Fixed: Some styles on the admin dashboard
+
+= 3.8.1 =
+* Improved: Some changes on the admin dashboard
+* Tested: Compatible up to 6.3.2
+
+= 3.8.0 =
+* Added: Show scrollbar option
+
+= 3.7.9 =
+* Fixed: Security issue on the plugins page
+* Fixed: Some styles on the admin dashboard
+
+= 3.7.8 =
+* Fixed: Some styles on the admin dashboard
+* Improved: Ask a question button style on the admin dashboard
+
+= 3.7.7 =
+* Fixed: Banner timer issue on the admin dashboard
+* Fixed: Issue connected to the background image option
+
+= 3.7.6 =
+* Added: Confirmation Box before removing the popups and categories
+* Fixed: Some issues on the front page
+
+= 3.7.5 =
+* Fixed: Custom Content type content issue
+
+= 3.7.4 =
+* Fixed: Style issue on the popups page
+* Tested: Compatible up to 6.3.1
+
+= 3.7.3 =
+* Added: Suboption to customize mobile settings for the Close button delay option
+
+= 3.7.2 =
+* Fixed: Popup Description option security issue
+* Updated: POT file
+
+= 3.7.1 =
+* Fixed: Security issue on the front page
+
+= 3.7.0 =
+* Improved: Styles on the features page
+
+= 3.6.9 =
+* Added: Suboption to customize mobile settings for the overlay option
+* Tested: Compatible up to 6.3
+
+= 3.6.8 =
+* Added: Suboption to customize mobile settings for the autoclose option
+
+= 3.6.7 =
+* Improved: Plugin performance on the front page
+
+= 3.6.6 =
+* Fixed: Style tab issue on the popups page
+
+= 3.6.5 =
+* Improved: Dashboard styles
+
+= 3.6.4 =
+* Improved: Default popup styles
+* Improved: Deactivate popup style on the plugins page
+
+= 3.6.3 =
+* Fixed: Security issue on the plugins page
+* Fixed: Autoclose Delay option issue on the front page
+
+= 3.6.2 =
+* Fixed: Accessibility error on front page
+* Fixed: Issue conntected with display popup once per user option
+
+= 3.6.1 =
+* Added: Suboption to customize mobile settings for the close button text option
+* Fixed: ADA compliance error on front page
+
+= 3.6.0 =
+* Added: Suboption to customize mobile settings for the close button position option
+* Fixed: Some styles on the admin dashboard
+
+= 3.5.9 =
+* Added: Suboption to customize mobile settings for the close by clicking outside the box option
+* Fixed: Some styles on the admin dashboard
+
+= 3.5.8 =
+* Added: Suboption to customize mobile settings for the open by scrolling down option
+* Fixed: Issue related to the default template
+
+= 3.5.7 =
+* Added: Use different setting for mobile suboption for the open delay option
+
+= 3.5.6 =
+* Added: Use different setting for mobile suboption for the popup position option
+* Fixed: Some styles on the admin dashboard
+
+= 3.5.5 =
+* Changed: Width and Height options design on the admin dashboard
+* Changed: Add new buttons design
+
+= 3.5.4 =
+* Fixed: Some styles on the admin dashboard
+* Fixed: Border radius option issue
+* Fixed: Popup showing issue in Elementor page
+* Tested: Compatible up to 6.2.2
+
+= 3.5.3 =
+* Fixed: Some conflicts with PHP 8.2.6 on the dashboard 
+* Fixed: Style issues on the admin dashboard
+* Tested: Compatible up to 6.2.1
+
+= 3.5.2 =
+* Fixed: Close by clicking outside the box and Autoclose Delay options conflict
+* Updated: Filters style on the popups list tables
+
+= 3.5.1 =
+* Fixed: Filters issues on popups list table
+* Fixed: Banner dismissing issue
+* Fixed: Incorrect breaking issue on mobile versions
+
+= 3.5.0 =
+* Fixed: Style issues on the admin dashboard
+* Fixed: Reset styles option issue
 
 = 3.4.9 =
 * Fixed: Style issues on the admin dashboard
@@ -449,791 +1109,6 @@ This is not even a question! Surely, you can customize the best popups the way y
 
 = 3.0.0 =
 * Fixed: CSS style issue on admin dashboard
-
-= 2.9.9 =
-* Fixed: Conflict with list table's checkbox
-
-= 2.9.8 =
-* Fixed: The conflict between the Modern and Sale templates and other templates
-* Fixed: Enable dismiss option issue  
-* Tested: Compatible up to 6.0.1 
-* Updated: POT and PO files
-
-= 2.9.7 =
-* Changed: Choose popup type page design
-
-= 2.9.6 =
-* Changed: Popup tabs responsive style design
-
-= 2.9.5 =
-* Added: Close button on types page
-
-= 2.9.4 =
-* Added: Dismiss ad text suboption
-
-= 2.9.3 =
-* Added: Enable dismiss ad option
-
-= 2.9.2 =
-* Added: User nickname message variable
-
-= 2.9.1 =
-* Added: Show the image that is applied for the default Themes
-
-= 2.9.0 =
-* Added: Creation date message variable
-
-= 2.8.9 =
-* Added: Popup title message variable
-
-= 2.8.8 =
-* Added: Show User role shortcode
-
-= 2.8.7 =
-* Fixed: Mobile height option conflict
-
-= 2.8.6 =
-* Added: Youtube link to social media links option
-
-= 2.8.5 =
-* Added: User wordpress role message variable
-
-= 2.8.4 =
-* Added: Popup type name on each popup's page
-* Changed: Our Products submenu Interface design
-
-= 2.8.3 =
-* Added: Mobile height option
-* Tested: Compatible up to 6.0
-
-= 2.8.2 =
-* Changed: The banner style on the admin dashboard
-* Changed: Displaying design of templates on the admin dashboard
-
-= 2.8.1 =
-* Added: Documentation button on the admin dashboard
-* Added: Current popup author message variable
-
-= 2.8.0 =
-* Added: Previous popup category button on the Categories edit page  
-
-= 2.7.9 =
-* Added: Heading for share buttons suboption 
-
-= 2.7.8 =
-* Added: Next popup category button on the Categories edit page 
-* Changed: Options' names and Tooltips
-* Updated: POT file    
-
-= 2.7.7 =
-* Added: User first name message variable    
-* Added: User last name message variable    
-
-= 2.7.6 =
-* Added: Previous Popup button on the Popups Edit page    
-
-= 2.7.5 =
-* Added: Next Popup button on the Popups Edit page    
-
-= 2.7.4 =
-* Added: Popup category title shortcode on the general settings
-* Added: Popup category description shortcode on the general settings
-* Updated: POT file
-
-= 2.7.3 =
-* Added: Message variables tab on the General Settings page
-* Tested: Compatible up to 5.9.3
-
-= 2.7.2 =
-* Added: Show current popup author shortcode
-
-= 2.7.1 =
-* Added: Image column on the popups list table
-
-= 2.7.0 =
-* Added: Description font size for mobile devices
-* Tested: Compatible up to 5.9.2
-
-= 2.6.9 =
-* Fixed: PHP problem on the admin dashboard
-
-= 2.6.8 =
-* Added: Change the author of the current popup box
-
-= 2.6.7 =
-* Added: Change current popup creation date option
-
-= 2.6.6 =
-* Added: Created column to the Popup's list table page
-* Fixed: Show on homepage option issue
-
-= 2.6.5 =
-* Added: User nickname shortcode
-* Added: User email shortcode
-* Tested: Compatible up to 5.9
-
-= 2.6.4 =
-* Added: Link to open popups from popup category list table
-
-= 2.6.3 =
-* Added: User display name shortcode
-* Updated: POT file
-
-= 2.6.2 =
-* Added: Title text shadow parameters
-* Tested: Compatible up to 5.8.3
-
-= 2.6.1 =
-* Added: Title text shadow option
-
-= 2.6.0 =
-* Added: User last name shortcode on the general settings page
-
-= 2.5.9 =
-* Fixed: CSS problem on the admin dashboard
-
-= 2.5.8 =
-* Fixed: Show on option problem on the admin dashboard
-
-= 2.5.7 =
-* Fixed: Some issues on the admin dashboard
-
-= 2.5.6 =
-* Added: User first name shortcode on the general settings page
-* Fixed: JS conflict with WP-Optimize plugin
-
-= 2.5.5 =
-* Added: Link to open the popup category on the popups list table
-* Tested: Compatible up to 5.8.2
-
-= 2.5.4 =
-* Added: Enable Social Media links option
-
-= 2.5.3 =
-* Added: Description font size option
-
-= 2.5.2 =
-* Added: Help Tab on the Admin Dashboard
-
-= 2.5.1 =
-* Fixed: Red theme close button text color issue on the live preview
-
-= 2.5.0 =
-* Fixed: Command prompt theme buttons issue on the front page
-
-= 2.4.9 =
-* Added: Popup min-height option
-* Fixed: Some style issues
-
-= 2.4.8 =
-* Added: Excerpt words count option for categories list table
-* Tested: Compatible up to 5.8.1
-
-= 2.4.7 =
-* Added: Background image sizing option
-
-= 2.4.6 =
-* Added: Excerpt words count option for popups list table
-
-= 2.4.5 =
-* Fixed: Background image position option issue in Live preview
-* Fixed: Close button image option conflict with Minimal theme
-
-= 2.4.4 =
-* Fixed: Popup position and Open full screen options conflict
-
-= 2.4.3 =
-* Added: Video popup type
-
-= 2.4.2 =
-* Added: Background image position option
-* Fixed: Close button image option conflict with Minimal theme
-
-= 2.4.1 =
-* Added: Bulk publish/unpublish action on the popup categories list table
-
-= 2.4.0 =
-* Fixed: Font-awesome problem on the front-end
-
-= 2.3.9 =
-* Added: Published/Unpublished filter to the popup categories list table
-* Fixed: CSS conflict with Elementor plugin on the dashboard
-* Fixed: Custom Content option issue 
-
-= 2.3.8 =
-* Added: Status column to the popup categories list table
-* Fixed: Custom css option issue
-
-= 2.3.7 =
-* Fixed: Popup category title displaying issue
-* Fixed: Popup category description spaces conflict
-* Fixed: Popup category title quote conflict
-* Tested: Compatible up to 5.8
-
-= 2.3.6 =
-* Fixed: Some conflicts with PHP 5.2.17 on the dashboard 
-
-= 2.3.5 =
-* Added: WP Editor height option on the general settings
-
-= 2.3.4 =
-* Updated: POT file
-* Fixed: SQL query problem on the admin dashboard
-
-= 2.3.3 =
-* Fixed: Font-awesome CSS issue
-* Fixed: Popup height option issue
-
-= 2.3.2 =
-* Fixed: Onclick Popup and Close by clicking outside options conflict
-* Fixed: Responsive design issue on the Admin Dashboard
-
-= 2.3.1 =
-* Fixed: Popup opening and closing animation speed options issues
-* Fixed: Close by clicking outside the box option issue in multiple popups
-* Fixed: Style issue concerning wp-color-picker on mobile versions
-
-= 2.3.0 =
-* Fixed: JavaScript issue on the Front page
-* Fixed: Some style issues
-
-= 2.2.9 =
-* Fixed: Show close button by hovering over the popup option issue
-* Fixed: Some issues on the Admin Dashboard
-
-= 2.2.8 =
-* Added: How to use page
-
-= 2.2.7 =
-* Added: Disable scrolling option
-* Tested: Compatible up to 5.7.2
-
-= 2.2.6 =
-* Fixed: Close button size option issue in Default theme
-* Redesigned: Settings and Styles tabs
-
-= 2.2.5 =
-* Added: Select type with double click functionality
-* Added: Cancel button on the admin dashboard
-
-= 2.2.4 =
-* Added: Show close button by hovering over the popup option
-* Updated: PRO features page price list
-
-= 2.2.3 =
-* Fixed: Close by clicking outside the box option issue
-* Fixed: Close button and timer issues on the Front-End
-* Fixed: Some style issues on the Admin Dashboard
-
-= 2.2.2 =
-* Added: Mobile width option
-
-= 2.2.1 =
-* Added: Ask a question icon
-* Fixed: Close button text option issues
-
-= 2.2.0 =
-* Added: New Theme Minimal
-* Tested: Compatible up to 5.7.1
-
-= 2.1.9 =
-* Added: Popup position option
-
-= 2.1.8 =
-* Fixed: Responsive design issues on the Admin Dashboard
-
-= 2.1.7 =
-* Added: Temporary deactivation button within the deactivation popup
-* Fixed: Schedule the popup option issue
-* Fixed: Show description option issue in Live preview
-
-= 2.1.6 =
-* Fixed: Some issues on Admin Dashboard
-* Fixed: Close Button Image option conflict with some themes
-* Fixed: Timer option conflict with Modern theme
-
-= 2.1.5 =
-* Fixed: Show Popup only once option issue
-
-= 2.1.4 =
-* Added: Bulk publish/unpublish functionality in the popups list table
-* Fixed: Loader issue on the Admin Dashboard
-
-= 2.1.3 =
-* Tested: Compatible up to PHP 8
-* Tested: Compatible up to 5.7
-* Fixed: Show title option issue 
-* Fixed: Show Description option conflict with Red theme
-* Fixed: Close by clicking outside the box option issue
-
-= 2.1.2 =
-* Added: Loader while clicking on the Save and Close button
-* Fixed: Some PHP errors
-
-= 2.1.1 =
-* Added: Ctrl+S saving combination option
-* Fixed: Background Image option conflict in some themes
-
-= 2.1.0 =
-* Fixed: Close button position option issue in Default theme
-* Fixed: Background Image option issue in Red theme
-* Tested: Compatible up to 5.6.2
-
-= 2.0.9 =
-* Fixed: Scrollbar issue in Mozila Firefox
-* Fixed: Close button size option issue in Default theme
-* Fixed: Background gradient option conflict with Modern theme
-
-= 2.0.8 =
-* Added: Filter by Popup Category
-* Added: Our products submenu
-* Fixed: Description issue in Live preview
-
-= 2.0.7 =
-* Added: Popup Categories section
-* Fixed: Some bugs on the Admin Dashboard
-
-= 2.0.6 =
-* Fixed: Close button rotate issue in Red theme
-* Fixed: Style issue in Default theme
-
-= 2.0.5 =
-* Added: Popup type displaying in the popups list table
-* Tested: Compatible up to 5.6.1
-
-= 2.0.4 =
-* Added: Published/Unpublished filter
-
-= 2.0.3 =
-* Added: Search Functionality on the List Page
-
-= 2.0.2 =
-* Fixed: PHP error on the front-end
-* Fixed: Show on option issue while duplicating
-
-= 2.0.1 =
-* Updated: Custom CSS editor
-* Fixed: Hide effect option issue in Live preview
-* Fixed: Some text correction
-
-= 2.0.0 =
-* Added: Closing Animation Speed option
-* Fixed: Style conflict in live preview
-
-= 1.9.9 =
-* Added: Delete button in the Sounds option
-* Added: Title name live displaying on the Dashboard
-
-= 1.9.8 =
-* Redesigned: the Popup content option
-
-= 1.9.7 =
-* Added: Ability to mute answer sound on the front-end
-
-= 1.9.6 =
-*Fixed: Background gradient color option issue in live preview
-*Fixed: Width option issue
-
-= 1.9.5 =
-*Added: Border style option
-*Fixed: Header Background Color issue in Sale theme
-
-= 1.9.4 =
-*Fixed: Sale theme background image issue
-*Fixed: Js error on the front-end 
-*Changed: Show title and Show description options are off by default
-
-= 1.9.3 =
-*Fixed: Red theme header background color issue
-*Fixed: The Close button appearing delay option issue when two popups are active on one page
-*Fixed: Hide close button option issue in live preview
-
-= 1.9.2 =
-*Added: Close button image option
-*Updated: PRO features price list
-*Updated: POT and PO files
-
-= 1.9.1 =
-*Fixed: Max-width for mobile option and Modern theme conflict
-
-= 1.9.0 =
-*Added: Close button size option
-*Fixed: Header background color issue in Sale theme
-
-= 1.8.9 =
-*Fixed: Onclick Popup and "Close by clicking outside" options conflict
-*Fixed: CSS script issue 
-
-= 1.8.8 =
-*Fixed: Autoclose and Close by pressing ESC options conflict
-*Fixed: Autoclose and Close by clicking outside the box options conflict
-
-= 1.8.7 =
-*Fixed: Ordering of the popup in the list table
-*Fixed: Custom class issue
-*Updated: PRO features price list
-
-= 1.8.6 =
-*Fixed: Conflict with full screen and close button position options in some themes
-*Fixed: Conflict Hide timer option in live preview
-
-= 1.8.5 =
-*Fixed: Background Color issue in Windows XP Theme 
-*Fixed: Open full screen and Modern Theme Options conflict
-*Fixed: Modern Theme issue in Live Preview
-
-= 1.8.4 =
-*Added:"Hide timer" option
-*Fixed: Conflict with "Popup Maker" plugin
-*Fixed: Conflict with "Elementor" plugin
-
-= 1.8.3 =
-*Added:"Open full screen" option
-
-= 1.8.2 =
-*Added:Opacity to Color Pickers
-*Fixed:Styles color issue
-*Fixed:Conflict with "Popup Maker" plugin
-
-= 1.8.1 =
-*Fixed:Media issue in "Custom HTML"
-*Fixed:"Close popup by clicking outside the box" option issue
-
-= 1.8.0 =
-*Added:"Close popup by clicking outside the box" option
-
-= 1.7.9 =
-*Fixed: Close Popup by pressing "ESC" key issue
-
-= 1.7.8 = 
-*Added: Popup box "Font Family" option
-*Fixed: Popup box "Close Button" and "ESC" conflict
-
-= 1.7.7 = 
-*Added: Popup box width by percentage option
-
-= 1.7.6 =
-*Fixed: "Command Prompt" theme border issue
-
-= 1.7.5 =
-* Tested: Compatible up to: 5.5
-* Fixed: Some bugs in Live Preview
-
-= 1.7.4 =
-*Added: Close Popup by pressing ESC option
-
-= 1.7.3=
-* Added: Popup closing sound option in General settings
-
-= 1.7.2 =
-* Added: Show on home page option
-* Added: Limitation users tab
-* Added: Export/Import submenu
-* Updated: PRO features price list
-
-= 1.7.1 =
-* Fixed: Iframe loading issue in front-end
-
-= 1.7.0 =
-* Fixed: Click selector element issue in front-end
-* Fixed: Screen options confirmation issue for Popupboxes list table
-* Fixed: Logged in users and Schedule the PopupBox options conflict
-* Changed: Publish / Unpublish Buttons
-
-= 1.6.9 = 
-* Added: Quick unpublish/publish linke in the list table
-* Fixed: Autoclose from seconds and Delay Opening issue
-* Fixed: Closing Overlay issue in front-end
-* Fixed: PopupBox position issue
-* Tested: Compatible up to 5.4.2
-
-= 1.6.8 = 
-* Fixed: Animation duration issue
-* Fixed: DB error in admin dashboard
-* Fixed: JS error in admin dashboard
-* Fixed: Font Family issue in front-end
-* Fixed: Border and Close Button Conflict
-* Fixed: Box header background color option issue
-* Fixed: Some style bugs related to select2 and date picker
-* Fixed: Close button and border size conflict in Modern Theme
-
-= 1.6.7 =
-* Fixed: PopupBox Opening Issue in front-end
-* Fixed: Some style bugs in front-end
-* Updated: PRO features price list
-* Updated: POT and PO files
-
-= 1.6.6 =
-* Fixed: Closing Overlay Issue
-* Fixed: "Close" button text in the live preview
-* Fixed: "Close" button position in the live preview
-
-= 1.6.5 =
-* Added: Show PopupBox only once option
-
-= 1.6.4 =
-* Fixed: Show promoter every 'X' minutes option issue
-* Fixed: Admin style tag issue
-
-= 1.6.3 =
-* Added: Close Button Position on Container option
-* Updated: POT and PO files 
-
-= 1.6.2 =
-* Added: Close button text option 
-* Added: PopupBox max-width for mobile option 
-
-= 1.6.1 =
-* Fixed: Opening video in PopupBox description issue
-
-= 1.6.0 =
-* Added: Hide Popupbox on mobile option
-* Added: Confirm box when deleting the popup in the list table
-* Transfered: Action button for open PopupBox option to general settings
-* Updated: POT and PO files 
-* Tested: Compatible up to: 5.4.1
-
-= 1.5.9 =
-* Added: Animation speed option
-* Fixed: Autoclose from seconds and Scroll from top options conflict
-
-= 1.5.8 =
-* Fixed: Overlay color and Text Color options conflict in Live Previw
-* Fixed: Appear PopupBox and Delay showing close button options conflict
-* Fixed: Some style bugs in front-end
-
-= 1.5.7 =
-* Added: Reports submenu
-* Added: PopupBox Overlay color option
-* Fixed: CSS conflict with "Popup Builder" Plugin
-* Fixed: JS error in front-end
-
-= 1.5.6 =
-* Added: General Settings submenu
-* Added: Enable PopupBox sound option
-* Fixed: Conflict with "Popup Builder" Plugin
-* Moved: Appear PopupBox option in General tab
-
-= 1.5.5 =
-* Changed: Post type option
-* Removed: Popup box from dashboard settings menu
-* Tested: Compatible up to: 5.4
-
-= 1.5.4 =
-* Added: Delay showing close button option
-* Fixed: Auto Close and Delay options conflict
-* Tested: Compatible up to: 5.4
-
-= 1.5.3 =
-* Added: Pro Features submenu
-* Added: Schedule - Time Option
-* Tested: Compatible up to: 5.4
-
-= 1.5.2 =
-* Changed: Show in all pages option
-* Added: Post type and Posts options
-* Fixed: Some front-end bugs
-
-= 1.5.1 =
-* Added: Popup background gradient option
-
-= 1.5.0 =
-* Fixed: JavaScript  conflict in the admin dashboard
-
-= 1.4.9 =
-* Added: Default images for Themes
-* Fixed: Color picker style issue
-* Fixed: Some front-end bugs
-
-= 1.4.8 =
-* Added: Only for selected user roles option
-
-= 1.4.7 =
-* Added: Custom class for PopupBox container option
-
-= 1.4.6 =
-* Added: New option Schedule the PopupBox
-
-= 1.4.5 =
-* Tested: Compatible up to: 5.3
-
-= 1.4.4 =
-* Fixed: Duplicate issue
-* Fixed: Overlay issue
-
-= 1.4.3 =
-* Added: New option Enabled for logged users
-* Added: New option Enabled for guests
-
-= 1.4.2 =
-* Added: New theme Modern
-* Added: New theme Sale
-
-= 1.4.1 =
-* Added: Background image option
-
-= 1.4.0 =
-* Added: Duplicate popup function
-
-= 1.3.9 =
-* Fixed: Enable overlay issue
-* Fixed: Short code in the posts issue
-
-= 1.3.8 =
-* Added: New option Box header background color
-* Fixed: Red theme colors issue
-
-= 1.3.7 =
-* Added: New option Hide close button
-* Added: New option disable auto close
-* Added: New color picker
-* Fixed: Red theme issue
-* Fixed: Update issue
-
-= 1.3.6 =
-* Fixed: Small bugs
-
-= 1.3.5 =
-* Fixed: Small bugs
-
-= 1.3.4 =
-* Added: New tab Settings
-* Updated: Options structure
-* Added: Show title option
-* Added: Show description option
-
-= 1.3.3 =
-* Added: New option Enable Overlay
-
-= 1.3.2 =
-* Added: New theme
-
-= 1.3.1 =
-* Updated: Dashboard style redesign
-
-= 1.3.0 =
-* Added: Upgrade function when deactivating
-* Added: Apply button when adding a new popup box
-* Fixed: Box show out effect animation issue
-
-= 1.2.9 =
-* Added: CSS sticky effect  in live preview
-* Fixed: Popup Box out effect issue
-* Fixed: Screen shade in scroll and delay opening issue
-* Fixed: Two Popup on same page issue
-
-= 1.2.8 =
-* Updated: Enable/Disable option checkbox style
-* Fixed: Popup Box out effect issue
-* Fixed: White space issue
-* Fixed: Custom CSS issue
-
-= 1.2.7 =
-* Fixed: Default view issues in front-end
-
-= 1.2.6 =
-* Added: Default Popup
-
-= 1.2.5 =
-* Fixed: Click button issue
-* Fixed: Some bugs in front-end
-
-= 1.2.4 =
-* Fixed: Close button issue
-* Fixed: Some bugs in front-end
-
-= 1.2.3 =
-* Tested: Compatible up to: 5.2.1
-
-= 1.2.2 =
-* Updated: Opportunity of adding photos in Custom HTML
-* Updated: Popup Box Description editor
-* Fixed: Some bugs connected with close button
-
-= 1.2.1 =
-* Fixed: Some bugs in front-end templates
-* Fixed: Footer php issue
-* Tested: Compatible up to: 5.0.3
-
-= 1.2.0 =
-* Fixed: Some bugs in front-end
-* Tested: Compatible up to: 5.0
-
-= 1.1.9 =
-* Added: Tooltips for style options
-* Updated: POT file
-* Fixed: Some bugs in dashboard
-
-= 1.1.8 =
-* Added: Popup Box open animation effects
-* Added: Popup Box close animation effects
-* Added: Popup Box live preview for themes in admin dashboard
-* Added: Show only selected pages option
-* Added: Popup Box open delay option
-* Added: Popup Box open after scroll from top option
-* Added: Appear PopupBox when option
-* Added: Action button for open PopupBox option
-* Added: Popup Box select content option
-* Added: Add Custom HTML option
-
-= 1.1.7 =
-* Added: Popup Box view theme option
-* Added: Popup Box border color option
-* Added: Popup Box text color option
-* Added: Popup Box border size option
-* Added: Popup Box border radius option
-
-= 1.1.6 =
-* Fixed: Admin dashboard issues
-
-= 1.1.5 =
-* Fixed: Front-end issues
-
-= 1.1.4 =
-* Fixed: Activation issue
-
-= 1.1.3 =
-* Fixed: Issue with Popup Box display
-* Updated: Admin dashboard
-
-= 1.1.1 =
-* Fixed: Admin dashboard issues
-
-* Added: Popup additional saving button
-
-= 1.1.0 =
-* Fixed: Issue connected with shortcode
-* Fixed: Options save issue
-
-= 1.0.9 =
-* Fixed: Activation issue
-
-= 1.0.8 =
-* Added: Animation option for popup box animated show
-
-= 1.0.7 =
-* Added: Option show in all pages
-* Fixed: Uninstall issue
-
-= 1.0.6 =
-* Fixed: update plugin issue
-
-= 1.0.5 =
-* Added: Multi popup ability
-
-= 1.0.4 =
-* Make plugin translatable
-* Added: Russian Language Support
-* Added: enable/disable option
-
-= 1.0.3 =
-* Tested: Compatible up to: 4.9.7
-* Fixed: box sizing bug
-* Optimized code: changed cookie checker type
-* Added: custom css option in dashboard
-
-= 1.0.2 =
-* Added: autoclose timer
 
 = 1.0.1 =
 * Added: responsive design

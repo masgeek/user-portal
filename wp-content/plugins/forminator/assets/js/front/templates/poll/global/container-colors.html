@@ -22,6 +22,16 @@
 		<?php } ?>
 	}
 
+<?php } else if ( forminator_array_value_exists( $properties, 'poll-border' ) ) { ?>
+	
+	.forminator-ui.forminator-poll#forminator-module-<?php echo $properties['form_id'] ?> {
+		border-color: #777771;
+		background-color: rgba(255,255,255,0);
+		box-shadow: none;
+		-moz-box-shadow: none;
+		-webkit-box-shadow: none;
+	}
+
 <?php } else { ?>
 
 	.forminator-ui.forminator-poll#forminator-module-<?php echo $properties['form_id'] ?> {

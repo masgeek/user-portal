@@ -48,7 +48,6 @@ if ( ! class_exists( 'Kenta_Header_Section' ) ) {
 
 				( new Section( 'kenta_transparent_header' ) )
 					->setLabel( __( 'Transparent Header', 'kenta' ) )
-					->keepMarginBelow()
 					->setControls( $this->transparentHeaderControls() )
 				,
 			];
@@ -151,7 +150,7 @@ if ( ! class_exists( 'Kenta_Header_Section' ) ) {
 						,
 						( new Separator() ),
 						( new ColorPicker( 'kenta_trans_header_button_color' ) )
-							->setLabel( __( 'Button Colors', 'kenta' ) )
+							->setLabel( __( 'Button/Icon Colors', 'kenta' ) )
 							->bindSelectiveRefresh( 'kenta-transparent-selective-css' )
 							->addColor( 'initial', __( 'Initial', 'kenta' ), Css::INITIAL_VALUE )
 							->addColor( 'hover', __( 'Hover', 'kenta' ), Css::INITIAL_VALUE )

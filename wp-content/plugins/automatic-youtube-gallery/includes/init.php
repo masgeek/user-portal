@@ -83,7 +83,7 @@ class AYG_Init {
 		/**
 		 * The classes responsible for defining all actions that occur in the admin area.
 		 */
-		require_once AYG_DIR . 'admin/admin.php';
+		require_once AYG_DIR . 'admin/admin.php';	
 		require_once AYG_DIR . 'admin/settings.php';
 
 		/**
@@ -91,6 +91,7 @@ class AYG_Init {
 		 * side of the site.
 		 */
 		require_once AYG_DIR . 'public/public.php';
+		require_once AYG_DIR . 'public/cron.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the gutenberg block.
@@ -133,6 +134,8 @@ class AYG_Init {
 		$this->loader->add_action( 'admin_init', $admin, 'insert_missing_options', 1 );	
 		$this->loader->add_action( 'admin_enqueue_scripts', $admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $admin, 'enqueue_scripts' );
+		$this->loader->add_action( 'elementor/editor/after_enqueue_styles', $admin, 'enqueue_styles' );
+		$this->loader->add_action( 'elementor/editor/after_enqueue_scripts', $admin, 'enqueue_scripts' );
 		$this->loader->add_action( 'admin_menu', $admin, 'admin_menu' );
 		$this->loader->add_action( 'admin_notices', $admin, 'admin_notices' );
 		$this->loader->add_action( 'wp_ajax_ayg_save_api_key', $admin, 'ajax_callback_save_api_key' );
@@ -144,7 +147,7 @@ class AYG_Init {
 		
 		$this->loader->add_action( 'admin_menu', $settings, 'admin_menu' );
 		$this->loader->add_action( 'admin_init', $settings, 'admin_init' );
-		$this->loader->add_action( 'wp_ajax_ayg_delete_cache', $settings, 'ajax_callback_delete_cache' );
+		$this->loader->add_action( 'wp_ajax_ayg_delete_cache', $settings, 'ajax_callback_delete_cache' );		
 	}
 
 	/**
@@ -155,17 +158,28 @@ class AYG_Init {
 	 * @access private
 	 */
 	private function define_public_hooks() {
+		// Hooks common to all public pages
 		$public = new AYG_Public();
 		
 		$this->loader->add_action( 'wp_enqueue_scripts', $public, 'register_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $public, 'register_scripts' );
 		$this->loader->add_action( 'enqueue_block_editor_assets', $public, 'enqueue_block_editor_assets' );
+		$this->loader->add_action( 'elementor/editor/after_enqueue_scripts', $public, 'enqueue_block_editor_assets' );
+		$this->loader->add_action( 'elementor/preview/enqueue_scripts', $public, 'enqueue_block_editor_assets' );		
 		$this->loader->add_action( 'wp_ajax_ayg_load_more_videos', $public, 'ajax_callback_load_more_videos' );
 		$this->loader->add_action( 'wp_ajax_nopriv_ayg_load_more_videos', $public, 'ajax_callback_load_more_videos' );
 		$this->loader->add_action( 'wp_ajax_ayg_set_cookie', $public, 'set_gdpr_cookie' );
 		$this->loader->add_action( 'wp_ajax_nopriv_ayg_set_cookie', $public, 'set_gdpr_cookie' );
 
 		$this->loader->add_filter( 'smush_skip_iframe_from_lazy_load', $public, 'smush', 999, 2 );
+
+		// Hooks specific to the cron jobs
+		$cron = new AYG_Public_Cron();
+
+		$this->loader->add_action( 'wp', $cron, 'schedule_events' );
+		$this->loader->add_action( 'ayg_schedule_weekly', $cron, 'cron_event' );
+
+		$this->loader->add_filter( 'cron_schedules', $cron, 'cron_schedules' );
 	}
 
 	/**

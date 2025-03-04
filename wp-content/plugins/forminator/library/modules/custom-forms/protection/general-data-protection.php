@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_CForm_General_Data_Protection class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -22,27 +28,29 @@ class Forminator_CForm_General_Data_Protection extends Forminator_General_Data_P
 	/**
 	 * Instances of custom form model
 	 *
-	 * avoid overhead on multiple entries in the same form
+	 * Avoid overhead on multiple entries in the same form
 	 *
 	 * @var array
 	 */
 	private static $custom_form_model_instances = array();
 
+	/**
+	 * Forminator_CForm_General_Data_Protection constructor
+	 */
 	public function __construct() {
-		parent::__construct( __( 'Forminator Forms', 'forminator' ) );
+		parent::__construct( esc_html__( 'Forminator Forms', 'forminator' ) );
 
 		$this->add_exporter(
 			'forminator-form-submissions',
-			__( 'Forminator Form Submissions', 'forminator' ),
+			esc_html__( 'Forminator Form Submissions', 'forminator' ),
 			array( 'Forminator_CForm_General_Data_Protection', 'form_submissions_exporter' )
 		);
 
 		$this->add_eraser(
 			'forminator-form-submissions',
-			__( 'Forminator Form Submissions', 'forminator' ),
+			esc_html__( 'Forminator Form Submissions', 'forminator' ),
 			array( 'Forminator_CForm_General_Data_Protection', 'form_submissions_eraser' )
 		);
-
 	}
 
 	/**
@@ -53,7 +61,7 @@ class Forminator_CForm_General_Data_Protection extends Forminator_General_Data_P
 	 */
 	public function get_privacy_message() {
 		ob_start();
-		include dirname( __FILE__ ) . '/policy-text.php';
+		include __DIR__ . '/policy-text.php';
 		$content = ob_get_clean();
 		$content = apply_filters( 'forminator_custom_form_privacy_policy_content', $content );
 
@@ -65,8 +73,8 @@ class Forminator_CForm_General_Data_Protection extends Forminator_General_Data_P
 	 *
 	 * @since 1.0.6
 	 *
-	 * @param $email_address
-	 * @param $page
+	 * @param string $email_address Email.
+	 * @param string $page Page.
 	 *
 	 * @return array
 	 */
@@ -151,11 +159,11 @@ class Forminator_CForm_General_Data_Protection extends Forminator_General_Data_P
 				} else {
 					// fallback to dump the rows.
 					$data [] = array(
-						'name'  => __( 'Entry ID', 'forminator' ),
+						'name'  => esc_html__( 'Entry ID', 'forminator' ),
 						'value' => '#' . $entry_model->entry_id,
 					);
 					$data [] = array(
-						'name'  => __( 'Submission Date', 'forminator' ),
+						'name'  => esc_html__( 'Submission Date', 'forminator' ),
 						'value' => $entry_model->date_created_sql,
 					);
 
@@ -181,7 +189,7 @@ class Forminator_CForm_General_Data_Protection extends Forminator_General_Data_P
 
 				$data_to_export[] = array(
 					'group_id'    => 'forminator_form_submissions',
-					'group_label' => __( 'Forminator Form Submissions', 'forminator' ),
+					'group_label' => esc_html__( 'Forminator Form Submissions', 'forminator' ),
 					'item_id'     => 'entry-' . $entry_id,
 					'data'        => $data,
 				);
@@ -224,32 +232,38 @@ class Forminator_CForm_General_Data_Protection extends Forminator_General_Data_P
 	 *
 	 * @since   1.0.6
 	 *
-	 * @param Forminator_Form_Model|Forminator_Base_Form_Model $model
+	 * @param Forminator_Form_Model|Forminator_Base_Form_Model $model Form model.
 	 *
 	 * @return array
 	 */
 	public static function get_custom_form_export_mappers( $model ) {
-		/** @var  Forminator_Form_Model $model */
+		/**
+		 * Forminator_Form_Model
+		 *
+		 * @var  Forminator_Form_Model $model */
 		$fields = $model->get_real_fields();
 
-		/** @var  Forminator_Form_Field_Model $fields */
+		/**
+		 * Forminator_Form_Field_Model
+		 *
+		 * @var  Forminator_Form_Field_Model $fields */
 		$mappers = array(
 			array(
 				// read form model's meta property.
 				'property' => 'entry_id', // must be on export.
-				'label'    => __( 'Entry ID', 'forminator' ),
+				'label'    => esc_html__( 'Entry ID', 'forminator' ),
 				'type'     => 'entry_id',
 			),
 			array(
 				// read form model's property.
 				'property' => 'date_created_sql', // must be on export.
-				'label'    => __( 'Submission Date', 'forminator' ),
+				'label'    => esc_html__( 'Submission Date', 'forminator' ),
 				'type'     => 'entry_date_created',
 			),
 			array(
 				// read form model's meta property.
 				'meta_property' => '_forminator_user_ip', // must be on export.
-				'label'         => __( 'IP Address', 'forminator' ),
+				'label'         => esc_html__( 'IP Address', 'forminator' ),
 				'type'          => '_forminator_user_ip',
 			),
 		);
@@ -259,7 +273,7 @@ class Forminator_CForm_General_Data_Protection extends Forminator_General_Data_P
 
 			// base mapper for every field.
 			$mapper             = array();
-			$mapper['meta_key'] = $field->slug;
+			$mapper['meta_key'] = $field->slug; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- false positive
 			$mapper['label']    = $field->get_label_for_entry();
 			$mapper['type']     = $field_type;
 
@@ -390,8 +404,8 @@ class Forminator_CForm_General_Data_Protection extends Forminator_General_Data_P
 	 *
 	 * @since 1.0.6
 	 *
-	 * @param $email_address
-	 * @param $page
+	 * @param string $email_address Email.
+	 * @param string $page Page.
 	 *
 	 * @return array
 	 */
@@ -432,11 +446,13 @@ class Forminator_CForm_General_Data_Protection extends Forminator_General_Data_P
 			if ( $remove_form_submission ) {
 				if ( ! empty( $entry_model->form_id ) ) {
 					Forminator_Form_Entry_Model::delete_by_entry( $entry_id );
-					$response['messages'][]    = sprintf( __( 'Removed form #%1$s submission #%2$s.', 'forminator' ), $entry_model->form_id, $entry_id );
+					/* translators: 1. Form Id, 2. Entry Id. */
+					$response['messages'][]    = sprintf( esc_html__( 'Removed form #%1$s submission #%2$s.', 'forminator' ), $entry_model->form_id, $entry_id );
 					$response['items_removed'] = true;
 				}
 			} else {
-				$response['messages'][]     = sprintf( __( 'Form #%1$s submission #%2$s has been retained.', 'forminator' ), $entry_model->form_id, $entry_id );
+				/* translators: 1. Form Id, 2. Entry Id. */
+				$response['messages'][]     = sprintf( esc_html__( 'Form #%1$s submission #%2$s has been retained.', 'forminator' ), $entry_model->form_id, $entry_id );
 				$response['items_retained'] = true;
 			}
 		}
@@ -454,11 +470,12 @@ class Forminator_CForm_General_Data_Protection extends Forminator_General_Data_P
 	public function personal_data_cleanup() {
 		$overridden_forms_privacy = get_option( 'forminator_form_privacy_settings', array() );
 
-		// Cleanup per each form setting
+		// Cleanup per each form setting.
 		$this->cleanup_expired_entries( $overridden_forms_privacy );
 		$this->cleanup_ip_address();
+		$this->cleanup_geolocation();
 
-		// Global retention settings
+		// Global retention settings.
 		$retain_number = get_option( 'forminator_retain_submissions_interval_number', 0 );
 		$retain_unit   = get_option( 'forminator_retain_submissions_interval_unit', 'days' );
 
@@ -485,7 +502,7 @@ class Forminator_CForm_General_Data_Protection extends Forminator_General_Data_P
 	 * Delete entries that have exceeded the retention period
 	 * Overrides global setting
 	 *
-	 * @param array $overridden_forms_privacy
+	 * @param array $overridden_forms_privacy Forms privacy.
 	 *
 	 * @since 1.17.0
 	 */
@@ -493,12 +510,12 @@ class Forminator_CForm_General_Data_Protection extends Forminator_General_Data_P
 		foreach ( $overridden_forms_privacy as $form_id => $retentions ) {
 
 			if ( ! strpos( $form_id, '-draft' ) ) {
-				$is_draft 	   = false;
+				$is_draft      = false;
 				$retain_number = (int) $retentions['submissions_retention_number'];
 				$retain_unit   = $retentions['submissions_retention_unit'];
 			} else {
-				$is_draft 	   = true;
-				$form_id 	   = (int) str_replace( '-draft', '', $form_id );
+				$is_draft      = true;
+				$form_id       = (int) str_replace( '-draft', '', $form_id );
 				$retain_number = (int) $retentions['draft_retention_number'];
 				$retain_unit   = $retentions['draft_retention_unit'];
 			}
@@ -508,7 +525,7 @@ class Forminator_CForm_General_Data_Protection extends Forminator_General_Data_P
 				continue;
 			}
 
-			// this function takes the retention time and compares it to date created
+			// this function takes the retention time and compares it to date created.
 			$this->delete_older_entries( $form_id, $retain_time, $is_draft );
 		}
 	}
@@ -538,4 +555,23 @@ class Forminator_CForm_General_Data_Protection extends Forminator_General_Data_P
 		return true;
 	}
 
+	/**
+	 * Cleanup User's Geolocation data based on settings
+	 */
+	public function cleanup_geolocation() {
+		$retain_number = get_option( 'forminator_retain_geolocation_interval_number', 0 );
+		$retain_unit   = get_option( 'forminator_retain_geolocation_interval_unit', 'days' );
+
+		$retain_time = $this->get_retain_time( $retain_number, $retain_unit );
+		if ( ! $retain_time ) {
+			return false;
+		}
+
+		global $wpdb;
+		$table_name = Forminator_Database_Tables::get_table_name( Forminator_Database_Tables::FORM_ENTRY_META );
+
+		$wpdb->query( $wpdb->prepare( "DELETE FROM {$table_name} WHERE `meta_key`='geolocation' AND `date_created` < %s", esc_sql( $retain_time ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
+
+		return true;
+	}
 }

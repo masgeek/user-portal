@@ -1,11 +1,20 @@
 <?php
-// Defaults.
+/**
+ * Template Wait Authorize.
+ *
+ * @package Forminator
+ */
+
 $vars = array(
 	'account_id' => 0,
 	'auth_url'   => '',
 );
 
-/** @var array $template_vars */
+/**
+ * Template variables.
+ *
+ * @var array $template_vars
+ * */
 foreach ( $template_vars as $key => $val ) {
 	$vars[ $key ] = $val;
 } ?>
@@ -14,8 +23,8 @@ foreach ( $template_vars as $key => $val ) {
 
 	<h3 id="forminator-integration-popup__title" class="sui-box-title sui-lg" style="overflow: initial; white-space: normal; text-overflow: initial;">
 		<?php
-			/* translators: ... */
-			echo esc_html( sprintf( __( 'Connect %1$s', 'forminator' ), 'AWeber' ) );
+		/* translators: 1: Add-on name */
+			printf( esc_html__( 'Connect %1$s', 'forminator' ), 'AWeber' );
 		?>
 	</h3>
 
@@ -38,8 +47,8 @@ foreach ( $template_vars as $key => $val ) {
 
 				<p>
 					<?php
-						/* translators: ... */
-						echo esc_html( sprintf( __( 'We are waiting %1$s authorization...', 'forminator' ), 'AWeber' ) );
+					/* translators: 1: Add-on name */
+						printf( esc_html__( 'We are waiting %1$s authorization...', 'forminator' ), 'AWeber' );
 					?>
 				</p>
 

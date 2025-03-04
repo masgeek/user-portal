@@ -1,4 +1,9 @@
 <?php
+/**
+ * The Forminator_Addon_Form_Hooks_Abstract class.
+ *
+ * @package Forminator
+ */
 
 /**
  * Class Forminator_Addon_Abstract
@@ -72,23 +77,23 @@ abstract class Forminator_Addon_Form_Hooks_Abstract extends Forminator_Addon_Hoo
 	/**
 	 * Forminator_Addon_Form_Hooks_Abstract constructor.
 	 *
-	 * @param Forminator_Addon_Abstract $addon
-	 * @param int                       $form_id
+	 * @param Forminator_Addon_Abstract $addon Class Forminator_Addon_Abstract.
+	 * @param int                       $form_id Form Id.
 	 *
 	 * @since 1.1
 	 * @since 1.2 Add `custom_form` as class property
-	 * @throws Forminator_Addon_Exception
+	 * @throws Forminator_Addon_Exception When there is an addon error.
 	 */
 	public function __construct( Forminator_Addon_Abstract $addon, $form_id ) {
 		$this->addon       = $addon;
 		$this->form_id     = $form_id;
 		$this->custom_form = Forminator_Base_Form_Model::get_model( $this->form_id );
 		if ( ! $this->custom_form ) {
-			/* translators: ... */
-			throw new Forminator_Addon_Exception( sprintf( __( 'Form with id %d could not be found', 'forminator' ), $this->form_id ) );
+			/* translators: Form ID */
+			throw new Forminator_Addon_Exception( sprintf( esc_html__( 'Form with id %d could not be found', 'forminator' ), esc_html( $this->form_id ) ) );
 		}
 
-		$this->_submit_form_error_message = __( 'Failed to submit form because of an addon, please check your form and try again' );
+		$this->_submit_form_error_message = esc_html__( 'Failed to submit form because of an addon, please check your form and try again', 'forminator' );
 
 		// get form settings instance to be available throughout cycle.
 		$this->form_settings_instance = $this->addon->get_addon_settings( $this->form_id, 'form' );
@@ -209,7 +214,7 @@ abstract class Forminator_Addon_Form_Hooks_Abstract extends Forminator_Addon_Hoo
 	 *
 	 * @since 1.1
 	 *
-	 * @param $submitted_data
+	 * @param array $submitted_data Submitted data.
 	 *
 	 * @return bool
 	 */
@@ -293,7 +298,7 @@ abstract class Forminator_Addon_Form_Hooks_Abstract extends Forminator_Addon_Hoo
 	 * @since          1.1
 	 * @since          1.2 Add `$current_entry_fields` as optional param on inherit
 	 *
-	 * @param array $submitted_data
+	 * @param array $submitted_data Submitted data.
 	 *
 	 * @optional_param array $form_entry_fields default entry fields that will be saved,
 	 *                                    its here for reference, this function doesnt need to return it
@@ -390,7 +395,7 @@ abstract class Forminator_Addon_Form_Hooks_Abstract extends Forminator_Addon_Hoo
 	 *
 	 * @since 1.1
 	 *
-	 * @param Forminator_Form_Entry_Model $entry_model
+	 * @param Forminator_Form_Entry_Model $entry_model Form entry model.
 	 */
 	public function after_entry_saved( Forminator_Form_Entry_Model $entry_model ) {
 		$addon_slug             = $this->addon->get_slug();
@@ -434,8 +439,8 @@ abstract class Forminator_Addon_Form_Hooks_Abstract extends Forminator_Addon_Hoo
 	 *
 	 * @since 1.1
 	 *
-	 * @param Forminator_Form_Entry_Model $entry_model
-	 * @param     array                       $addon_meta_data specific meta_data that added by current addon from @see: add_entry_fields().
+	 * @param Forminator_Form_Entry_Model $entry_model Form Entry Model.
+	 * @param array                       $addon_meta_data Specific meta_data that added by current addon from @see: add_entry_fields().
 	 *
 	 * @return array
 	 */
@@ -556,8 +561,8 @@ abstract class Forminator_Addon_Form_Hooks_Abstract extends Forminator_Addon_Hoo
 	 *
 	 * @since 1.1
 	 *
-	 * @param Forminator_Form_Entry_Model $entry_model
-	 * @param                             $addon_meta_data
+	 * @param Forminator_Form_Entry_Model $entry_model Form Entry Model.
+	 * @param array                       $addon_meta_data Addon Meta.
 	 *
 	 * @return array
 	 */
@@ -665,8 +670,8 @@ abstract class Forminator_Addon_Form_Hooks_Abstract extends Forminator_Addon_Hoo
 	 *
 	 * @since 1.1
 	 *
-	 * @param Forminator_Form_Entry_Model $entry_model
-	 * @param                             $addon_meta_data
+	 * @param Forminator_Form_Entry_Model $entry_model Form entry model.
+	 * @param array                       $addon_meta_data Addon Meta.
 	 */
 	public function on_before_delete_entry( Forminator_Form_Entry_Model $entry_model, $addon_meta_data ) {
 		$addon_slug             = $this->addon->get_slug();
@@ -726,8 +731,8 @@ abstract class Forminator_Addon_Form_Hooks_Abstract extends Forminator_Addon_Hoo
 	 *
 	 * @since 1.7
 	 *
-	 * @param $element_id
-	 * @param $form_entry_fields
+	 * @param string $element_id Element Id.
+	 * @param array  $form_entry_fields Form entry fields.
 	 *
 	 * @return array
 	 */
@@ -761,7 +766,7 @@ abstract class Forminator_Addon_Form_Hooks_Abstract extends Forminator_Addon_Hoo
 	 *
 	 * @since 1.7
 	 *
-	 * @param $element_id
+	 * @param string $element_id Element Id.
 	 *
 	 * @return bool
 	 */
@@ -788,7 +793,7 @@ abstract class Forminator_Addon_Form_Hooks_Abstract extends Forminator_Addon_Hoo
 	 *
 	 * @since 1.7
 	 *
-	 * @param $form_entry_fields
+	 * @param array $form_entry_fields Form entry fields.
 	 *
 	 * @return array
 	 */
@@ -824,7 +829,7 @@ abstract class Forminator_Addon_Form_Hooks_Abstract extends Forminator_Addon_Hoo
 	 *
 	 * @since 1.7
 	 *
-	 * @param $element_id
+	 * @param string $element_id Element id.
 	 *
 	 * @return bool
 	 */
@@ -851,7 +856,7 @@ abstract class Forminator_Addon_Form_Hooks_Abstract extends Forminator_Addon_Hoo
 	 *
 	 * @since 1.15.12
 	 *
-	 * @param $element_id
+	 * @param string $element_id Element id.
 	 *
 	 * @return bool
 	 */
@@ -903,7 +908,7 @@ abstract class Forminator_Addon_Form_Hooks_Abstract extends Forminator_Addon_Hoo
 	 *
 	 * @since 1.7
 	 *
-	 * @param $form_entry_fields
+	 * @param array $form_entry_fields Form entry fields.
 	 *
 	 * @return array
 	 */
@@ -939,7 +944,7 @@ abstract class Forminator_Addon_Form_Hooks_Abstract extends Forminator_Addon_Hoo
 	 *
 	 * @since 1.15.7
 	 *
-	 * @param $element_id
+	 * @param string $element_id Element id.
 	 *
 	 * @return bool
 	 */
@@ -966,7 +971,8 @@ abstract class Forminator_Addon_Form_Hooks_Abstract extends Forminator_Addon_Hoo
 	 *
 	 * @since 1.15.7
 	 *
-	 * @param $element_id
+	 * @param string $element_id Element id.
+	 * @param array  $element Element.
 	 *
 	 * @return bool
 	 */
@@ -983,7 +989,6 @@ abstract class Forminator_Addon_Form_Hooks_Abstract extends Forminator_Addon_Hoo
 			} else {
 				$element_value = implode( ',', $element );
 			}
-
 		} else {
 			$element_value = trim( $element );
 		}
@@ -1008,13 +1013,14 @@ abstract class Forminator_Addon_Form_Hooks_Abstract extends Forminator_Addon_Hoo
 	 *
 	 * @since 1.15.12
 	 *
-	 * @param $element_id
-	 * @param $value
+	 * @param string $element_id Element id.
+	 * @param mixed  $value Form value.
+	 * @param int    $form_id Form Id.
 	 *
 	 * @return bool
 	 */
 	public static function get_date_in_ms( $element_id, $value, $form_id ) {
-		$field 			   = Forminator_API::get_form_field( $form_id, $element_id );
+		$field             = Forminator_API::get_form_field( $form_id, $element_id );
 		$normalized_format = new Forminator_Date();
 		$normalized_format = $normalized_format->normalize_date_format( $field['date_format'] );
 		$date              = date_create_from_format( $normalized_format, $value );
@@ -1028,8 +1034,8 @@ abstract class Forminator_Addon_Form_Hooks_Abstract extends Forminator_Addon_Hoo
 	 * Prepare field value for passing to addon
 	 *
 	 * @param string $element_id Field slug.
-	 * @param type $form_entry_fields Form entry fields.
-	 * @param array $submitted_data Submitted data.
+	 * @param mixed  $form_entry_fields Form entry fields.
+	 * @param array  $submitted_data Submitted data.
 	 * @return string
 	 */
 	public static function prepare_field_value_for_addon( $element_id, $form_entry_fields, $submitted_data ) {
@@ -1050,5 +1056,4 @@ abstract class Forminator_Addon_Form_Hooks_Abstract extends Forminator_Addon_Hoo
 
 		return $element_value;
 	}
-
 }

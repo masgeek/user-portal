@@ -1,116 +1,32 @@
 <?php
+/**
+ * Forminator Trello poll hooks
+ *
+ * @package Forminator
+ */
 
 /**
- * Class Forminator_Addon_Trello_Poll_Hooks
+ * Class Forminator_Trello_Poll_Hooks
  *
  * @since 1.6.1
- *
  */
-class Forminator_Addon_Trello_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abstract {
+class Forminator_Trello_Poll_Hooks extends Forminator_Integration_Poll_Hooks {
 
 	/**
-	 * Addon instance are auto available form abstract
-	 * Its added here for development purpose,
-	 * Auto-complete will resolve addon directly to `Trello` instance instead of the abstract
-	 * And its public properties can be exposed
+	 * Return custom entry fields
 	 *
-	 * @since 1.6.1
-	 * @var Forminator_Addon_Trello
-	 */
-	protected $addon;
-
-	/**
-	 * Form Settings Instance
-	 *
-	 * @since 1.6.1
-	 * @var Forminator_Addon_Trello_Poll_Settings | null
-	 */
-	protected $poll_settings_instance;
-
-	/**
-	 * Forminator_Addon_Trello_Poll_Hooks constructor.
-	 *
-	 * @since 1.6.1
-	 *
-	 * @param Forminator_Addon_Abstract $addon
-	 * @param                           $poll_id
-	 *
-	 * @throws Forminator_Addon_Exception
-	 */
-	public function __construct( Forminator_Addon_Abstract $addon, $poll_id ) {
-		parent::__construct( $addon, $poll_id );
-		$this->_submit_poll_error_message = __( 'Trello failed to process submitted data. Please check your form and try again', 'forminator' );
-	}
-
-	/**
-	 * Save status of request sent and received for each connected Trello
-	 *
-	 * @since 1.6.1
-	 *
-	 * @param array $submitted_data
-	 * @param array $current_entry_fields
-	 *
+	 * @param array $submitted_data Submitted data.
+	 * @param array $current_entry_fields Current entry fields.
 	 * @return array
 	 */
-	public function add_entry_fields( $submitted_data, $current_entry_fields = array(), $entry = null ) {
-
-		$poll_id                = $this->poll_id;
-		$poll_settings_instance = $this->poll_settings_instance;
-
-		/**
-		 * Filter Trello submitted form data to be processed
-		 *
-		 * @since 1.6.1
-		 *
-		 * @param array                                 $submitted_data
-		 * @param array                                 $current_entry_fields
-		 * @param int                                   $poll_id                current Poll ID.
-		 * @param Forminator_Addon_Trello_Poll_Settings $poll_settings_instance Trello Addon Poll Settings instance.
-		 */
-		$submitted_data = apply_filters(
-			'forminator_addon_trello_poll_submitted_data',
-			$submitted_data,
-			$current_entry_fields,
-			$poll_id,
-			$poll_settings_instance
-		);
-
-		/**
-		 * Filter current form entry fields data to be processed by Trello
-		 *
-		 * @since 1.6.1
-		 *
-		 * @param array                                 $current_entry_fields
-		 * @param array                                 $submitted_data
-		 * @param int                                   $poll_id                current Poll ID.
-		 * @param Forminator_Addon_Trello_Poll_Settings $poll_settings_instance Trello Addon Poll Settings instance.
-		 */
-		$current_entry_fields = apply_filters(
-			'forminator_addon_trello_poll_current_entry_fields',
-			$current_entry_fields,
-			$submitted_data,
-			$poll_id,
-			$poll_settings_instance
-		);
-
-		$addon_setting_values = $this->poll_settings_instance->get_poll_settings_values();
-
-		$data = array();
-
-		/**
-		 * Fires before create card on trello
-		 *
-		 * @since 1.6.1
-		 *
-		 * @param int                                   $poll_id                current Poll ID.
-		 * @param array                                 $submitted_data
-		 * @param Forminator_Addon_Trello_Poll_Settings $poll_settings_instance Trello Addon Poll Settings instance.
-		 */
-		do_action( 'forminator_addon_trello_poll_before_create_card', $poll_id, $submitted_data, $poll_settings_instance );
+	protected function custom_entry_fields( $submitted_data, $current_entry_fields ): array {
+		$entry                = func_get_args()[2];
+		$addon_setting_values = $this->settings_instance->get_settings_values();
+		$data                 = array();
 
 		foreach ( $addon_setting_values as $key => $addon_setting_value ) {
 			// save it on entry field, with name `status-$MULTI_ID`, and value is the return result on sending data to trello.
-			if ( $poll_settings_instance->is_multi_poll_settings_complete( $key ) ) {
+			if ( $this->settings_instance->is_multi_id_completed( $key ) ) {
 				// exec only on completed connection.
 				$data[] = array(
 					'name'  => 'status-' . $key,
@@ -119,29 +35,7 @@ class Forminator_Addon_Trello_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abs
 			}
 		}
 
-		$entry_fields = $data;
-		/**
-		 * Filter Trello entry fields to be saved to entry model
-		 *
-		 * @since 1.6.1
-		 *
-		 * @param array                                 $entry_fields
-		 * @param int                                   $poll_id                current Poll ID.
-		 * @param array                                 $submitted_data
-		 * @param array                                 $current_entry_fields
-		 * @param Forminator_Addon_Trello_Poll_Settings $poll_settings_instance Trello Addon Poll Settings instance.
-		 */
-		$data = apply_filters(
-			'forminator_addon_trello_poll_entry_fields',
-			$entry_fields,
-			$poll_id,
-			$submitted_data,
-			$current_entry_fields,
-			$poll_settings_instance
-		);
-
 		return $data;
-
 	}
 
 	/**
@@ -149,26 +43,27 @@ class Forminator_Addon_Trello_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abs
 	 *
 	 * @since 1.6.1
 	 *
-	 * @param string $connection_id
-	 * @param array  $submitted_data
-	 * @param array  $connection_settings
-	 * @param array  $current_entry_fields
+	 * @param string $connection_id Connection Id.
+	 * @param array  $submitted_data Submitted data.
+	 * @param array  $connection_settings Connection settings.
+	 * @param array  $current_entry_fields Form entry fields.
+	 * @param object $entry Entry instance.
 	 *
 	 * @return array `is_sent` true means its success send data to Trello, false otherwise
 	 */
-	private function get_status_on_create_card( $connection_id, $submitted_data, $connection_settings, $current_entry_fields, $entry = null ) {
+	private function get_status_on_create_card( $connection_id, $submitted_data, $connection_settings, $current_entry_fields, $entry ) {
 		// initialize as null.
 		$api = null;
 
-		$poll_id                = $this->poll_id;
-		$poll_settings_instance = $this->poll_settings_instance;
+		$poll_id                = $this->module_id;
+		$poll_settings_instance = $this->settings_instance;
 
-		//check required fields
+		// check required fields.
 		try {
 			$api  = $this->addon->get_api();
 			$args = array();
 
-			$poll_settings = $this->poll_settings_instance->get_poll_settings();
+			$poll_settings = $this->settings_instance->get_poll_settings();
 
 			if ( isset( $connection_settings['list_id'] ) ) {
 				$args['idList'] = $connection_settings['list_id'];
@@ -178,8 +73,7 @@ class Forminator_Addon_Trello_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abs
 				$card_name = $connection_settings['card_name'];
 				// disable all_fields here.
 				$card_name = forminator_replace_variables( $card_name, $poll_id, $entry );
-				// {poll_name_replace}.
-				$card_name = str_ireplace( '{poll_name}', forminator_get_name_from_model( $this->poll ), $card_name );
+				$card_name = str_ireplace( '{poll_name}', forminator_get_name_from_model( $this->module ), $card_name );
 				$card_name = str_ireplace( '{poll_answer}', $this->poll_answer_to_plain_text( $submitted_data ), $card_name );
 				$card_name = str_ireplace( '{poll_result}', $this->poll_result_to_plain_text( $submitted_data ), $card_name );
 
@@ -195,7 +89,7 @@ class Forminator_Addon_Trello_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abs
 				 * @param array                                 $connection_settings    current connection setting, contains options of like `name`, `list_id` etc.
 				 * @param array                                 $current_entry_fields   default entry fields of poll.
 				 * @param array                                 $poll_settings          Displayed Poll settings.
-				 * @param Forminator_Addon_Trello_Poll_Settings $poll_settings_instance Trello Addon Poll Settings instance.
+				 * @param Forminator_Trello_Poll_Settings $poll_settings_instance Trello Integration Poll Settings instance.
 				 */
 				$card_name    = apply_filters(
 					'forminator_addon_trello_poll_card_name',
@@ -234,7 +128,7 @@ class Forminator_Addon_Trello_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abs
 				 * @param array                                 $connection_settings    current connection setting, contains options of like `name`, `list_id` etc.
 				 * @param array                                 $current_entry_fields   default entry fields of poll.
 				 * @param array                                 $poll_settings          Displayed Poll settings.
-				 * @param Forminator_Addon_Trello_Poll_Settings $poll_settings_instance Trello Addon Poll Settings instance.
+				 * @param Forminator_Trello_Poll_Settings $poll_settings_instance Trello Integration Poll Settings instance.
 				 */
 				$card_description = apply_filters(
 					'forminator_addon_trello_poll_card_description',
@@ -251,8 +145,8 @@ class Forminator_Addon_Trello_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abs
 			}
 
 			if ( isset( $connection_settings['due_date'] ) && ! empty( $connection_settings['due_date'] ) ) {
-				$due_date            = $connection_settings['due_date'];
-				$args['due']         = $due_date;
+				$due_date    = $connection_settings['due_date'];
+				$args['due'] = $due_date;
 			}
 
 			if ( isset( $connection_settings['position'] ) ) {
@@ -285,7 +179,7 @@ class Forminator_Addon_Trello_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abs
 			 * @param array                                 $submitted_data
 			 * @param array                                 $connection_settings    current connection setting, contains options of like `name`, `list_id` etc.
 			 * @param array                                 $poll_settings          Displayed Poll settings.
-			 * @param Forminator_Addon_Trello_Poll_Settings $poll_settings_instance Trello Addon Poll Settings instance.
+			 * @param Forminator_Trello_Poll_Settings $poll_settings_instance Trello Integration Poll Settings instance.
 			 */
 			$args = apply_filters(
 				'forminator_addon_trello_poll_create_card_args',
@@ -310,22 +204,22 @@ class Forminator_Addon_Trello_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abs
 			return array(
 				'is_sent'         => true,
 				'connection_name' => $connection_settings['name'] . $name_suffix,
-				'description'     => __( 'Successfully send data to Trello', 'forminator' ),
+				'description'     => esc_html__( 'Successfully send data to Trello', 'forminator' ),
 				'data_sent'       => $api->get_last_data_sent(),
 				'data_received'   => $api->get_last_data_received(),
 				'url_request'     => $api->get_last_url_request(),
 			);
 
-		} catch ( Forminator_Addon_Trello_Exception $e ) {
+		} catch ( Forminator_Integration_Exception $e ) {
 			forminator_addon_maybe_log( __METHOD__, 'Failed to Send to Trello' );
 
 			return array(
 				'is_sent'         => false,
 				'description'     => $e->getMessage(),
 				'connection_name' => $connection_settings['name'],
-				'data_sent'       => ( ( $api instanceof Forminator_Addon_Trello_Wp_Api ) ? $api->get_last_data_sent() : array() ),
-				'data_received'   => ( ( $api instanceof Forminator_Addon_Trello_Wp_Api ) ? $api->get_last_data_received() : array() ),
-				'url_request'     => ( ( $api instanceof Forminator_Addon_Trello_Wp_Api ) ? $api->get_last_url_request() : '' ),
+				'data_sent'       => ( ( $api instanceof Forminator_Trello_Wp_Api ) ? $api->get_last_data_sent() : array() ),
+				'data_received'   => ( ( $api instanceof Forminator_Trello_Wp_Api ) ? $api->get_last_data_received() : array() ),
+				'url_request'     => ( ( $api instanceof Forminator_Trello_Wp_Api ) ? $api->get_last_url_request() : '' ),
 			);
 		}
 	}
@@ -338,7 +232,7 @@ class Forminator_Addon_Trello_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abs
 	 */
 	private function poll_name_to_markdown() {
 
-		$poll_name = forminator_get_name_from_model( $this->poll );
+		$poll_name = forminator_get_name_from_model( $this->module );
 
 		$markdown = '##' . $poll_name . "\n";
 
@@ -364,23 +258,23 @@ class Forminator_Addon_Trello_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abs
 	 *
 	 * @since 1.6.1
 	 *
-	 * @param array $submitted_data
+	 * @param array $submitted_data Submitted Data.
 	 *
 	 * @return string
 	 */
 	private function poll_answer_to_markdown( $submitted_data ) {
 
-		$answer_data   = isset( $submitted_data[ $this->poll_id ] ) ? $submitted_data[ $this->poll_id ] : '';
-		$extra_field   = isset( $submitted_data[ $this->poll_id . '-extra' ] ) ? $submitted_data[ $this->poll_id . '-extra' ] : '';
-		$fields_labels = $this->poll->pluck_fields_array( 'title', 'element_id', '1' );
+		$answer_data   = isset( $submitted_data[ $this->module_id ] ) ? $submitted_data[ $this->module_id ] : '';
+		$extra_field   = isset( $submitted_data[ $this->module_id . '-extra' ] ) ? $submitted_data[ $this->module_id . '-extra' ] : '';
+		$fields_labels = $this->module->pluck_fields_array( 'title', 'element_id', '1' );
 
 		$answer = isset( $fields_labels[ $answer_data ] ) ? $fields_labels[ $answer_data ] : $answer_data;
 		$extra  = $extra_field;
 
-		$markdown  = '##' . __( 'Poll Answer', 'forminator' ) . "\n";
-		$markdown .= '**' . __( 'Vote', 'forminator' ) . ':** ' . $answer;
+		$markdown  = '##' . esc_html__( 'Poll Answer', 'forminator' ) . "\n";
+		$markdown .= '**' . esc_html__( 'Vote', 'forminator' ) . ':** ' . $answer;
 		if ( ! empty( $extra ) ) {
-			$markdown .= "\n**" . __( 'Extra', 'forminator' ) . ':** ' . $extra;
+			$markdown .= "\n**" . esc_html__( 'Extra', 'forminator' ) . ':** ' . $extra;
 		}
 
 		/**
@@ -407,17 +301,17 @@ class Forminator_Addon_Trello_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abs
 	 *
 	 * @since 1.6.1
 	 *
-	 * @param array $submitted_data
+	 * @param array $submitted_data Submitted data.
 	 *
 	 * @return string
 	 */
 	private function poll_result_to_markdown( $submitted_data ) {
-		$fields_array = $this->poll->get_fields_as_array();
-		$map_entries  = Forminator_Form_Entry_Model::map_polls_entries( $this->poll_id, $fields_array );
+		$fields_array = $this->module->get_fields_as_array();
+		$map_entries  = Forminator_Form_Entry_Model::map_polls_entries( $this->module_id, $fields_array );
 
 		// append new answer.
-		if ( ! $this->poll->is_prevent_store() ) {
-			$answer_data = isset( $submitted_data[ $this->poll_id ] ) ? $submitted_data[ $this->poll_id ] : '';
+		if ( ! $this->module->is_prevent_store() ) {
+			$answer_data = isset( $submitted_data[ $this->module_id ] ) ? $submitted_data[ $this->module_id ] : '';
 
 			$entries = 0;
 			// exists on map entries.
@@ -425,14 +319,14 @@ class Forminator_Addon_Trello_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abs
 				$entries = $map_entries[ $answer_data ];
 			}
 
-			$entries ++;
+			++$entries;
 			$map_entries[ $answer_data ] = $entries;
 
 		}
 
-		$fields = $this->poll->get_fields();
+		$fields = $this->module->get_fields();
 
-		$markdown = '##' . __( 'Poll Results', 'forminator' );
+		$markdown = '##' . esc_html__( 'Poll Results', 'forminator' );
 		if ( ! is_null( $fields ) ) {
 			foreach ( $fields as $field ) {
 				$label = addslashes( $field->title );
@@ -470,15 +364,15 @@ class Forminator_Addon_Trello_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abs
 	 *
 	 * @since 1.6.2
 	 *
-	 * @param array $submitted_data
+	 * @param array $submitted_data Submitted data.
 	 *
 	 * @return string
 	 */
 	private function poll_answer_to_plain_text( $submitted_data ) {
 
-		$answer_data   = isset( $submitted_data[ $this->poll_id ] ) ? $submitted_data[ $this->poll_id ] : '';
-		$extra_field   = isset( $submitted_data[ $this->poll_id . '-extra' ] ) ? $submitted_data[ $this->poll_id . '-extra' ] : '';
-		$fields_labels = $this->poll->pluck_fields_array( 'title', 'element_id', '1' );
+		$answer_data   = isset( $submitted_data[ $this->module_id ] ) ? $submitted_data[ $this->module_id ] : '';
+		$extra_field   = isset( $submitted_data[ $this->module_id . '-extra' ] ) ? $submitted_data[ $this->module_id . '-extra' ] : '';
+		$fields_labels = $this->module->pluck_fields_array( 'title', 'element_id', '1' );
 
 		$answer = isset( $fields_labels[ $answer_data ] ) ? $fields_labels[ $answer_data ] : $answer_data;
 		$extra  = $extra_field;
@@ -512,17 +406,17 @@ class Forminator_Addon_Trello_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abs
 	 *
 	 * @since 1.6.2
 	 *
-	 * @param array $submitted_data
+	 * @param array $submitted_data Submitted data.
 	 *
 	 * @return string
 	 */
 	private function poll_result_to_plain_text( $submitted_data ) {
-		$fields_array = $this->poll->get_fields_as_array();
-		$map_entries  = Forminator_Form_Entry_Model::map_polls_entries( $this->poll_id, $fields_array );
+		$fields_array = $this->module->get_fields_as_array();
+		$map_entries  = Forminator_Form_Entry_Model::map_polls_entries( $this->module_id, $fields_array );
 
 		// append new answer.
-		if ( ! $this->poll->is_prevent_store() ) {
-			$answer_data = isset( $submitted_data[ $this->poll_id ] ) ? $submitted_data[ $this->poll_id ] : '';
+		if ( ! $this->module->is_prevent_store() ) {
+			$answer_data = isset( $submitted_data[ $this->module_id ] ) ? $submitted_data[ $this->module_id ] : '';
 
 			$entries = 0;
 			// exists on map entries.
@@ -530,12 +424,12 @@ class Forminator_Addon_Trello_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abs
 				$entries = $map_entries[ $answer_data ];
 			}
 
-			$entries ++;
+			++$entries;
 			$map_entries[ $answer_data ] = $entries;
 
 		}
 
-		$fields = $this->poll->get_fields();
+		$fields = $this->module->get_fields();
 
 		$plain_text = '';
 		if ( ! is_null( $fields ) ) {
@@ -568,100 +462,5 @@ class Forminator_Addon_Trello_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abs
 		);
 
 		return $plain_text;
-	}
-
-	/**
-	 * Trello will add a column on the title/header row
-	 * its called `Trello Info` which can be translated on forminator lang
-	 *
-	 * @since 1.6.1
-	 * @return array
-	 */
-	public function on_export_render_title_row() {
-
-		$export_headers = array(
-			'info' => __( 'Trello Info', 'forminator' ),
-		);
-
-		$poll_id                = $this->poll_id;
-		$poll_settings_instance = $this->poll_settings_instance;
-
-		/**
-		 * Filter Trello headers on export file
-		 *
-		 * @since 1.6.1
-		 *
-		 * @param array                                 $export_headers         headers to be displayed on export file.
-		 * @param int                                   $poll_id                current Poll ID.
-		 * @param Forminator_Addon_Trello_Poll_Settings $poll_settings_instance Trello Addon Poll Settings instance.
-		 */
-		$export_headers = apply_filters(
-			'forminator_addon_trello_poll_export_headers',
-			$export_headers,
-			$poll_id,
-			$poll_settings_instance
-		);
-
-		return $export_headers;
-	}
-
-	/**
-	 * Trello will add a column that give user information whether sending data to Trello successfully or not
-	 * It will only add one column even its multiple connection, every connection will be separated by comma
-	 *
-	 * @since 1.6.1
-	 *
-	 * @param Forminator_Form_Entry_Model $entry_model
-	 * @param                             $addon_meta_data
-	 *
-	 * @return array
-	 */
-	public function on_export_render_entry( Forminator_Form_Entry_Model $entry_model, $addon_meta_data ) {
-
-		$poll_id                = $this->poll_id;
-		$poll_settings_instance = $this->poll_settings_instance;
-
-		/**
-		 *
-		 * Filter Trello metadata that previously saved on db to be processed
-		 *
-		 * @since 1.6.1
-		 *
-		 * @param array                                 $addon_meta_data
-		 * @param int                                   $poll_id                current Poll ID.
-		 * @param Forminator_Addon_Trello_Poll_Settings $poll_settings_instance Trello Addon Poll Settings instance.
-		 */
-		$addon_meta_data = apply_filters(
-			'forminator_addon_trello_poll_metadata',
-			$addon_meta_data,
-			$poll_id,
-			$poll_settings_instance
-		);
-
-		$export_columns = array(
-			'info' => $this->get_from_addon_meta_data( $addon_meta_data, 'description', '' ),
-		);
-
-		/**
-		 * Filter Trello columns to be displayed on export submissions
-		 *
-		 * @since 1.6.1
-		 *
-		 * @param array                                 $export_columns         column to be exported.
-		 * @param int                                   $poll_id                current Poll ID.
-		 * @param Forminator_Form_Entry_Model           $entry_model            Form Entry Model.
-		 * @param array                                 $addon_meta_data        meta data saved by addon on entry fields.
-		 * @param Forminator_Addon_Trello_Poll_Settings $poll_settings_instance Trello Addon Poll Settings instance.
-		 */
-		$export_columns = apply_filters(
-			'forminator_addon_trello_poll_export_columns',
-			$export_columns,
-			$poll_id,
-			$entry_model,
-			$addon_meta_data,
-			$poll_settings_instance
-		);
-
-		return $export_columns;
 	}
 }

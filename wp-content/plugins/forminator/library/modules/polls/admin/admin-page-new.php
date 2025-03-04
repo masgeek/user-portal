@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Poll_New_Page class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -19,9 +25,9 @@ class Forminator_Poll_New_Page extends Forminator_Admin_Page {
 	public function getWizardTitle() {
 		$id = filter_input( INPUT_GET, 'id', FILTER_VALIDATE_INT );
 		if ( $id ) {
-			return __( 'Edit Poll', 'forminator' );
+			return esc_html__( 'Edit Poll', 'forminator' );
 		} else {
-			return __( 'New Poll', 'forminator' );
+			return esc_html__( 'New Poll', 'forminator' );
 		}
 	}
 
@@ -30,7 +36,7 @@ class Forminator_Poll_New_Page extends Forminator_Admin_Page {
 	 *
 	 * @since 1.6.1
 	 *
-	 * @param $hook
+	 * @param string $hook Hook.
 	 */
 	public function enqueue_scripts( $hook ) {
 		// Load admin scripts.
@@ -42,6 +48,7 @@ class Forminator_Poll_New_Page extends Forminator_Admin_Page {
 				'wp-color-picker',
 				'react',
 				'react-dom',
+				'wp-element',
 			),
 			FORMINATOR_VERSION,
 			true

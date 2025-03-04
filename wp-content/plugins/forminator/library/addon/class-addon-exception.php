@@ -1,4 +1,9 @@
 <?php
+/**
+ * The Forminator_Addon_Exception class.
+ *
+ * @package Forminator
+ */
 
 /**
  * Class Forminator_Addon_Exception

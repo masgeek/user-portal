@@ -45,13 +45,13 @@ class AYG_YouTube_API {
 	);
 
 	/**
-     * Is API cache enabled?
+     * Is development mode enabled?
 	 * 
-	 * @since  2.0.0
+	 * @since  2.3.0
 	 * @access protected
      * @var    bool
      */
-	protected $cache_api_results = true;
+	protected $is_development_mode = false;
 
 	/**
 	 * Get videos.
@@ -70,9 +70,9 @@ class AYG_YouTube_API {
 
 		$this->api_key = $general_settings['api_key'];
 
-		// Is API cache enabled?
+		// Is development mode enabled?
 		if ( isset( $general_settings['development_mode'] ) && ! empty( $general_settings['development_mode'] ) ) {
-			$this->cache_api_results = false;
+			$this->is_development_mode = true;
 		}
 
 		// Process output
@@ -98,14 +98,20 @@ class AYG_YouTube_API {
 					return $this->get_error( __( 'Invalid YouTube Channel ID.', 'automatic-youtube-gallery' ) );
 				}
 
-				// Find playlistId from the channel	
-				$response = $this->request_api_channels( $params );
+				// Get playlist id from the channel	
+				$playlist_id = $this->get_playlist_id( $params );
 
-				// Get videos using the playlistId
-				if ( ! isset( $response->error ) ) {
-					$params['src'] = $response->playlistId;
-					$response = $this->request_api_playlist_items( $params );
+				if ( is_object( $playlist_id ) && isset( $playlist_id->error ) ) {
+					return $playlist_id;
 				}
+
+				if ( empty( $playlist_id ) ) {
+					return $this->get_error( __( 'No videos found matching your query.', 'automatic-youtube-gallery' ) );
+				}
+
+				// Get videos using the playlist id
+				$params['src'] = $playlist_id;
+				$response = $this->request_api_playlist_items( $params );
 				break;
 
 			case 'username':
@@ -113,20 +119,26 @@ class AYG_YouTube_API {
 					return $this->get_error( __( 'YouTube Account Username is required.', 'automatic-youtube-gallery' ) );
 				}
 
-				// Find playlistId from the channel 
+				// Get playlist id from the channel 
 				$params['forUsername'] = $this->parse_youtube_id_from_url( $params['src'], 'username' );
-				$response = $this->request_api_channels( $params );
+				$playlist_id = $this->get_playlist_id( $params );
 
-				// Get videos using the playlistId
-				if ( ! isset( $response->error ) ) {
-					$params['src'] = $response->playlistId;
-					$response = $this->request_api_playlist_items( $params );
+				if ( is_object( $playlist_id ) && isset( $playlist_id->error ) ) {
+					return $playlist_id;
 				}
+
+				if ( empty( $playlist_id ) ) {
+					return $this->get_error( __( 'No videos found matching your query.', 'automatic-youtube-gallery' ) );
+				}
+
+				// Get videos using the playlist id
+				$params['src'] = $playlist_id;
+				$response = $this->request_api_playlist_items( $params );
 				break;
 
 			case 'search':
 				if ( empty( $params['src'] ) ) {
-					return $this->get_error( __( 'Cannot search an empty string. A search term is required.', 'automatic-youtube-gallery' ) );
+					return $this->get_error( __( 'Cannot search an empty string. A search keyword is required.', 'automatic-youtube-gallery' ) );
 				}
 				
 				$response = $this->request_api_search( $params );						
@@ -145,12 +157,14 @@ class AYG_YouTube_API {
 					return $this->get_error( __( 'YouTube Channel ID (or) or a YouTube Video URL from the Channel is required.', 'automatic-youtube-gallery' ) );
 				}
 
-				$response = new stdClass();
-				$response->id = $this->get_channel_id( $params );
+				$params['channelId'] = $this->get_channel_id( $params );
 
-				if ( empty( $response->id ) ) {
+				if ( empty( $params['channelId'] ) ) {
 					return $this->get_error( __( 'Invalid YouTube Channel ID.', 'automatic-youtube-gallery' ) );
 				}
+
+				// Get live video using the channel id
+				$response = $this->request_api_live_video( $params );
 				break;
 
 			default: // video
@@ -180,7 +194,7 @@ class AYG_YouTube_API {
 
 		switch ( $type ) {
 			case 'playlist':
-				if ( preg_match( '/list=(.*)&?\/?/', $url, $matches ) ) {
+				if ( preg_match( '/[?&]list=([^&]+)/', $url, $matches ) ) {
 					$id = $matches[1];
 				}
 				break;
@@ -243,17 +257,126 @@ class AYG_YouTube_API {
      * @return string
      */
     private function get_channel_id( $params = array() ) {
+		// Parse channel ID from URL: https://www.youtube.com/channel/XXXXXXXXXX
 		$id = $this->parse_youtube_id_from_url( $params['src'], 'channel' );
 
 		if ( empty( $id ) ) {
-			$response = $this->request_api_video( $params );
+			// Get channel ID from a Video URL: https://www.youtube.com/watch?v=XXXXXXXXXX		
+			$video_id = $this->parse_youtube_id_from_url( $params['src'], 'video' );
 
-			if ( isset( $response->videos ) ) {
-				$id = $response->videos[0]->channel_id;
+			// Request from cache
+			$channel_ids = get_option( 'ayg_channel_ids', array() );
+			if ( ! is_array( $channel_ids ) ) {
+				$channel_ids = (array) $channel_ids;
+			}
+
+			if ( isset( $channel_ids[ $video_id ] ) && ! empty( $channel_ids[ $video_id ] ) ) {
+				return $channel_ids[ $video_id ];
+			}
+
+			// Request from API
+			$api_url = $this->get_api_url( 'videos.list' );
+
+			$params['id'] = $video_id;
+			
+			$api_params = $this->safe_merge_params(
+				array(
+					'id'    => '',
+					'part'  => 'id,snippet,contentDetails,status',
+					'cache' => 0
+				), 
+				$params
+			);
+
+			$api_response = $this->request_api( $api_url, $api_params, 'channel_id' );
+			if ( isset( $api_response->error ) ) {
+				return $id;	
+			}
+
+			$videos = $this->parse_videos( $api_response );
+			if ( isset( $videos->error ) ) {
+				return $id;	
+			}
+
+			// Process output
+			if ( $id = $videos[0]->channel_id ) {
+				// Store in cache
+				$channel_ids[ $video_id ] = $id;
+				update_option( 'ayg_channel_ids', $channel_ids );
 			}
 		}
 
 		return $id;		
+	}
+
+	/**
+	 * Get playlist id using channels API.
+	 * 
+	 * @since  1.0.0
+	 * @access private
+     * @param  array   $params Array of query params.
+     * @return mixed
+     */
+    private function get_playlist_id( $params = array() ) {
+		// Request from cache
+		$playlist_ids = get_option( 'ayg_playlist_ids', array() );
+		if ( ! is_array( $playlist_ids ) ) {
+			$playlist_ids = (array) $playlist_ids;
+		}
+
+		$key = '';
+
+		if ( isset( $params['forUsername'] ) && ! empty( $params['forUsername'] ) ) {
+			$key = $params['forUsername'];
+		}
+
+		if ( isset( $params['id'] ) && ! empty( $params['id'] ) ) {
+			unset( $params['forUsername'] );
+			$key = $params['id'];
+		}
+
+		if ( isset( $playlist_ids[ $key ] ) && ! empty( $playlist_ids[ $key ] ) ) {
+			return $playlist_ids[ $key ];
+		}
+
+		// Request from API		
+		$api_url = $this->get_api_url( 'channels.list' );
+
+		$api_params = $this->safe_merge_params(
+			array(
+				'id'          => '',
+				'forUsername' => '',
+				'part'        => 'contentDetails',
+				'cache'       => 0
+			),
+			$params
+		);
+
+		$api_response = $this->request_api( $api_url, $api_params, 'playlist_id' );
+		if ( isset( $api_response->error ) ) {
+			return $api_response;
+		}
+
+		if ( ! isset( $api_response->items ) ) {
+			return false;
+		}
+
+		$items = $api_response->items;
+		if ( ! is_array( $items ) || count( $items ) == 0 ) {
+			return false;
+		}
+
+		// Process output
+		if ( $id = $items[0]->contentDetails->relatedPlaylists->uploads ) {
+			// Store in cache
+			$playlist_ids[ $key ] = $id;
+			update_option( 'ayg_playlist_ids', $playlist_ids );
+
+			// Return
+			return $id;
+		}	
+
+		return false;
 	}
 
 	/**
@@ -296,49 +419,7 @@ class AYG_YouTube_API {
 		$response->videos = $videos;
 
 		return $response;		
-	}
-
-	/**
-	 * Find playlistId using channels API.
-	 * 
-	 * @since  1.0.0
-	 * @access private
-     * @param  array   $params Array of query params.
-     * @return mixed
-     */
-    private function request_api_channels( $params = array() ) {
-		$api_url = $this->get_api_url( 'channels.list' );
-
-		$api_params = $this->safe_merge_params(
-			array(
-				'id'          => '',
-				'forUsername' => '',
-				'part'        => 'contentDetails',
-				'cache'       => 0
-			),
-			$params
-		);
-
-		$api_response = $this->request_api( $api_url, $api_params );
-		if ( isset( $api_response->error ) ) {
-			return $api_response;
-		}
-
-		if ( ! isset( $api_response->items ) ) {
-			return $this->get_error( __( 'No videos found matching your query.', 'automatic-youtube-gallery' ) );
-		}
-
-		$items = $api_response->items;
-		if ( ! is_array( $items ) || count( $items ) == 0 ) {
-			return $this->get_error( __( 'No videos found matching your query.', 'automatic-youtube-gallery' ) );
-		}
-
-		// Process output
-		$response = new stdClass();
-		$response->playlistId = $items[0]->contentDetails->relatedPlaylists->uploads;
-
-		return $response;
-	}
+	}	
 
 	/**
 	 * Get videos using search API.
@@ -391,6 +472,48 @@ class AYG_YouTube_API {
 
 		return $response;		
 	}	
+
+	/**
+	 * Get live video using search API.
+	 * 
+	 * @since  2.3.7
+	 * @access private
+     * @param  array   $params Array of query params.
+     * @return mixed
+     */
+    private function request_api_live_video( $params = array() ) {
+		$api_url = $this->get_api_url( 'search.list' );
+
+		$params['type'] = 'video'; // Overrides user defined type value 'livestream'
+
+		$api_params = $this->safe_merge_params(
+			array(
+				'type'      => 'video',
+				'eventType' => 'live',
+				'part'      => 'snippet',
+				'channelId' => '',
+				'cache'     => 0
+			),
+			$params
+		);
+
+		$api_response = $this->request_api( $api_url, $api_params, 'live' );
+		if ( isset( $api_response->error ) ) {
+			return $api_response;
+		}
+
+		$videos = $this->parse_videos( $api_response );
+		if ( isset( $videos->error ) ) {
+			$livestream_settings = get_option( 'ayg_livestream_settings' );
+			return $this->get_error( '<div class="ayg-livestream-fallback-message">' . $livestream_settings['fallback_message'] . '</div>' );
+		}
+
+		// Process output
+		$response = new stdClass();
+		$response->videos = $videos;
+
+		return $response;	
+	}
 
 	/**
 	 * Get details of the given video ID.
@@ -521,15 +644,16 @@ class AYG_YouTube_API {
      *
 	 * @since  1.0.0
 	 * @access private
-     * @param  string  $url    YouTube API URL.
-     * @param  array   $params Array of query params.
+     * @param  string  $url     YouTube API URL.
+     * @param  array   $params  Array of query params.
+	 * @param  string  $context "channel_id", "playlist_id", or "videos"
      * @return mixed     
      */
-    private function request_api( $url, $params ) {
+    private function request_api( $url, $params, $context = 'videos' ) {
 		$params['key'] = $this->api_key;	
 
-		// Request data from cache
-		if ( $this->cache_api_results ) {
+		// Request from cache
+		if ( ! $this->is_development_mode ) {
 			$cache_url  = $url . ( strpos( $url, '?' ) === false ? '?' : '' ) . http_build_query( $params );
 			$cache_key  = 'ayg_' . md5( $cache_url );		
 			$cache_data = get_transient( $cache_key );
@@ -539,7 +663,7 @@ class AYG_YouTube_API {
 			}		
 		}
 
-		// Request data from API server
+		// Request from API
 		$cache_duration = 0;		
 		if ( isset( $params['cache'] ) ) {
 			$cache_duration = (int) $params['cache'];
@@ -579,8 +703,22 @@ class AYG_YouTube_API {
 			return $this->get_error( $message );			
 		}
 
-		// Store data in cache (transients)
-		if ( $this->cache_api_results && $cache_duration > 0 ) {			
+		// Store in cache (transients)
+		$can_store_in_transients = false;
+
+		if ( ! $this->is_development_mode && $cache_duration > 0 ) {
+			if ( 'videos' == $context ) {
+				if ( isset( $data->items ) && is_array( $data->items ) && count( $data->items ) > 0 ) {	
+					$can_store_in_transients = true;
+				}
+			}
+
+			if ( 'live' == $context ) {
+				$can_store_in_transients = true;
+			}
+		}
+
+		if ( $can_store_in_transients ) {
 			set_transient( $cache_key, $data, $cache_duration );
 
 			// Get the current list of transients

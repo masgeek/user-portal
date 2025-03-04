@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Polls_General_Data_Protection class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -19,8 +25,11 @@ class Forminator_Polls_General_Data_Protection extends Forminator_General_Data_P
 	 */
 	protected static $module_slug = 'poll';
 
+	/**
+	 * Forminator_Polls_General_Data_Protection constructor
+	 */
 	public function __construct() {
-		parent::__construct( __( 'Forminator Polls', 'forminator' ) );
+		parent::__construct( esc_html__( 'Forminator Polls', 'forminator' ) );
 	}
 
 	/**
@@ -32,7 +41,7 @@ class Forminator_Polls_General_Data_Protection extends Forminator_General_Data_P
 	 */
 	public function get_privacy_message() {
 		ob_start();
-		include dirname( __FILE__ ) . '/policy-text.php';
+		include __DIR__ . '/policy-text.php';
 		$content = ob_get_clean();
 		$content = apply_filters( 'forminator_polls_privacy_policy_content', $content );
 
@@ -119,7 +128,10 @@ class Forminator_Polls_General_Data_Protection extends Forminator_General_Data_P
 		$overidden_poll_ids = array(); // will be used to filter out global settings retention later.
 		if ( isset( $polls['models'] ) && is_array( $polls['models'] ) ) {
 			foreach ( $polls['models'] as $poll ) {
-				/** @var Forminator_Poll_Model $poll */
+				/**
+				 * Forminator_Poll_Model
+				 *
+				 * @var Forminator_Poll_Model $poll */
 				$settings = $poll->settings;
 				if ( isset( $settings['enable-submissions-retention'] ) ) {
 					$is_overidden = filter_var( $settings['enable-submissions-retention'], FILTER_VALIDATE_BOOLEAN );
@@ -168,7 +180,5 @@ class Forminator_Polls_General_Data_Protection extends Forminator_General_Data_P
 			}
 			$entry_model->delete();
 		}
-
 	}
-
 }

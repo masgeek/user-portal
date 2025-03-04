@@ -30,6 +30,16 @@ class AYG_Admin {
 		if ( AYG_VERSION !== get_option( 'ayg_version' ) ) {	
 			$defaults = ayg_get_default_settings();				
 
+			// Update the player settings
+			$player_settings = get_option( 'ayg_player_settings' );
+
+			if ( ! array_key_exists( 'player_type', $player_settings ) ) {
+				$player_settings['player_type']  = $defaults['ayg_player_settings']['player_type'];
+				$player_settings['player_color'] = $defaults['ayg_player_settings']['player_color'];
+
+				update_option( 'ayg_player_settings', $player_settings );
+			}
+
 			// Insert the livestream settings			
 			if ( false == get_option( 'ayg_livestream_settings' ) ) {
 				add_option( 'ayg_livestream_settings', $defaults['ayg_livestream_settings'] );
@@ -43,12 +53,10 @@ class AYG_Admin {
 			// Create a custom database table "{$wpdb->prefix}ayg_videos" 
 			if ( version_compare( AYG_VERSION, '2.1.0', '<=' ) ) {
 				ayg_db_create_videos_table();
-				ayg_delete_cache();
 			}
 
-			if ( version_compare( AYG_VERSION, '2.2.0', '<=' ) ) {
-				delete_option( 'ayg_gallery_page_ids' );	
-			}
+			// Delete the plugin cache
+			ayg_delete_cache();
 			
 			// Update the plugin version		
 			update_option( 'ayg_version', AYG_VERSION );
@@ -64,8 +72,16 @@ class AYG_Admin {
 		wp_enqueue_style( 'wp-color-picker' );
 
 		wp_enqueue_style( 
+			AYG_SLUG . '-magnific-popup', 
+			AYG_URL . 'vendor/magnific-popup/magnific-popup.css', 
+			array(), 
+			'1.2.0', 
+			'all' 
+		);
+
+		wp_enqueue_style( 
 			AYG_SLUG . '-admin', 
-			AYG_URL . 'admin/assets/css/admin.css', 
+			AYG_URL . 'admin/assets/css/admin.min.css', 
 			array(), 
 			AYG_VERSION, 
 			'all' 
@@ -82,8 +98,16 @@ class AYG_Admin {
 		wp_enqueue_script( 'wp-color-picker' );
 
 		wp_enqueue_script( 
+			AYG_SLUG . '-magnific-popup', 
+			AYG_URL . 'vendor/magnific-popup/magnific-popup.min.js', 
+			array( 'jquery' ), 
+			'1.2.0', 
+			array( 'strategy' => 'defer' )  
+		);
+
+		wp_enqueue_script( 
 			AYG_SLUG . '-admin', 
-			AYG_URL . 'admin/assets/js/admin.js', 
+			AYG_URL . 'admin/assets/js/admin.min.js', 
 			array( 'jquery' ), 
 			AYG_VERSION, 
 			false 
@@ -196,10 +220,12 @@ class AYG_Admin {
 	public function ajax_callback_save_api_key() {	
 		check_ajax_referer( 'ayg_ajax_nonce', 'security' );
 		
-		$general_settings = get_option( 'ayg_general_settings' );
-		$general_settings['api_key'] = sanitize_text_field( $_POST['api_key'] );
+		if ( current_user_can( 'manage_options' ) ) {
+			$general_settings = get_option( 'ayg_general_settings' );
+			$general_settings['api_key'] = sanitize_text_field( $_POST['api_key'] );
 
-		update_option( 'ayg_general_settings', $general_settings );
+			update_option( 'ayg_general_settings', $general_settings );
+		}
 
 		wp_die();	
 	}

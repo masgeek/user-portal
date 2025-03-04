@@ -1,40 +1,76 @@
 <?php
+/**
+ * The Forminator_Autofill_Simple class.
+ *
+ * @package Forminator
+ */
 
-/** @noinspection PhpUndefinedClassInspection */
+/* @noinspection PhpUndefinedClassInspection */
+/**
+ * Class Forminator_Autofill_Simple
+ */
 class Forminator_Autofill_Simple extends Forminator_Autofill_Provider_Abstract {
 
+	/**
+	 * Slug
+	 *
+	 * @var string
+	 */
+	protected $_slug = 'simple';
 
-	protected $_slug       = 'simple';
-	protected $_name       = 'Simple';
+	/**
+	 * Name
+	 *
+	 * @var string
+	 */
+	protected $_name = 'Simple';
+
+	/**
+	 * Short name
+	 *
+	 * @var string
+	 */
 	protected $_short_name = 'Simple';
 
+	/**
+	 * Simple data
+	 *
+	 * @var array
+	 */
 	private $my_simple_data;
 
 	/**
+	 * Forminator_Autofill_Provider_Interface
+	 *
 	 * @var Forminator_Autofill_Provider_Interface|Forminator_Autofill_Simple|null
 	 */
 	private static $_instance = null;
 
 
 	/**
+	 * Get instance
+	 *
 	 * @return Forminator_Autofill_Provider_Interface|Forminator_Autofill_Simple|null
 	 */
 	public static function get_instance() {
-		if ( is_null(self::$_instance) ) {
+		if ( is_null( self::$_instance ) ) {
 			self::$_instance = new self();
 		}
 
 		return self::$_instance;
 	}
 
+	/**
+	 * Forminator_Autofill_Simple constructor
+	 */
 	public function __construct() {
 		$attributes_map = array(
 			'simple_attribute_text'   => array(
-				'name'         => __( 'Text', 'forminator' ),
+				'name'         => esc_html__( 'Text', 'forminator' ),
 				'value_getter' => array( $this, 'get_value_simple_text' ),
 			),
 			'simple_attribute_number' => array(
-				'name'         => __( 'Number', 'forminator' ),
+				'name'         => esc_html__( 'Number', 'forminator' ),
 				'value_getter' => array( $this, 'get_value_simple_number' ),
 			),
 		);
@@ -43,7 +79,6 @@ class Forminator_Autofill_Simple extends Forminator_Autofill_Provider_Abstract {
 
 		// Call this to Start attaching your autofill provider to Forminator field.
 		$this->hook_to_fields();
-
 	}
 
 	/**
@@ -119,10 +154,20 @@ class Forminator_Autofill_Simple extends Forminator_Autofill_Provider_Abstract {
 		return false;
 	}
 
+	/**
+	 * Get value simple text
+	 *
+	 * @return string
+	 */
 	public function get_value_simple_text() {
 		return $this->my_simple_data['simple_text'];
 	}
 
+	/**
+	 * Get value simple number
+	 *
+	 * @return int
+	 */
 	public function get_value_simple_number() {
 		return $this->my_simple_data['simple_number'];
 	}

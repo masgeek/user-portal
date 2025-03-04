@@ -47,7 +47,7 @@ function bravepop_update_presets( $preset='', $presetAction='', $presetID='', $p
        }
        //Alternative: $presetIndex = array_search($thePreset->id, array_column($currentPresets, 'id'))
 
-       //error_log(json_encode($currentSettings['presets']));
+       //error_log(wp_json_encode($currentSettings['presets']));
        if($presetAction === 'save'){ 
            if($presetIndex === false){
                $currentPresets[] = $thePreset;
@@ -77,18 +77,18 @@ function bravepop_update_presets( $preset='', $presetAction='', $presetID='', $p
        $presetIndex = false;
        if($presetID){    foreach ($currentPresets as $key=>$prst) { if ($prst->id === $presetID) {  $presetIndex = $key;  } } }
        //error_log($presetIndex);
-       //error_log(json_encode($currentPresets));
+       //error_log(wp_json_encode($currentPresets));
        if($presetIndex !== false){
            //unset($currentPresets[$presetIndex]);
            
            //Remove The Preset Screenshot
-           //error_log(json_encode($currentPresets[$presetIndex]));
+           //error_log(wp_json_encode($currentPresets[$presetIndex]));
            //error_log($currentPresets[$presetIndex]->imageID);
            if(isset($currentPresets[$presetIndex]->imageID) && wp_get_attachment_image($currentPresets[$presetIndex]->imageID)){
                wp_delete_attachment( $currentPresets[$presetIndex]->imageID, true );
            }
            array_splice($currentPresets, $presetIndex, 1);
-           //error_log(json_encode($currentPresets));
+           //error_log(wp_json_encode($currentPresets));
            BravePopup_Settings::save_settings( array('presets' => $currentPresets) );
            return new WP_REST_Response('Preset Removed Successfully.');
        }else{

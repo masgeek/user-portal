@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_QForm_Result class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -8,10 +14,17 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Forminator_QForm_Result extends Forminator_Result {
 
+	/**
+	 * Post type
+	 *
+	 * @var string
+	 */
 	protected $post_type = 'quizzes';
 
 	/**
-	 * @param Forminator_Form_Entry_Model $entry
+	 * Get og description
+	 *
+	 * @param Forminator_Form_Entry_Model $entry Form entry model.
 	 *
 	 * @return string
 	 */
@@ -30,7 +43,9 @@ class Forminator_QForm_Result extends Forminator_Result {
 	}
 
 	/**
-	 * @param Forminator_Form_Entry_Model $entry
+	 * Get og title
+	 *
+	 * @param Forminator_Form_Entry_Model $entry Form entry model.
 	 *
 	 * @since 1.7
 	 *
@@ -72,6 +87,7 @@ class Forminator_QForm_Result extends Forminator_Result {
 	}
 
 	/**
+	 * Get og URL
 	 *
 	 * @since 1.7
 	 *
@@ -110,7 +126,9 @@ class Forminator_QForm_Result extends Forminator_Result {
 	}
 
 	/**
-	 * @param Forminator_Form_Entry_Model $entry
+	 * Get og image
+	 *
+	 * @param Forminator_Form_Entry_Model $entry Form entry model.
 	 *
 	 * @since 1.7
 	 *
@@ -152,8 +170,10 @@ class Forminator_QForm_Result extends Forminator_Result {
 	}
 
 	/**
-	 * @param Forminator_Quiz_Model       $quiz
-	 * @param Forminator_Form_Entry_Model $entry
+	 * Get og description
+	 *
+	 * @param Forminator_Quiz_Model       $quiz Quiz model.
+	 * @param Forminator_Form_Entry_Model $entry Form entry model.
 	 *
 	 * @return string
 	 */
@@ -175,7 +195,7 @@ class Forminator_QForm_Result extends Forminator_Result {
 				$total = count( $answers );
 				foreach ( $answers as $key => $answer ) {
 					if ( true === $answer['isCorrect'] ) {
-						$right ++;
+						++$right;
 					}
 				}
 			}
@@ -201,12 +221,13 @@ class Forminator_QForm_Result extends Forminator_Result {
 		$description = apply_filters( 'forminator_quiz_knowledge_result_page_meta_description', $description, $quiz, $entry_id, $right, $total, $quiz_title );
 
 		return $description;
-
 	}
 
 	/**
-	 * @param Forminator_Quiz_Model       $quiz
-	 * @param Forminator_Form_Entry_Model $entry
+	 * Get og description
+	 *
+	 * @param Forminator_Quiz_Model       $quiz Quiz model.
+	 * @param Forminator_Form_Entry_Model $entry Form entry model.
 	 *
 	 * @return string
 	 */
@@ -263,7 +284,6 @@ class Forminator_QForm_Result extends Forminator_Result {
 		$description = apply_filters( 'forminator_quiz_nowrong_result_page_meta_description', $description, $quiz, $entry_id, $result, $quiz_title );
 
 		return $description;
-
 	}
 
 	/**
@@ -282,6 +302,11 @@ class Forminator_QForm_Result extends Forminator_Result {
 		add_filter( 'get_canonical_url', array( $this, 'get_og_url' ) );
 	}
 
+	/**
+	 * Print result header
+	 *
+	 * @return void
+	 */
 	public function print_result_header() {
 		$entry_id = $this->entry_id;
 		$entry    = new Forminator_Form_Entry_Model( $this->entry_id );
@@ -326,7 +351,10 @@ class Forminator_QForm_Result extends Forminator_Result {
 	}
 
 	/**
+	 * Is public allowed
+	 *
 	 * @inheritdoc
+	 * @param object $entry Entry model.
 	 */
 	public function is_public_allowed( $entry ) {
 		if ( empty( $entry->entry_id ) ) {

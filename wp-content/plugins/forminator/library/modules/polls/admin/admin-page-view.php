@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Poll_Page class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -22,12 +28,12 @@ class Forminator_Poll_Page extends Forminator_Admin_Module_Edit_Page {
 	 *
 	 * @since 1.14.10
 	 *
-	 * @param $id
-	 * @param $title
-	 * @param $views
-	 * @param $date
-	 * @param $status
-	 * @param name
+	 * @param int    $id Id.
+	 * @param string $title Title.
+	 * @param array  $views Views.
+	 * @param string $date Date.
+	 * @param string $status Status.
+	 * @param mixed  $model Model.
 	 *
 	 * @return array
 	 */
@@ -54,12 +60,12 @@ class Forminator_Poll_Page extends Forminator_Admin_Module_Edit_Page {
 		return apply_filters(
 			'forminator_polls_bulk_actions',
 			array(
-				'publish-polls'      => __( 'Publish', 'forminator' ),
-				'draft-polls'        => __( 'Unpublish', 'forminator' ),
-				'clone-polls'        => __( 'Duplicate', 'forminator' ),
-				'reset-views-polls'  => __( 'Reset Tracking Data', 'forminator' ),
-				'delete-votes-polls' => __( 'Delete Votes', 'forminator' ),
-				'delete-polls'       => __( 'Delete', 'forminator' ),
+				'publish-polls'      => esc_html__( 'Publish', 'forminator' ),
+				'draft-polls'        => esc_html__( 'Unpublish', 'forminator' ),
+				'clone-polls'        => esc_html__( 'Duplicate', 'forminator' ),
+				'reset-views-polls'  => esc_html__( 'Reset Tracking Data', 'forminator' ),
+				'delete-votes-polls' => esc_html__( 'Delete Votes', 'forminator' ),
+				'delete-polls'       => esc_html__( 'Delete', 'forminator' ),
 			)
 		);
 	}

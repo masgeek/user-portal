@@ -1,3 +1,11 @@
+<?php
+/**
+ * Template admin/views/dashboard/footer-free.php
+ *
+ * @package Forminator
+ */
+
+?>
 <div class="sui-row" id="sui-cross-sell-footer">
 	<div><span class="sui-icon-plugin-2"></span></div>
 	<h3><?php esc_html_e( 'Check out our other free wordpress.org plugins!', 'forminator' ); ?></h3>
@@ -64,8 +72,4 @@
 		<?php esc_html_e( 'Learn more', 'forminator' ); ?>
 	</a>
 
-	<img class="sui-image"
-		src="<?php echo esc_url( forminator_plugin_url() ); ?>assets/images/dev-team.png"
-		srcset="<?php echo esc_url( forminator_plugin_url() ); ?>assets/images/dev-team@2x.png 2x"
-		alt="<?php esc_html_e( 'Try pro features for free!', 'forminator' ); ?>">
 </div>

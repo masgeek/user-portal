@@ -144,6 +144,23 @@
   padding: 0;
   display: flex;
 }
+.kcmp-notice .notice-action {
+  font-weight: bold;
+  background: #0258c7;
+  color: #ffffff;
+  border-radius: 4px;
+  display: inline-block;
+  padding: 4px 12px;
+  margin: 0 2px;
+  text-decoration: none;
+  line-height: 1;
+}
+.kcmp-notice .notice-action i {
+  margin-right: 4px;
+}
+.kcmp-notice .notice-action:hover {
+  background: #0e80e8;
+}
 .kcmp-notice .kcmp-notice-logo,
 .kcmp-notice .kcmp-notice-message {
   padding: 24px;
@@ -156,16 +173,16 @@
   background-color: #f2f8ff;
 }
 .kcmp-notice.notice-error {
-  border-color: #d63638;
+  border: 2px solid #d63638;
 }
 .kcmp-notice.notice-error .kcmp-notice-logo {
   background-color: #fbf3f3;
 }
 .kcmp-notice h1 {
-  font-size: 1.5rem;
   font-weight: bold;
 }
 .kcmp-notice p {
+  font-size: 16px;
   margin-bottom: 12px;
   line-height: 1.5;
 }

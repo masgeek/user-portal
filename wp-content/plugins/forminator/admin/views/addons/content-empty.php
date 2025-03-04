@@ -1,4 +1,10 @@
 <?php
+/**
+ * Template admin/views/addons/content-empty.php
+ *
+ * @package Forminator
+ */
+
 $can_browse  = isset( $browse ) && is_bool( $browse ) === true;
 $can_refresh = isset( $refresh ) && is_bool( $refresh ) === true;
 $url_check   = add_query_arg( 'action', 'check-updates' );
@@ -10,8 +16,8 @@ $url_check   = add_query_arg( 'action', 'check-updates' );
 
 		<?php if ( forminator_is_show_branding() ) : ?>
 			<img
-				src="<?php echo esc_url( forminator_plugin_url() . 'assets/images/forminator-smile.png' ); ?>"
-				srcset="<?php echo esc_url( forminator_plugin_url() . 'assets/images/forminator-smile.png' ); ?> 1x, <?php echo esc_url( forminator_plugin_url() . 'assets/images/forminator-smile@2x.png' ); ?> 2x"
+				src="<?php echo esc_url( forminator_plugin_url() . 'assets/images/forminator-no-result.png' ); ?>"
+				srcset="<?php echo esc_url( forminator_plugin_url() . 'assets/images/forminator-no-result.png' ); ?> 1x, <?php echo esc_url( forminator_plugin_url() . 'assets/images/forminator-no-result@2x.png' ); ?> 2x"
 				alt="<?php esc_html_e( 'Forminator', 'forminator' ); ?>"
 				class="sui-image"
 			/>
@@ -32,7 +38,7 @@ $url_check   = add_query_arg( 'action', 'check-updates' );
 					<?php
 					// BUTTON: Browse Add-Ons.
 					if ( $can_browse ) {
-						Forminator_Admin_Addons_page::get_instance()->render_template(
+						Forminator_Admin_Addons_Page::get_instance()->render_template(
 							'admin/views/addons/action-button',
 							array(
 								'label' => esc_html__( 'Browse Add-Ons', 'forminator' ),

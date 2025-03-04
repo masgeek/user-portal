@@ -1,4 +1,10 @@
 <?php
+/**
+ * Template admin/views/dashboard/widgets/widget-create.php
+ *
+ * @package Forminator
+ */
+
 $icon_minus  = forminator_plugin_dir() . 'assets/icons/admin-icons/minus.php';
 $hero_sample = forminator_plugin_dir() . 'assets/icons/forminator-icons/hero-sample.php';
 ?>

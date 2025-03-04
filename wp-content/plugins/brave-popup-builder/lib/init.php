@@ -23,41 +23,33 @@ if ( ! class_exists( 'BravePopup_Initialize' ) ) {
             $pluginDir = plugin_basename(plugin_dir_path(dirname( __FILE__) ));
             $pluginBaseFile = $pluginDir.'/index.php';
             add_filter( 'plugin_action_links_'.$pluginBaseFile, array($this, 'bravepop_plugin_action_links') );
-
+            add_action( 'admin_init', array( $this, 'remove_emoji_scripts' ) );
             //add_action( 'admin_init', array( $this, 'redirect_to_welcome_page' ) );
         }
 
         public function add_dashboard_page() {
-         $allowedRole = apply_filters( 'bravepop_allowed_backend_cap', 'manage_options' );
          $svg = '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="25px" height="30px" viewBox="0 0 25 30" enable-background="new 0 0 25 30" xml:space="preserve">
                   <path id="Shape_1_copy_5_2_" fill="#FFFFFF" d="M6.01,3.659v14.62c0,0-0.446,8.17,6.891,8.17c7.829,0,7.977-7.298,7.977-7.298
                      s0.87-7.031-7.132-7.031h-1.16v4.29c0,0,0.126-0.104,0.696-0.058c1.884,0.076,2.519,1.003,2.608,2.275
                      c0.282,2.241-1.954,2.668-2.294,2.681c-1.18,0.033-2.507-0.553-2.664-2.046V7.953c0.081-0.627-0.186-1.249-0.695-1.625
                      C9.187,5.6,6.009,2.847,6.009,2.847S6.002,2.882,6.01,3.659z"/>
                   </svg>';
-			// @see images/stackable-icon.svg
-            add_menu_page(
-                __( 'Brave', 'bravepop' ), // Page Title.
-                __( 'Brave', 'bravepop' ), // Menu Title.
-                $allowedRole, // Capability.
-                'bravepop', // Menu slug.
-                array( $this, 'bravepop_welcome_content' ), // Action.
-                'data:image/svg+xml;base64,' . base64_encode( $svg ) // Stackable icon.
-            );
-            add_submenu_page( 'bravepop', 'All Campaigns', 'All Campaigns', $allowedRole, 'bravepop', array( $this, 'bravepop_welcome_content' ) );
-            add_submenu_page( 'bravepop', 'Submissions', 'Submissions', $allowedRole, 'bravepop-submissions', array( $this, 'bravepop_submissions_content' ));
-            add_submenu_page( 'bravepop', 'Integrations', 'Integrations', $allowedRole, 'bravepop-integrations', array( $this, 'bravepop_integrations_content' ));
-            add_submenu_page( 'bravepop', 'Analytics', 'Analytics', $allowedRole, 'bravepop-analytics', array( $this, 'bravepop_analytics_content' ));
-            //add_submenu_page( 'bravepop', 'Settings', 'Settings', $allowedRole, 'bravepop-settings', array( $this, 'bravepop_settings_content' ));
+
+            add_menu_page(  __( 'Brave', 'bravepop' ), __( 'Brave', 'bravepop' ), 'access_brave_menus', 'bravepop', array( $this, 'bravepop_welcome_content' ), 'data:image/svg+xml;base64,' . base64_encode( $svg ) );
+            add_submenu_page( 'bravepop', 'All Campaigns', 'All Campaigns', 'access_brave_menus', 'bravepop', array( $this, 'bravepop_welcome_content' ) );
+            add_submenu_page( 'bravepop', 'Submissions', 'Submissions', 'access_brave_menus', 'bravepop-submissions', array( $this, 'bravepop_submissions_content' ));
+            add_submenu_page( 'bravepop', 'Integrations', 'Integrations', 'access_brave_menus', 'bravepop-integrations', array( $this, 'bravepop_integrations_content' ));
+            add_submenu_page( 'bravepop', 'Analytics', 'Analytics', 'access_brave_menus', 'bravepop-analytics', array( $this, 'bravepop_analytics_content' ));
+            add_submenu_page( 'bravepop', 'Settings', 'Settings', 'manage_options', 'bravepop-settings', array( $this, 'bravepop_settings_content' ));
         }
 
         public function enqueue_dashboard_script( $hook ) {
 
             if ( is_admin() ) {
-                //error_log(json_encode($hook));
+                //error_log(wp_json_encode($hook));
                 $current_url =  "//" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
-               if ( 'toplevel_page_bravepop' === $hook || 'brave_page_bravepop-integrations' === $hook || 'brave_page_bravepop-analytics' === $hook || 'brave_page_bravepop-submissions' === $hook) {
+               if ( 'toplevel_page_bravepop' === $hook || 'brave_page_bravepop-integrations' === $hook || 'brave_page_bravepop-analytics' === $hook || 'brave_page_bravepop-submissions' === $hook || 'brave_page_bravepop-settings' === $hook) {
                      wp_enqueue_media();
                      wp_register_script( 'tinymce-js', includes_url().'js/tinymce/tinymce.min.js' , '', '', true );
                      wp_register_style( 'tinymce-css', includes_url().'css/editor.min.css' , '', '', 'all' );
@@ -76,7 +68,7 @@ if ( ! class_exists( 'BravePopup_Initialize' ) ) {
                      wp_enqueue_style('bravepop_admin_css',  BRAVEPOP_PLUGIN_PATH . 'assets/css/admin.min.css');
                }
                if(('brave_page_bravepop-submissions' === $hook || 'brave_page_bravepop-analytics' === $hook) && class_exists('BravePop_Geolocation')){
-                  wp_enqueue_script( 'papaparse-js', BRAVEPOP_PLUGIN_PATH . 'assets/js/exportcsv.js', '', '', true );
+                  wp_enqueue_script( 'papaparse-js', BRAVEPOP_PLUGIN_PATH . 'assets/js/exportcsv.js', array(),'1.1.0', true );
                }
                
             }
@@ -105,7 +97,7 @@ if ( ! class_exists( 'BravePopup_Initialize' ) ) {
             $current_url =  "//" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
             $currentpage = ''; $popup_title = "";
             $page = filter_input(INPUT_GET, 'page');
-            if(strpos($page, "bravepop") === false){ return; }
+            if(!empty($page) && strpos($page, "bravepop") === false){ return; }
             if(($page === 'bravepop' || $page === 'bravepop-analytics' || $page === 'bravepop-submissions') && isset($_GET['id'])){  
                 $popup_id = (int)$_GET['id'];
                 $popup_title = get_the_title( $popup_id );
@@ -152,6 +144,7 @@ if ( ! class_exists( 'BravePopup_Initialize' ) ) {
                      $currentIntegrations = $currentSettings && isset($currentSettings['integrations']) ? $currentSettings['integrations'] : array() ;
                      $emailvalidator = $currentSettings && isset($currentSettings['emailvalidator']) ? $currentSettings['emailvalidator'] : array() ;
                      $customFonts = $currentSettings && isset($currentSettings['fonts']) ? $currentSettings['fonts'] : array() ;
+                     $appSettings = $currentSettings && isset($currentSettings['app_settings']) ? $currentSettings['app_settings'] : false ;
                      foreach( $currentIntegrations as $key=>$service ){
                         if(isset($service->enabled) && $service->enabled === true){
                            $enabledServices[] = $key;
@@ -187,15 +180,24 @@ if ( ! class_exists( 'BravePopup_Initialize' ) ) {
                            $languages['langs'][] = $key;
                         }
                      }
+                     //Get WeGlot Languages
+                     if(function_exists('weglot_get_languages_available') ) {
+                        $languages['type'] = 'WeGlot';
+                        $currentLangs = weglot_get_languages_available();
+                        foreach ($currentLangs as $code => $value) {
+                           $languages['langs'][] = $code;
+                        }
+                     }
                 ?>
                 var bravepopup_settings_vars__ = {
                     'isPro': false,
-                    'active': <?php print_r(json_encode(($active ? $active : false)));?>,
+                    'active': <?php print_r(wp_json_encode(($active ? $active : false)));?>,
                     'lcnse': "<?php print_r($lcnse);?>",
                     'root': "<?php print_r(esc_url_raw( rest_url() ));?>",
                     'ajax_url': "<?php print_r(esc_url(admin_url( 'admin-ajax.php' )));?>",
                     'rest_identifier': "<?php print_r(get_option('permalink_structure') ? '?' : '&');?>", 
                     'nonce': "<?php print_r(esc_html(wp_create_nonce( 'wp_rest' ))); ?>",
+                    'esp_nonce': "<?php print_r(esc_html(wp_create_nonce( 'esp_nonce' ))); ?>",
                     'admin_email': "<?php print_r(sanitize_email(get_option('admin_email'))); ?>",
                     'site_name': "<?php print_r(get_bloginfo('name')); ?>",
                     'current_url' :"<?php print_r(esc_url_raw($current_url)); ?>",
@@ -203,21 +205,23 @@ if ( ! class_exists( 'BravePopup_Initialize' ) ) {
                     'home_url': "<?php print_r(esc_url(get_home_url()));?>",
                     'popup_id' : <?php print_r(absint($popup_id)); ?>,
                     'popup_title' : "<?php print_r($popup_title);?>",
-                    'integrations': <?php print_r(json_encode($enabledServices));?>,
-                    'email_validation': <?php print_r(json_encode($emailvalidator));?>,
+                    'integrations': <?php print_r(wp_json_encode($enabledServices));?>,
+                    'email_validation': <?php print_r(wp_json_encode($emailvalidator));?>,
+                    'app_settings': <?php print_r(wp_json_encode($appSettings));?>,
                     'theme_screenshot': currentheme_screenshot,
                     'plugin_url': "<?php print_r(esc_url(BRAVEPOP_PLUGIN_PATH)); ?>",
-                    'woocommerce': <?php in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ? print_r(json_encode(true)) : print_r(json_encode(false)); ?>,
-                    'woocommerce_pages': <?php print_r(json_encode($woocommerce_pages));?>,
+                    'woocommerce': <?php in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ? print_r(wp_json_encode(true)) : print_r(wp_json_encode(false)); ?>,
+                    'woocommerce_pages': <?php print_r(wp_json_encode($woocommerce_pages));?>,
                     'welcome_tour': '<?php print_r($welcomeTour); ?>',
-                    'languages': <?php print_r(json_encode($languages));?>,
-                    'learnDash': <?php print_r(json_encode( function_exists('ld_course_list') ? true : false ));?> ,
-                    'edd': <?php print_r(json_encode( class_exists( 'Easy_Digital_Downloads' ) ? true : false ));?> ,
-                    'roles':<?php global $wp_roles; isset($wp_roles->role_names) ? print_r(json_encode($wp_roles->role_names)) : '{}' ;?>,
-                    'customFonts': <?php print_r(json_encode($customFonts)); ?>,
-                    'UAFonts': <?php print_r(json_encode($uaf_fonts)); ?>,
-                    'isCloudFlare': <?php print_r(json_encode( isset($_SERVER['HTTP_CF_VISITOR']) ? true : false ));?> ,
-                    'timezone': "<?php function_exists('date_default_timezone_get') ? print_r(date_default_timezone_get()) : '';?>"
+                    'languages': <?php print_r(wp_json_encode($languages));?>,
+                    'learnDash': <?php print_r(wp_json_encode( function_exists('ld_course_list') ? true : false ));?> ,
+                    'edd': <?php print_r(wp_json_encode( class_exists( 'Easy_Digital_Downloads' ) ? true : false ));?> ,
+                    'roles':<?php global $wp_roles; isset($wp_roles->role_names) ? print_r(wp_json_encode($wp_roles->role_names)) : '{}' ;?>,
+                    'customFonts': <?php print_r(wp_json_encode($customFonts)); ?>,
+                    'UAFonts': <?php print_r(wp_json_encode($uaf_fonts)); ?>,
+                    'isCloudFlare': <?php print_r(wp_json_encode( isset($_SERVER['HTTP_CF_VISITOR']) ? true : false ));?> ,
+                    'timezone': "<?php function_exists('date_default_timezone_get') ? print_r(date_default_timezone_get()) : '';?>",
+                    'showRatingBox' : <?php print_r(wp_json_encode(!get_option('brave_plugin_rated', false) && wp_count_posts('popup')->publish > 1 ? true : false)); ?>,
                 }
             </script>
             <?php
@@ -230,7 +234,13 @@ if ( ! class_exists( 'BravePopup_Initialize' ) ) {
             </div>
             <?php
         }
-
+        public function bravepop_settings_content() {
+         ?>
+         <div class="wrap">
+             <div id="opti_popup" class="bravepop_settings"></div>
+         </div>
+         <?php
+     }
 
         public function bravepop_integrations_content() {
             ?>
@@ -284,6 +294,15 @@ if ( ! class_exists( 'BravePopup_Initialize' ) ) {
             // add the links to the front of the actions list
             return array_merge( $custom_actions, $actions );
         }
+
+        
+         public function remove_emoji_scripts() {
+            $page = filter_input(INPUT_GET, 'page');
+            if(!empty($page) && strpos($page, 'bravepop') !== false){
+               remove_action( 'admin_print_scripts', 'print_emoji_detection_script' );
+               remove_action( 'admin_print_styles', 'print_emoji_styles' );
+            }
+         }
         
     }
 

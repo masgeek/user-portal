@@ -1,6 +1,6 @@
 <div class="kcmp-notice notice notice-error is-dismissible">
     <div class="kcmp-notice-logo">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 500 500">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 500 500">
             <defs>
                 <style>.a {
                         clip-path: url(#b);

@@ -3,18 +3,18 @@ Plugin URI: https://plugins360.com/automatic-youtube-gallery/
 Contributors: plugins360, wpvideogallery, freemius
 Donate link: https://plugins360.com
 Tags: youtube gallery, youtube playlist, youtube channel, youtube embed, youtube live
-Requires at least: 4.9.5
-Tested up to: 6.1
+Requires at least: 6.0
+Tested up to: 6.7
 Requires PHP: 5.6.20
-Stable tag: 2.2.0
+Stable tag: 2.5.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Build dynamic video galleries by simply adding a YouTube USERNAME, CHANNEL, PLAYLIST, SEARCH TERM, or a custom list of video URLs.
+Build dynamic video galleries by simply adding a YouTube USERNAME, CHANNEL, PLAYLIST, SEARCH KEYWORDS, or a custom list of video URLs.
 
 == Description ==
 
-Create responsive, modern & dynamic video galleries by simply adding a YouTube USERNAME, CHANNEL, PLAYLIST, SEARCH TERM, or a custom list of video URLs.
+Create responsive, modern & dynamic video galleries by simply adding a YouTube USERNAME, CHANNEL, PLAYLIST, SEARCH KEYWORDS, or a custom list of video URLs.
 
 * [View Demo](https://demo.plugins360.com/automatic-youtube-gallery/)
 * [Documentation](https://plugins360.com/automatic-youtube-gallery/documentation/)
@@ -34,13 +34,13 @@ https://www.youtube.com/watch?v=a90OGk42fJ4&rel=0
  * USERNAME
  * CHANNEL
  * PLAYLIST
- * SEARCH TERM
+ * SEARCH KEYWORDS
  * Custom YouTube URLs list
 * Auto Embed Live Stream from a YouTube Channel.
 * GDPR consent before the playback.
 * Gutenberg Block support.
 * Shortcode Builder for the old classic editor and other third-party page builders.
-* Sidebar Widget
+* Sidebar Widget (Compatible with Elementor Page Builder).
 * Built-in caching for quick page loads.
 * Most importantly, a Clear & Beautiful Admin Interface.
 * [+] Hooks for Developers.
@@ -49,9 +49,9 @@ https://www.youtube.com/watch?v=a90OGk42fJ4&rel=0
 
 * [SEO](https://plugins360.com/automatic-youtube-gallery/deeplinking/): Deeplinking, Open Graph Tags, and Schema.org Markup (via JSON-LD).
 * [Popup Theme](https://demo.plugins360.com/automatic-youtube-gallery/theme-popup/)
+* [Inline Theme](https://demo.plugins360.com/automatic-youtube-gallery/theme-inline/)
 * [Slider Theme](https://demo.plugins360.com/automatic-youtube-gallery/theme-slider/)
 * [Playlist Theme](https://demo.plugins360.com/automatic-youtube-gallery/theme-playlister/)
-* [Inline Theme](https://demo.plugins360.com/automatic-youtube-gallery/theme-inline/)
 
 ### TRANSLATION READY
 
@@ -95,7 +95,12 @@ If nothing works, please describe your issue and submit a ticket on our plugin s
 
 = 3. Does the plugin support third-party page builders like "Elementor", "WPBakery", "Divi", etc.? =
 
-Yes. Simply, generate your shortcode using the plugin's "Shortcode Builder" and add it to your favourite page builder.
+Yes, the plugin is fully compatible with popular page builders like Elementor, WPBakery, Divi, and more.
+
+* For **Elementor**, the plugin provides a dedicated WordPress widget. You can find it under the "WordPress" tab in the Elementor editor. Simply drag and drop the widget into your design to embed your video gallery seamlessly.
+* Alternatively, for **Elementor** and other page builders, you can use the plugin's **Shortcode Builder** to generate a shortcode. Once created, you can add the shortcode to any section or module of your favorite page builder.
+
+This flexibility ensures you can integrate your video gallery effortlessly, regardless of your preferred page builder.
 
 = 4. Is the plugin compatible with WordPress Multisite? =
 
@@ -115,6 +120,77 @@ Yes, it is. However, do not "network-activate" the plugin. Activate it only on t
 10. Widget
 
 == Changelog ==
+
+= 2.5.6 =
+
+* Update: Upgraded to the latest version of the Freemius SDK for enhanced compatibility.
+* Fix: Fixed multiple minor bugs to ensure a smoother and more reliable user experience.
+
+= 2.5.5 =
+
+* Tweak: Updated the "Freemius SDK" to version 2.10.1.
+* Fix: Compatibility issues with the Elementor page builder.
+
+= 2.5.2 =
+
+* New: Introduced a "Custom Video Player" as an alternative to the default native YouTube embed. Users can configure this via the "Player Type" option.
+* New: Added "Lazy Loading" for images and videos, enhancing page load times and overall performance.
+* New: Introduced a new "Page Scroll Top Offset" option, enabling users to define a custom top offset (in pixels) when the page scrolls to the video player after clicking on a thumbnail.
+* Tweak: Completely rewrote the plugin's JavaScript files using the latest "Custom Elements" technology, ensuring better integration and improved performance.
+* Tweak: Updated the "Freemius SDK" to version 2.9.0.
+* Fix: Resolved various minor bugs to enhance stability and functionality.
+
+= 2.4.3 =
+
+* New: Introduced a new "Player Width" option.
+* Tweak: Updated Freemius SDK (2.7.4).
+* Fix: Poster image display issue when using the single video shortcode.
+* Fix: [+] a few minor bug fixes.
+
+= 2.3.9 =
+
+* Tweak: Updated Freemius SDK (2.7.0).
+* Fix: Livestream API caching issue.
+* Fix: Conflict issue with the Google Site Kit plugin.
+* Fix: [+] a few minor bug fixes.
+
+= 2.3.8 =
+
+* Tweak: Optimized JavaScript loading.
+* Tweak: Updated Freemius SDK (2.6.2).
+* Fix: GDPR compatibility issues.
+* Fix: YouTube Livestream feature stopped working due to a recent update from the YouTube API.
+* Fix: [+] a few minor bug fixes.
+
+= 2.3.6 =
+
+* Tweak: Updated Freemius SDK (2.6.1).
+* Fix: WordPress 6.4 compatibility issues.
+* Fix: [+] a few minor bug fixes.
+
+= 2.3.5 =
+
+* Fix: Security fix: Broken Access Control. Thanks to Rafshanzani Suhada from [Patchstack](https://patchstack.com/).
+* Fix: [+] a few minor bug fixes.
+
+= 2.3.3 =
+
+* Tweak: Updated Freemius SDK (2.5.10).
+* Fix: Security fix.
+* Fix: [+] a few minor bug fixes.
+
+= 2.3.2 =
+
+* New: WPML Compatibility.
+* New: POLYLANG Compatibility.
+* New: Support for the "Muted" option in the player.
+* New: "Privacy Enhanced Mode" for the player.
+* New: Support for YouTube "Origin" parameter that adds extra security for the player.
+* New: Options to change the "Load More", "Previous", and the "Next" pagination button labels.
+* Tweak: Updated to the Gutenberg API Version 2.
+* Tweak: Updated Freemius SDK (2.5.7).
+* Tweak: All the CSS & JS files added by the plugin are minified for better performance.
+* Fix: [+] a few minor bug fixes.
 
 = 2.2.0 =
 
@@ -201,6 +277,6 @@ Yes, it is. However, do not "network-activate" the plugin. Activate it only on t
 
 == Upgrade Notice ==
 
-= 2.2.0 =
+= 2.5.6 =
 
-Introduces several bug fixes. [See changelog](https://wordpress.org/plugins/automatic-youtube-gallery/#developers)
+Upgraded to the latest version of the Freemius SDK for enhanced compatibility. [See changelog](https://wordpress.org/plugins/automatic-youtube-gallery/#developers)

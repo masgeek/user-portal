@@ -3,6 +3,7 @@
  * Page Template for Kenta.
  *
  * Template name: Kenta: Fluid Page Builder Template With Transparent Header
+ * Template Post Type: post, page, product
  */
 
 // template override settings

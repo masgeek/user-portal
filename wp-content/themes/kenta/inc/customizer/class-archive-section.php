@@ -159,6 +159,16 @@ if ( ! class_exists( 'Kenta_Archive_Section' ) ) {
 					->closeByDefault();
 			}
 
+			if ( ! KENTA_CMP_PRO_ACTIVE ) {
+				$controls[] = ( new Separator() );
+				$controls[] = ( new Text( 'kenta_blogs_archive_header_title' ) )
+					->setLabel( __( 'Blogs Page Title', 'kenta' ) )
+					->selectiveRefresh( '.kenta-archive-header', 'kenta_show_archive_header', [
+						'container_inclusive' => true,
+					] )
+					->setDefaultValue( __( 'Blogs', 'kenta' ) );
+			}
+
 			return apply_filters( 'kenta_archive_header_content_controls', $controls );
 		}
 
@@ -182,8 +192,8 @@ if ( ! class_exists( 'Kenta_Archive_Section' ) ) {
 					->setSpacing( [
 						'top'    => '24px',
 						'bottom' => '24px',
-						'left'   => '24px',
-						'right'  => '24px',
+						'left'   => '0px',
+						'right'  => '0px',
 						'linked' => true,
 					] )
 				,

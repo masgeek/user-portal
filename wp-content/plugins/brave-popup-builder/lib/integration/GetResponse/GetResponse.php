@@ -3,6 +3,8 @@ if ( ! class_exists( 'BravePop_GetResponse' ) ) {
    
    class BravePop_GetResponse {
 
+      protected $access_key;
+
       function __construct() {
          $braveSettings = get_option('_bravepopup_settings');
          $integrations = $braveSettings && isset($braveSettings['integrations']) ? $braveSettings['integrations'] : array() ;
@@ -25,7 +27,7 @@ if ( ! class_exists( 'BravePop_GetResponse' ) ) {
          $body = wp_remote_retrieve_body( $response );
          $data = json_decode( $body );
 
-         //error_log($body);
+         // error_log(wp_json_encode($body));
          if(!$data || (isset($data->httpStatus) && $data->httpStatus === 401)){
             return false;
          }
@@ -41,13 +43,13 @@ if ( ! class_exists( 'BravePop_GetResponse' ) ) {
                   $finalLists[] = $listItem;
                }
             }
-            return json_encode($finalLists);
+            return wp_json_encode($finalLists);
          }
 
       }
 
 
-      public function add_to_lists($email, $list_id, $fname='', $lname='', $phone='', $customFields=array(), $tags=array(), $userData=array()){
+      public function add_to_lists($email, $list_id, $fname='', $lname='', $phone='', $customFields=array(), $tags=array(), $userData=array(), $doubleOptin=false, $misc=array()){
          if(!$email || !$list_id){ return null; }
          if(!$this->access_key){ 
             //error_log('ACCESSE KEY Missing!');
@@ -92,6 +94,10 @@ if ( ! class_exists( 'BravePop_GetResponse' ) ) {
             $contact['tags'] = $allTags;
          }
 
+         if(isset($misc['dayOfCycle'])){
+            $contact['dayOfCycle'] = $misc['dayOfCycle'];
+         }
+
          $args = array(
             'method' => 'POST',
             'headers' => array(
@@ -99,7 +105,7 @@ if ( ! class_exists( 'BravePop_GetResponse' ) ) {
                'Authorization' => 'Bearer ' . $this->access_key,
                'accept-encoding'=> '', 
             ),
-            'body' => json_encode($contact)
+            'body' => wp_json_encode($contact)
          );
 
          $response = wp_remote_post( 'https://api.getresponse.com/v3/contacts', $args );

@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Quiz_Page class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -22,12 +28,12 @@ class Forminator_Quiz_Page extends Forminator_Admin_Module_Edit_Page {
 	 *
 	 * @since 1.14.10
 	 *
-	 * @param $id
-	 * @param $title
-	 * @param $views
-	 * @param $date
-	 * @param $status
-	 * @param name
+	 * @param int    $id Id.
+	 * @param string $title Title.
+	 * @param array  $views Views.
+	 * @param string $date Date.
+	 * @param string $status Status.
+	 * @param mixed  $model Model.
 	 *
 	 * @return array
 	 */
@@ -51,7 +57,7 @@ class Forminator_Quiz_Page extends Forminator_Admin_Module_Edit_Page {
 	/**
 	 * Check if quiz has leads
 	 *
-	 * @param $model
+	 * @param object $model Form model.
 	 *
 	 * @return bool
 	 */
@@ -66,17 +72,17 @@ class Forminator_Quiz_Page extends Forminator_Admin_Module_Edit_Page {
 	/**
 	 * Check has lead
 	 *
-	 * @param $model
+	 * @param object $model Form model.
 	 *
 	 * @return int
 	 */
 	public static function get_leads_id( $model ) {
-		$leadsId = 0;
+		$leads_id = 0;
 		if ( self::has_leads( $model ) && isset( $model->settings['leadsId'] ) ) {
-			$leadsId = $model->settings['leadsId'];
+			$leads_id = $model->settings['leadsId'];
 		}
 
-		return $leadsId;
+		return $leads_id;
 	}
 
 	/**
@@ -84,7 +90,7 @@ class Forminator_Quiz_Page extends Forminator_Admin_Module_Edit_Page {
 	 *
 	 * @since 1.14
 	 *
-	 * @param $module
+	 * @param array $module Module.
 	 *
 	 * @return float|int
 	 */
@@ -108,12 +114,11 @@ class Forminator_Quiz_Page extends Forminator_Admin_Module_Edit_Page {
 		return apply_filters(
 			'forminator_quizzes_bulk_actions',
 			array(
-				'publish-quizzes'        => __( 'Publish', 'forminator' ),
-				'draft-quizzes'          => __( 'Unpublish', 'forminator' ),
-				// 'clone-quizzes'          => __( "Duplicate", 'forminator' ),.
-				'reset-views-quizzes'    => __( 'Reset Tracking Data', 'forminator' ),
-				'delete-entries-quizzes' => __( 'Delete Submissions', 'forminator' ),
-				'delete-quizzes'         => __( 'Delete', 'forminator' ),
+				'publish-quizzes'        => esc_html__( 'Publish', 'forminator' ),
+				'draft-quizzes'          => esc_html__( 'Unpublish', 'forminator' ),
+				'reset-views-quizzes'    => esc_html__( 'Reset Tracking Data', 'forminator' ),
+				'delete-entries-quizzes' => esc_html__( 'Delete Submissions', 'forminator' ),
+				'delete-quizzes'         => esc_html__( 'Delete', 'forminator' ),
 			)
 		);
 	}

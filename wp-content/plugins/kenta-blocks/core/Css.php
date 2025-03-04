@@ -63,33 +63,7 @@ final class Css {
 	 * @return string
 	 */
 	public function dynamicSidebarCssRaw() {
-		$blocks = array();
-
-		$sidebars = wp_get_sidebars_widgets();
-		global $wp_registered_widgets;
-
-		foreach ( $sidebars as $widgets ) {
-			foreach ( $widgets as $widget_id ) {
-				if ( ! isset( $wp_registered_widgets[ $widget_id ] ) ) {
-					continue;
-				}
-
-				$instance = $wp_registered_widgets[ $widget_id ]['callback'][0];
-				if ( ! $instance instanceof \WP_Widget_Block ) {
-					continue;
-				}
-
-				foreach ( $instance->get_settings() as $setting ) {
-					if ( ! isset( $setting['content'] ) ) {
-						continue;
-					}
-
-					$blocks = array_merge( $blocks, kenta_blocks_parse_content( $setting['content'] ) );
-				}
-			}
-		}
-
-		return $this->parse( array_merge( $this->vars(), $this->dynamicCss( $blocks ) ) );
+		return $this->parse( array_merge( $this->vars(), $this->dynamicCss( kb_sidebar_blocks() ) ) );
 	}
 
 	/**
@@ -279,13 +253,10 @@ final class Css {
 					}
 				} else {
 					$kenta_blocks = kenta_blocks_all();
-					if ( isset( $kenta_blocks[ $name ] ) && isset( $kenta_blocks[ $name ]['css'] ) ) {
+					if ( isset( $kenta_blocks[ $name ]['css'] ) ) {
 
-						if ( isset( $block['attrs'] ) && isset( $block['attrs']['blockID'] ) ) {
-							$attrs = $block['attrs'] ?? [];
-							$id    = $attrs['blockID'] ?? null;
-
-							$css = $kenta_blocks[ $name ]['css']( $id, $attrs, $css );
+						if ( isset( $block['attrs']['blockID'] ) ) {
+							$css = $kenta_blocks[ $name ]['css']( $block, $css );
 						}
 					}
 				}
@@ -301,19 +272,11 @@ final class Css {
 
 	/**
 	 * Generate blocks dynamic css
+	 *
+	 * @return string
 	 */
 	public function dynamicCssRaw( $post = null ) {
-		$blocks = array();
-
-		if ( ! $post ) {
-			global $post;
-		}
-
-		if ( is_object( $post ) ) {
-			$blocks = kenta_blocks_parse_content( $post->post_content );
-		}
-
-		return $this->parse( $this->dynamicCss( $blocks ) );
+		return $this->parse( $this->dynamicCss( kb_post_blocks( $post ) ) );
 	}
 
 	public function desktop() {
@@ -606,6 +569,46 @@ final class Css {
 
 			if ( $enable ) {
 				$value = "$color $h $v $blur $spread $inset";
+			}
+
+			$shadowCss[ $selector ] = $this->getResponsiveValue(
+				$value, $device, $shadowCss[ $selector ] ?? null
+			);
+		}
+
+		return $shadowCss;
+	}
+
+	/**
+	 * Convert Text Shadow value to css output
+	 *
+	 * @param $shadow
+	 * @param string $selector
+	 *
+	 * @return array
+	 */
+	public function textShadow( $shadow, $selector = 'text-shadow' ) {
+
+		if ( $shadow === self::INITIAL_VALUE || $shadow === null ) {
+			return array();
+		}
+
+		if ( ! isset( $shadow['desktop'] ) ) {
+			$shadow = [ null => $shadow ];
+		}
+
+		$shadowCss = [];
+
+		foreach ( $shadow as $device => $data ) {
+			$value  = 'none';
+			$enable = ( $data['enable'] ?? '' ) === 'yes';
+			$h      = $data['hShadow'] ?? '0';
+			$v      = $data['vShadow'] ?? '0';
+			$blur   = $data['blur'] ?? '0';
+			$color  = $data['color'] ?? '';
+
+			if ( $enable ) {
+				$value = "$h $v $blur $color";
 			}
 
 			$shadowCss[ $selector ] = $this->getResponsiveValue(

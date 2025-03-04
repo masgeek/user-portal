@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'ibllex/kenta-blocks',
-        'pretty_version' => 'v1.2.3',
-        'version' => '1.2.3.0',
-        'reference' => 'e30c3bdb02278b44ebb3c945e6c4e82cfa502180',
+        'pretty_version' => 'v1.4.4',
+        'version' => '1.4.4.0',
+        'reference' => '20621ccc1a7ad11e9c17d8af4194472745a0b56c',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         'ibllex/kenta-blocks' => array(
-            'pretty_version' => 'v1.2.3',
-            'version' => '1.2.3.0',
-            'reference' => 'e30c3bdb02278b44ebb3c945e6c4e82cfa502180',
+            'pretty_version' => 'v1.4.4',
+            'version' => '1.4.4.0',
+            'reference' => '20621ccc1a7ad11e9c17d8af4194472745a0b56c',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -22,7 +22,7 @@
         'wpmoose/wp-dismissible-notice' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '7f541fc1f45c59ea9894acb9acfe716beb3c09ad',
+            'reference' => '77fe015fc4c91588619a82396b622be0409f823f',
             'type' => 'library',
             'install_path' => __DIR__ . '/../wpmoose/wp-dismissible-notice',
             'aliases' => array(

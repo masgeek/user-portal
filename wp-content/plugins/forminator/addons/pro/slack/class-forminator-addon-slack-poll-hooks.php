@@ -1,110 +1,40 @@
 <?php
+/**
+ * Forminator Addon Slack Poll Hooks.
+ *
+ * @package Forminator
+ */
 
 /**
- * Class Forminator_Addon_Slack_Poll_Hooks
+ * Class Forminator_Slack_Poll_Hooks
  *
  * @since 1.6.1
- *
  */
-class Forminator_Addon_Slack_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abstract {
+class Forminator_Slack_Poll_Hooks extends Forminator_Integration_Poll_Hooks {
 
 	/**
-	 * Addon instance are auto available form abstract
-	 * Its added here for development purpose,
-	 * Auto-complete will resolve addon directly to `Slack` instance instead of the abstract
-	 * And its public properties can be exposed
+	 * Return custom entry fields
 	 *
-	 * @since 1.6.1
-	 * @var Forminator_Addon_Slack
-	 */
-	protected $addon;
-
-	/**
-	 * Poll Settings Instance
-	 *
-	 * @since 1.6.1
-	 * @var Forminator_Addon_Slack_Poll_Settings | null
-	 */
-	protected $poll_settings_instance;
-
-	/**
-	 * Save status of request sent and received for each connected Slack Connection
-	 *
-	 * @since 1.6.1
-	 *
-	 * @param array $submitted_data
-	 * @param array $form_entry_fields
-	 *
+	 * @param array $submitted_data Submitted data.
+	 * @param array $current_entry_fields Current entry fields.
 	 * @return array
 	 */
-	public function add_entry_fields( $submitted_data, $form_entry_fields = array() ) {
-
-		$pol_id                 = $this->poll_id;
-		$poll_settings_instance = $this->poll_settings_instance;
-
-		/**
-		 * Filter Slack submitted poll data to be processed
-		 *
-		 * @since 1.6.1
-		 *
-		 * @param array                                $submitted_data
-		 * @param int                                  $pol_id                 current Poll ID.
-		 * @param Forminator_Addon_Slack_Poll_Settings $poll_settings_instance Slack Addon Poll Settings instance.
-		 */
-		$submitted_data = apply_filters(
-			'forminator_addon_slack_poll_submitted_data',
-			$submitted_data,
-			$pol_id,
-			$poll_settings_instance
-		);
-
-		$addon_setting_values = $this->poll_settings_instance->get_poll_settings_values();
-
-		$data = array();
-
-		/**
-		 * Fires before send message to Slack
-		 *
-		 * @since 1.6.1
-		 *
-		 * @param int                                  $pol_id                 current Poll ID.
-		 * @param array                                $submitted_data
-		 * @param Forminator_Addon_Slack_Poll_Settings $poll_settings_instance Slack Addon Poll Settings instance.
-		 */
-		do_action( 'forminator_addon_slack_poll_before_send_message', $pol_id, $submitted_data, $poll_settings_instance );
+	protected function custom_entry_fields( $submitted_data, $current_entry_fields ): array {
+		$addon_setting_values = $this->settings_instance->get_settings_values();
+		$data                 = array();
 
 		foreach ( $addon_setting_values as $key => $addon_setting_value ) {
 			// save it on entry field, with name `status-$MULTI_ID`, and value is the return result on sending data to slack.
-			if ( $poll_settings_instance->is_multi_poll_settings_complete( $key ) ) {
+			if ( $this->settings_instance->is_multi_id_completed( $key ) ) {
 				// exec only on completed connection.
 				$data[] = array(
 					'name'  => 'status-' . $key,
-					'value' => $this->get_status_on_send_message( $key, $submitted_data, $addon_setting_value, $form_entry_fields ),
+					'value' => $this->get_status_on_send_message( $key, $submitted_data, $addon_setting_value, $current_entry_fields ),
 				);
 			}
 		}
 
-		$entry_fields = $data;
-		/**
-		 * Filter Slack entry fields to be saved to entry model
-		 *
-		 * @since 1.6.1
-		 *
-		 * @param array                                $entry_fields
-		 * @param int                                  $pol_id                 current Poll ID.
-		 * @param array                                $submitted_data
-		 * @param Forminator_Addon_Slack_Poll_Settings $poll_settings_instance Slack Addon Poll Settings instance.
-		 */
-		$data = apply_filters(
-			'forminator_addon_slack_poll_entry_fields',
-			$entry_fields,
-			$pol_id,
-			$submitted_data,
-			$poll_settings_instance
-		);
-
 		return $data;
-
 	}
 
 	/**
@@ -112,38 +42,38 @@ class Forminator_Addon_Slack_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abst
 	 *
 	 * @since 1.6.1
 	 *
-	 * @param $connection_id
-	 * @param $submitted_data
-	 * @param $connection_settings
-	 * @param $poll_entry_fields
+	 * @param string $connection_id Connection Id.
+	 * @param array  $submitted_data Submitted data.
+	 * @param array  $connection_settings Connection settings.
+	 * @param array  $poll_entry_fields Poll entry fields.
 	 *
 	 * @return array `is_sent` true means its success send data to Slack, false otherwise
+	 * @throws Forminator_Integration_Exception Throws Integration Exception.
 	 */
 	private function get_status_on_send_message( $connection_id, $submitted_data, $connection_settings, $poll_entry_fields ) {
 		// initialize as null.
 		$api = null;
 
-		$poll_id                = $this->poll_id;
-		$poll_settings_instance = $this->poll_settings_instance;
-		$poll_settings          = $this->poll_settings_instance->get_poll_settings();
+		$poll_id                = $this->module_id;
+		$poll_settings_instance = $this->settings_instance;
+		$poll_settings          = $this->settings_instance->get_poll_settings();
 
-		//check required fields
+		// check required fields.
 		try {
 			$api  = $this->addon->get_api();
 			$args = array();
 
 			if ( ! isset( $connection_settings['target_id'] ) ) {
-				throw new Forminator_Addon_Slack_Exception( __( 'Target ID not properly set up.', 'forminator' ) );
+				throw new Forminator_Integration_Exception( esc_html__( 'Target ID not properly set up.', 'forminator' ) );
 			}
 
 			if ( ! isset( $connection_settings['message'] ) ) {
-				throw new Forminator_Addon_Slack_Exception( __( 'Message not properly set up.', 'forminator' ) );
+				throw new Forminator_Integration_Exception( esc_html__( 'Message not properly set up.', 'forminator' ) );
 			}
 			$text_message = $connection_settings['message'];
 			$text_message = forminator_replace_variables( $text_message );
 
-			// {poll_name_replace}.
-			$text_message = str_ireplace( '{poll_name}', forminator_get_name_from_model( $this->poll ), $text_message );
+			$text_message = str_ireplace( '{poll_name}', forminator_get_name_from_model( $this->module ), $text_message );
 
 			$attachments = $this->get_poll_data_as_attachments( $submitted_data, $poll_entry_fields );
 
@@ -159,7 +89,7 @@ class Forminator_Addon_Slack_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abst
 			 * @param array                                $connection_settings    current connection setting, contains options of like `name`, `target_id` etc.
 			 * @param array                                $poll_entry_fields      default entry fields of form.
 			 * @param array                                $poll_settings          Displayed Poll settings.
-			 * @param Forminator_Addon_Slack_Poll_Settings $poll_settings_instance Slack Addon Poll Settings instance.
+			 * @param Forminator_Slack_Poll_Settings $poll_settings_instance Slack Integration Poll Settings instance.
 			 */
 			$attachments = apply_filters(
 				'forminator_addon_slack_poll_message_attachments',
@@ -190,7 +120,7 @@ class Forminator_Addon_Slack_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abst
 			 * @param array                                $connection_settings    current connection setting, contains options of like `name`, `target_id` etc.
 			 * @param array                                $poll_entry_fields      default entry fields of form.
 			 * @param array                                $poll_settings          Displayed Poll settings.
-			 * @param Forminator_Addon_Slack_Poll_Settings $poll_settings_instance Slack Addon Poll Settings instance.
+			 * @param Forminator_Slack_Poll_Settings $poll_settings_instance Slack Integration Poll Settings instance.
 			 */
 			$args = apply_filters(
 				'forminator_addon_slack_poll_send_message_args',
@@ -214,7 +144,7 @@ class Forminator_Addon_Slack_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abst
 			return array(
 				'is_sent'         => true,
 				'connection_name' => $connection_settings['name'],
-				'description'     => __( 'Successfully send data to Slack', 'forminator' ),
+				'description'     => esc_html__( 'Successfully send data to Slack', 'forminator' ),
 				'data_sent'       => $api->get_last_data_sent(),
 				'data_received'   => $api->get_last_data_received(),
 				'url_request'     => $api->get_last_url_request(),
@@ -222,14 +152,14 @@ class Forminator_Addon_Slack_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abst
 				'target_id'       => $connection_settings['target_id'], // for delete reference.
 			);
 
-		} catch ( Forminator_Addon_Slack_Exception $e ) {
+		} catch ( Forminator_Integration_Exception $e ) {
 			$addon_entry_fields = array(
 				'is_sent'         => false,
 				'description'     => $e->getMessage(),
 				'connection_name' => $connection_settings['name'],
-				'data_sent'       => ( ( $api instanceof Forminator_Addon_Slack_Wp_Api ) ? $api->get_last_data_sent() : array() ),
-				'data_received'   => ( ( $api instanceof Forminator_Addon_Slack_Wp_Api ) ? $api->get_last_data_received() : array() ),
-				'url_request'     => ( ( $api instanceof Forminator_Addon_Slack_Wp_Api ) ? $api->get_last_url_request() : '' ),
+				'data_sent'       => ( ( $api instanceof Forminator_Slack_Wp_Api ) ? $api->get_last_data_sent() : array() ),
+				'data_received'   => ( ( $api instanceof Forminator_Slack_Wp_Api ) ? $api->get_last_data_received() : array() ),
+				'url_request'     => ( ( $api instanceof Forminator_Slack_Wp_Api ) ? $api->get_last_url_request() : '' ),
 				'ts'              => '', // for delete reference,.
 				'target_id'       => '', // for delete reference,.
 			);
@@ -243,8 +173,8 @@ class Forminator_Addon_Slack_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abst
 	 *
 	 * @since 1.6.1
 	 *
-	 * @param $submitted_data
-	 * @param $poll_entry_fields
+	 * @param array $submitted_data Submitted data.
+	 * @param array $poll_entry_fields Poll entry fields.
 	 *
 	 * @return array
 	 */
@@ -255,30 +185,30 @@ class Forminator_Addon_Slack_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abst
 		 * Attachment 1
 		 * Answer          Extra
 		 */
-		$answer_data   = isset( $submitted_data[ $this->poll_id ] ) ? $submitted_data[ $this->poll_id ] : '';
-		$extra_field   = isset( $submitted_data[ $this->poll_id . '-extra' ] ) ? $submitted_data[ $this->poll_id . '-extra' ] : '';
-		$fields_labels = $this->poll->pluck_fields_array( 'title', 'element_id', '1' );
+		$answer_data   = isset( $submitted_data[ $this->module_id ] ) ? $submitted_data[ $this->module_id ] : '';
+		$extra_field   = isset( $submitted_data[ $this->module_id . '-extra' ] ) ? $submitted_data[ $this->module_id . '-extra' ] : '';
+		$fields_labels = $this->module->pluck_fields_array( 'title', 'element_id', '1' );
 
 		$answer = isset( $fields_labels[ $answer_data ] ) ? $fields_labels[ $answer_data ] : $answer_data;
 		$extra  = $extra_field;
 
 		$attachment_fields   = array();
 		$attachment_fields[] = array(
-			'title' => __( 'Vote', 'forminator' ),
+			'title' => esc_html__( 'Vote', 'forminator' ),
 			'value' => esc_html( $answer ),
 			'short' => ! empty( $extra ),
 		);
 
 		if ( ! empty( $extra ) ) {
 			$attachment_fields[] = array(
-				'title' => __( 'Extra', 'forminator' ),
+				'title' => esc_html__( 'Extra', 'forminator' ),
 				'value' => esc_html( $extra ),
 				'short' => true,
 			);
 		}
 
 		$attachments[] = array(
-			'title'  => __( 'Submitted Vote', 'forminator' ),
+			'title'  => esc_html__( 'Submitted Vote', 'forminator' ),
 			'fields' => $attachment_fields,
 		);
 
@@ -287,23 +217,23 @@ class Forminator_Addon_Slack_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abst
 		 * Poll Result
 		 */
 		$attachment_fields = array();
-		$fields_array      = $this->poll->get_fields_as_array();
-		$map_entries       = Forminator_Form_Entry_Model::map_polls_entries( $this->poll_id, $fields_array );
+		$fields_array      = $this->module->get_fields_as_array();
+		$map_entries       = Forminator_Form_Entry_Model::map_polls_entries( $this->module_id, $fields_array );
 
 		// append new answer.
-		if ( ! $this->poll->is_prevent_store() ) {
+		if ( ! $this->module->is_prevent_store() ) {
 			$entries = 0;
 			// exists on map entries.
 			if ( in_array( $answer_data, array_keys( $map_entries ), true ) ) {
 				$entries = $map_entries[ $answer_data ];
 			}
 
-			$entries ++;
+			++$entries;
 			$map_entries[ $answer_data ] = $entries;
 
 		}
 
-		$fields = $this->poll->get_fields();
+		$fields = $this->module->get_fields();
 		if ( ! is_null( $fields ) ) {
 			foreach ( $fields as $field ) {
 				$label = addslashes( $field->title );
@@ -323,107 +253,10 @@ class Forminator_Addon_Slack_Poll_Hooks extends Forminator_Addon_Poll_Hooks_Abst
 		}
 
 		$attachments[] = array(
-			'title'  => __( 'Current Poll Result', 'forminator' ),
+			'title'  => esc_html__( 'Current Poll Result', 'forminator' ),
 			'fields' => $attachment_fields,
 		);
 
 		return $attachments;
 	}
-
-
-	/**
-	 * Slack will add a column on the title/header row
-	 * its called `Slack Info` which can be translated on forminator lang
-	 *
-	 * @since 1.6.1
-	 * @return array
-	 */
-	public function on_export_render_title_row() {
-
-		$export_headers = array(
-			'info' => __( 'Slack Info', 'forminator' ),
-		);
-
-		$poll_id                = $this->poll_id;
-		$poll_settings_instance = $this->poll_settings_instance;
-
-		/**
-		 * Filter Slack headers on export file
-		 *
-		 * @since 1.6.1
-		 *
-		 * @param array                                $export_headers         headers to be displayed on export file.
-		 * @param int                                  $poll_id                current Poll ID.
-		 * @param Forminator_Addon_Slack_Poll_Settings $poll_settings_instance Slack Addon Poll Settings instance.
-		 */
-		$export_headers = apply_filters(
-			'forminator_addon_slack_poll_export_headers',
-			$export_headers,
-			$poll_id,
-			$poll_settings_instance
-		);
-
-		return $export_headers;
-	}
-
-	/**
-	 * Slack will add a column that give user information whether sending data to Slack successfully or not
-	 * It will only add one column even its multiple connection, every connection will be separated by comma
-	 *
-	 * @since 1.6.1
-	 *
-	 * @param Forminator_Form_Entry_Model $entry_model
-	 * @param                             $addon_meta_data
-	 *
-	 * @return array
-	 */
-	public function on_export_render_entry( Forminator_Form_Entry_Model $entry_model, $addon_meta_data ) {
-
-		$poll_id                = $this->poll_id;
-		$poll_settings_instance = $this->poll_settings_instance;
-
-		/**
-		 *
-		 * Filter Slack metadata that previously saved on db to be processed
-		 *
-		 * @since 1.6.1
-		 *
-		 * @param array                                $addon_meta_data
-		 * @param int                                  $poll_id                current Poll ID.
-		 * @param Forminator_Addon_Slack_Poll_Settings $poll_settings_instance Slack Addon Poll Settings instance.
-		 */
-		$addon_meta_data = apply_filters(
-			'forminator_addon_slack_poll_metadata',
-			$addon_meta_data,
-			$poll_id,
-			$poll_settings_instance
-		);
-
-		$export_columns = array(
-			'info' => $this->get_from_addon_meta_data( $addon_meta_data, 'description', '' ),
-		);
-
-		/**
-		 * Filter Slack columns to be displayed on export submissions
-		 *
-		 * @since 1.6.1
-		 *
-		 * @param array                                $export_columns         column to be exported.
-		 * @param int                                  $poll_id                current Poll ID.
-		 * @param Forminator_Form_Entry_Model          $entry_model            Form Entry Model.
-		 * @param array                                $addon_meta_data        meta data saved by addon on entry fields.
-		 * @param Forminator_Addon_Slack_Poll_Settings $poll_settings_instance Slack Addon Poll Settings instance.
-		 */
-		$export_columns = apply_filters(
-			'forminator_addon_slack_poll_export_columns',
-			$export_columns,
-			$poll_id,
-			$entry_model,
-			$addon_meta_data,
-			$poll_settings_instance
-		);
-
-		return $export_columns;
-	}
-
 }

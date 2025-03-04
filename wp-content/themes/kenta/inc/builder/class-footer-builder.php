@@ -48,10 +48,10 @@ if ( ! class_exists( 'Kenta_Footer_Builder' ) ) {
 				// Breadcrumbs
 				->addElement( new Kenta_Breadcrumbs_Element( 'breadcrumbs', 'kenta_footer_el_breadcrumbs', __( 'Breadcrumbs', 'kenta' ) ) )
 				// Widgets
-				->addElement( new Kenta_Widgets_Element( 'widgets-1', 'kenta_footer_el_widgets_1', __( 'Widgets Area #1', 'kenta' ) ) )
-				->addElement( new Kenta_Widgets_Element( 'widgets-2', 'kenta_footer_el_widgets_2', __( 'Widgets Area #2', 'kenta' ) ) )
-				->addElement( new Kenta_Widgets_Element( 'widgets-3', 'kenta_footer_el_widgets_3', __( 'Widgets Area #3', 'kenta' ) ) )
-				->addElement( new Kenta_Widgets_Element( 'widgets-4', 'kenta_footer_el_widgets_4', __( 'Widgets Area #4', 'kenta' ) ) )
+				->addElement( new Kenta_Widgets_Element( 'widgets-1', 'kenta_footer_el_widgets_1', __( 'Footer Widgets Area #1', 'kenta' ) ) )
+				->addElement( new Kenta_Widgets_Element( 'widgets-2', 'kenta_footer_el_widgets_2', __( 'Footer Widgets Area #2', 'kenta' ) ) )
+				->addElement( new Kenta_Widgets_Element( 'widgets-3', 'kenta_footer_el_widgets_3', __( 'Footer Widgets Area #3', 'kenta' ) ) )
+				->addElement( new Kenta_Widgets_Element( 'widgets-4', 'kenta_footer_el_widgets_4', __( 'Footer Widgets Area #4', 'kenta' ) ) )
 				->addElement( new Kenta_Socials_Element( 'footer-socials', 'kenta_footer_el_socials', __( 'Socials', 'kenta' ) ) );
 
 			$this->_builder
@@ -82,7 +82,9 @@ if ( ! class_exists( 'Kenta_Footer_Builder' ) ) {
 				]
 			] );
 
-			$row = ( new Kenta_Footer_Row( 'top', __( 'Top Row', 'kenta' ) ) );
+			$row = ( new Kenta_Footer_Row( 'top', __( 'Top Row', 'kenta' ), [
+				'z_index' => 100,
+			] ) );
 
 			$row->setMaxColumns( apply_filters( 'kenta_footer_top_row_max_columns', 4 ) );
 
@@ -125,7 +127,9 @@ if ( ! class_exists( 'Kenta_Footer_Builder' ) ) {
 				]
 			] );
 
-			$row = ( new Kenta_Footer_Row( 'middle', __( 'Middle Row', 'kenta' ) ) );
+			$row = ( new Kenta_Footer_Row( 'middle', __( 'Middle Row', 'kenta' ), [
+				'z_index' => 99,
+			] ) );
 
 			$row->setMaxColumns( apply_filters( 'kenta_footer_middle_row_max_columns', 4 ) );
 
@@ -166,7 +170,9 @@ if ( ! class_exists( 'Kenta_Footer_Builder' ) ) {
 				]
 			] );
 
-			$row = ( new Kenta_Footer_Row( 'bottom', __( 'Bottom Row', 'kenta' ) ) );
+			$row = ( new Kenta_Footer_Row( 'bottom', __( 'Bottom Row', 'kenta' ), [
+				'z_index' => 98,
+			] ) );
 
 			$row->setMaxColumns( apply_filters( 'kenta_footer_bottom_row_max_columns', 4 ) );
 

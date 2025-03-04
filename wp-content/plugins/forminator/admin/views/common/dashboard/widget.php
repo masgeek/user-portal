@@ -1,4 +1,10 @@
 <?php
+/**
+ * Template admin/views/common/dashboard/widget.php
+ *
+ * @package Forminator
+ */
+
 $_per_page          = forminator_form_view_per_page();
 $module_type        = forminator_get_prefix( $module_slug, 'c' );
 $export_dialog      = 'export_' . $module_slug;
@@ -30,7 +36,7 @@ $modules = Forminator_API::$method( null, 1, $num_recent, $statuses );
 
 	<div class="sui-box-header">
 
-		<h3 class="sui-box-title"><i class="<?php echo esc_attr( $icon ); ?>" aria-hidden="true"></i><?php echo esc_html( $title ); ?></h3>
+		<h3 class="sui-box-title"><i class="<?php echo esc_attr( $icon ); ?>" aria-hidden="true"></i><?php echo esc_html( $module_title ); ?></h3>
 
 	</div>
 
@@ -39,7 +45,7 @@ $modules = Forminator_API::$method( null, 1, $num_recent, $statuses );
 		<p><?php echo esc_html( $description ); ?></p>
 
 		<?php // Strict comparison is removed for a reason! ?>
-		<?php if ( 0 == $total ) { ?>
+		<?php if ( 0 === $total ) { ?>
 
 			<p><button class="sui-button sui-button-blue wpmudev-open-modal"
 				data-modal="<?php echo esc_attr( $create_dialog ); ?>">
@@ -72,7 +78,7 @@ $modules = Forminator_API::$method( null, 1, $num_recent, $statuses );
 				foreach ( $modules as $index => $module ) {
 					$module         = (array) $module;
 					$module['name'] = forminator_get_form_name( $module['id'] );
-					$page           = ceil( ( $index + 1 ) / $_per_page );
+					$page_no        = ceil( ( $index + 1 ) / $_per_page );
 					?>
 
 					<tr>
@@ -101,7 +107,7 @@ $modules = Forminator_API::$method( null, 1, $num_recent, $statuses );
 								<span aria-hidden="true"></span>
 							</span>
 
-							<a href="<?php echo esc_url( admin_url( 'admin.php?page=forminator-' . $module_type . '&view-stats=' . $module['id'] . '&paged=' . $page ) ); ?>"
+							<a href="<?php echo esc_url( admin_url( 'admin.php?page=forminator-' . $module_type . '&view-stats=' . $module['id'] . '&paged=' . $page_no ) ); ?>"
 								class="sui-button-icon sui-tooltip sui-tooltip-top-right-mobile"
 								data-tooltip="<?php esc_html_e( 'View Stats', 'forminator' ); ?>">
 								<i class="sui-icon-graph-line" aria-hidden="true"></i>
@@ -125,7 +131,7 @@ $modules = Forminator_API::$method( null, 1, $num_recent, $statuses );
 
 									<li><button class="wpmudev-open-modal"
 										data-modal="<?php echo esc_attr( $preview_dialog ); ?>"
-										data-modal-title="<?php echo sprintf( '%s - %s', esc_attr( $preview_title ), esc_html( htmlspecialchars( htmlspecialchars( $module['name'] ) ) ) ); ?>"
+										data-modal-title="<?php printf( '%s - %s', esc_attr( $preview_title ), esc_html( htmlspecialchars( htmlspecialchars( $module['name'] ) ) ) ); ?>"
 										data-nonce-preview="<?php echo esc_attr( wp_create_nonce( 'forminator_load_module' ) ); ?>"
 										data-form-id="<?php echo esc_attr( $module['id'] ); ?>"
 										data-has-leads="<?php echo esc_attr( $has_leads ); ?>"
@@ -144,7 +150,7 @@ $modules = Forminator_API::$method( null, 1, $num_recent, $statuses );
 										<input type="hidden" name="forminator_action" value="clone">
 										<input type="hidden" name="form_type" value="<?php echo esc_attr( forminator_get_prefix( $module_slug, 'custom-' ) ); ?>">
 										<input type="hidden" name="id" value="<?php echo esc_attr( $module['id'] ); ?>"/>
-								   <?php
+									<?php
 										$clone_nonce = esc_attr( 'forminator-nonce-clone-' . $module['id'] );
 										wp_nonce_field( $clone_nonce, 'forminatorNonce' );
 									?>

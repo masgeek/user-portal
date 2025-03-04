@@ -24,8 +24,8 @@ class Store {
 			return self::$vars[ $key ];
 		}
 
-		if ( ! $callback ) {
-			return null;
+		if ( ! is_callable( $callback ) ) {
+			return $callback;
 		}
 
 		self::$vars[ $key ] = call_user_func( $callback );

@@ -1,12 +1,18 @@
 <?php
+/**
+ * Template admin/views/common/list/chart_script.php
+ *
+ * @package Forminator
+ */
+
 $days_array    = array();
 $default_array = array();
 
 for ( $h = 30; $h >= 0; $h-- ) {
 	$time                   = strtotime( '-' . $h . ' days' );
-	$date                   = date( 'Y-m-d', $time );
+	$date                   = gmdate( 'Y-m-d', $time );
 	$default_array[ $date ] = 0;
-	$days_array[]           = date( 'M j, Y', $time );
+	$days_array[]           = gmdate( 'M j, Y', $time );
 }
 
 foreach ( $this->getModules() as $module ) {

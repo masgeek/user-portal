@@ -1,5 +1,13 @@
 <?php
+/**
+ * The Forminator_Calculator_Symbol_Abstract class.
+ *
+ * @package Forminator
+ */
 
+/**
+ * Class Forminator_Calculator_Symbol_Abstract
+ */
 abstract class Forminator_Calculator_Symbol_Abstract {
 
 	/**
@@ -26,5 +34,4 @@ abstract class Forminator_Calculator_Symbol_Abstract {
 
 		return $identifiers;
 	}
-
 }

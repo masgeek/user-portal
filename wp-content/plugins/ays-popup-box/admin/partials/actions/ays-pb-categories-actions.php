@@ -1,59 +1,63 @@
 <?php
-$action = (isset($_GET['action'])) ? sanitize_text_field( $_GET['action'] ) : '';
+$action = isset($_GET['action']) ? sanitize_text_field($_GET['action']) : '';
+$id = isset($_GET['popup_category']) ? absint( intval($_GET['popup_category']) ) : null;
+
 $heading = '';
-$loader_iamge = '';
-$id = ( isset( $_GET['popup_category'] ) ) ? absint( intval( $_GET['popup_category'] ) ) : null;
+$loader_iamge = "<span class='display_none'><img src=" . AYS_PB_ADMIN_URL . "/images/loaders/loading.gif></span>";
+
 $popup_category = array(
-    'id'            => '',
-    'title'         => '',
-    'description'   => '',
-    'published'     => ''
+    'id' => '',
+    'title' => '',
+    'description' => '',
+    'published' => ''
 );
-switch( $action ) {
+
+switch ($action) {
     case 'add':
         $heading = __('Add new category', "ays-popup-box");
-        $loader_iamge = "<span class='display_none'><img src=".AYS_PB_ADMIN_URL."/images/loaders/loading.gif></span>";
         break;
     case 'edit':
         $heading = __('Edit category', "ays-popup-box");
-        $loader_iamge = "<span class='display_none'><img src=".AYS_PB_ADMIN_URL."/images/loaders/loading.gif></span>";
-        $popup_category = $this->popup_categories_obj->get_popup_category( $id );
+        $popup_category = $this->popup_categories_obj->get_popup_category($id);
         break;
 }
-if( isset( $_POST['ays_submit'] ) ) {
+
+if (isset($_POST['ays_submit'])) {
     $_POST['id'] = $id;
-    $result = $this->popup_categories_obj->add_edit_popup_category();
+    $this->popup_categories_obj->add_edit_popup_category();
 }
-if(isset($_POST['ays_apply'])){
-    $_POST["id"] = $id;
+
+if (isset($_POST['ays_apply'])) {
+    $_POST['id'] = $id;
     $_POST['ays_change_type'] = 'apply';
     $this->popup_categories_obj->add_edit_popup_category();
 }
 
 // General Settings | options
-$gen_options = ($this->settings_obj->ays_get_setting('options') === false) ? array() : json_decode( stripcslashes($this->settings_obj->ays_get_setting('options') ), true);
+$gen_options = ($this->settings_obj->ays_get_setting('options') === false) ? array() : json_decode( stripcslashes($this->settings_obj->ays_get_setting('options')), true );
 
 // WP Editor height
-$pb_wp_editor_height = (isset($gen_options['pb_wp_editor_height']) && $gen_options['pb_wp_editor_height'] != '') ? absint( sanitize_text_field($gen_options['pb_wp_editor_height']) ) : 150 ;
+$pb_wp_editor_height = (isset($gen_options['pb_wp_editor_height']) && $gen_options['pb_wp_editor_height'] != '') ? absint( sanitize_text_field($gen_options['pb_wp_editor_height']) ) : 150;
 
 //Category title
-$categoty_title = ( isset( $popup_category['title'] ) && $popup_category['title'] != '' ) ? stripslashes( $popup_category['title'] ) : '';
+$categoty_title = (isset($popup_category['title']) && $popup_category['title'] != '') ? stripslashes( esc_attr($popup_category['title']) ) : '';
 
 //Category description
-$category_description = ( isset( $popup_category['description'] ) && $popup_category['description'] != '' ) ? stripslashes( $popup_category['description'] ) : '';
+$category_description = (isset($popup_category['description']) && $popup_category['description'] != '') ? stripslashes($popup_category['description']) : '';
 
 //Published Category
-$published_category = ( isset($popup_category['published'] ) && $popup_category['published'] != '' ) ? stripslashes($popup_category['published'] ) : '1';
+$published_category = (isset($popup_category['published']) && $popup_category['published'] != '') ? stripslashes($popup_category['published'] ) : '1';
 
 $next_pb_cat_id = "";
-if ( isset( $id ) && !is_null( $id ) ) {
-    $next_pb_cat_data = $this->get_next_or_prev_row_by_id( $id, "next", "ays_pb_categories" );
-    $next_pb_cat_id = (isset( $next_pb_cat_data['id'] ) && $next_pb_cat_data['id'] != "") ? absint( $next_pb_cat_data['id'] ) : null;
+if (isset($id) && !is_null($id)) {
+    $next_pb_cat_data = $this->get_next_or_prev_row_by_id($id, "next", "ays_pb_categories");
+    $next_pb_cat_id = (isset($next_pb_cat_data['id']) && $next_pb_cat_data['id'] != "") ? absint($next_pb_cat_data['id']) : null;
 }
+
 $prev_pb_cat_id = "";
-if ( isset( $id ) && !is_null( $id ) ) {
-    $prev_pb_cat_data = $this->get_next_or_prev_row_by_id( $id, "prev", "ays_pb_categories" );
-    $prev_pb_cat_id = (isset( $prev_pb_cat_data['id'] ) && $prev_pb_cat_data['id'] != "") ? absint( $prev_pb_cat_data['id'] ) : null;
+if (isset($id) && !is_null($id)) {
+    $prev_pb_cat_data = $this->get_next_or_prev_row_by_id($id, "prev", "ays_pb_categories");
+    $prev_pb_cat_id = (isset($prev_pb_cat_data['id']) && $prev_pb_cat_data['id'] != "") ? absint($prev_pb_cat_data['id']) : null;
 }
 
 ?>
@@ -61,7 +65,10 @@ if ( isset( $id ) && !is_null( $id ) ) {
     <div class="container-fluid">
         <div class="ays-pb-heading-box">
             <div class="ays-pb-wordpress-user-manual-box">
-                    <a href="https://ays-pro.com/wordpress-popup-box-plugin-user-manual" target="_blank"><?php echo __("View Documentation", "ays-popup-box"); ?></a>
+                <a href="https://ays-pro.com/wordpress-popup-box-plugin-user-manual" target="_blank">
+                    <img src="<?php echo AYS_PB_ADMIN_URL . '/images/icons/text-file.svg' ?>">
+                    <span><?php echo __("View Documentation", "ays-popup-box"); ?></span>
+                </a>
             </div>
         </div>
         <h1><?php echo $heading; ?></h1>
@@ -73,7 +80,7 @@ if ( isset( $id ) && !is_null( $id ) ) {
                     <label for='ays-title'>
                         <?php echo __('Category name', "ays-popup-box"); ?>
                         <a class="ays_help" data-toggle="tooltip" title="<?php echo __('Define the category name.',"ays-popup-box")?>">
-                            <img src="<?php echo AYS_PB_ADMIN_URL . "./images/icons/info-circle.svg"?>">
+                            <img src="<?php echo AYS_PB_ADMIN_URL . "/images/icons/info-circle.svg"?>">
                         </a>
                     </label>
                 </div>
@@ -87,7 +94,7 @@ if ( isset( $id ) && !is_null( $id ) ) {
                 <label for='ays-description'>
                     <?php echo __('Description', "ays-popup-box"); ?>
                     <a class="ays_help" data-toggle="tooltip" title="<?php echo __('Write category description if necessary.',"ays-popup-box")?>">
-                        <img src="<?php echo AYS_PB_ADMIN_URL . "./images/icons/info-circle.svg"?>">
+                        <img src="<?php echo AYS_PB_ADMIN_URL . "/images/icons/info-circle.svg"?>">
                     </a>
                 </label>
                 <?php
@@ -98,21 +105,21 @@ if ( isset( $id ) && !is_null( $id ) ) {
                 ?>
             </div>
             <hr>
-            <div class="col-sm-12">
-                <div class="pro_features">
-                    <div>
-                        <p>
-                            <?php echo __("This feature is available only in ", "ays-popup-box"); ?>
-                            <a href="https://ays-pro.com/wordpress/popup-box" target="_blank" title="PRO feature"><?php echo __("PRO version!!!", "ays-popup-box"); ?></a>
-                        </p>
-                    </div>
+            <div class="col-sm-12 ays-pro-features-v2-main-box">
+                <div class="ays-pro-features-v2-small-buttons-box">
+                    <a href="https://ays-pro.com/wordpress/popup-box" target="_blank" class="ays-pro-features-v2-upgrade-button">
+                        <div class="ays-pro-features-v2-upgrade-icon" style="background-image: url('<?php echo esc_attr(AYS_PB_ADMIN_URL); ?>/images/icons/pro-features-icons/Locked_24x24.svg');" data-img-src="<?php echo esc_attr(AYS_PB_ADMIN_URL); ?>/images/icons/pro-features-icons/Locked_24x24.svg"></div>
+                        <div class="ays-pro-features-v2-upgrade-text">
+                            <?php echo __("Upgrade" , "ays-popup-box"); ?>
+                        </div>
+                    </a>
                 </div>
                 <div class="form-group row ays_toggle_parent" style="padding:10px;">
                     <div class="col-sm-3">
                         <label for="ays_show_random_posts_category">
                             <?php echo __('Show random popup by category', "ays-popup-box")?>
                             <a class="ays_help ays-pb-help-pro" data-toggle="tooltip" title="<?php echo __('If this option is enabled a random popup will be displayed from the selected category based on the chosen post.',"ays-popup-box"); ?>">
-                                <img src="<?php echo AYS_PB_ADMIN_URL . "./images/icons/info-circle.svg"?>">
+                                <img src="<?php echo AYS_PB_ADMIN_URL . "/images/icons/info-circle.svg"?>">
                             </a>
                         </label>
                     </div>
@@ -140,7 +147,7 @@ if ( isset( $id ) && !is_null( $id ) ) {
                                             "<li>". __('Include - Choose the post/page and post/page types including the popup.',"ays-popup-box") ."</li>".
                                         "</ul>";
                                     ?>">
-                                    <img src="<?php echo AYS_PB_ADMIN_URL . "./images/icons/info-circle.svg"?>">
+                                    <img src="<?php echo AYS_PB_ADMIN_URL . "/images/icons/info-circle.svg"?>">
                                 </a>
                             </div>
                         </div>
@@ -153,7 +160,7 @@ if ( isset( $id ) && !is_null( $id ) ) {
                     <label>
                         <?php echo __('Category status', "ays-popup-box"); ?>
                         <a class="ays_help" data-toggle="tooltip" title="<?php echo __('Select whether or not to display the new category in the settings.',"ays-popup-box")?>">
-                            <img src="<?php echo AYS_PB_ADMIN_URL . "./images/icons/info-circle.svg"?>">
+                            <img src="<?php echo AYS_PB_ADMIN_URL . "/images/icons/info-circle.svg"?>">
                         </a>
                     </label>
                 </div>
@@ -175,8 +182,7 @@ if ( isset( $id ) && !is_null( $id ) ) {
                 <div class="col-sm-10 ays-pb-button-first-row" style="padding: 0;">
                 <?php
                     wp_nonce_field('popup_category_action', 'popup_category_action');
-                    $other_attributes = array( 'id' => 'ays-cat-button-apply' );
-                    // $other_attributes_save = array( 'id' => 'ays-cat-button-apply' );
+                    $other_attributes = array( 'id' => 'ays-cat-button' );
                     $other_attributes_save = array(
                         'id' => 'ays-cat-button-apply',
                         'title' => 'Ctrl + s',
@@ -215,9 +221,18 @@ if ( isset( $id ) && !is_null( $id ) ) {
     </div>
 </div>
 <script>
-    jQuery(document).ready(function($){
-        $('[data-toggle="tooltip"]').tooltip({
-            template: '<div class="tooltip ays-pb-custom-class-tooltip" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>'
-        });
-    });    
+    var aysUnsavedChanges = false;
+    jQuery(document).on('change input', '#ays-pb-category-form input, #ays-pb-category-form select, #ays-pb-category-form textarea', function() {
+        aysUnsavedChanges = true;
+    });
+
+    jQuery(window).on('beforeunload', function(event) {
+        var saveButtons = jQuery(document).find('.button#ays-cat-button-apply, .button#ays-cat-button')
+        var savingButtonsClicked = saveButtons.filter('.ays-save-button-clicked').length > 0;
+
+        if (aysUnsavedChanges && !savingButtonsClicked) {
+            event.preventDefault();
+            event.returnValue = true;
+        }
+    });
 </script>

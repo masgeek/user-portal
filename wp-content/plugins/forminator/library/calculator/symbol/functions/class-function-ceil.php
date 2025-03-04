@@ -1,4 +1,9 @@
 <?php
+/**
+ * The Forminator_Calculator_Symbol_Function_Ceil class.
+ *
+ * @package Forminator
+ */
 
 /**
  * PHP ceil() function aka round fractions up.
@@ -9,13 +14,18 @@
 class Forminator_Calculator_Symbol_Function_Ceil extends Forminator_Calculator_Symbol_Function_Abstract {
 
 	/**
-	 * @inheritdoc
+	 * Identifiers
+	 *
+	 * @var array
 	 */
 	protected $identifiers = array( 'ceil' );
 
 	/**
+	 * Execute
+	 *
 	 * @inheritdoc
-	 * @throws Forminator_Calculator_Exception
+	 * @param mixed $arguments Arguments.
+	 * @throws Forminator_Calculator_Exception When there is an Calculator error.
 	 */
 	public function execute( $arguments ) {
 		if ( 1 !== count( $arguments ) ) {
@@ -26,5 +36,4 @@ class Forminator_Calculator_Symbol_Function_Ceil extends Forminator_Calculator_S
 
 		return ceil( $number );
 	}
-
 }

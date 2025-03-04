@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_QForm_Front class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -22,6 +28,11 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 	 */
 	protected static $lead_data = array();
 
+	/**
+	 * Steps count
+	 *
+	 * @var int
+	 */
 	private static $steps_count = 1;
 
 	/**
@@ -29,10 +40,10 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 	 *
 	 * @since 1.0
 	 *
-	 * @param      $id
-	 * @param bool $is_preview
-	 * @param bool $data
-	 * @param bool $hide If true, display: none will be added on the form markup and later removed with JS.
+	 * @param int        $id Id.
+	 * @param bool       $is_preview Is preview.
+	 * @param bool|array $data Data.
+	 * @param bool       $hide If true, display: none will be added on the form markup and later removed with JS.
 	 */
 	public function display( $id, $is_preview = false, $data = false, $hide = true ) {
 		$this->model = Forminator_Base_Form_Model::get_model( $id );
@@ -60,12 +71,14 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 				// its preview!
 				$this->model->id = $id;
 
+				/*
 				// If this module haven't been saved, the preview will be of the wrong module.
 				// if ( ! isset( $data['settings']['quiz_title'] ) || $data['settings']['quiz_title'] !== $this->model->settings['quiz_title'] ) {.
 				// echo $this->message_save_to_preview();.
 
 				// return;.
-				// }
+				// }.
+				*/
 			}
 
 			$this->maybe_define_cache_constants();
@@ -115,23 +128,21 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 				$custom_form_view = Forminator_CForm_Front::get_instance();
 				$custom_form_view->display( $this->get_leads_id(), $is_preview, $data, true, $this->model );
 			}
-
 		} else {
 			$form_settings = $this->get_form_settings();
 			?>
-            <div class="forminator-quiz">
+			<div class="forminator-quiz">
 				<?php
 				if ( isset( $form_settings['expire_message'] ) && '' !== $form_settings['expire_message'] ) {
 					$message = $form_settings['expire_message'];
 					?>
-                    <label class="forminator-label--info"><span><?php echo esc_html( $message ); ?></span></label>
+					<label class="forminator-label--info"><span><?php echo esc_html( $message ); ?></span></label>
 				<?php } ?>
-            </div>
-			<?php
+			</div>
+					<?php
 		}
 
 		echo wp_kses_post( $this->lead_wrapper_end() );
-
 	}
 
 	/**
@@ -162,7 +173,7 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 	 *
 	 * @since 1.0
 	 *
-	 * @param bool $render
+	 * @param bool $render Render.
 	 *
 	 * @return mixed
 	 */
@@ -225,16 +236,20 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 		} else {
 			return apply_filters( 'forminator_render_fields_markup', $html, $fields );
 		}
-
 	}
 
 	/**
 	 * Return pagination content start markup
 	 *
+	 * @param int $module_id Module Id.
+	 * @param int $step Step.
+	 * @param int $page_indicator Page indicator.
+	 *
 	 * @return string
 	 */
 	private static function pagination_content_start( $module_id, $step, $page_indicator ) {
-		$label = sprintf( __( 'Page %s', 'forminator' ), $step );
+		/* translators: 1. Step. */
+		$label = sprintf( esc_html__( 'Page %s', 'forminator' ), $step );
 
 		$html  = '<div role="tabpanel" id="forminator-custom-form-' . esc_attr( $module_id ) . '--page-' . esc_attr( $step ) . '" '
 				. 'class="forminator-pagination forminator-hidden" '
@@ -243,7 +258,8 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 		$html .= '<div class="forminator-pagination--content">';
 		if ( $page_indicator ) {
 			$html .= '<div class="forminator-page-indicator"><span>';
-			$html .= esc_html( sprintf( __( 'Page %1$s of %2$s', 'forminator' ), $step + 1, self::$steps_count ) );
+			/* translators: 1. Step, 2. Total steps. */
+			$html .= esc_html( sprintf( esc_html__( 'Page %1$s of %2$s', 'forminator' ), $step + 1, self::$steps_count ) );
 			$html .= '</span></div>';
 		}
 
@@ -266,20 +282,20 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $field
+	 * @param array $field Field.
+	 * @param bool  $last_field Last field.
 	 *
 	 * @return mixed
 	 */
 	public function render_field( $field, $last_field = false ) {
 
 		if ( isset( $field['type'] ) && 'knowledge' === $field['type'] ) {
-			$html = $this->_render_knowledge( $field, $last_field );
+			$html = $this->render_knowledge( $field, $last_field );
 		} else {
-			$html = $this->_render_nowrong( $field, $last_field );
+			$html = $this->render_nowrong( $field, $last_field );
 		}
 
 		return apply_filters( 'forminator_field_markup', $html, $field, $this );
-
 	}
 
 	/**
@@ -287,11 +303,12 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $field
+	 * @param array $field Field.
+	 * @param bool  $last_field Last field.
 	 *
 	 * @return string
 	 */
-	private function _render_nowrong( $field, $last_field ) {
+	private function render_nowrong( $field, $last_field ) {
 
 		ob_start();
 
@@ -339,14 +356,12 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 
 					if ( $has_label && $has_image ) {
 						$empty_class = '';
-					} else {
-						if ( $has_image ) {
+					} elseif ( $has_image ) {
 							$empty_class = ' forminator-only--image';
-						} elseif ( $has_label ) {
-							$empty_class = ' forminator-only--text';
-						} else {
-							$empty_class = ' forminator-empty';
-						}
+					} elseif ( $has_label ) {
+						$empty_class = ' forminator-only--text';
+					} else {
+						$empty_class = ' forminator-empty';
 					}
 					?>
 
@@ -417,16 +432,17 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 	 *
 	 * @since 1.0
 	 *
-	 * @param $field
+	 * @param array $field Field.
+	 * @param bool  $last_field Last field.
 	 *
 	 * @return string
 	 */
-	private function _render_knowledge( $field, $last_field ) {
+	private function render_knowledge( $field, $last_field ) {
 
 		ob_start();
 
 		$result_behav  = isset( $this->model->settings['results_behav'] ) ? $this->model->settings['results_behav'] : '';
-		$class         = ( isset( $result_behav ) && 'end' === $result_behav || 'end' === $this->get_form_placement() ) ? '' : 'forminator-submit-rightaway';
+		$class         = ( ( isset( $result_behav ) && 'end' === $result_behav ) || 'end' === $this->get_form_placement() ) ? '' : 'forminator-submit-rightaway';
 		$input_type    = ( isset( $result_behav ) && 'end' === $result_behav ) ? 'checkbox' : 'radio';
 		$uniq_id       = '-' . uniqid();
 		$field_slug    = uniqid();
@@ -466,21 +482,19 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 					$label         = $answer['title'];
 					$input_name    = 'end' === $result_behav ? $field_slug . '-' . $k : $field_slug;
 					$image         = isset( $answer['image'] ) ? $answer['image'] : '';
-					$image_alt     = '';
+					$image_alt     = isset( $answer['image_filename'] ) ? $answer['image_filename'] : '';
 					$has_label     = isset( $label ) && '' !== $label;
 					$has_image     = ( ! empty( $image ) );
 					$has_image_alt = ( isset( $image_alt ) && ! empty( $image_alt ) );
 
 					if ( $has_label && $has_image ) {
 						$empty_class = '';
-					} else {
-						if ( $has_image ) {
+					} elseif ( $has_image ) {
 							$empty_class = ' forminator-only--image';
-						} elseif ( $has_label ) {
-							$empty_class = ' forminator-only--text';
-						} else {
-							$empty_class = ' forminator-empty';
-						}
+					} elseif ( $has_label ) {
+						$empty_class = ' forminator-only--text';
+					} else {
+						$empty_class = ' forminator-empty';
 					}
 					?>
 
@@ -559,7 +573,7 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 
 		foreach ( $answers as $answer ) {
 			if ( isset( $answer['toggle'] ) && filter_var( $answer['toggle'], FILTER_VALIDATE_BOOLEAN ) ) {
-				$count++;
+				++$count;
 			}
 		}
 
@@ -649,6 +663,8 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 	/**
 	 * Render quiz header
 	 *
+	 * @param string $maybe_error Message.
+	 *
 	 * @since 1.0
 	 * @return string
 	 */
@@ -702,6 +718,11 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 		return $html;
 	}
 
+	/**
+	 * Get submit data
+	 *
+	 * @return array
+	 */
 	public function get_submit_data() {
 		$settings = $this->get_form_settings();
 
@@ -736,8 +757,8 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 	 *
 	 * @since 1.0
 	 *
-	 * @param      $form_id
-	 * @param bool    $render
+	 * @param int  $form_id Form id.
+	 * @param bool $render Render.
 	 *
 	 * @return mixed
 	 */
@@ -752,14 +773,14 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 			$disabled = 'aria-disabled="true" disabled="disabled"';
 		}
 
-		$nonce   = $this->nonce_field( 'forminator_submit_form', 'forminator_nonce' );
+		$nonce   = $this->nonce_field( 'forminator_submit_form' . $form_id, 'forminator_nonce' );
 		$post_id = $this->get_post_id();
 
 		$submit_data  = $this->get_submit_data();
 		$pagination   = ! empty( $this->model->settings['pagination'] );
 		$result_behav = isset( $this->model->settings['results_behav'] ) ? $this->model->settings['results_behav'] : '';
 		$lead_result  = 'beginning' === $this->get_form_placement() ? $result_behav : 'end';
-		$current_url  = $this->is_ajax_load( $this->is_preview ) && isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : forminator_get_current_url();
+		$current_url  = $this->is_ajax_load( $this->is_preview ) && isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : forminator_get_current_url();
 		$classes      = $submit_data['class'];
 
 		if ( $pagination ) {
@@ -845,6 +866,8 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 	/**
 	 * Return styles template path
 	 *
+	 * @param string $theme Theme.
+	 *
 	 * @since 1.0
 	 * @return bool|string
 	 */
@@ -858,13 +881,11 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 			} else {
 				return realpath( forminator_plugin_dir() . '/assets/js/front/templates/quiz/knowledge/grid.html' );
 			}
-		} else {
+		} elseif ( 'none' !== $theme ) {
 
-			if ( 'none' !== $theme ) {
 				return realpath( forminator_plugin_dir() . '/assets/js/front/templates/quiz/nowrong/global.html' );
-			} else {
-				return realpath( forminator_plugin_dir() . '/assets/js/front/templates/quiz/nowrong/grid.html' );
-			}
+		} else {
+			return realpath( forminator_plugin_dir() . '/assets/js/front/templates/quiz/nowrong/grid.html' );
 		}
 	}
 
@@ -873,6 +894,7 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 	 *
 	 * @param string $prefix Default prefix.
 	 * @param array  $properties CSS properties.
+	 * @param string $slug Slug.
 	 * @return string
 	 */
 	protected static function get_css_prefix( $prefix, $properties, $slug ) {
@@ -976,8 +998,8 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 	 *
 	 * @since 1.6.1
 	 *
-	 * @param bool $hide
-	 * @param bool $is_preview
+	 * @param bool $hide Hide.
+	 * @param bool $is_preview Is preview.
 	 *
 	 * @return false|string
 	 */
@@ -1019,7 +1041,8 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 	 * @return object
 	 */
 	protected function set_form_model_data( $form_model, $data ) {
-		$questions = $results = array();
+		$questions = array();
+		$results   = array();
 		$msg_count = false;
 
 		$title = isset( $data['settings']['quiz_name'] ) ? sanitize_text_field( $data['settings']['quiz_name'] ) : sanitize_text_field( $data['settings']['formName'] );
@@ -1088,8 +1111,8 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 	/**
 	 * Enqueue quiz scripts
 	 *
-	 * @param      $is_preview
-	 * @param bool       $is_ajax_load
+	 * @param bool $is_preview Is preview.
+	 * @param bool $is_ajax_load Is ajax load.
 	 */
 	public function enqueue_form_scripts( $is_preview, $is_ajax_load = false ) {
 		$google_fonts = $this->get_google_fonts();
@@ -1106,7 +1129,7 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 	 *
 	 * @since 1.6.1
 	 *
-	 * @param $form_properties
+	 * @param array $form_properties Form properties.
 	 *
 	 * @return array
 	 */
@@ -1129,6 +1152,9 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 		if ( ! empty( $form_properties['settings']['text-previous'] ) ) {
 			$options['text_prev'] = $form_properties['settings']['text-previous'];
 		}
+		if ( ! empty( $form_properties['settings']['submitData']['custom-class'] ) ) {
+			$options['submit_class'] = $form_properties['settings']['submitData']['custom-class'];
+		}
 
 		if ( $this->has_lead() ) {
 			$options['form_placement'] = $this->get_form_placement();
@@ -1142,7 +1168,7 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 	/**
 	 * Return if form has submission loader enabled
 	 *
-	 * @param $properties
+	 * @param array $properties Properties.
 	 *
 	 * @since 1.7.1
 	 *
@@ -1165,7 +1191,9 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 	 */
 	public static function ajax_reload_module() {
 		$nonce = Forminator_Core::sanitize_text_field( 'nonce' );
-		if ( ! wp_verify_nonce( $nonce, 'forminator_submit_form' ) ) {
+
+		$module_id = Forminator_Core::sanitize_text_field( 'moduleId' );
+		if ( ! wp_verify_nonce( $nonce, 'forminator_submit_form' . $module_id ) ) {
 			wp_send_json_error( new WP_Error( 'invalid_code' ) );
 		}
 
@@ -1208,11 +1236,9 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 
 			if ( isset( $form_settings['quiz-alignment'] ) && ! empty( $form_settings['quiz-alignment'] ) ) {
 				$quiz_alignment = 'data-alignment="' . $form_settings['quiz-alignment'] . '"';
-			} else {
+			} elseif ( false !== strpos( $form_design, 'grid' ) ) {
 
-				if ( false !== strpos( $form_design, 'grid' ) ) {
 					$quiz_alignment = 'data-alignment="center"';
-				}
 			}
 
 			$visual_style = isset( $form_settings['visual_style'] ) ? $form_settings['visual_style'] : 'list';
@@ -1228,7 +1254,6 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 		}
 
 		return $wrapper;
-
 	}
 
 	/**
@@ -1243,5 +1268,4 @@ class Forminator_QForm_Front extends Forminator_Render_Form {
 			return '';
 		}
 	}
-
 }

@@ -4,10 +4,11 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit069888e62f63bdc0418c411308958520
+class ComposerStaticInitded58e30b92a5c313fc32e3f5ef3a67c
 {
     public static $files = array (
         '841cc3d5192f1a988c73777dfad9b6cd' => __DIR__ . '/../..' . '/inc/helpers.php',
+        'f63dfd26fce7ff9d234dccf4cce33cdb' => __DIR__ . '/../..' . '/inc/format.php',
         'f7a7b794aad42120dafab329b07d93eb' => __DIR__ . '/..' . '/wptt/webfont-loader/wptt-webfont-loader.php',
     );
 
@@ -40,9 +41,9 @@ class ComposerStaticInit069888e62f63bdc0418c411308958520
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit069888e62f63bdc0418c411308958520::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit069888e62f63bdc0418c411308958520::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit069888e62f63bdc0418c411308958520::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitded58e30b92a5c313fc32e3f5ef3a67c::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitded58e30b92a5c313fc32e3f5ef3a67c::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitded58e30b92a5c313fc32e3f5ef3a67c::$classMap;
 
         }, null, ClassLoader::class);
     }

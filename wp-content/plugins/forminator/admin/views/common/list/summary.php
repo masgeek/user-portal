@@ -1,8 +1,14 @@
 <?php
-$preview_dialog = 'preview_' . forminator_get_prefix( static::$module_slug, 'c', false, true );
-$export_dialog  = 'export_' . static::$module_slug;
-$post_type      = 'forminator_' . forminator_get_prefix( static::$module_slug, '', false, true );
-$soon           = 'quiz' === static::$module_slug;
+/**
+ * Template admin/views/common/list/summary.php
+ *
+ * @package Forminator
+ */
+
+$preview_dialog       = 'preview_' . forminator_get_prefix( static::$module_slug, 'c', false, true );
+$export_dialog        = 'export_' . static::$module_slug;
+$forminator_post_type = 'forminator_' . forminator_get_prefix( static::$module_slug, '', false, true );
+$soon                 = 'quiz' === static::$module_slug;
 
 if ( $count > 0 || $is_search ) {
 	$count_active = $this->countModules( 'publish' );
@@ -15,7 +21,7 @@ if ( $count > 0 || $is_search ) {
 
 	<div class="sui-box sui-summary <?php echo esc_attr( $this->get_box_summary_classes() ); ?>">
 
-		<div class="sui-summary-image-space" aria-hidden="true"></div>
+		<div class="sui-summary-image-space" aria-hidden="true" style="<?php echo esc_attr( $this->get_box_summary_image_style() ); ?>"></div>
 
 		<div class="sui-summary-segment">
 
@@ -25,16 +31,17 @@ if ( $count > 0 || $is_search ) {
 
 				<span class="sui-summary-sub">
 				<?php
-				echo esc_html(
-					_n(
-						sprintf( 'Active %s', forminator_get_prefix( static::$module_slug, '', true ) ),
-						sprintf( 'Active %s', forminator_get_prefix( static::$module_slug, '', true, true ) ),
-						esc_html( $count_active ),
-						'forminator'
-					)
-				);
+				/* translators: %s is status. */
+				$active_text     = esc_html__( 'Active %s', 'forminator' );
+				$active_singular = esc_html__( forminator_get_prefix( static::$module_slug, '', true ), 'forminator' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
+				$active_plural   = esc_html__( forminator_get_prefix( static::$module_slug, '', true, true ), 'forminator' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
+				if ( 1 < $count_active ) {
+					printf( esc_html( $active_text ), esc_html( $active_plural ) );
+				} else {
+					printf( esc_html( $active_text ), esc_html( $active_singular ) );
+				}
 				?>
-											  </span>
+				</span>
 
 				<form id="forminator-search-modules" class="forminator-search-modules" data-searched="false">
 
@@ -46,7 +53,7 @@ if ( $count > 0 || $is_search ) {
 
 								<div class="sui-control-with-icon">
 									<button class="forminator-search-submit"><i class="sui-icon-magnifying-glass-search"></i></button>
-									<input type="text" name="search" value="<?php echo esc_attr( $search_keyword ); ?>" placeholder="<?php echo esc_attr( sprintf( __( 'Search %s...', 'forminator' ), static::$module_slug ) ); ?>" id="forminator-module-search" class="sui-form-control">
+									<input type="text" name="search" value="<?php echo esc_attr( $search_keyword ); ?>" placeholder="<?php /* translators: %s: Module slug */ printf( esc_html__( 'Search %s...', 'forminator' ), esc_html__( static::$module_slug, 'forminator' ) );/* phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText */ ?>" id="forminator-module-search" class="sui-form-control">
 								</div>
 								<button role="button" class="search-reset sui-button-icon" title="<?php esc_attr_e( 'Reset search', 'forminator' ); ?>">
 									<span class="sui-icon-cross-close" aria-hidden="true"></span>
@@ -66,9 +73,9 @@ if ( $count > 0 || $is_search ) {
 
 					<input type="hidden" name="preview_dialog" value="<?php echo esc_attr( $preview_dialog ); ?>" />
 					<input type="hidden" name="export_dialog" value="<?php echo esc_attr( $export_dialog ); ?>" />
-					<input type="hidden" name="post_type" value="<?php echo esc_attr( $post_type ); ?>" />
+					<input type="hidden" name="post_type" value="<?php echo esc_attr( $forminator_post_type ); ?>" />
 					<input type="hidden" name="soon" value="<?php echo esc_attr( $soon ); ?>" />
-					<input type="hidden" name="page" value="<?php echo isset( $_GET['page'] ) ? Forminator_Core::sanitize_text_field( 'page' ) : ''; ?>" />
+					<input type="hidden" name="page" value="<?php echo isset( $_GET['page'] ) ? esc_html( Forminator_Core::sanitize_text_field( 'page' ) ) : ''; /* phpcs:ignore WordPress.Security.NonceVerification.Recommended */ ?>" />
 					<?php
 						wp_nonce_field( $search_module_nonce, $search_module_nonce, false );
 					?>

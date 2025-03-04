@@ -148,8 +148,7 @@ if ( ! class_exists( 'Kenta_Cart_Element' ) ) {
 				$this->add_render_attribute( 'cart-wrap', $attr, $value );
 			}
 
-			$this->add_render_attribute( 'cart-wrap', 'data-popup-target', ".{$this->slug} .kenta-cart-popup" );
-			$this->add_render_attribute( 'cart-wrap', 'data-popup-on-hover', true );
+			$this->add_render_attribute( 'cart-wrap', 'data-popup-target', "kenta-cart-popup" );
 
 			$cart_count = WC()->cart->cart_contents_count;
 			$cart_link  = esc_url( $cart_count ? wc_get_cart_url() : wc_get_page_permalink( 'shop' ) );
@@ -159,8 +158,8 @@ if ( ! class_exists( 'Kenta_Cart_Element' ) ) {
                 <a href="<?php echo esc_url( $cart_link ) ?>" <?php $this->print_attribute_string( 'cart' ); ?>>
 					<?php IconsManager::print( CZ::get( $this->getSlug( 'icon_button_icon' ) ) ); ?>
 					<?php $this->show_badge(); ?>
-					<?php if ( ! is_cart() ): ?>
-                        <div class="kenta-cart-popup kenta-popup kenta-heading kenta-heading-style-1 hidden absolute right-0 p-half-gutter border border-base-300 bg-base-color z-[9]">
+					<?php if ( ! apply_filters( 'woocommerce_widget_cart_is_hidden', is_cart() || is_checkout() ) ): ?>
+                        <div class="kenta-cart-popup kenta-popup kenta-heading kenta-heading-style-1 absolute right-0 p-half-gutter border border-base-300 bg-base-color z-[9]">
 							<?php the_widget( 'WC_Widget_Cart' ); ?>
                         </div>
 					<?php endif; ?>

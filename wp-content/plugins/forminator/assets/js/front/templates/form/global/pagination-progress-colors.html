@@ -3,7 +3,7 @@
 	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-pagination-progress .forminator-progress-label {
 		<?php if ( forminator_array_value_exists( $properties, 'progress-label' ) && !empty( $properties['progress-label'] ) ) { ?>
 			color: <?php echo $properties['progress-label'] ?>;
-		<?php } else { ?>
+		<?php } elseif ( forminator_can_apply_default_color( $properties ) ) { ?>
 			color: #777771;
 		<?php } ?>
 	}
@@ -26,9 +26,11 @@
 
 <?php } else { ?>
 
-	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-pagination-progress .forminator-progress-label {
-		color: #777771;
-	}
+	<?php if ( forminator_can_apply_default_color( $properties ) ) { ?>
+		.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-pagination-progress .forminator-progress-label {
+			color: #777771;
+		}
+	<?php } ?>		
 
 	.forminator-ui#forminator-module-<?php echo $properties['form_id'] ?>.forminator-design--<?php echo $theme; ?> .forminator-pagination-progress .forminator-progress-bar {
 		background-color: #E6E6E6;

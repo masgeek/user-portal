@@ -1,4 +1,10 @@
 <?php
+/**
+ * Forminator Fields
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -42,9 +48,9 @@ class Forminator_Fields {
 		 */
 		$this->fields = apply_filters( 'forminator_fields', $fields );
 
-		add_action( 'wp_footer', array( &$this, 'forminator_daily_cron' ) );
+		add_action( 'init', array( &$this, 'schedule_forminator_daily_cron' ) );
 
-		add_action( 'schedule_forminator_daily_cron', array( &$this, 'cron_init' ) );
+		add_action( 'forminator_daily_cron', array( &$this, 'cron_init' ) );
 
 		add_action( 'forminator_update_version', array( &$this, 'upgrade_actions' ), 10, 2 );
 	}
@@ -84,11 +90,10 @@ class Forminator_Fields {
 
 		if ( $required_files_exists ) {
 			foreach ( $required_files as $required_file ) {
-				/** @noinspection PhpIncludeInspection */
+				/* @noinspection PhpIncludeInspection */
 				include_once $required_file;
 			}
 		}
-
 	}
 
 	/**
@@ -97,9 +102,7 @@ class Forminator_Fields {
 	 * @since 1.0.5
 	 */
 	public function maybe_load_external_autofill_providers() {
-		/**
-		 * see samples/forminator-simple-autofill-plugin for example how to use it
-		 */
+		// See samples/forminator-simple-autofill-plugin for example how to use it.
 		do_action( 'forminator_register_autofill_provider' );
 	}
 
@@ -107,12 +110,10 @@ class Forminator_Fields {
 	 * Set up the schedule delete file
 	 *
 	 * @since 1.13
+	 * @since 1.27 Change from WP cron to Action Scheduler
 	 */
-	public function forminator_daily_cron() {
-		if ( ! wp_next_scheduled( 'schedule_forminator_daily_cron' ) ) {
-			// Set to run after 25 hours so it will be more than 24 hours compared to file upload time
-			wp_schedule_single_event( time() + 60 * 60 * 24, 'schedule_forminator_daily_cron' );
-		}
+	public function schedule_forminator_daily_cron() {
+		forminator_set_recurring_action( 'forminator_daily_cron', DAY_IN_SECONDS );
 	}
 
 	/**
@@ -130,18 +131,23 @@ class Forminator_Fields {
 	 * @since 1.13
 	 */
 	public function schedule_delete_temp_files() {
-		$temp_path = forminator_upload_root_temp() . '/';
-
-		if ( $handle = @opendir( $temp_path ) ) {
+		$temp_path = forminator_upload_root_temp();
+		if ( is_wp_error( $temp_path ) ) {
+			return;
+		}
+		$temp_path = $temp_path . '/';
+		$handle    = @opendir( $temp_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( $handle ) {
 			// Check if the dir exist before opening it.
 			if ( is_dir( $temp_path ) ) {
-				if ( $handle = opendir( $temp_path ) ) {
-					while ( false !== ( $file = readdir( $handle ) ) ) {
+				$handle = opendir( $temp_path );
+				if ( $handle ) {
+					while ( false !== ( $file = readdir( $handle ) ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition -- false positive
 						if ( ! empty( $file ) && ! in_array( $file, array( '.', '..' ), true ) ) {
 							$temp_file = $temp_path . $file;
 							$file_time = filemtime( $temp_file );
 							if ( file_exists( $temp_file ) && ( time() - $file_time ) >= 60 * 60 * 12 ) {
-								unlink( $temp_file );
+								wp_delete_file( $temp_file );
 							}
 						}
 					}
@@ -151,7 +157,7 @@ class Forminator_Fields {
 		}
 	}
 
-	/*
+	/**
 	 * Upgrade actions
 	 */
 	public function upgrade_actions() {
@@ -174,7 +180,20 @@ class Forminator_Fields {
 			return null;
 		}
 
-		rmdir( $temp_path );
+		// Ensure the WP_Filesystem is initialized.
+		if ( ! function_exists( 'wp_filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		WP_Filesystem();
+
+		// Global $wp_filesystem should be available now.
+		global $wp_filesystem;
+
+		// remove `css` folder.
+		if ( $wp_filesystem->is_dir( $temp_path ) ) {
+			$wp_filesystem->rmdir( $temp_path );
+		}
 	}
 
 	/**
@@ -186,19 +205,17 @@ class Forminator_Fields {
 
 		$upload_root = forminator_upload_root();
 
-		if ( ! is_dir( $upload_root ) ) {
+		if ( is_wp_error( $upload_root ) || ! is_dir( $upload_root ) ) {
 			return;
 		}
 
-		if ( ! file_exists( forminator_upload_root() . 'index.php' ) ) {
-			Forminator_Field::add_index_file( forminator_upload_root() );
-			Forminator_Field::add_htaccess_file();
+		Forminator_Field::check_upload_root_index_file();
+
+		if ( ! file_exists( $upload_root . 'css/index.php' ) ) {
+			Forminator_Field::add_index_file( $upload_root . 'css/index.php' );
 		}
-		if ( ! file_exists( forminator_upload_root() . 'css/index.php' ) ) {
-			Forminator_Field::add_index_file( forminator_upload_root() . 'css/index.php' );
-		}
-		if ( ! file_exists( forminator_upload_root() . 'signatures/index.php' ) ) {
-			Forminator_Field::add_index_file( forminator_upload_root() . 'signatures/index.php' );
+		if ( ! file_exists( $upload_root . 'signatures/index.php' ) ) {
+			Forminator_Field::add_index_file( $upload_root . 'signatures/index.php' );
 		}
 	}
 }

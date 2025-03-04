@@ -5,6 +5,11 @@ if ( ! class_exists( 'BravePop_Element_List' ) ) {
 
    class BravePop_Element_List {
 
+      protected $data;
+      protected $popupID;
+      protected $stepIndex;
+      protected $elementIndex;
+
       function __construct($data=null, $popupID=null, $stepIndex=0, $elementIndex=0) {
          $this->data = $data;
          $this->popupID = $popupID;
@@ -55,7 +60,7 @@ if ( ! class_exists( 'BravePop_Element_List' ) ) {
 
          foreach ($list as $key => $listItem) {
             $bullet =  isset($this->data->bulletType) && $this->data->bulletType === 'numbered' ? '<span className="brave_list__bullet_number">'.($key+1).'.</span> ' : $iconHTML;
-            $listItems .= isset($listItem->item) ? '<li id="'.$listItem->id.'__list__'.$key.'">'.$bullet. $listItem->item.'</li>' : '';
+            $listItems .= isset($listItem->item) ? '<li id="'.$listItem->id.'__list__'.$key.'">'.$bullet. wp_kses_post($listItem->item).'</li>' : '';
          }
 
          return '<div id="brave_element-'.$this->data->id.'" class="brave_element brave_element--list '.$customClass.'">

@@ -34,6 +34,15 @@ final class Script {
 	}
 
 	/**
+	 * Generate sidebar dynamic script
+	 *
+	 * @return mixed|string
+	 */
+	public function dynamicSidebarScriptRaw() {
+		return $this->dynamicScripts( kb_sidebar_blocks() );
+	}
+
+	/**
 	 * Get dynamic scripts from blocks
 	 *
 	 * @param $blocks
@@ -65,15 +74,10 @@ final class Script {
 					}
 				} else {
 					$kenta_blocks = kenta_blocks_all();
-					if ( isset( $kenta_blocks[ $name ] ) && isset( $kenta_blocks[ $name ]['script'] ) ) {
+					if ( isset( $kenta_blocks[ $name ]['script'] ) ) {
 
-						if ( isset( $block['attrs'] ) && isset( $block['attrs']['blockID'] ) ) {
-							$attrs = $block['attrs'] ?? [];
-							$id    = $attrs['blockID'] ?? null;
-
-							ob_start();
-							$kenta_blocks[ $name ]['script']( $id, $attrs );
-							$scripts .= ob_get_clean();
+						if ( isset( $block['attrs']['blockID'] ) ) {
+							$scripts .= $kenta_blocks[ $name ]['script']( $block );
 						}
 					}
 				}
@@ -95,17 +99,7 @@ final class Script {
 	 * @return mixed|string
 	 */
 	public function dynamicScriptsRaw( $post = null ) {
-		$blocks = array();
-
-		if ( ! $post ) {
-			global $post;
-		}
-
-		if ( is_object( $post ) ) {
-			$blocks = kenta_blocks_parse_content( $post->post_content );
-		}
-
-		return $this->dynamicScripts( $blocks );
+		return $this->dynamicScripts( kb_post_blocks( $post ) );
 	}
 
 	/**

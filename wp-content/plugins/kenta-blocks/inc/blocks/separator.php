@@ -70,19 +70,20 @@ $metadata = array(
 
 return array(
 	'metadata' => $metadata,
-	'css'      => function ( $id, $attrs, $css ) use ( $metadata ) {
+	'css'      => function ( $block, $css ) {
+		$id = kb_get_block_attr( $block, 'blockID' );
 
 		$css[".kb-separator.kb-separator-$id, hr.kb-separator.kb-separator-$id"] = array_merge(
 			array(
-				'--kb-separator-height' => kenta_blocks_block_attr( 'height', $attrs, $metadata ),
-				'width'                 => kenta_blocks_block_attr( 'width', $attrs, $metadata ),
-				'border-top-style'      => kenta_blocks_block_attr( 'style', $attrs, $metadata ),
+				'--kb-separator-height' => kb_get_block_attr( $block, 'height' ),
+				'width'                 => kb_get_block_attr( $block, 'width' ),
+				'border-top-style'      => kb_get_block_attr( $block, 'style' ),
 			),
-			kenta_blocks_advanced_css( $attrs, $metadata, array( 'padding' ) ),
-			kenta_blocks_css()->dimensions( kenta_blocks_block_attr( 'margin', $attrs, $metadata ), '--kb-separator-margin' ),
-			kenta_blocks_css()->dimensions( kenta_blocks_block_attr( 'radius', $attrs, $metadata ), 'border-radius' ),
-			kenta_blocks_css()->shadow( kenta_blocks_block_attr( 'shadow', $attrs, $metadata ) ),
-			kenta_blocks_css()->colors( kenta_blocks_block_attr( 'color', $attrs, $metadata ), array(
+			kenta_blocks_advanced_css( $block, array( 'padding' ) ),
+			kenta_blocks_css()->dimensions( kb_get_block_attr( $block, 'margin' ), '--kb-separator-margin' ),
+			kenta_blocks_css()->dimensions( kb_get_block_attr( $block, 'radius' ), 'border-radius' ),
+			kenta_blocks_css()->shadow( kb_get_block_attr( $block, 'shadow' ) ),
+			kenta_blocks_css()->colors( kb_get_block_attr( $block, 'color' ), array(
 				'default' => '--kb-separator-color',
 			) )
 		);

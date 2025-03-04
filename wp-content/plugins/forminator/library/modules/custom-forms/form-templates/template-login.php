@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Template_Login class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -19,34 +25,13 @@ class Forminator_Template_Login extends Forminator_Template {
 	public function defaults() {
 		return array(
 			'id'          => 'login',
-			'name'        => __( 'Login', 'forminator' ),
-			'description' => __( 'A simple contact form for your users to contact you', 'forminator' ),
+			'name'        => esc_html__( 'Login', 'forminator' ),
+			'description' => esc_html__( 'Standard login form for returning users with fields for username/email and password, and links for account recovery or registration.', 'forminator' ),
 			'icon'        => 'profile-male',
-			'priortiy'    => 6,
+			'priority'    => 6,
+			'category'    => 'custom-form',
+			'pro'         => false,
 		);
-	}
-
-	/**
-	 * Get url for lost password
-	 *
-	 * @since 1.12
-	 * @param string
-	 *
-	 * @return string
-	 */
-	private function get_lostpassword_url( $redirect ) {
-		global $wp_rewrite;
-
-		if ( is_null( $wp_rewrite ) ) {
-			$args                = array();
-			$args['redirect_to'] = urlencode( $redirect );
-
-			$lostpassword_url = add_query_arg( $args, network_site_url( 'wp-login.php?action=lostpassword', 'login' ) );
-		} else {
-			$lostpassword_url = wp_lostpassword_url( $redirect );
-		}
-
-		return $lostpassword_url;
 	}
 
 	/**
@@ -56,8 +41,6 @@ class Forminator_Template_Login extends Forminator_Template {
 	 * @return array
 	 */
 	public function fields() {
-		$lostpassword_url = $this->get_lostpassword_url( get_permalink() );
-
 		return array(
 			array(
 				'wrapper_id' => 'wrapper-1511347711918-1669',
@@ -67,8 +50,8 @@ class Forminator_Template_Login extends Forminator_Template {
 						'type'        => 'text',
 						'cols'        => '12',
 						'required'    => 'true',
-						'field_label' => __( 'Username or Email Address', 'forminator' ),
-						'placeholder' => __( 'Enter username or email address', 'forminator' ),
+						'field_label' => esc_html__( 'Username or Email Address', 'forminator' ),
+						'placeholder' => esc_html__( 'Enter username or email address', 'forminator' ),
 					),
 				),
 			),
@@ -80,12 +63,13 @@ class Forminator_Template_Login extends Forminator_Template {
 						'type'                         => 'password',
 						'cols'                         => '12',
 						'required'                     => 'true',
-						'required_message'             => __( 'Your password is required', 'forminator' ),
-						'field_label'                  => __( 'Password', 'forminator' ),
-						'placeholder'                  => __( 'Enter your password', 'forminator' ),
-						'description'                  => sprintf( __( '<a href="%s" title="Lost Password" target="_blank">Lost your password?</a>', 'forminator' ), esc_url( $lostpassword_url ) ),
-						'confirm-password-label'       => __( 'Confirm Password', 'forminator' ),
-						'confirm-password-placeholder' => __( 'Confirm new password', 'forminator' ),
+						'required_message'             => esc_html__( 'Your password is required', 'forminator' ),
+						'field_label'                  => esc_html__( 'Password', 'forminator' ),
+						'placeholder'                  => esc_html__( 'Enter your password', 'forminator' ),
+						/* translators: 1. Open <a>, 2. Close </a>. */
+						'description'                  => sprintf( esc_html__( '%1$sLost your password?%2$s', 'forminator' ), '<a href="{lostpassword_url}" title="Lost Password" target="_blank">', '</a>' ),
+						'confirm-password-label'       => esc_html__( 'Confirm Password', 'forminator' ),
+						'confirm-password-placeholder' => esc_html__( 'Confirm new password', 'forminator' ),
 					),
 				),
 			),
@@ -100,107 +84,116 @@ class Forminator_Template_Login extends Forminator_Template {
 	 */
 	public function settings() {
 		return array(
-			'form-type'                     => 'login',
-			'submission-behaviour'          => 'behaviour-redirect',
-			'thankyou-message'              => __( 'Thank you for contacting us, we will be in touch shortly.', 'forminator' ),
-			'redirect-url'                  => admin_url(),
-			'submitData'                    => array(
-				'custom-submit-text'          => __( 'Login', 'forminator' ),
-				'custom-invalid-form-message' => __( 'Error: Your form is not valid, please fix the errors!', 'forminator' ),
+			'form-type'                         => 'login',
+			'submission-behaviour'              => 'behaviour-redirect',
+			'thankyou-message'                  => esc_html__( 'Thank you for contacting us, we will be in touch shortly.', 'forminator' ),
+			'redirect-url'                      => admin_url(),
+			'submitData'                        => array(
+				'custom-submit-text'          => esc_html__( 'Login', 'forminator' ),
+				'custom-invalid-form-message' => esc_html__( 'Error: Your form is not valid, please fix the errors!', 'forminator' ),
 			),
-			'enable-ajax'                   => 'true',
-			'validation-inline'             => true,
-			'fields-style'                  => 'open',
-			'form-expire'                   => 'no_expire',
-			'use-admin-email'               => 'true',
-			'admin-email-title'             => '',
-			'admin-email-editor'            => '',
-			'admin-email-recipients'        => array(),
-			'user-email-title'              => '',
-			'user-email-editor'             => '',
+			'enable-ajax'                       => 'true',
+			'validation-inline'                 => true,
+			'fields-style'                      => 'open',
+			'basic-fields-style'                => 'open',
+			'form-expire'                       => 'no_expire',
+			'use-admin-email'                   => 'true',
+			'admin-email-title'                 => '',
+			'admin-email-editor'                => '',
+			'admin-email-recipients'            => array(),
+			'user-email-title'                  => '',
+			'user-email-editor'                 => '',
 
 			// Main container.
-			'form-padding-top'              => '0',
-			'form-padding-right'            => '0',
-			'form-padding-bottom'           => '0',
-			'form-padding-left'             => '0',
-			'form-border-width'             => '0',
-			'form-border-style'             => 'none',
-			'form-border-radius'            => '0',
+			'form-padding-top'                  => '0',
+			'form-padding-right'                => '0',
+			'form-padding-bottom'               => '0',
+			'form-padding-left'                 => '0',
+			'form-border-width'                 => '0',
+			'form-border-style'                 => 'none',
+			'form-border-radius'                => '0',
 			// Typography - Label.
-			'cform-label-font-family'       => 'Roboto',
-			'cform-label-custom-family'     => '',
-			'cform-label-font-size'         => '12',
-			'cform-label-font-weight'       => 'bold',
+			'cform-label-font-family'           => 'Roboto',
+			'cform-label-custom-family'         => '',
+			'cform-label-font-size'             => '12',
+			'cform-label-font-weight'           => 'bold',
 			// Typography - Section Title.
-			'cform-title-font-family'       => 'Roboto',
-			'cform-title-custom-family'     => '',
-			'cform-title-font-size'         => '45',
-			'cform-title-font-weight'       => 'normal',
-			'cform-title-text-align'        => 'left',
+			'cform-title-font-family'           => 'Roboto',
+			'cform-title-custom-family'         => '',
+			'cform-title-font-size'             => '45',
+			'cform-title-font-weight'           => 'normal',
+			'cform-title-text-align'            => 'left',
 			// Typography - Section Subtitle.
-			'cform-subtitle-font-family'    => 'Roboto',
-			'cform-subtitle-custom-font'    => '',
-			'cform-subtitle-font-size'      => '18',
-			'cform-subtitle-font-weight'    => 'normal',
-			'cform-subtitle-text-align'     => 'left',
+			'cform-subtitle-font-family'        => 'Roboto',
+			'cform-subtitle-custom-font'        => '',
+			'cform-subtitle-font-size'          => '18',
+			'cform-subtitle-font-weight'        => 'normal',
+			'cform-subtitle-text-align'         => 'left',
 			// Typography - Input & Textarea.
-			'cform-input-font-family'       => 'Roboto',
-			'cform-input-custom-font'       => '',
-			'cform-input-font-size'         => '16',
-			'cform-input-font-weight'       => 'normal',
+			'cform-input-font-family'           => 'Roboto',
+			'cform-input-custom-font'           => '',
+			'cform-input-font-size'             => '16',
+			'cform-input-font-weight'           => 'normal',
 			// Typography - Radio & Checkbox.
-			'cform-radio-font-family'       => 'Roboto',
-			'cform-radio-custom-font'       => '',
-			'cform-radio-font-size'         => '14',
-			'cform-radio-font-weight'       => 'normal',
+			'cform-radio-font-family'           => 'Roboto',
+			'cform-radio-custom-font'           => '',
+			'cform-radio-font-size'             => '14',
+			'cform-radio-font-weight'           => 'normal',
 			// Typography - Select.
-			'cform-select-font-family'      => 'Roboto',
-			'cform-select-custom-family'    => '',
-			'cform-select-font-size'        => '16',
-			'cform-select-font-weight'      => 'normal',
+			'cform-select-font-family'          => 'Roboto',
+			'cform-select-custom-family'        => '',
+			'cform-select-font-size'            => '16',
+			'cform-select-font-weight'          => 'normal',
 			// Typography - Multi Select.
-			'cform-multiselect-font-family' => 'Roboto',
-			'cform-multiselect-custom-font' => '',
-			'cform-multiselect-font-size'   => '16',
-			'cform-multiselect-font-weight' => 'normal',
+			'cform-multiselect-font-family'     => 'Roboto',
+			'cform-multiselect-custom-font'     => '',
+			'cform-multiselect-font-size'       => '16',
+			'cform-multiselect-font-weight'     => 'normal',
+			// Typography - Multi Select tag.
+			'cform-multiselect-tag-font-family' => 'Roboto',
+			'cform-multiselect-tag-custom-font' => '',
+			'cform-multiselect-tag-font-size'   => '12',
+			'cform-multiselect-tag-font-weight' => 'medium',
 			// Typography - Dropdown.
-			'cform-dropdown-font-family'    => 'Roboto',
-			'cform-dropdown-custom-font'    => '',
-			'cform-dropdown-font-size'      => '16',
-			'cform-dropdown-font-weight'    => 'normal',
+			'cform-dropdown-font-family'        => 'Roboto',
+			'cform-dropdown-custom-font'        => '',
+			'cform-dropdown-font-size'          => '16',
+			'cform-dropdown-font-weight'        => 'normal',
 			// Typography - Calendar.
-			'cform-calendar-font-family'    => 'Roboto',
-			'cform-calendar-custom-font'    => '',
-			'cform-calendar-font-size'      => '13',
-			'cform-calendar-font-weight'    => 'normal',
+			'cform-calendar-font-family'        => 'Roboto',
+			'cform-calendar-custom-font'        => '',
+			'cform-calendar-font-size'          => '13',
+			'cform-calendar-font-weight'        => 'normal',
 			// Typography - Buttons.
-			'cform-button-font-family'      => 'Roboto',
-			'cform-button-custom-font'      => '',
-			'cform-button-font-size'        => '14',
-			'cform-button-font-weight'      => '500',
+			'cform-button-font-family'          => 'Roboto',
+			'cform-button-custom-font'          => '',
+			'cform-button-font-size'            => '14',
+			'cform-button-font-weight'          => '500',
 			// Typography - Timeline.
-			'cform-timeline-font-family'    => 'Roboto',
-			'cform-timeline-custom-font'    => '',
-			'cform-timeline-font-size'      => '12',
-			'cform-timeline-font-weight'    => 'normal',
+			'cform-timeline-font-family'        => 'Roboto',
+			'cform-timeline-custom-font'        => '',
+			'cform-timeline-font-size'          => '12',
+			'cform-timeline-font-weight'        => 'normal',
 			// Typography - Pagination.
-			'cform-pagination-font-family'  => '',
-			'cform-pagination-custom-font'  => '',
-			'cform-pagination-font-size'    => '16',
-			'cform-pagination-font-weight'  => 'normal',
-			'payment_require_ssl'           => 'true,',
-			'submission-file'               => 'delete',
+			'cform-pagination-font-family'      => '',
+			'cform-pagination-custom-font'      => '',
+			'cform-pagination-font-size'        => '16',
+			'cform-pagination-font-weight'      => 'normal',
+			'payment_require_ssl'               => 'true,',
+			'submission-file'                   => 'delete',
 			// Default Form Fields.
-			'login-username-field'          => 'text-1',
-			'login-password-field'          => 'password-1',
-			'remember-me'                   => 'true',
-			'remember-me-label'             => __( 'Remember Me', 'forminator' ),
-			'remember-me-cookie-number'     => '2',
-			'remember-me-cookie-type'       => 'weeks',
+			'login-username-field'              => 'text-1',
+			'login-password-field'              => 'password-1',
+			'remember-me'                       => 'true',
+			'remember-me-label'                 => esc_html__( 'Remember Me', 'forminator' ),
+			'remember-me-cookie-number'         => '2',
+			'remember-me-cookie-type'           => 'weeks',
 			// Additional settings.
-			'hide-login-form'               => '1',
-			'hidden-login-form-message'     => '<p>' . __( 'You are already logged in.', 'forminator' ) . '</p>',
+			'hide-login-form'                   => '1',
+			'hidden-login-form-message'         => '<p>' . esc_html__( 'You are already logged in.', 'forminator' ) . '</p>',
+			// Layout - Radio/Checkbox.
+			'field-image-size'                  => 'custom',
+			'cform-color-option'                => 'theme',
 		);
 	}
 }

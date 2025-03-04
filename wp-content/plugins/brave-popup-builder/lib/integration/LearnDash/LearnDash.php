@@ -27,7 +27,7 @@ function bravepop_LearnDash_filter_match($rules){
          }
          // if(function_exists('learndash_course_progress')){
          //    $course_completion = learndash_course_progress( array('course_id'=> 1247, 'user_id'=>null, 'array'=> true ) );
-         //    error_log('learndash_course_progress!'. json_encode($course_completion));
+         //    error_log('learndash_course_progress!'. wp_json_encode($course_completion));
          //    {"percentage":75,"completed":3,"total":4}
          // }
       }

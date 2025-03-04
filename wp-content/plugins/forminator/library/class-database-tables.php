@@ -1,4 +1,10 @@
 <?php
+/**
+ * Forminator Database Tables
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -13,19 +19,23 @@ class Forminator_Database_Tables {
 	/**
 	 * Table name keys
 	 */
-	const FORM_ENTRY = 'form_entry';
+	const FORM_ENTRY      = 'form_entry';
 	const FORM_ENTRY_META = 'form_entry_meta';
-	const FORM_VIEWS = 'form_views';
-	const FORM_REPORTS = 'form_reports';
+	const FORM_VIEWS      = 'form_views';
+	const FORM_REPORTS    = 'form_reports';
 
 
 	/**
 	 * Current tables
+	 *
+	 * @var array
 	 */
 	private static $tables = array();
 
 	/**
 	 * Get all the used table names
+	 *
+	 * @param bool $db DB.
 	 *
 	 * @return array
 	 * @since 1.0
@@ -161,8 +171,9 @@ class Forminator_Database_Tables {
 		$wpdb->hide_errors();
 
 		foreach ( $tables as $table_name ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Caching is not required while dropping the table.
 			if ( ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) ) === $table_name ) ) {
-				$wpdb->query( $wpdb->prepare( 'DROP TABLE %s', $table_name ) );
+				$wpdb->query( $wpdb->prepare( 'DROP TABLE %s', $table_name ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange
 			}
 		}
 	}

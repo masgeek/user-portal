@@ -52,9 +52,10 @@ if ( ! class_exists( 'Kenta_Placeholders' ) ) {
 				return array_merge( $controls, [
 					kenta_upsell_info_control( __( "Header row overlay is available in %sPro Version%s", 'kenta' ), 'kenta_footer_builder_upsell' )
 				] );
-			}, 10, 3 );
+			}, 99, 3 );
 
 			add_filter( 'kenta_button_style_controls', function ( $controls, $id, $defaults ) {
+
 				return array_merge( $controls, [
 					( new Placeholder( $id . 'text_color' ) )
 						->addColor( 'initial', $defaults['text-initial'] )
@@ -168,7 +169,7 @@ if ( ! class_exists( 'Kenta_Placeholders' ) ) {
 						] )
 					,
 					( new Placeholder( 'kenta_' . $id . '_excerpt_color' ) )
-						->addColor( 'initial', 'var(--kenta-accent-color)' )
+						->addColor( 'initial', 'var(--kenta-accent-active)' )
 					,
 					kenta_upsell_info_control( __( 'More options in %sPro Version%s', 'kenta' ) )
 				] );
@@ -240,15 +241,15 @@ if ( ! class_exists( 'Kenta_Placeholders' ) ) {
 				return array_merge( $controls, [
 					( new Placeholder( $id . 'top_level_typography' ) )
 						->setDefaultValue( $defaults['top-level-typography'] ?? [
-								'family'        => 'inherit',
-								'fontSize'      => '0.85rem',
-								'variant'       => '500',
-								'lineHeight'    => '1',
-								'textTransform' => 'capitalize',
-							] )
+							'family'        => 'inherit',
+							'fontSize'      => '0.85rem',
+							'variant'       => '500',
+							'lineHeight'    => '1',
+							'textTransform' => 'capitalize',
+						] )
 					,
 					( new Placeholder( $id . 'top_level_text_color' ) )
-						->addColor( 'initial', $defaults['top-level-text-initial'] ?? 'var(--kenta-accent-color)' )
+						->addColor( 'initial', $defaults['top-level-text-initial'] ?? 'var(--kenta-accent-active)' )
 						->addColor( 'hover', $defaults['top-level-text-hover'] ?? 'var(--kenta-primary-color)' )
 						->addColor( 'active', $defaults['top-level-text-active'] ?? 'var(--kenta-primary-color)' )
 					,
@@ -271,30 +272,30 @@ if ( ! class_exists( 'Kenta_Placeholders' ) ) {
 					,
 					( new Placeholder( $id . 'top_level_margin' ) )
 						->setDefaultValue( $defaults['top-level-margin'] ?? [
-								'top'    => '0px',
-								'bottom' => '0px',
-								'left'   => '0px',
-								'right'  => '0px',
-								'linked' => true,
-							] )
+							'top'    => '0px',
+							'bottom' => '0px',
+							'left'   => '0px',
+							'right'  => '0px',
+							'linked' => true,
+						] )
 					,
 					( new Placeholder( $id . 'top_level_padding' ) )
 						->setDefaultValue( $defaults['top-level-padding'] ?? [
-								'top'    => '4px',
-								'bottom' => '4px',
-								'left'   => '8px',
-								'right'  => '8px',
-								'linked' => false,
-							] )
+							'top'    => '4px',
+							'bottom' => '4px',
+							'left'   => '8px',
+							'right'  => '8px',
+							'linked' => false,
+						] )
 					,
 					( new Placeholder( $id . 'top_level_radius' ) )
 						->setDefaultValue( $defaults['top-level-radius'] ?? [
-								'top'    => '0',
-								'bottom' => '0',
-								'left'   => '0',
-								'right'  => '0',
-								'linked' => true,
-							] )
+							'top'    => '0',
+							'bottom' => '0',
+							'left'   => '0',
+							'right'  => '0',
+							'linked' => true,
+						] )
 					,
 
 					kenta_upsell_info_control( __( "Fully customize your menu's top level items in %sPro Version%s", 'kenta' ) )

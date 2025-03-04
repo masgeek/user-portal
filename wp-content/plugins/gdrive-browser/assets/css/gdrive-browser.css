@@ -1,0 +1,308 @@
+/* WordPress Theme Integration Styles */
+
+/* Main container - use WordPress defaults */
+.gdrive-browser-container {
+    font-family: inherit; /* Use theme font family */
+    margin: 1.5em 0;
+    background: var(--wp--preset--color--background, #fff);
+    border-radius: var(--wp--custom--border-radius, 4px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 0;
+    overflow: hidden;
+    width: 100%;
+    max-width: 100%;
+    color: var(--wp--preset--color--foreground, inherit);
+}
+
+/* Title styling - match WordPress heading styles */
+.gdrive-browser-title {
+    background-color: var(--wp--preset--color--subtle-background, #f8f9fa);
+    margin: 0;
+    padding: 1em;
+    font-size: var(--wp--preset--font-size--medium, 18px);
+    font-weight: 500;
+    color: var(--wp--preset--color--heading, #202124);
+    border-bottom: 1px solid var(--wp--preset--color--border, #e0e0e0);
+    line-height: var(--wp--custom--line-height--heading, 1.4);
+}
+
+/* Search box - adapt to theme input styles */
+.gdrive-search-container {
+    padding: 0.75em 1em;
+    background: var(--wp--preset--color--subtle-background, #f8f9fa);
+    border-bottom: 1px solid var(--wp--preset--color--border, #e0e0e0);
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.gdrive-search-container:before {
+    display: none;
+}
+
+.gdrive-search-input {
+    width: 300px; /* Fixed width instead of full width */
+    max-width: 100%;
+    padding: 0.5em 0.75em 0.5em 2.25em;
+    border: 1px solid var(--wp--preset--color--border, #ddd);
+    border-radius: 24px;
+    font-size: var(--wp--preset--font-size--small, 14px);
+    background: var(--wp--preset--color--background, #fff);
+    outline: none;
+    transition: border-color 0.2s;
+    color: var(--wp--preset--color--foreground, inherit);
+}
+
+.gdrive-search-input:focus {
+    border-color: var(--wp--preset--color--primary, #4285f4);
+    /* Slightly expand on focus */
+    width: 320px;
+}
+
+.gdrive-search-input::placeholder {
+    color: var(--wp--preset--color--tertiary, #9aa0a6);
+    opacity: 1; /* For Firefox */
+}
+
+/* Responsive adjustment for small screens */
+@media (max-width: 480px) {
+    .gdrive-search-input,
+    .gdrive-search-input:focus {
+        width: 100%;
+    }
+}
+
+/* Breadcrumbs */
+.gdrive-breadcrumbs {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 0.625em 1em;
+    background-color: var(--wp--preset--color--subtle-background, #f8f9fa);
+    font-size: var(--wp--preset--font-size--small, 14px);
+    color: var(--wp--preset--color--secondary, #5f6368);
+    border-bottom: 1px solid var(--wp--preset--color--border, #e0e0e0);
+}
+
+.gdrive-breadcrumb-link {
+    display: inline-flex;
+    align-items: center;
+    color: var(--wp--preset--color--link, #4285f4);
+    text-decoration: none;
+    margin-right: 0.25em;
+}
+
+.gdrive-breadcrumb-link:hover {
+    text-decoration: underline;
+    color: var(--wp--preset--color--link-hover, #4285f4);
+}
+
+.gdrive-breadcrumb-current {
+    color: var(--wp--preset--color--secondary, #5f6368);
+    font-weight: 500;
+}
+
+.gdrive-breadcrumb-separator {
+    margin: 0 0.25em;
+    color: var(--wp--preset--color--secondary, #5f6368);
+}
+
+/* Files table - responsive and theme-aware */
+.gdrive-files-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: var(--wp--preset--font-size--small, 14px);
+}
+
+.gdrive-files-table thead {
+    background-color: var(--wp--preset--color--subtle-background, #f8f9fa);
+    color: var(--wp--preset--color--secondary, #5f6368);
+}
+
+.gdrive-files-table th {
+    text-align: left;
+    padding: 0.75em 1em;
+    font-weight: 500;
+    font-size: 0.9em;
+    border-bottom: 1px solid var(--wp--preset--color--border, #e0e0e0);
+    position: sticky;
+    top: 0;
+    background-color: var(--wp--preset--color--subtle-background, #f8f9fa);
+    z-index: 1;
+}
+
+.gdrive-files-table td {
+    padding: 0.75em 1em;
+    border-bottom: 1px solid var(--wp--preset--color--border-light, #f1f3f4);
+    vertical-align: middle;
+}
+
+.gdrive-file-row {
+    transition: background-color 0.15s ease;
+}
+
+.gdrive-file-row:hover {
+    background-color: var(--wp--preset--color--background-hover, #f8f9fa);
+}
+
+/* File and folder links - use theme link colors */
+.gdrive-folder-link, .gdrive-file-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--wp--preset--color--foreground, #202124);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.gdrive-folder-link:hover, .gdrive-file-link:hover {
+    color: var(--wp--preset--color--link, #4285f4);
+}
+
+/* Icons with theme colors */
+.gdrive-icon {
+    width: 24px;
+    margin-right: 0.75em;
+    display: inline-block;
+    text-align: center;
+    font-size: 1em;
+    color: var(--wp--preset--color--secondary, #5f6368);
+}
+
+.gdrive-icon-folder:before {
+    color: var(--wp--preset--color--primary, #4285F4);
+}
+
+.gdrive-icon-document:before {
+    color: var(--wp--preset--color--primary, #4285F4);
+}
+
+.gdrive-icon-spreadsheet:before {
+    color: var(--wp--preset--color--success, #0F9D58);
+}
+
+.gdrive-icon-presentation:before {
+    color: var(--wp--preset--color--warning, #F4B400);
+}
+
+.gdrive-icon-pdf:before {
+    color: var(--wp--preset--color--danger, #DB4437);
+}
+
+/* Empty folder and error messages */
+.gdrive-empty-folder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5em 0;
+    color: var(--wp--preset--color--secondary, #5f6368);
+}
+
+.gdrive-empty-folder i {
+    font-size: 3em;
+    color: var(--wp--preset--color--border, #ccc);
+    margin-bottom: 0.5em;
+}
+
+.gdrive-error {
+    padding: 1em;
+    margin: 1.25em 0;
+    background-color: var(--wp--preset--color--danger-background, #fce8e6);
+    color: var(--wp--preset--color--danger, #d93025);
+    border-radius: 4px;
+    border-left: 4px solid var(--wp--preset--color--danger, #d93025);
+}
+
+/* Loading indicator with theme colors */
+.gdrive-loading {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5em 0;
+    color: var(--wp--preset--color--secondary, #5f6368);
+}
+
+.gdrive-loading.active {
+    display: flex;
+}
+
+.gdrive-spinner:before {
+    color: var(--wp--preset--color--primary, #4285f4);
+}
+
+/* Adjust for WordPress admin themes too */
+body.wp-admin .gdrive-browser-container {
+    background: #fff;
+    color: #3c434a;
+}
+
+body.wp-admin .gdrive-browser-title {
+    background-color: #f0f0f1;
+    color: #1d2327;
+}
+
+body.wp-admin .gdrive-breadcrumbs,
+body.wp-admin .gdrive-files-table thead {
+    background-color: #f0f0f1;
+}
+
+body.wp-admin .gdrive-folder-link:hover,
+body.wp-admin .gdrive-file-link:hover,
+body.wp-admin .gdrive-breadcrumb-link {
+    color: #2271b1;
+}
+
+/* Responsive styles that work with any theme */
+@media (max-width: 782px) {
+    .gdrive-files-table .gdrive-col-modified {
+        display: none;
+    }
+
+    .gdrive-files-table .gdrive-col-name {
+        width: 60%;
+    }
+
+    .gdrive-files-table .gdrive-col-size {
+        width: 20%;
+    }
+
+    .gdrive-files-table .gdrive-col-actions {
+        width: 20%;
+    }
+
+    .gdrive-browser-title,
+    .gdrive-files-table th,
+    .gdrive-files-table td {
+        padding: 0.5em 0.75em;
+    }
+}
+
+@media (max-width: 600px) {
+    .gdrive-files-table .gdrive-col-size {
+        display: none;
+    }
+
+    .gdrive-files-table .gdrive-col-name {
+        width: 70%;
+    }
+
+    .gdrive-files-table .gdrive-col-actions {
+        width: 30%;
+    }
+
+    .gdrive-breadcrumbs {
+        font-size: 12px;
+    }
+
+    .gdrive-browser-title {
+        font-size: 16px;
+    }
+
+    .gdrive-icon {
+        margin-right: 0.5em;
+    }
+}

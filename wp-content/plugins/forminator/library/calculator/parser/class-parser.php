@@ -1,11 +1,15 @@
 <?php
+/**
+ * The Forminator_Calculator_Parser class.
+ *
+ * @package Forminator
+ */
 
 /**
  * The parsers has one important method: parse()
  * It takes an array of tokens as input and
  * returns an array of nodes as output.
  * These nodes are the syntax tree of the term.
- *
  */
 class Forminator_Calculator_Parser {
 
@@ -19,7 +23,7 @@ class Forminator_Calculator_Parser {
 	/**
 	 * Parser constructor.
 	 *
-	 * @param Forminator_Calculator_Symbol_Loader $symbol_loader
+	 * @param Forminator_Calculator_Symbol_Loader $symbol_loader Forminator_Calculator_Symbol_Loader.
 	 */
 	public function __construct( $symbol_loader ) {
 		$this->symbol_loader = $symbol_loader;
@@ -29,10 +33,9 @@ class Forminator_Calculator_Parser {
 	 * Parses an array with tokens. Returns an array of nodes.
 	 * These nodes define a syntax tree.
 	 *
-	 * @param Forminator_Calculator_Parser_Token[] $tokens
+	 * @param Forminator_Calculator_Parser_Token[] $tokens Forminator_Calculator_Parser_Token.
 	 *
 	 * @return Forminator_Calculator_Parser_Node_Container
-	 * @throws Forminator_Calculator_Exception
 	 */
 	public function parse( $tokens ) {
 		$symbol_nodes = $this->detect_symbols( $tokens );
@@ -52,10 +55,10 @@ class Forminator_Calculator_Parser {
 	/**
 	 * Creates a flat array of symbol nodes from tokens.
 	 *
-	 * @param Forminator_Calculator_Parser_Token[] $tokens
+	 * @param Forminator_Calculator_Parser_Token[] $tokens Forminator_Calculator_Parser_Token.
 	 *
 	 * @return Forminator_Calculator_Parser_Node_Symbol[]
-	 * @throws Forminator_Calculator_Exception
+	 * @throws Forminator_Calculator_Exception When there is an Calculator error.
 	 */
 	protected function detect_symbols( $tokens ) {
 		$symbol_nodes = array();
@@ -71,7 +74,7 @@ class Forminator_Calculator_Parser {
 				$symbol     = $this->symbol_loader->find( $identifier );
 
 				if ( null === $symbol ) {
-					throw new Forminator_Calculator_Exception( 'Error: Detected unknown or invalid string identifier: ' . $identifier . '.' );
+					throw new Forminator_Calculator_Exception( 'Error: Detected unknown or invalid string identifier: ' . $identifier . '.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 				}
 			} elseif ( Forminator_Calculator_Parser_Token::TYPE_NUMBER === $type ) {
 				// Notice: Numbers do not have an identifier.
@@ -86,14 +89,14 @@ class Forminator_Calculator_Parser {
 				$symbol     = $this->symbol_loader->find( $identifier );
 
 				if ( null === $symbol ) {
-					throw new Forminator_Calculator_Exception( 'Error: Detected unknown or invalid string identifier: ' . $identifier . '.' );
+					throw new Forminator_Calculator_Exception( 'Error: Detected unknown or invalid string identifier: ' . $identifier . '.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 				}
 
 				if ( $symbol instanceof Forminator_Calculator_Symbol_Opening_Bracket ) {
-					$open_bracket_counter ++;
+					++$open_bracket_counter;
 				}
 				if ( $symbol instanceof Forminator_Calculator_Symbol_Closing_Bracket ) {
-					$open_bracket_counter --;
+					--$open_bracket_counter;
 
 					// Make sure there are not too many closing brackets.
 					if ( $open_bracket_counter < 0 ) {
@@ -109,10 +112,8 @@ class Forminator_Calculator_Parser {
 				}
 
 				$expecting_opening_bracket = false;
-			} else {
-				if ( $symbol instanceof Forminator_Calculator_Symbol_Function_Abstract ) {
+			} elseif ( $symbol instanceof Forminator_Calculator_Symbol_Function_Abstract ) {
 					$expecting_opening_bracket = true;
-				}
 			}
 
 			$symbol_node = new Forminator_Calculator_Parser_Node_Symbol( $token, $symbol );
@@ -139,10 +140,10 @@ class Forminator_Calculator_Parser {
 	 * Attention: Expects valid brackets!
 	 * Check the brackets before you call this method.
 	 *
-	 * @param Forminator_Calculator_Parser_Node_Symbol[] $symbol_nodes
+	 * @param Forminator_Calculator_Parser_Node_Symbol[] $symbol_nodes Forminator_Calculator_Parser_Node_Symbol.
 	 *
 	 * @return Forminator_Calculator_Parser_Node_Abstract[]
-	 * @throws Forminator_Calculator_Exception
+	 * @throws Forminator_Calculator_Exception When there is an Calculator error.
 	 */
 	protected function create_tree_by_brackets( $symbol_nodes ) {
 		$tree                 = array();
@@ -151,17 +152,17 @@ class Forminator_Calculator_Parser {
 
 		foreach ( $symbol_nodes as $index => $symbol_node ) {
 			if ( ! $symbol_node instanceof Forminator_Calculator_Parser_Node_Symbol ) {
-				throw new Forminator_Calculator_Exception( 'Error: Expected symbol node, but got "' . gettype( $symbol_node ) . '"' );// @codeCoverageIgnore.
+				throw new Forminator_Calculator_Exception( 'Error: Expected symbol node, but got "' . esc_html( gettype( $symbol_node ) ) . '"' );// @codeCoverageIgnore.
 			}
 
 			if ( $symbol_node->get_symbol() instanceof Forminator_Calculator_Symbol_Opening_Bracket ) {
-				$open_bracket_counter ++;
+				++$open_bracket_counter;
 
 				if ( $open_bracket_counter > 1 ) {
 					$nodes_in_brackets[] = $symbol_node;
 				}
 			} elseif ( $symbol_node->get_symbol() instanceof Forminator_Calculator_Symbol_Closing_Bracket ) {
-				$open_bracket_counter --;
+				--$open_bracket_counter;
 
 				// Found a closing bracket on level 0.
 				if ( 0 === $open_bracket_counter ) {
@@ -174,12 +175,10 @@ class Forminator_Calculator_Parser {
 				} else {
 					$nodes_in_brackets[] = $symbol_node;
 				}
-			} else {
-				if ( 0 === $open_bracket_counter ) {
+			} elseif ( 0 === $open_bracket_counter ) {
 					$tree[] = $symbol_node;
-				} else {
-					$nodes_in_brackets[] = $symbol_node;
-				}
+			} else {
+				$nodes_in_brackets[] = $symbol_node;
 			}
 		}
 
@@ -191,10 +190,10 @@ class Forminator_Calculator_Parser {
 	 * followed by a node of type ContainerNode] by a FunctionNode.
 	 * Expects the $nodes not including any function nodes (yet).
 	 *
-	 * @param Forminator_Calculator_Parser_Node_Abstract[] $nodes
+	 * @param Forminator_Calculator_Parser_Node_Abstract[] $nodes Forminator_Calculator_Parser_Node_Abstract.
 	 *
 	 * @return Forminator_Calculator_Parser_Node_Abstract[]
-	 * @throws Forminator_Calculator_Exception
+	 * @throws Forminator_Calculator_Exception When there is an Calculator error.
 	 */
 	protected function transform_tree_by_functions( $nodes ) {
 		$transformed_nodes = array();
@@ -203,7 +202,10 @@ class Forminator_Calculator_Parser {
 
 		foreach ( $nodes as $node ) {
 			if ( $node instanceof Forminator_Calculator_Parser_Node_Container ) {
-				/** @var Forminator_Calculator_Parser_Node_Container $node */
+				/**
+				 * Forminator_Calculator_Parser_Node_Container
+				 *
+				 * @var Forminator_Calculator_Parser_Node_Container $node */
 				$transformed_child_nodes = $this->transform_tree_by_functions( $node->get_child_nodes() );
 
 				if ( null !== $function_symbol_node ) {
@@ -217,7 +219,10 @@ class Forminator_Calculator_Parser {
 					$transformed_nodes[] = $node;
 				}
 			} elseif ( $node instanceof Forminator_Calculator_Parser_Node_Symbol ) {
-				/** @var Forminator_Calculator_Parser_Node_Symbol $node */
+				/**
+				 * Forminator_Calculator_Parser_Node_Symbol
+				 *
+				 * @var Forminator_Calculator_Parser_Node_Symbol $node */
 				$symbol = $node->get_symbol();
 				if ( $symbol instanceof Forminator_Calculator_Symbol_Function_Abstract ) {
 					$function_symbol_node = $node;
@@ -225,7 +230,7 @@ class Forminator_Calculator_Parser {
 					$transformed_nodes[] = $node;
 				}
 			} else {
-				throw new Forminator_Calculator_Exception( 'Error: Expected array node or symbol node, got "' . gettype( $node ) . '"' );
+				throw new Forminator_Calculator_Exception( 'Error: Expected array node or symbol node, got "' . esc_html( gettype( $node ) ) . '"' );
 			}
 		}
 
@@ -235,10 +240,10 @@ class Forminator_Calculator_Parser {
 	/**
 	 * Ensures the tree follows the grammar rules for terms
 	 *
-	 * @param array $nodes
+	 * @param array $nodes Nodes.
 	 *
 	 * @return void
-	 * @throws Forminator_Calculator_Exception
+	 * @throws Forminator_Calculator_Exception When there is an Calculator error.
 	 */
 	protected function check_grammar( $nodes ) {
 		// TODO Make sure that separators are only in the child nodes of the array node of a function node.
@@ -246,12 +251,18 @@ class Forminator_Calculator_Parser {
 
 		foreach ( $nodes as $index => $node ) {
 			if ( $node instanceof Forminator_Calculator_Parser_Node_Symbol ) {
-				/** @var $node Forminator_Calculator_Parser_Node_Symbol */
+				/**
+				 * Forminator_Calculator_Parser_Node_Symbol
+				 *
+				 * @var $node Forminator_Calculator_Parser_Node_Symbol */
 
 				$symbol = $node->get_symbol();
 
 				if ( $symbol instanceof Forminator_Calculator_Symbol_Operator_Abstract ) {
-					/** @var $symbol Forminator_Calculator_Symbol_Operator_Abstract */
+					/**
+					 * Forminator_Calculator_Symbol_Operator_Abstract
+					 *
+					 * @var $symbol Forminator_Calculator_Symbol_Operator_Abstract */
 
 					$pos_of_right_operand = $index + 1;
 
@@ -270,7 +281,10 @@ class Forminator_Calculator_Parser {
 						$left_operand = $nodes[ $pos_of_left_operand ];
 
 						if ( $left_operand instanceof Forminator_Calculator_Parser_Node_Symbol ) {
-							/** @var $left_operand Forminator_Calculator_Parser_Node_Symbol */
+							/**
+							 * Forminator_Calculator_Parser_Node_Symbol
+							 *
+							 * @var $left_operand Forminator_Calculator_Parser_Node_Symbol */
 							if ( $left_operand->get_symbol() instanceof Forminator_Calculator_Symbol_Operator_Abstract  // example 1`+-`5 : + = operator, - = unary.
 								|| $left_operand->get_symbol() instanceof Forminator_Calculator_Symbol_Separator // example func(1`,-`5) ,= separator, - = unary.
 							) {
@@ -288,17 +302,17 @@ class Forminator_Calculator_Parser {
 
 						// Remember that this node represents a unary operator.
 						$node->set_is_unary_operator( true );
-					} else {
-						if ( ! $symbol->get_operates_binary() ) {
+					} elseif ( ! $symbol->get_operates_binary() ) {
 							throw new Forminator_Calculator_Exception( 'Error: Found operator in binary notation that is not binary.' );
-						}
 					}
 				}
 			} else {
-				/** @var $node Forminator_Calculator_Parser_Node_Container */
+				/**
+				 * Forminator_Calculator_Parser_Node_Container
+				 *
+				 * @var $node Forminator_Calculator_Parser_Node_Container */
 				$this->check_grammar( $node->get_child_nodes() );
 			}
 		}
 	}
-
 }

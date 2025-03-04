@@ -6,8 +6,6 @@
  */
 
 use LottaFramework\Customizer\Controls\Background;
-use LottaFramework\Customizer\Controls\Border;
-use LottaFramework\Customizer\Controls\BoxShadow;
 use LottaFramework\Customizer\Controls\ColorPicker;
 use LottaFramework\Customizer\Controls\Condition;
 use LottaFramework\Customizer\Controls\Filters;
@@ -64,10 +62,10 @@ if ( ! trait_exists( 'Kenta_Article_Controls' ) ) {
 				( new ImageRadio( 'kenta_' . $type . '_container_layout' ) )
 					->setLabel( __( 'Content Width', 'kenta' ) )
 					->setDefaultValue( $defaults['layout'] )
-					->asyncCss( '.kenta-site-wrap', [
-						'--kenta-max-w-content' => AsyncCss::unescape( AsyncCss::valueMapper( [
-							'normal' => 'auto',
-							'narrow' => '65ch',
+					->asyncCss( '.kenta-site-wrap .kenta-container', [
+						'--wp--style--global--content-size' => AsyncCss::unescape( AsyncCss::valueMapper( [
+							'normal' => 'var(--wp--style--global--wide-size)',
+							'narrow' => '720px',
 						] ) )
 					] )
 					->setChoices( [
@@ -86,15 +84,14 @@ if ( ! trait_exists( 'Kenta_Article_Controls' ) ) {
 					->setControls( [
 						( new Slider( 'kenta_' . $type . '_container_max_width' ) )
 							->setLabel( __( 'Content Max Width', 'kenta' ) )
-							->asyncCss( '.kenta-site-wrap', [
-								'--kenta-max-w-content' => 'value'
+							->asyncCss( '.kenta-site-wrap .kenta-container', [
+								'--wp--style--global--content-size' => 'value'
 							] )
 							->setUnits( [
-								[ 'unit' => 'px', 'min' => 500, 'max' => 1400 ],
+								[ 'unit' => 'px', 'min' => 500, 'max' => 1140 ],
 								[ 'unit' => '%', 'min' => 50, 'max' => 100 ],
-								[ 'unit' => 'ch', 'min' => 50, 'max' => 150 ],
 							] )
-							->setDefaultValue( '65ch' )
+							->setDefaultValue( '720px' )
 					] )
 				,
 				( new Separator() ),
@@ -212,7 +209,86 @@ if ( ! trait_exists( 'Kenta_Article_Controls' ) ) {
 				'image-position'    => 'below',
 			] );
 
-			return [
+			$behind_controls = [
+				( new ColorPicker( 'kenta_' . $type . '_featured_image_elements_override' ) )
+					->setLabel( __( 'Header Color Override', 'kenta' ) )
+					->asyncColors( '.kenta-article-header-background', [
+						'override' => '--kenta-article-header-override',
+					] )
+					->addColor( 'override', __( 'Override', 'kenta' ), Css::INITIAL_VALUE )
+				,
+				( new Separator() ),
+				( new Slider( 'kenta_' . $type . '_featured_image_background_overlay_opacity' ) )
+					->setLabel( __( 'Overlay Opacity', 'kenta' ) )
+					->asyncCss( '.kenta-article-header-background::after', [ 'opacity' => 'value' ] )
+					->setMin( 0 )
+					->setMax( 1 )
+					->setDecimals( 2 )
+					->setDefaultUnit( false )
+					->setDefaultValue( 0.6 )
+				,
+				( new Background( 'kenta_' . $type . '_featured_image_background_overlay' ) )
+					->setLabel( __( 'Header Overlay', 'kenta' ) )
+					->asyncCss( '.kenta-article-header-background::after', AsyncCss::background() )
+					->setDefaultValue( [
+						'type'     => 'gradient',
+						'gradient' => 'linear-gradient(-225deg, rgb(227, 253, 245) 0%, rgb(255, 230, 250) 100%)',
+						'color'    => 'rgba(24,31,41,0.45)',
+					] )
+				,
+				( new Separator() ),
+				( new Spacing( 'kenta_' . $type . '_featured_image_background_spacing' ) )
+					->setLabel( __( 'Spacing', 'kenta' ) )
+					->asyncCss( '.kenta-article-header-background', AsyncCss::dimensions( 'padding' ) )
+					->enableResponsive()
+					->setDefaultValue( [
+						'top'    => '68px',
+						'right'  => '0px',
+						'bottom' => '68px',
+						'left'   => '0px',
+						'linked' => false,
+					] )
+				,
+			];
+
+			$non_behind_controls = [
+				( new Radio( 'kenta_' . $type . '_featured_image_width' ) )
+					->setLabel( __( 'Image Width', 'kenta' ) )
+					->buttonsGroupView()
+					->setDefaultValue( 'wide' )
+					->selectiveRefresh( ...$defaults['selective-refresh'] )
+					->setChoices( [
+						'default' => __( 'Default', 'kenta' ),
+						'wide'    => __( 'Wide', 'kenta' ),
+						'full'    => __( 'Full', 'kenta' ),
+					] )
+				,
+				( new Slider( 'kenta_' . $type . '_featured_image_height' ) )
+					->setLabel( __( 'Image Height', 'kenta' ) )
+					->asyncCss( $defaults['selector'] . ' img', array( 'height' => 'value' ) )
+					->setUnits( [
+						[ 'unit' => 'px', 'min' => 100, 'max' => 1000 ],
+						[ 'unit' => '%', 'min' => 10, 'max' => 100 ],
+					] )
+					->setDefaultValue( '100%' )
+				,
+				( new Separator() ),
+				( new Spacing( 'kenta_' . $type . '_featured_image_spacing' ) )
+					->setLabel( __( 'Spacing', 'kenta' ) )
+					->enableResponsive()
+					->asyncCss( $defaults['selector'], AsyncCss::dimensions( 'padding' ) )
+					->setDisabled( [ 'left', 'right' ] )
+					->setDefaultValue( [
+						'top'    => '12px',
+						'right'  => '0px',
+						'bottom' => '12px',
+						'left'   => '0px',
+						'linked' => true,
+					] )
+				,
+			];
+
+			$controls = [
 				kenta_docs_control( __( '%sLearn how it works%s', 'kenta' ), 'https://kentatheme.com/docs/kenta-theme/article-content-options/article-header/' ),
 				( new ImageUploader( 'kenta_' . $type . '_featured_image_fallback' ) )
 					->setLabel( __( 'Image Fallback', 'kenta' ) )
@@ -244,83 +320,8 @@ if ( ! trait_exists( 'Kenta_Article_Controls' ) ) {
 				,
 				( new Condition() )
 					->setCondition( [ 'kenta_' . $type . '_featured_image_position' => 'behind' ] )
-					->setControls( [
-						( new ColorPicker( 'kenta_' . $type . '_featured_image_elements_override' ) )
-							->setLabel( __( 'Header Color Override', 'kenta' ) )
-							->asyncColors( '.kenta-article-header-background', [
-								'override' => '--kenta-article-header-override',
-							] )
-							->addColor( 'override', __( 'Override', 'kenta' ), Css::INITIAL_VALUE )
-						,
-						( new Separator() ),
-						( new Slider( 'kenta_' . $type . '_featured_image_background_overlay_opacity' ) )
-							->setLabel( __( 'Overlay Opacity', 'kenta' ) )
-							->asyncCss( '.kenta-article-header-background::after', [ 'opacity' => 'value' ] )
-							->setMin( 0 )
-							->setMax( 1 )
-							->setDecimals( 2 )
-							->setDefaultUnit( false )
-							->setDefaultValue( 0.6 )
-						,
-						( new Background( 'kenta_' . $type . '_featured_image_background_overlay' ) )
-							->setLabel( __( 'Header Overlay', 'kenta' ) )
-							->asyncCss( '.kenta-article-header-background::after', AsyncCss::background() )
-							->setDefaultValue( [
-								'type'     => 'gradient',
-								'gradient' => 'linear-gradient(-225deg, rgb(227, 253, 245) 0%, rgb(255, 230, 250) 100%)',
-								'color'    => 'rgba(24,31,41,0.45)',
-							] )
-						,
-						( new Separator() ),
-						( new Spacing( 'kenta_' . $type . '_featured_image_background_spacing' ) )
-							->setLabel( __( 'Spacing', 'kenta' ) )
-							->asyncCss( '.kenta-article-header-background', AsyncCss::dimensions( 'padding' ) )
-							->enableResponsive()
-							->setDefaultValue( [
-								'top'    => '68px',
-								'right'  => '0px',
-								'bottom' => '68px',
-								'left'   => '0px',
-								'linked' => false,
-							] )
-						,
-					] )
-					->setReverseControls( [
-						( new Radio( 'kenta_' . $type . '_featured_image_width' ) )
-							->setLabel( __( 'Image Width', 'kenta' ) )
-							->buttonsGroupView()
-							->setDefaultValue( 'wide' )
-							->selectiveRefresh( ...$defaults['selective-refresh'] )
-							->setChoices( [
-								'default' => __( 'Default', 'kenta' ),
-								'wide'    => __( 'Wide', 'kenta' ),
-								'full'    => __( 'Full', 'kenta' ),
-							] )
-						,
-						( new Slider( 'kenta_' . $type . '_featured_image_height' ) )
-							->setLabel( __( 'Image Height', 'kenta' ) )
-							->asyncCss( $defaults['selector'] . ' img', array( 'height' => 'value' ) )
-							->setUnits( [
-								[ 'unit' => 'px', 'min' => 100, 'max' => 1000 ],
-								[ 'unit' => '%', 'min' => 10, 'max' => 100 ],
-							] )
-							->setDefaultValue( '420px' )
-						,
-						( new Separator() ),
-						( new Spacing( 'kenta_' . $type . '_featured_image_spacing' ) )
-							->setLabel( __( 'Spacing', 'kenta' ) )
-							->enableResponsive()
-							->asyncCss( $defaults['selector'], AsyncCss::dimensions( 'padding' ) )
-							->setDisabled( [ 'left', 'right' ] )
-							->setDefaultValue( [
-								'top'    => '12px',
-								'right'  => '0px',
-								'bottom' => '12px',
-								'left'   => '0px',
-								'linked' => true,
-							] )
-						,
-					] )
+					->setControls( apply_filters( "kenta_{$type}_behind_featured_image_controls", $behind_controls ) )
+					->setReverseControls( apply_filters( "kenta_{$type}_non_behind_featured_image_controls", $non_behind_controls ) )
 				,
 				( new Filters( 'kenta_' . $type . '_featured_image_filter' ) )
 					->setLabel( __( 'Css Filter', 'kenta' ) )
@@ -330,6 +331,8 @@ if ( ! trait_exists( 'Kenta_Article_Controls' ) ) {
 					], AsyncCss::filters() )
 				,
 			];
+
+			return apply_filters( "kenta_{$type}_featured_image_controls", $controls );
 		}
 	}
 

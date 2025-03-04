@@ -14,7 +14,7 @@
   <h1><?php esc_html_e( 'Welcome to "Automatic YouTube Gallery"', 'automatic-youtube-gallery' ); ?></h1>
 
   <p class="about-text">
-    <?php esc_html_e( 'Create responsive, modern & dynamic video galleries by simply adding a YouTube USERNAME, CHANNEL, PLAYLIST, SEARCH TERM, or a custom list of YouTube URLs.', 'automatic-youtube-gallery' ); ?>
+    <?php esc_html_e( 'Create responsive, modern & dynamic video galleries by simply adding a YouTube USERNAME, CHANNEL, PLAYLIST, SEARCH KEYWORDS, or a custom list of YouTube URLs.', 'automatic-youtube-gallery' ); ?>
   </p>
 
   <div class="wp-badge"><?php printf( esc_html__( 'Version %s', 'automatic-youtube-gallery' ), AYG_VERSION ); ?></div>

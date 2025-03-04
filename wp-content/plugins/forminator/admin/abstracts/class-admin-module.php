@@ -1,4 +1,10 @@
 <?php
+/**
+ * Forminator Admin Module
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -11,26 +17,36 @@ if ( ! defined( 'ABSPATH' ) ) {
 abstract class Forminator_Admin_Module {
 
 	/**
+	 * Pages
+	 *
 	 * @var array
 	 */
 	public $pages = array();
 
 	/**
+	 * Page
+	 *
 	 * @var string
 	 */
 	public $page = '';
 
 	/**
+	 * Edit page
+	 *
 	 * @var string
 	 */
 	public $page_edit = '';
 
 	/**
+	 * Page entries
+	 *
 	 * @var string
 	 */
 	public $page_entries = '';
 
 	/**
+	 * Directory
+	 *
 	 * @var string
 	 */
 	public $dir = '';
@@ -75,6 +91,11 @@ abstract class Forminator_Admin_Module {
 	 */
 	public function add_menu_pages() {}
 
+	/**
+	 * Create module
+	 *
+	 * @since 1.0
+	 */
 	public function create_module() {}
 
 	/**
@@ -85,6 +106,15 @@ abstract class Forminator_Admin_Module {
 	public function hide_menu_pages() {
 		remove_submenu_page( 'forminator', $this->page_edit );
 		remove_submenu_page( 'forminator', $this->page_entries );
+		echo '<style>
+			#toplevel_page_forminator ul.wp-submenu li a[href="admin.php?page=forminator-addons"] { color: #fecf2f !important; }
+			#toplevel_page_forminator ul.wp-submenu li a[href="admin.php?page=forminator-templates"] { display: flex; justify-content: space-between; align-items: center; }
+			#toplevel_page_forminator ul.wp-submenu li a[href="admin.php?page=forminator-templates"] .menu-new-tag { font-size: 8px; line-height: 8px; padding: 2px 6px; background: #1ABC9C; border-radius: 9px; text-transform: uppercase; color: #fff; font-weight: 900; height: 100%; letter-spacing: -0.25px; }
+		</style>';
+		if ( ! FORMINATOR_PRO ) {
+			echo '<style>#toplevel_page_forminator ul.wp-submenu li:last-child a[href^="https://wpmudev.com"] { background-color: #8d00b1 !important; color: #fff !important; font-weight: 700 !important; }</style>';
+			echo '<script>jQuery(function() {jQuery(\'#toplevel_page_forminator ul.wp-submenu li:last-child a[href^="https://wpmudev.com"]\').attr("target", "_blank");});</script>';
+		}
 	}
 
 	/**
@@ -103,7 +133,7 @@ abstract class Forminator_Admin_Module {
 	 * Inject module options to JS
 	 *
 	 * @since 1.0
-	 * @param $data
+	 * @param mixed $data Data.
 	 * @return mixed
 	 */
 	public function add_js_defaults( $data ) {
@@ -113,7 +143,7 @@ abstract class Forminator_Admin_Module {
 	/**
 	 * Inject l10n strings to JS
 	 *
-	 * @param $strings
+	 * @param mixed $strings Strings.
 	 * @since 1.0
 	 * @return mixed
 	 */
@@ -154,8 +184,8 @@ abstract class Forminator_Admin_Module {
 
 		// $plugin_page may not be set if we call the function too early, retrieve the page slug from GET.
 		$page = Forminator_Core::sanitize_text_field( 'page' );
-		if ( empty( $plugin_page ) && $page ) {
-			$plugin_page = sanitize_text_field( $page );
+		if ( empty( $plugin_page ) ) {
+			return $this->page_edit === $page;
 		}
 
 		return $this->page_edit === $plugin_page;
@@ -167,7 +197,7 @@ abstract class Forminator_Admin_Module {
 	 * @deprecated 1.1 No longer used because this function override prohibited WordPress global of $plugin_page
 	 * @since      1.0
 	 *
-	 * @param $file
+	 * @param mixed $file File.
 	 *
 	 * @return mixed
 	 */
@@ -220,8 +250,8 @@ abstract class Forminator_Admin_Module {
 	 *
 	 * @since 1.1
 	 *
-	 * @param $submenu_file
-	 * @param $parent_file
+	 * @param string $submenu_file Submenu file.
+	 * @param string $parent_file Parent file.
 	 *
 	 * @return string
 	 */
@@ -237,5 +267,154 @@ abstract class Forminator_Admin_Module {
 		}
 
 		return $submenu_file;
+	}
+
+
+	/**
+	 * Import Form
+	 *
+	 * @param string $json JSON data to import.
+	 * @param string $name Module name.
+	 * @param string $slug Module type.
+	 * @param bool   $change_recipients Change recipients.
+	 * @param bool   $draft Draft status.
+	 * @param array  $extra_args extra arguments.
+	 *
+	 * @throws Exception When import failed.
+	 */
+	public static function import_json( string $json, string $name, string $slug, bool $change_recipients, bool $draft = false, array $extra_args = array() ) {
+		$import_data = json_decode( $json, true );
+
+		if ( $import_data ) {
+			array_walk_recursive(
+				$import_data,
+				function ( &$item ) {
+					$item = html_entity_decode( $item, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+				}
+			);
+		}
+
+		$import_data = Forminator_Core::sanitize_array( $import_data );
+
+		if ( $change_recipients ) {
+			$import_data = self::change_recipients( $import_data );
+		}
+
+		// hook custom data here.
+		$import_data = apply_filters( 'forminator_' . $slug . '_import_data', $import_data );
+
+		if ( empty( $import_data ) || ! is_array( $import_data ) ) {
+			throw new Exception( esc_html__( 'Oops, looks like we found an issue. Import text can not include whitespace or special characters.', 'forminator' ) );
+		}
+
+		if ( ! isset( $import_data['type'] ) || $slug !== $import_data['type'] ) {
+			throw new Exception( esc_html__( 'Oops, wrong module type. You can only import a module of the same type that you\'re currently viewing.', 'forminator' ) );
+		}
+
+		$class = 'Forminator_' . forminator_get_prefix( $slug, '', true ) . '_Model';
+		if ( $draft ) {
+			$import_data['status'] = $class::STATUS_DRAFT;
+		}
+
+		if ( ! empty( $extra_args ) && isset( $import_data['data']['settings'] ) ) {
+			$import_data['data']['settings'] = array_merge( $import_data['data']['settings'], $extra_args );
+		}
+
+		if ( ! empty( $import_data['data']['settings'] ) ) {
+			$validate = forminator_validate_registration_form_settings( $import_data['data']['settings'] );
+			if ( is_wp_error( $validate ) ) {
+				// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception message is already escaped.
+				throw new Exception( $validate->get_error_message() );
+			}
+		}
+
+		$model = $class::create_from_import_data( $import_data, $name );
+
+		if ( is_wp_error( $model ) ) {
+			throw new Exception( esc_html( $model->get_error_message() ) );
+		}
+
+		if ( ! $model instanceof Forminator_Base_Form_Model ) {
+			throw new Exception( esc_html__( 'Failed to import module, please make sure import text is valid, and try again.', 'forminator' ) );
+		}
+
+		return $model;
+	}
+
+
+	/**
+	 * Change the recipients
+	 *
+	 * @since 1.18.0
+	 *
+	 * @param mixed $data imported module data.
+	 *
+	 * @return array $data
+	 */
+	private static function change_recipients( $data ) {
+		if ( ! empty( $data ) ) {
+			$current_user_email = wp_get_current_user()->user_email;
+
+			if ( 'poll' === $data['type'] ) {
+
+				if ( ! empty( $data['data']['settings']['admin-email-recipients'] ) ) {
+					$data['data']['settings']['admin-email-recipients'] = self::apply_user_email( $data['data']['settings']['admin-email-recipients'], $current_user_email );
+				}
+				if ( ! empty( $data['data']['settings']['admin-email-cc-address'] ) ) {
+					$data['data']['settings']['admin-email-cc-address'] = self::apply_user_email( $data['data']['settings']['admin-email-cc-address'], $current_user_email );
+				}
+				if ( ! empty( $data['data']['settings']['admin-email-bcc-address'] ) ) {
+					$data['data']['settings']['admin-email-bcc-address'] = self::apply_user_email( $data['data']['settings']['admin-email-bcc-address'], $current_user_email );
+				}
+			} elseif ( ! empty( $data['data']['notifications'] ) ) {
+
+				foreach ( $data['data']['notifications'] as $notif_key => $notif ) {
+					// Modify the recipients.
+					if ( ! empty( $notif['recipients'] ) ) {
+						$recipients = self::apply_user_email( $notif['recipients'], $current_user_email );
+						$data['data']['notifications'][ $notif_key ]['recipients'] = $recipients;
+					}
+
+					// Modify the routing recipients.
+					if ( ! empty( $notif['routing'] ) ) {
+
+						foreach ( $notif['routing'] as $routing_key => $route ) {
+							if ( ! empty( $route['email'] ) ) {
+								$route_emails = self::apply_user_email( $route['email'], $current_user_email );
+								$data['data']['notifications'][ $notif_key ]['routing'][ $routing_key ]['email'] = $route_emails;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Apply user emails
+	 *
+	 * @since 1.18.0
+	 *
+	 * @param string $data Email recipients.
+	 * @param string $current_user_email User email.
+	 *
+	 * @return array
+	 */
+	private static function apply_user_email( $data, $current_user_email ) {
+		$recipients = ! is_array( $data ) ? explode( ',', $data ) : $data;
+
+		foreach ( $recipients as $key => $recipient ) {
+			$recipient = trim( $recipient );
+
+			// Will not change recipients that use field tags like {email-1}.
+			if ( false === strpos( $recipient, '{' ) ) {
+				$recipients[ $key ] = $current_user_email;
+			}
+		}
+		$recipients = array_unique( $recipients );
+
+		return ! is_array( $data ) ? implode( ',', $recipients ) : $recipients;
 	}
 }

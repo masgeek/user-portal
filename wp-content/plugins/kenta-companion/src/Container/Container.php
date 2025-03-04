@@ -1173,6 +1173,7 @@ class Container implements ArrayAccess, ContainerContract {
 	 *
 	 * @return void
 	 */
+	 #[\ReturnTypeWillChange]
 	public function forgetInstances() {
 		$this->instances = [];
 	}
@@ -1221,6 +1222,7 @@ class Container implements ArrayAccess, ContainerContract {
 	 *
 	 * @return bool
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetExists( $key ) {
 		return $this->bound( $key );
 	}
@@ -1232,6 +1234,7 @@ class Container implements ArrayAccess, ContainerContract {
 	 *
 	 * @return mixed
 	 */
+	 #[\ReturnTypeWillChange]
 	public function offsetGet( $key ) {
 		return $this->make( $key );
 	}
@@ -1244,6 +1247,7 @@ class Container implements ArrayAccess, ContainerContract {
 	 *
 	 * @return void
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetSet( $key, $value ) {
 		$this->bind( $key, $value instanceof Closure ? $value : function () use ( $value ) {
 			return $value;
@@ -1257,6 +1261,7 @@ class Container implements ArrayAccess, ContainerContract {
 	 *
 	 * @return void
 	 */
+	 #[\ReturnTypeWillChange]
 	public function offsetUnset( $key ) {
 		unset( $this->bindings[ $key ], $this->instances[ $key ], $this->resolved[ $key ] );
 	}

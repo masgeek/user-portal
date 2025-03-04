@@ -1,85 +1,16 @@
 <?php
+/**
+ * Template admin/views/addons/content.php
+ *
+ * @package Forminator
+ */
+
 global $current_user;
 $projects = $this->get_addons_by_action();
+$img_path = forminator_plugin_url() . 'assets/images/';
 ?>
 
 <div id="forminator-addons" class="sui-tabs">
-
-	<div role="tablist" class="sui-tabs-menu">
-
-		<button
-			type="button"
-			role="tab"
-			id="all-addons"
-			class="sui-tab-item active"
-			aria-controls="all-addons-content"
-			aria-selected="true"
-		>
-			<?php esc_html_e( 'All', 'forminator' ); ?>
-		</button>
-
-		<?php
-		// !!! WARNING.
-		// Enable when there are more than 2 add-ons.
-		//
-		// <button.
-		// type="button".
-		// role="tab".
-		// id="installed-addons".
-		// class="sui-tab-item".
-		// aria-controls="installed-addons-content".
-		// aria-selected="false".
-		// tabindex="-1".
-		// >
-		// Installed.
-		// </button>.
-
-		// <button.
-		// type="button".
-		// role="tab".
-		// id="available-addons".
-		// class="sui-tab-item".
-		// aria-controls="available-addons-content".
-		// aria-selected="false".
-		// tabindex="-1".
-		// >
-		// Available.
-		// </button>.
-		?>
-
-		<button
-			type="button"
-			role="tab"
-			id="updates-addons"
-			class="sui-tab-item"
-			aria-controls="updates-addons-content"
-			aria-selected="false"
-			tabindex="-1"
-		>
-			<?php esc_html_e( 'Updates', 'forminator' ); ?>
-			<?php if ( 0 === count( $projects['update'] ) ) { ?>
-				<span class="sui-tag sui-tag-sm" style="pointer-events: none;"><?php echo esc_html( count( $projects['update'] ) ); ?></span>
-			<?php } else { ?>
-				<span class="sui-tag sui-tag-yellow sui-tag-sm" style="pointer-events: none;"><?php echo esc_html( count( $projects['update'] ) ); ?></span>
-			<?php } ?>
-		</button>
-
-		<?php
-		// !!! WARNING.
-		// Enable when there are more than 2 add-ons.
-		//
-		// <div class="sui-tab-search">.
-		// <div class="sui-control-with-icon">.
-		// <input.
-		// class="sui-form-control".
-		// placeholder="Search".
-		// >
-		// <span class="sui-icon-magnifying-glass-search" aria-hidden="true"></span>.
-		// </div>.
-		// </div>.
-		?>
-	
-	</div>
 
 	<div class="sui-tabs-content">
 
@@ -88,12 +19,38 @@ $projects = $this->get_addons_by_action();
 			tabindex="0"
 			id="all-addons-content"
 			class="sui-tab-content active"
+			style="border: 0; padding: 0;"
 			aria-labelledby="all-addons"
 		>
 
+			<?php if ( ! FORMINATOR_PRO ) { ?>
+				<div id="forminator-builder-status" class="sui-box">
+					<div class="sui-box-status">
+						<div class="sui-status" style="height: 30px">
+						<div>
+							<img
+								src="<?php echo esc_url( $img_path . 'icon-unlock.png' ); ?>"
+								srcset="<?php echo esc_url( $img_path . 'icon-unlock.png' ); ?> 1x,<?php echo esc_url( $img_path . 'icon-unlock@2x.png' ); ?> 2x"
+								alt="<?php esc_html_e( 'unlock icon', 'forminator' ); ?>"
+								aria-hidden="true">
+						</div>
+							&nbsp;&nbsp;
+							<h4 style="margin: 0;">
+								<?php esc_html_e( 'Unlock all Add-ons & advanced features with Forminator Pro for 80% off', 'forminator' ); ?>
+							</h4>
+						</div>
+						<div class="sui-actions">
+							<a class="sui-button sui-button-purple" href="https://wpmudev.com/project/forminator-pro/?utm_source=forminator&utm_medium=plugin&utm_campaign=forminator_addon-page-upsell" target="_blank">
+								<?php esc_html_e( 'Unlock Forminator Pro', 'forminator' ); ?>
+							</a>
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
 			<?php
 			if ( empty( $projects['all'] ) ) {
-				Forminator_Admin_Addons_page::get_instance()->render_template(
+				Forminator_Admin_Addons_Page::get_instance()->render_template(
 					'admin/views/addons/content-empty',
 					array(
 						'title'       => esc_html__( 'No Add-Ons', 'forminator' ),
@@ -104,89 +61,18 @@ $projects = $this->get_addons_by_action();
 				?>
 
 				<div class="sui-row">
-					
+
 					<?php
 					foreach ( $projects['all'] as $idx => $addons ) {
 						if ( ! empty( $addons ) ) {
-							$idx ++;
+							++$idx;
 
-							Forminator_Admin_Addons_page::get_instance()->addons_render( 'addons-list', $addons->pid, $addons );
+							Forminator_Admin_Addons_Page::get_instance()->addons_render( 'addons-list', $addons->pid, $addons );
 
-							// !!! WARNING.
-							// Enable when there are more than 2 add-ons.
-							//
 							// Close current row and open a new one.
-							// if ( 0 === $idx % 2 ) :.
-							// echo '</div><div class="sui-row">';.
-							// endif;.
-						}
-					}
-					?>
-
-				</div>
-
-			<?php } ?>
-
-		</div>
-
-		<?php
-		// !!! WARNING.
-		// Enable when there are more than 2 add-ons.
-		//
-		// <div.
-		// role="tabpanel".
-		// tabindex="0".
-		// id="installed-addons-content".
-		// class="sui-tab-content".
-		// aria-labelledby="installed-addons".
-		// hidden.
-		// >Installed Add-ons</div>.
-
-		// <div.
-		// role="tabpanel".
-		// tabindex="0".
-		// id="available-addons-content".
-		// class="sui-tab-content".
-		// aria-labelledby="available-addons".
-		// >Available Add-ons</div>.
-		?>
-
-		<div
-			role="tabpanel"
-			tabindex="0"
-			id="updates-addons-content"
-			class="sui-tab-content"
-			aria-labelledby="updates-addons"
-		>
-
-			<?php
-			if ( empty( $projects['update'] ) ) {
-				Forminator_Admin_Addons_page::get_instance()->render_template(
-					'admin/views/addons/content-empty',
-					array(
-						'title'       => sprintf( esc_html__( 'All good, %s!', 'forminator' ), $current_user->display_name ),
-						'description' => esc_html__( 'No add-ons require an update at this time. Use the button below to check again.', 'forminator' ),
-						'refresh'     => true,
-					)
-				);
-			} else {
-				?>
-
-				<div class="sui-row">
-					
-					<?php
-					foreach ( $projects['update'] as $idx => $addons ) {
-						if ( ! empty( $addons ) ) {
-							$idx ++;
-							Forminator_Admin_Addons_page::get_instance()->addons_render( 'addons-list', $addons->pid, $addons );
-
-							// !!! WARNING.
-							// Enable when there are more than 2 add-ons.
-							//
-							// Close current row and open a new one.
-							// if ( 0 === $idx % 2 ) :.
-							// echo '</div><div class="sui-row">';.
-							// endif;.
+							if ( 0 === $idx % 2 ) :
+								echo '</div><div class="sui-row">';
+							endif;
 						}
 					}
 					?>
@@ -202,11 +88,11 @@ $projects = $this->get_addons_by_action();
 </div>
 
 <?php
-if ( ! empty( $projects['all'] ) ) {
+if ( FORMINATOR_PRO && ! empty( $projects['all'] ) ) {
 	foreach ( $projects['all'] as $slug => $addons ) {
 		if ( ! empty( $addons ) ) {
-			Forminator_Admin_Addons_page::get_instance()->addons_render( 'addons-activate-popup', $addons->pid, $addons );
-			Forminator_Admin_Addons_page::get_instance()->addons_render( 'addon-details', $addons->pid, $addons );
+			Forminator_Admin_Addons_Page::get_instance()->addons_render( 'addons-activate-popup', $addons->pid, $addons ); // Need to remove this from the process.
+			Forminator_Admin_Addons_Page::get_instance()->addons_render( 'addon-details', $addons->pid, $addons );
 		}
 	}
 }

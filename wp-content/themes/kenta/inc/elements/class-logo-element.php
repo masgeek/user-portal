@@ -41,6 +41,20 @@ if ( ! class_exists( 'Kenta_Logo_Element' ) ) {
 							->selectiveRefresh( ...$this->selectiveRefresh() )
 							->setDefaultValue( $this->getDefaultSetting( 'logo', '' ) )
 						,
+						( new Toggle( 'kenta_enable_dark_scheme_logo' ) )
+							->setLabel( __( 'Logo For Dark Mode', 'kenta' ) )
+							->selectiveRefresh( '.kenta-site-header', 'kenta_header_render' )
+							->closeByDefault()
+						,
+						( new \LottaFramework\Customizer\Controls\Condition() )
+							->setCondition( [ 'kenta_enable_dark_scheme_logo' => 'yes' ] )
+							->setControls( [
+								( new ImageUploader( 'kenta_dark_scheme_logo' ) )
+									->setLabel( __( 'Dark Mode Logo', 'kenta' ) )
+									->setDefaultValue( '' )
+									->selectiveRefresh( '.kenta-site-header', 'kenta_header_render' )
+								,
+							] ),
 						( new Separator() ),
 						( new Radio( $this->getSlug( 'position' ) ) )
 							->setLabel( __( 'Logo Position', 'kenta' ) )
@@ -55,15 +69,18 @@ if ( ! class_exists( 'Kenta_Logo_Element' ) ) {
 						,
 						( new Slider( $this->getSlug( 'width' ) ) )
 							->setLabel( __( 'Logo Width', 'kenta' ) )
+							->enableResponsive()
 							->asyncCss( ".{$this->slug}", [ '--logo-max-width' => 'value' ] )
-							->setMin( 0 )
-							->setMax( 600 )
+							->setUnits( [
+								[ 'unit' => 'px', 'min' => 0, 'max' => 600 ],
+								[ 'unit' => '%', 'min' => 0, 'max' => 100 ],
+							] )
 							->postMessage()
-							->setDefaultUnit( 'px' )
 							->setDefaultValue( $this->getDefaultSetting( 'width', '200px' ) )
 						,
 						( new Slider( $this->getSlug( 'spacing' ) ) )
 							->setLabel( __( 'Logo Spacing', 'kenta' ) )
+							->enableResponsive()
 							->asyncCss( ".{$this->slug}", [ '--logo-spacing' => 'value' ] )
 							->setMin( 0 )
 							->setMax( 300 )
@@ -115,8 +132,8 @@ if ( ! class_exists( 'Kenta_Logo_Element' ) ) {
 							->setLabel( __( 'Site Title Color', 'kenta' ) )
 							->enableAlpha()
 							->asyncColors( ".{$this->slug} .site-title", [
-								'initial' => '--text-color',
-								'hover'   => '--hover-color',
+								'initial' => '--kenta-link-initial-color',
+								'hover'   => '--kenta-link-hover-color',
 							] )
 							->addColor( 'initial', __( 'Initial', 'kenta' ),
 								$this->getDefaultSetting( 'title-initial', 'var(--kenta-accent-color)' ) )
@@ -138,7 +155,7 @@ if ( ! class_exists( 'Kenta_Logo_Element' ) ) {
 							->setLabel( __( 'Site Tagline Color', 'kenta' ) )
 							->enableAlpha()
 							->asyncColors( ".{$this->slug} .site-tagline", [
-								'initial' => '--text-color',
+								'initial' => '--kenta-link-initial-color',
 							] )
 							->addColor( 'initial', __( 'Initial', 'kenta' ),
 								$this->getDefaultSetting( 'tagline-initial', 'var(--kenta-accent-active)' ) )
@@ -163,8 +180,8 @@ if ( ! class_exists( 'Kenta_Logo_Element' ) ) {
 					$css[".{$this->slug} .site-title"] = array_merge(
 						Css::typography( CZ::get( $this->getSlug( 'site_title_typography' ) ) ),
 						Css::colors( CZ::get( $this->getSlug( 'site_title_color' ) ), [
-							'initial' => '--text-color',
-							'hover'   => '--hover-color',
+							'initial' => '--kenta-link-initial-color',
+							'hover'   => '--kenta-link-hover-color',
 						] )
 					);
 				}
@@ -173,7 +190,7 @@ if ( ! class_exists( 'Kenta_Logo_Element' ) ) {
 					$css[".{$this->slug} .site-tagline"] = array_merge(
 						Css::typography( CZ::get( $this->getSlug( 'site_tagline_typography' ) ) ),
 						Css::colors( CZ::get( $this->getSlug( 'site_tagline_color' ) ), [
-							'initial' => '--text-color',
+							'initial' => '--kenta-link-initial-color',
 						] )
 					);
 				}
@@ -195,13 +212,20 @@ if ( ! class_exists( 'Kenta_Logo_Element' ) ) {
 			$this->add_render_attribute( 'wrapper', 'data-logo', CZ::get( $this->getSlug( 'position' ) ) );
 
 			$trans_logo_attr = array();
+			$dark_logo_attr  = array();
 			$logo_attr       = CZ::imgAttrs( $this->getSlug( 'logo' ) );
 
 			if ( $this->getDefaultSetting( 'transparent-logo', false )
 			     && kenta_is_transparent_header()
 			     && CZ::checked( 'kenta_enable_transparent_header_logo' )
 			) {
-				$trans_logo_attr = CZ::imgAttrs( 'kenta_transparent_header_logo' );
+				$trans_logo_attr          = CZ::imgAttrs( 'kenta_transparent_header_logo' );
+				$trans_logo_attr['class'] = 'kenta-transparent-logo';
+			}
+
+			if ( CZ::checked( 'kenta_enable_dark_scheme_logo' ) ) {
+				$dark_logo_attr          = CZ::imgAttrs( 'kenta_dark_scheme_logo' );
+				$dark_logo_attr['class'] = 'kenta-dark-scheme-logo';
 			}
 
 			$title = CZ::checked( $this->getSlug( 'enable_site_title' ) )
@@ -217,10 +241,14 @@ if ( ! class_exists( 'Kenta_Logo_Element' ) ) {
 				<?php if ( ! empty( $logo_attr ) ): ?>
                     <a class="<?php Utils::the_clsx( [
 						'site-logo'                  => true,
+						'kenta-has-dark-scheme-logo' => ! empty( $dark_logo_attr ),
 						'kenta-has-transparent-logo' => ! empty( $trans_logo_attr ),
 					] ) ?>" href="<?php echo esc_url( home_url() ) ?>">
 						<?php if ( ! empty( $trans_logo_attr ) ): ?>
-                            <img class="kenta-transparent-logo" <?php Utils::print_attribute_string( $trans_logo_attr ); ?> />
+                            <img <?php Utils::print_attribute_string( $trans_logo_attr ); ?> />
+						<?php endif; ?>
+						<?php if ( ! empty( $dark_logo_attr ) ): ?>
+                            <img <?php Utils::print_attribute_string( $dark_logo_attr ); ?> />
 						<?php endif; ?>
                         <img class="kenta-logo" <?php Utils::print_attribute_string( $logo_attr ); ?> />
                     </a>

@@ -28,21 +28,12 @@ $fonts = apply_filters('tc_caf_font_family', array($caf_admin_fliters, 'tc_caf_f
     <select class="form-control caf_import" id="caf-filter-font" name="caf-filter-font" data-import="caf_filter_fonts">
 	<option value="inherit" <?php if ($caf_filter_font == 'inherit') {echo "selected";}?>><?php echo esc_html__('Default', 'category-ajax-filter'); ?></option>
 	<?php
-if (!class_exists("TC_CAF_PRO")) {
     if ($fonts) {
         foreach ($fonts as $font) {
             if ($caf_filter_font == $font) {$font_sel = "selected";} else { $font_sel = '';}
-            echo '<option value="' . $font . '" ' . $font_sel . '>' . esc_attr($font) . '</option>';
+            echo '<option value="' . esc_attr($font) . '" ' . esc_attr($font_sel) . '>' . esc_attr($font) . '</option>';
         }
     }
-} else {
-    foreach ($fonts as $key => $font) {
-        if ($caf_filter_font == $key) {$font_sel = "selected";} else { $font_sel = '';}
-        ?>
-         <option <?php echo esc_attr($font_sel); ?> value="<?php echo esc_attr($key); ?>" data-val="<?php echo esc_attr($font['character_set']); ?>" datat-type="<?php echo esc_attr($font['type']); ?>"><?php echo esc_attr($key); ?></option>
-         <?php
-}
-}
 ?>
 
     </select>
@@ -100,21 +91,12 @@ if (!class_exists("TC_CAF_PRO")) {
     <select  class="form-control caf_import" data-import="caf_post_fonts" id="caf-post-font" name="caf-post-font">
 	<option value="inherit" <?php if ($caf_post_font == 'inherit') {echo "selected";}?>><?php echo esc_html__('Default', 'category-ajax-filter'); ?></option>
 	<?php
-if (!class_exists("TC_CAF_PRO")) {
     if ($fonts) {
         foreach ($fonts as $font) {
             if ($caf_post_font == $font) {$font_sel = "selected";} else { $font_sel = '';}
-            echo '<option value="' . $font . '" ' . $font_sel . '>' . esc_attr($font) . '</option>';
+            echo '<option value="' . esc_attr($font) . '" ' . esc_attr($font_sel) . '>' . esc_attr($font) . '</option>';
         }
     }
-} else {
-    foreach ($fonts as $key => $font) {
-        if ($caf_post_font == $key) {$font_sel = "selected";} else { $font_sel = '';}
-        ?>
-         <option <?php echo esc_attr($font_sel); ?> value="<?php echo esc_attr($key); ?>" data-val="<?php echo esc_attr($font['character_set']); ?>" datat-type="<?php echo esc_attr($font['type']); ?>"><?php echo esc_attr($key); ?></option>
-         <?php
-}
-}
 ?>
     </select>
 	</div>

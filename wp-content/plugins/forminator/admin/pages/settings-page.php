@@ -1,4 +1,10 @@
 <?php
+/**
+ * Forminator Settings Page
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -16,12 +22,29 @@ class Forminator_Settings_Page extends Forminator_Admin_Page {
 	 * @var array
 	 */
 	private $addons_data = array();
-	public $addons_list  = array();
 
+	/**
+	 * Addon list
+	 *
+	 * @var array
+	 */
+	public $addons_list = array();
+
+	/**
+	 * Init
+	 *
+	 * @return void
+	 */
 	public function init() {
 		$this->process_request();
 	}
 
+	/**
+	 * Enqueue scripts
+	 *
+	 * @param string $hook Hook name.
+	 * @return void
+	 */
 	public function enqueue_scripts( $hook ) {
 		parent::enqueue_scripts( $hook );
 		wp_localize_script( 'forminator-admin', 'forminator_addons_data', $this->addons_data );
@@ -34,6 +57,7 @@ class Forminator_Settings_Page extends Forminator_Admin_Page {
 				'wp-color-picker',
 				'react',
 				'react-dom',
+				'wp-element',
 			),
 			FORMINATOR_VERSION,
 			true
@@ -145,6 +169,7 @@ class Forminator_Settings_Page extends Forminator_Admin_Page {
 		);
 		$props   = array(
 			'form-style',
+			'form-substyle',
 
 			'cform-color-settings',
 
@@ -167,6 +192,10 @@ class Forminator_Settings_Page extends Forminator_Admin_Page {
 
 			'fields-style',
 
+			'field-image-size',
+			'field-image-width',
+			'field-image-height',
+
 			'use-custom-css',
 			'custom_css',
 		);
@@ -175,7 +204,7 @@ class Forminator_Settings_Page extends Forminator_Admin_Page {
 
 		foreach ( $all_settings as $key => $value ) {
 			$apply = false;
-			if ( in_array( $key, $props, true ) ) {
+			if ( in_array( $key, $props, true ) || 'basic-' === substr( $key, 0, 6 ) ) {
 				$apply = true;
 			}
 			if ( ! $apply ) {
@@ -205,7 +234,7 @@ class Forminator_Settings_Page extends Forminator_Admin_Page {
 	public static function get_preset_names() {
 		$preset_names = get_option( 'forminator_appearance_presets', array() );
 		if ( ! isset( $preset_names['default'] ) ) {
-			self::save_preset_list( 'default', __( 'Default Preset', 'forminator' ) );
+			self::save_preset_list( 'default', esc_html__( 'Default Preset', 'forminator' ) );
 			$preset_names = get_option( 'forminator_appearance_presets', array() );
 		}
 
@@ -234,28 +263,69 @@ class Forminator_Settings_Page extends Forminator_Admin_Page {
 		return $select;
 	}
 
+	/**
+	 * Before render
+	 *
+	 * @return void
+	 */
 	public function before_render() {
 		if ( Forminator::is_addons_feature_enabled() ) {
 			$this->prepare_addons();
 		}
+
+		// Add js data for Permissions.
+		add_filter( 'forminator_data', array( $this, 'add_permissions_js_data' ) );
 	}
 
+	/**
+	 * Prepare addons
+	 *
+	 * @return void
+	 */
 	private function prepare_addons() {
 		// cleanup activated addons.
-		Forminator_Addon_Loader::get_instance()->cleanup_activated_addons();
+		Forminator_Integration_Loader::get_instance()->cleanup_activated_addons();
 
-		Forminator_Addon_Admin_Ajax::get_instance()->generate_nonce();
+		Forminator_Integration_Admin_Ajax::get_instance()->generate_nonce();
 
 		$addons_list = forminator_get_registered_addons_list();
 
 		$this->addons_data = array(
 			'addons_list' => $addons_list,
-			'nonce'       => Forminator_Addon_Admin_Ajax::get_instance()->get_nonce(),
+			'nonce'       => Forminator_Integration_Admin_Ajax::get_instance()->get_nonce(),
 		);
 
 		$this->addons_list = forminator_get_registered_addons_list();
 	}
 
+	/**
+	 * Add js data
+	 *
+	 * @param mixed $data Data to add.
+	 *
+	 * @return mixed
+	 */
+	public function add_permissions_js_data( $data ) {
+		if ( ! current_user_can( forminator_get_admin_cap() ) ) {
+			return $data;
+		}
+
+		$permissions = get_option( 'forminator_permissions', array() );
+
+		$data['mainSettings']     = array(
+			'permissions' => $permissions,
+			'modal'       => array(),
+		);
+		$data['permission_nonce'] = wp_create_nonce( 'forminator_permission_nonce' );
+
+		return $data;
+	}
+
+	/**
+	 * Process request
+	 *
+	 * @return void
+	 */
 	public function process_request() {
 		$nonce = Forminator_Core::sanitize_text_field( 'forminatorNonce' );
 		if ( ! $nonce ) {

@@ -5,6 +5,12 @@ if ( ! class_exists( 'BravePop_Element_Group' ) ) {
 
    class BravePop_Element_Group {
 
+      protected $data;
+      protected $popupID;
+      protected $stepIndex;
+      protected $elementIndex;
+      protected $childrenHTML;
+
       function __construct($data=null, $popupID=null, $stepIndex=0, $elementIndex=0, $childrenHTML='') {
          $this->data = $data;
          $this->popupID = $popupID;

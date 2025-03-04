@@ -1,9 +1,15 @@
 <?php
+/**
+ * Forminator Addon Loader
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
 
-/** @noinspection PhpIncludeInspection */
+/* @noinspection PhpIncludeInspection */
 require_once forminator_plugin_dir() . 'library/addon/class-addon-exception.php';
 require_once forminator_plugin_dir() . 'library/addon/class-addon-container.php';
 require_once forminator_plugin_dir() . 'library/addon/contracts/interface-addon.php';
@@ -27,7 +33,7 @@ require_once forminator_plugin_dir() . 'library/addon/admin/class-ajax.php';
 class Forminator_Addon_Loader {
 
 	/**
-	 * wp option name of activated addons
+	 * WP option name of activated addons
 	 *
 	 * @since 1.1
 	 * @var string
@@ -35,6 +41,8 @@ class Forminator_Addon_Loader {
 	private static $_active_addons_option = 'forminator_activated_addons';
 
 	/**
+	 * Forminator_Addon_Loader Instance
+	 *
 	 * @since 1.1
 	 * @var self
 	 */
@@ -146,14 +154,55 @@ class Forminator_Addon_Loader {
 		 * Initiate standard default error messages
 		 */
 		$this->default_addon_error_messages = array(
-			'activate'             => __( 'Failed to activate addon', 'forminator' ),
-			'deactivate'           => __( 'Failed to deactivate addon', 'forminator' ),
-			'update_settings'      => __( 'Failed to update settings', 'forminator' ),
-			'update_form_settings' => __( 'Failed to update form settings', 'forminator' ),
+			'activate'             => esc_html__( 'Failed to activate addon', 'forminator' ),
+			'deactivate'           => esc_html__( 'Failed to deactivate addon', 'forminator' ),
+			'update_settings'      => esc_html__( 'Failed to update settings', 'forminator' ),
+			'update_form_settings' => esc_html__( 'Failed to update form settings', 'forminator' ),
 		);
 
 		// Only enable wp_ajax hooks.
 		Forminator_Addon_Admin_Ajax::get_instance();
+	}
+
+	/**
+	 * Get custom plugin name
+	 *
+	 * @return string
+	 */
+	private static function get_custom_plugin(): string {
+		$custom_plugin = '';
+		$trace         = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 10 ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
+		foreach ( $trace as $trace_item ) {
+			if ( empty( $trace_item['function'] ) || 'register' !== $trace_item['function'] ) {
+				continue;
+			}
+			if ( empty( $trace_item['file'] ) ) {
+				continue;
+			}
+			$custom_plugin = self::get_plugin_name_from_path( $trace_item['file'] );
+			break;
+		}
+
+		if ( 'forminator' === $custom_plugin || 'forminator-pro' === $custom_plugin ) {
+			$custom_plugin = '';
+		}
+
+		return $custom_plugin;
+	}
+
+	/**
+	 * Get plugin name from path
+	 *
+	 * @param string $path Dir path.
+	 * @return string
+	 */
+	private static function get_plugin_name_from_path( $path ): string {
+		$parts         = explode( '/', $path );
+		$plugins_index = array_search( 'plugins', $parts, true );
+		if ( false !== $plugins_index && isset( $parts[ $plugins_index + 1 ] ) ) {
+			return $parts[ $plugins_index + 1 ];
+		}
+		return '';
 	}
 
 	/**
@@ -168,6 +217,14 @@ class Forminator_Addon_Loader {
 	public function register( $class_name ) {
 		if ( 'FortressDB_Forminator_Addon' === $class_name ) {
 			return;
+		}
+		// send deprecated notice.
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			$custom_plugin = self::get_custom_plugin();
+			if ( $custom_plugin ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( 'Forminator_Addon_Loader class is deprecated and will be removed soon. Use Forminator_Integration_Loader instead. Please, contact "' . $custom_plugin . '" developer to update the integration.' );
+			}
 		}
 		try {
 
@@ -237,7 +294,6 @@ class Forminator_Addon_Loader {
 
 			return false;
 		}
-
 	}
 
 	/**
@@ -245,24 +301,23 @@ class Forminator_Addon_Loader {
 	 *
 	 * @since 1.1
 	 *
-	 * @param string $class_name
+	 * @param string $class_name Class Name.
 	 *
 	 * @return Forminator_Addon_Abstract
-	 * @throws Forminator_Addon_Exception
+	 * @throws Forminator_Addon_Exception When addon doesn't exists.
 	 */
 	private function validate_addon_class( $class_name ) {
 		if ( ! class_exists( $class_name ) ) {
-			throw new Forminator_Addon_Exception( 'Addon with ' . $class_name . ' does not exist' );
+			throw new Forminator_Addon_Exception( esc_html( 'Addon with ' . $class_name . ' does not exist' ) );
 		}
 
 		if ( ! is_callable( array( $class_name, 'get_instance' ) ) ) {
-			throw new Forminator_Addon_Exception( 'Addon with ' . $class_name . ' does not have get_instance method' );
+			throw new Forminator_Addon_Exception( esc_html( 'Addon with ' . $class_name . ' does not have get_instance method' ) );
 		}
 
 		$addon_class = call_user_func( array( $class_name, 'get_instance' ) );
 
 		return $addon_class;
-
 	}
 
 	/**
@@ -270,32 +325,35 @@ class Forminator_Addon_Loader {
 	 *
 	 * @since 1.1
 	 *
-	 * @param Forminator_Addon_Abstract $instance
+	 * @param Forminator_Addon_Abstract $instance Forminator_Addon_Abstract Instance.
 	 *
 	 * @return Forminator_Addon_Abstract
-	 * @throws Forminator_Addon_Exception
+	 * @throws Forminator_Addon_Exception When there is an addon error.
 	 */
 	private function validate_addon_instance( Forminator_Addon_Abstract $instance ) {
-		/** @var Forminator_Addon_Abstract $addon_class */
+		/**
+		 * Forminator_Addon_Abstract
+		 *
+		 * @var Forminator_Addon_Abstract $addon_class */
 		$addon_class = $instance;
 		$class_name  = get_class( $instance );
 
 		if ( ! $addon_class instanceof Forminator_Addon_Abstract ) {
-			throw new Forminator_Addon_Exception( 'Addon with ' . $class_name . ' is not instanceof Forminator_Addon_Abstract' );
+			throw new Forminator_Addon_Exception( esc_html( 'Addon with ' . $class_name . ' is not instanceof Forminator_Addon_Abstract' ) );
 		}
 		$slug    = $addon_class->get_slug();
 		$version = $addon_class->get_version();
 
 		if ( empty( $slug ) ) {
-			throw new Forminator_Addon_Exception( 'Addon with ' . $class_name . ' does not have slug' );
+			throw new Forminator_Addon_Exception( esc_html( 'Addon with ' . $class_name . ' does not have slug' ) );
 		}
 
 		// FIFO.
 		if ( isset( $this->addons[ $slug ] ) ) {
-			throw new Forminator_Addon_Exception( 'Addon with slug ' . $slug . ' already exist' );
+			throw new Forminator_Addon_Exception( esc_html( 'Addon with slug ' . $slug . ' already exist' ) );
 		}
 		if ( empty( $version ) ) {
-			throw new Forminator_Addon_Exception( 'Addon with slug ' . $slug . ' does not have valid version' );
+			throw new Forminator_Addon_Exception( esc_html( 'Addon with slug ' . $slug . ' does not have valid version' ) );
 		}
 
 		// check version changed if active.
@@ -318,7 +376,7 @@ class Forminator_Addon_Loader {
 	 *
 	 * @since 1.1
 	 *
-	 * @param string $slug
+	 * @param string $slug Addon slug.
 	 *
 	 * @return Forminator_Addon_Abstract|null
 	 */
@@ -341,7 +399,7 @@ class Forminator_Addon_Loader {
 	 *
 	 * @since 1.1
 	 *
-	 * @param string $slug
+	 * @param string $slug Addon slug.
 	 *
 	 * @return bool
 	 */
@@ -359,20 +417,20 @@ class Forminator_Addon_Loader {
 	 *
 	 * @since 1.1
 	 *
-	 * @param $slug
+	 * @param string $slug Addon slug.
 	 *
 	 * @return bool
 	 */
 	public function deactivate_addon( $slug ) {
 		$addon = $this->get_addon( $slug );
 		if ( is_null( $addon ) ) {
-			$this->last_error_message = __( 'Addon not found', 'forminator' );
+			$this->last_error_message = esc_html__( 'Addon not found', 'forminator' );
 
 			return false;
 		}
 
 		if ( ! $this->addon_is_active( $slug ) ) {
-			$this->last_error_message = __( 'Addon is not activated before', 'forminator' );
+			$this->last_error_message = esc_html__( 'Addon was not activated before', 'forminator' );
 
 			return false;
 		}
@@ -410,7 +468,7 @@ class Forminator_Addon_Loader {
 	 *
 	 * @since 1.1
 	 *
-	 * @param $slug
+	 * @param string $slug Addon slug.
 	 */
 	private function add_activated_addons( $slug ) {
 		$addon                    = $this->get_addon( $slug );
@@ -426,7 +484,7 @@ class Forminator_Addon_Loader {
 	 *
 	 * @since 1.1
 	 *
-	 * @param $slug
+	 * @param string $slug Addon slug.
 	 */
 	public function force_remove_activated_addons( $slug ) {
 		$addon   = $this->get_addon( $slug );
@@ -482,7 +540,7 @@ class Forminator_Addon_Loader {
 	 *
 	 * @since 1.1
 	 *
-	 * @param string $slug
+	 * @param string $slug Addon slug.
 	 *
 	 * @return bool
 	 */
@@ -500,19 +558,19 @@ class Forminator_Addon_Loader {
 		do_action( 'forminator_before_addon_activated', $slug, $addon );
 
 		if ( is_null( $addon ) ) {
-			$this->last_error_message = __( 'Addon not found', 'forminator' );
+			$this->last_error_message = esc_html__( 'Addon not found', 'forminator' );
 
 			return false;
 		}
 
 		if ( $this->addon_is_active( $slug ) ) {
-			$this->last_error_message = __( 'Addon already activated before', 'forminator' );
+			$this->last_error_message = esc_html__( 'Addon already activated before', 'forminator' );
 
 			return false;
 		}
 
 		if ( ! $addon->is_activable() ) {
-			$this->last_error_message = __( 'Addon is not activable', 'forminator' );
+			$this->last_error_message = esc_html__( 'Addon is not activable', 'forminator' );
 
 			return false;
 		}
@@ -610,8 +668,11 @@ class Forminator_Addon_Loader {
 
 		// Rename module Zapier settings.
 		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Caching not required for update query.
 		$wpdb->query( "UPDATE $wpdb->postmeta SET meta_key = 'forminator_addon_webhook_form_settings' WHERE meta_key = 'forminator_addon_zapier_form_settings'" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Caching not required for update query.
 		$wpdb->query( "UPDATE $wpdb->postmeta SET meta_key = 'forminator_addon_webhook_poll_settings' WHERE meta_key = 'forminator_addon_zapier_poll_settings'" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Caching not required for update query.
 		$wpdb->query( "UPDATE $wpdb->postmeta SET meta_key = 'forminator_addon_webhook_quiz_settings' WHERE meta_key = 'forminator_addon_zapier_quiz_settings'" );
 
 		$this->force_remove_activated_addons( 'zapier' );
@@ -647,5 +708,4 @@ class Forminator_Addon_Loader {
 	public function get_activated_addons() {
 		return $this->activated_addons;
 	}
-
 }

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Template admin/views/addons/action-button.php
+ *
+ * @package Forminator
+ */
+
 $uniqid = ( isset( $id ) && '' !== trim( $id ) ) ? $id : '';
 
 $class  = ( isset( $class ) && '' !== trim( $class ) ) ? $class . ' ' : '';
@@ -15,16 +21,17 @@ if ( isset( $compound ) && true === is_bool( $compound ) ) {
 	<button
 		<?php
 		if ( '' !== $uniqid ) {
-			echo 'id="' . $uniqid . '"';
+			echo 'id="' . esc_attr( $uniqid ) . '"';
 		}
 		?>
 		class="<?php echo esc_attr( $class ); ?>"
 		<?php
 		if ( isset( $attrs ) ) {
-			foreach( $attrs as $data => $val ) {
+			foreach ( $attrs as $data => $val ) {
 				echo esc_attr( $data ) . '="' . esc_attr( $val ) . '"';
 			}
 		}
+		echo isset( $disabled ) && $disabled ? 'disabled' : '';
 		?>
 	>
 

@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Forminator_Akismet class.
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -56,7 +62,7 @@ class Forminator_Akismet extends Forminator_Spam_Protection {
 	/**
 	 * Handle spam protection
 	 *
-	 * @see _handle_spam_protection
+	 * @see process_spam_protection
 	 *
 	 * @since 1.0
 	 * @param bool   $is_spam - if the data is spam.
@@ -75,8 +81,8 @@ class Forminator_Akismet extends Forminator_Spam_Protection {
 		$post_data        = array(
 			'blog'         => get_option( 'home' ),
 			'user_ip'      => Forminator_Geo::get_user_ip(),
-			'user_agent'   => Forminator_Core::sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] ),
-			'referrer'     => Forminator_Core::sanitize_text_field( $_SERVER['HTTP_REFERER'] ),
+			'user_agent'   => Forminator_Core::sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] ), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			'referrer'     => Forminator_Core::sanitize_text_field( $_SERVER['HTTP_REFERER'] ), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			'comment_type' => $form_type,
 			'content'      => '',
 		);
@@ -132,7 +138,7 @@ class Forminator_Akismet extends Forminator_Spam_Protection {
 				}
 			}
 
-			$is_spam = $this->_akismet_check( $post_data, $form_id );
+			$is_spam = $this->akismet_check( $post_data, $form_id );
 		}
 
 		return $is_spam;
@@ -161,10 +167,10 @@ class Forminator_Akismet extends Forminator_Spam_Protection {
 	 *
 	 * @return bool
 	 */
-	private function _akismet_check( $post_data, $form_id ) {
+	private function akismet_check( $post_data, $form_id ) {
 		global $akismet_api_host, $akismet_api_port;
 		$is_spam = false;
-		$query   = $this->_build_query( $post_data );
+		$query   = $this->build_query( $post_data );
 
 		if ( is_callable( array( 'Akismet', 'http_post' ) ) ) { // Akismet v3.0+.
 			$response = Akismet::http_post( $query, 'comment-check' );
@@ -187,11 +193,11 @@ class Forminator_Akismet extends Forminator_Spam_Protection {
 	 *
 	 * @since 1.0
 	 * @param array  $args - the arguments.
-	 * @param string $key
+	 * @param string $key Key.
 	 *
 	 * @return string
 	 */
-	private function _build_query( $args, $key = '' ) {
+	private function build_query( $args, $key = '' ) {
 		$sep = '&';
 		$ret = array();
 
@@ -209,7 +215,7 @@ class Forminator_Akismet extends Forminator_Spam_Protection {
 			}
 
 			if ( is_array( $v ) || is_object( $v ) ) {
-				array_push( $ret, $this->_build_query( $v, $k ) );
+				array_push( $ret, $this->build_query( $v, $k ) );
 			} else {
 				array_push( $ret, $k . '=' . rawurlencode( $v ) );
 			}

@@ -1,3 +1,11 @@
+<?php
+/**
+ * Template admin/views/settings/tab-dashboard.php
+ *
+ * @package Forminator
+ */
+
+?>
 <div class="sui-box-settings-row">
 
 	<div class="sui-box-settings-col-1">
@@ -28,9 +36,9 @@
 						'settings/dashboard/content',
 						array(
 							'module_type'  => 'forms',
-							'title'        => __( 'Number of Forms', 'forminator' ),
-							'description'  => __( 'Choose the number of recent forms to be shown on your dashboard.', 'forminator' ),
-							'status_descr' => __( 'By default, all forms, regardless of status, are displayed on the dashboard. Use this setting to display the forms with a specific status only.', 'forminator' ),
+							'title'        => esc_html__( 'Number of Forms', 'forminator' ),
+							'description'  => esc_html__( 'Choose the number of recent forms to be shown on your dashboard.', 'forminator' ),
+							'status_descr' => esc_html__( 'By default, all forms, regardless of status, are displayed on the dashboard. Use this setting to display the forms with a specific status only.', 'forminator' ),
 						)
 					);
 					?>
@@ -43,9 +51,9 @@
 						'settings/dashboard/content',
 						array(
 							'module_type'  => 'polls',
-							'title'        => __( 'Number of Polls', 'forminator' ),
-							'description'  => __( 'Choose the number of recent polls to be shown on your dashboard.', 'forminator' ),
-							'status_descr' => __( 'By default, all polls, regardless of status, are displayed on the dashboard. Use this setting to display the polls with a specific status only.', 'forminator' ),
+							'title'        => esc_html__( 'Number of Polls', 'forminator' ),
+							'description'  => esc_html__( 'Choose the number of recent polls to be shown on your dashboard.', 'forminator' ),
+							'status_descr' => esc_html__( 'By default, all polls, regardless of status, are displayed on the dashboard. Use this setting to display the polls with a specific status only.', 'forminator' ),
 						)
 					);
 					?>
@@ -58,9 +66,9 @@
 						'settings/dashboard/content',
 						array(
 							'module_type'  => 'quizzes',
-							'title'        => __( 'Number of Quizzes', 'forminator' ),
-							'description'  => __( 'Choose the number of recent quizzes to be shown on your dashboard.', 'forminator' ),
-							'status_descr' => __( 'By default, all quizzes, regardless of status, are displayed on the dashboard. Use this setting to display the quizzes with a specific status only.', 'forminator' ),
+							'title'        => esc_html__( 'Number of Quizzes', 'forminator' ),
+							'description'  => esc_html__( 'Choose the number of recent quizzes to be shown on your dashboard.', 'forminator' ),
+							'status_descr' => esc_html__( 'By default, all quizzes, regardless of status, are displayed on the dashboard. Use this setting to display the quizzes with a specific status only.', 'forminator' ),
 						)
 					);
 					?>

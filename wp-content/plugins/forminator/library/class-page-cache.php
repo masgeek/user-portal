@@ -1,4 +1,10 @@
 <?php
+/**
+ * Forminator Page Cache
+ *
+ * @package Forminator
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
@@ -19,6 +25,11 @@ class Forminator_Page_Cache {
 	 */
 	private static $instance = null;
 
+	/**
+	 * Get Instance
+	 *
+	 * @return Forminator_Page_Cache|null
+	 */
 	public static function get_instance() {
 		if ( empty( self::$instance ) ) {
 			self::$instance = new self();
@@ -27,6 +38,9 @@ class Forminator_Page_Cache {
 		return self::$instance;
 	}
 
+	/**
+	 * Forminator_Page_Cache constructor
+	 */
 	public function __construct() {
 		add_action( 'clean_post_cache', array( $this, 'on_clean_post_cache' ), 99, 2 );
 
@@ -37,8 +51,8 @@ class Forminator_Page_Cache {
 	/**
 	 * Fired when `clean_post_cache` action
 	 *
-	 * @param int     $post_id
-	 * @param WP_Post $post
+	 * @param int     $post_id Post ID.
+	 * @param WP_Post $post WP Post.
 	 */
 	public function on_clean_post_cache( $post_id, $post ) {
 		forminator_maybe_log( __METHOD__, $post_id );
@@ -48,9 +62,9 @@ class Forminator_Page_Cache {
 	/**
 	 * Fired when `transition_post_status` action
 	 *
-	 * @param         $new_status
-	 * @param         $old_status
-	 * @param WP_Post    $post
+	 * @param string  $new_status New status.
+	 * @param string  $old_status Old status.
+	 * @param WP_Post $post WP Post.
 	 */
 	public function on_transition_post_status( $new_status, $old_status, $post ) {
 		// no status changed.
@@ -70,14 +84,14 @@ class Forminator_Page_Cache {
 	/**
 	 * Main logic on how to handle page caches busting
 	 *
-	 * @param $post_id
-	 * @param $post
+	 * @param int     $post_id Post ID.
+	 * @param WP_Post $post WP Post.
 	 */
 	public function execute_page_caches( $post_id, $post ) {
-		// get fresh post.
+		// Get fresh post.
 		$wp_post = get_post( $post_id );
 
-		// this is deleted / invalid post.
+		// This is deleted / invalid post.
 		if ( ! $wp_post instanceof WP_Post ) {
 			$this->remove_forminator_module_from_posts_map( $post_id );
 			$this->remove_post_from_posts_map( $post_id );
@@ -95,7 +109,7 @@ class Forminator_Page_Cache {
 
 		$forminator_post_types = $this->get_forminator_post_types();
 		if ( in_array( $post->post_type, $forminator_post_types, true ) ) {
-			$this->maybe_bust_cache_posts( $post_id, $post );
+			$this->maybe_bust_cache_posts( $post_id );
 		} else {
 			$this->maybe_update_posts_map_option( $post_id, $post );
 		}
@@ -130,10 +144,9 @@ class Forminator_Page_Cache {
 	/**
 	 * Bust cache of post which have forminator inside it
 	 *
-	 * @param         $post_id
-	 * @param WP_Post $post
+	 * @param int $post_id Post Id.
 	 */
-	public function maybe_bust_cache_posts( $post_id, $post ) {
+	public function maybe_bust_cache_posts( $post_id ) {
 		forminator_maybe_log( __METHOD__, $post_id );
 		$module_id = (int) $post_id;
 		$option    = get_option( 'forminator_posts_map', array() );
@@ -148,8 +161,8 @@ class Forminator_Page_Cache {
 	/**
 	 * Update posts map
 	 *
-	 * @param int     $post_id
-	 * @param WP_Post $post
+	 * @param int     $post_id Post ID.
+	 * @param WP_Post $post WP Post.
 	 */
 	public function maybe_update_posts_map_option( $post_id, $post ) {
 
@@ -159,8 +172,8 @@ class Forminator_Page_Cache {
 		$content          = $post->post_content;
 
 		if ( has_shortcode( $content, 'forminator_form' )
-			 || has_shortcode( $content, 'forminator_poll' )
-			 || has_shortcode( $content, 'forminator_quiz' )
+			|| has_shortcode( $content, 'forminator_poll' )
+			|| has_shortcode( $content, 'forminator_quiz' )
 		) {
 
 			$module_ids      = array();
@@ -245,7 +258,7 @@ class Forminator_Page_Cache {
 	/**
 	 * Remove forminator module from posts_map
 	 *
-	 * @param $module_id
+	 * @param int $module_id Module Id.
 	 */
 	public function remove_forminator_module_from_posts_map( $module_id ) {
 		$module_id = (int) $module_id;
@@ -267,7 +280,7 @@ class Forminator_Page_Cache {
 	/**
 	 * Remove post from posts map
 	 *
-	 * @param $post_id_to_remove
+	 * @param int $post_id_to_remove Post ID.
 	 */
 	public function remove_post_from_posts_map( $post_id_to_remove ) {
 		$post_id_to_remove = (int) $post_id_to_remove;
@@ -292,7 +305,7 @@ class Forminator_Page_Cache {
 	/**
 	 * Bust cache
 	 *
-	 * @param $to_bust_cache_post_id
+	 * @param int $to_bust_cache_post_id Post ID.
 	 */
 	public function bust_cache_post( $to_bust_cache_post_id ) {
 		if ( function_exists( 'clean_post_cache' ) ) {
@@ -304,8 +317,7 @@ class Forminator_Page_Cache {
 		// hummingbird.
 		do_action( 'wphb_clear_page_cache', $to_bust_cache_post_id );
 	}
-
 }
 
-// init.
+// Init.
 Forminator_Page_Cache::get_instance();

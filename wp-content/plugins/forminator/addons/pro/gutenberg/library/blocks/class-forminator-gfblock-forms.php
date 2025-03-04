@@ -1,13 +1,20 @@
 <?php
+/**
+ * Forminator GFBlock Forms.
+ *
+ * @package Forminator
+ */
 
 /**
  * Class Forminator_GFBlock_Forms
  *
- * @since 1.0 Gutenber Addon
+ * @since 1.0 Gutenber Integration
  */
 class Forminator_GFBlock_Forms extends Forminator_GFBlock_Abstract {
 
 	/**
+	 * Forminator_GFBlock_Forms Instance
+	 *
 	 * @var self|null
 	 */
 	private static $_instance = null;
@@ -15,7 +22,7 @@ class Forminator_GFBlock_Forms extends Forminator_GFBlock_Abstract {
 	/**
 	 * Block identifier
 	 *
-	 * @since 1.0 Gutenber Addon
+	 * @since 1.0 Gutenber Integration
 	 *
 	 * @var string
 	 */
@@ -24,7 +31,7 @@ class Forminator_GFBlock_Forms extends Forminator_GFBlock_Abstract {
 	/**
 	 * Get Instance
 	 *
-	 * @since 1.0 Gutenberg Addon
+	 * @since 1.0 Gutenberg Integration
 	 * @return self|null
 	 */
 	public static function get_instance() {
@@ -38,7 +45,7 @@ class Forminator_GFBlock_Forms extends Forminator_GFBlock_Abstract {
 	/**
 	 * Forminator_GFBlock_Forms constructor.
 	 *
-	 * @since 1.0 Gutenberg Addon
+	 * @since 1.0 Gutenberg Integration
 	 */
 	public function __construct() {
 		// Initialize block.
@@ -48,7 +55,7 @@ class Forminator_GFBlock_Forms extends Forminator_GFBlock_Abstract {
 	/**
 	 * Render block markup on front-end
 	 *
-	 * @since 1.0 Gutenberg Addon
+	 * @since 1.0 Gutenberg Integration
 	 * @param array $properties Block properties.
 	 *
 	 * @return string
@@ -60,7 +67,7 @@ class Forminator_GFBlock_Forms extends Forminator_GFBlock_Abstract {
 	/**
 	 * Preview form markup in block
 	 *
-	 * @since 1.0 Gutenberg Addon
+	 * @since 1.0 Gutenberg Integration
 	 * @param array $properties Block properties.
 	 *
 	 * @return string
@@ -79,7 +86,7 @@ class Forminator_GFBlock_Forms extends Forminator_GFBlock_Abstract {
 	 * Enqueue assets ( scritps / styles )
 	 * Should be overriden in block class
 	 *
-	 * @since 1.0 Gutenberg Addon
+	 * @since 1.0 Gutenberg Integration
 	 */
 	public function load_assets() {
 		// Scripts.
@@ -130,11 +137,13 @@ class Forminator_GFBlock_Forms extends Forminator_GFBlock_Abstract {
 		);
 
 		wp_enqueue_script( 'jquery-ui-datepicker' );
+		Forminator_Assets_Enqueue_Form::load_slider_scripts();
 		$style_src     = forminator_plugin_url() . 'assets/css/intlTelInput.min.css';
 		$style_version = '4.0.3';
 
 		$script_src     = forminator_plugin_url() . 'assets/js/library/intlTelInput.min.js';
 		$script_version = FORMINATOR_VERSION;
+
 		wp_enqueue_style( 'intlTelInput-forminator-css', $style_src, array(), $style_version ); // intlTelInput.
 		wp_enqueue_script( 'forminator-intlTelInput', $script_src, array( 'jquery' ), $script_version, false ); // intlTelInput.
 
@@ -144,7 +153,7 @@ class Forminator_GFBlock_Forms extends Forminator_GFBlock_Abstract {
 	/**
 	 * Return forms IDs and Names
 	 *
-	 * @since 1.0 Gutenberg Addon
+	 * @since 1.0 Gutenberg Integration
 	 * @return array
 	 */
 	public function get_forms() {
@@ -174,6 +183,11 @@ class Forminator_GFBlock_Forms extends Forminator_GFBlock_Abstract {
 		return $form_list;
 	}
 
+	/**
+	 * Localize
+	 *
+	 * @return string[]
+	 */
 	public function localize() {
 		return array(
 			'choose_form'      => esc_html__( 'Choose Form', 'forminator' ),
@@ -181,6 +195,8 @@ class Forminator_GFBlock_Forms extends Forminator_GFBlock_Abstract {
 			'rendering'        => esc_html__( 'Rendering...', 'forminator' ),
 			'form'             => esc_html__( 'Form', 'forminator' ),
 			'form_description' => esc_html__( 'Embed and display your custom Forminator forms in this block', 'forminator' ),
+			'preview_image'    => forminator_plugin_url() . 'addons/pro/gutenberg/assets/form-preview-image.png',
+			'preview_alt'      => esc_html__( 'Preview', 'forminator' ),
 		);
 	}
 }

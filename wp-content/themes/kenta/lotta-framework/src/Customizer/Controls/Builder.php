@@ -34,6 +34,13 @@ class Builder extends ContainerControl {
 	protected $location = '';
 
 	/**
+	 * Save already performed actions
+	 *
+	 * @var array
+	 */
+	protected $performed_actions = [];
+
+	/**
 	 * @param $id
 	 * @param array $params
 	 */
@@ -60,28 +67,13 @@ class Builder extends ContainerControl {
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getType(): string {
-		return 'lotta-builder';
-	}
-
-	/**
-	 * Get sub controls path
-	 *
-	 * @return array
-	 */
-	public function getSubControlsPath(): array {
-		return [
-			'elements.[].controls' => true,
-			'rows.[].controls'     => true,
-		];
-	}
-
-	/**
 	 * @param $action
 	 */
 	public function do( $action ) {
+		if ( isset( $this->performed_actions[ $action ] ) ) {
+			return;
+		}
+
 		// Enqueue all elements & rows style under customize preview
 		if ( is_customize_preview() ) {
 			foreach ( $this->rows as $row ) {
@@ -125,6 +117,51 @@ class Builder extends ContainerControl {
 				}
 			}
 		}
+
+		$this->performed_actions[ $action ] = true;
+	}
+
+	/**
+	 * Should render a row
+	 *
+	 * @param $id
+	 *
+	 * @return mixed
+	 */
+	public function shouldRenderRow( $id ) {
+		return $this->rows[ $id ]->shouldRender();
+	}
+
+	/**
+	 * Get is responsive or not
+	 *
+	 * @return false|mixed
+	 */
+	public function isResponsiveBuilder() {
+		return $this->options['responsive_builder'] ?? false;
+	}
+
+	/**
+	 * @param string $row
+	 * @param string $col
+	 * @param string $device
+	 *
+	 * @return string
+	 */
+	protected function getColId( $row, $col, $device ) {
+		return $this->id . '_col_' . $row . '_' . $col . '_' . $device;
+	}
+
+	/**
+	 * Get sub controls path
+	 *
+	 * @return array
+	 */
+	public function getSubControlsPath(): array {
+		return [
+			'elements.[].controls' => true,
+			'rows.[].controls'     => true,
+		];
 	}
 
 	/**
@@ -227,15 +264,6 @@ class Builder extends ContainerControl {
 	}
 
 	/**
-	 * Get is responsive or not
-	 *
-	 * @return false|mixed
-	 */
-	public function isResponsiveBuilder() {
-		return $this->options['responsive_builder'] ?? false;
-	}
-
-	/**
 	 * @param $column
 	 *
 	 * @return $this
@@ -310,14 +338,10 @@ class Builder extends ContainerControl {
 	}
 
 	/**
-	 * Should render a row
-	 *
-	 * @param $id
-	 *
-	 * @return mixed
+	 * @return string
 	 */
-	public function shouldRenderRow( $id ) {
-		return $this->rows[ $id ]->shouldRender();
+	public function getType(): string {
+		return 'lotta-builder';
 	}
 
 	/**
@@ -455,7 +479,7 @@ class Builder extends ContainerControl {
 						'device' => $device,
 						'index'  => $i,
 					] ),
-					$this->location . ":${rowID}-${device}-${i}"
+					$this->location . ":{$rowID}-{$device}-{$i}"
 				);
 
 				// Elements
@@ -474,16 +498,5 @@ class Builder extends ContainerControl {
 
 		// End row
 		$row->afterRow();
-	}
-
-	/**
-	 * @param string $row
-	 * @param string $col
-	 * @param string $device
-	 *
-	 * @return string
-	 */
-	protected function getColId( $row, $col, $device ) {
-		return $this->id . '_col_' . $row . '_' . $col . '_' . $device;
 	}
 }
